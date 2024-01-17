@@ -1,2 +1,2 @@
 # webapp
-📖✨ A game that explores the Bible 
+A game that explores the Bible 📖✨
