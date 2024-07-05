@@ -1,2 +1,2 @@
 # webapp
-A game that explores the Bible 📖✨
+Explore the Bible with a daily passage guessing game 📖✨
