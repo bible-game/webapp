@@ -1,3 +1,5 @@
+import passages from "../assets/passages.json"
+
 async function getPassage(passageId: string) {
     const response = await fetch(`https://bible-api.com/${passageId}`, {
         method: "GET"
@@ -7,8 +9,8 @@ async function getPassage(passageId: string) {
 }
 
 export default async function Home() {
-    const today = new Date().toISOString();
-    const passageId = "John+3:16";
+    const today = new Date().getDate().toString();
+    const passageId = passages[today];
     const passage = (await getPassage(passageId))["text"];
 
     return (
