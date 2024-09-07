@@ -1,0 +1,33 @@
+@tailwind base
+@tailwind components
+@tailwind utilities
+
+@import '../styles/base.sass'
+
+*
+  font-family: Montserrat, serif
+  letter-spacing: 1px
+  margin: 0
+
+html, body
+  color: $white !important
+  background: linear-gradient(0deg, $black 40%, $black 100%)
+  height: 100%
+
+main
+  display: flex
+  align-items: center
+  justify-content: center
+  height: 100%
+
+  section
+    width: 60rem
+
+  h1
+    margin: 0 0 1rem 1rem
+
+  p
+    border-radius: .75rem
+    border: 1.5px solid $white
+    padding: 1.5rem
+    line-height: 2rem
