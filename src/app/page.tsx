@@ -2,8 +2,8 @@
 
 import React from "react";
 import moment from "moment";
-import Selection from "./selection";
-import {Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger} from "@nextui-org/react";
+import Selection from "./selection/Selection"
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
 
 async function getPassage(passageId: string) {
     const response = await fetch(`https://bible-api.com/${passageId}`, {
@@ -13,7 +13,7 @@ async function getPassage(passageId: string) {
     return response.json();
 }
 
-export default async function Home() {
+export default async function Game() {
     const today = moment(new Date()).format('dddd Do MMMM YYYY');
     const passageId = 'Mark+5:5-9';
     const passage = (await getPassage(passageId))["text"];
