@@ -9,13 +9,13 @@ const Selection = () => {
     const [book, setBook] = React.useState('Book');
 
     let selectedChapter = 'Chapter';
-    const bible: any = {
-        "genesis": { label: "Genesis", chapters: 50 },
-        "exodus": { label: "Exodus", chapters: 40 },
-        "leviticus": { label: "Leviticus", chapters: 27 },
-        "numbers": { label: "Numbers", chapters: 36 },
-        "deuteronomy": { label: "Deuteronomy", chapters: 34 }
-    };
+    const bible: any[] = [
+        { key: "genesis", label: "Genesis", chapters: 50 },
+        { key: "exodus", label: "Exodus", chapters: 40 },
+        { key: "leviticus", label: "Leviticus", chapters: 27 },
+        { key: "numbers", label: "Numbers", chapters: 36 },
+        { key: "deuteronomy", label: "Deuteronomy", chapters: 34 },
+    ];
 
     return (
         <section id={styles.selection}>
@@ -25,8 +25,11 @@ const Selection = () => {
                 </DropdownTrigger>
                 <DropdownMenu
                     aria-label="Dynamic Actions"
-                    items={bible.keys}
-                    onAction={(key: string) => setBook(bible[key].label)}
+                    items={bible}
+                    onAction={(key: string) => {
+                        setBook(bible.find(b => b.key === key).label);
+                        setChapters... // todo
+                    }
                     className="p-3"
                     itemClasses={{
                         base: [
@@ -43,7 +46,7 @@ const Selection = () => {
                     }}
                 >
                     {(item) => (
-                        <DropdownItem>{bible[item].label}</DropdownItem>
+                        <DropdownItem key={item.key}>{item.label}</DropdownItem>
                     )}
                 </DropdownMenu>
             </Dropdown>
