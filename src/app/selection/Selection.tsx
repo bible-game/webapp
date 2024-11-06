@@ -5,7 +5,7 @@ import React from "react";
 import styles from "./Selection.module.sass"
 
 // @ts-ignore
-const Selection = () => {
+const Selection = (props) => {
     const [book, setBook] = React.useState('Book');
     const [chapter, setChapter] = React.useState('Chapter');
     const [chapters, setChapters] = React.useState([]);
@@ -68,9 +68,9 @@ const Selection = () => {
                 <DropdownMenu
                     aria-label="Dynamic Actions"
                     items={chapters}
-                    onAction={(key: string) => {
+                    onAction={async (key: string) => {
                         setChapter(key);
-                        // TODO :: emit answer() event... handle at top-lvl
+                        await props.answer(book+key)
                     }}
                     className="mt-2 p-3 max-h-[50vh] overflow-y-auto"
                     itemClasses={{

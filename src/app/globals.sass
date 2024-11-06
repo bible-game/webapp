@@ -2,7 +2,7 @@
 @tailwind components
 @tailwind utilities
 
-@import '../styles/base.sass'
+@import '@/styles/base.sass'
 
 *
   font-family: Montserrat, serif
@@ -20,7 +20,7 @@ html, body
 
 main
   section
-    width: 60rem
+    width: $panel-width
 
     #selection
       position: absolute
@@ -30,9 +30,7 @@ main
     margin: 2rem 0 1rem 1rem
 
   p
-    border-radius: .75rem
-    border: 1.25px solid $white75
-    padding: 1rem 1.5rem
+    @include panel
 
     font-size: 14px
     line-height: 2rem
