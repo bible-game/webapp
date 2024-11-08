@@ -2,8 +2,7 @@
 
 import React from "react";
 import moment from "moment";
-import Selection from "@/app/selection/Selection"
-import Answer from "@/app/answer/Answer";
+import Game from "@/app/game/Game";
 
 async function getPassage(passageId: string) {
     const response = await fetch(`https://bible-api.com/${passageId}`, {
@@ -13,32 +12,19 @@ async function getPassage(passageId: string) {
     return response.json();
 }
 
-export default async function Game() {
+export default async function App() {
     const today = moment(new Date()).format('dddd Do MMMM YYYY');
     const book = 'Mark';
     const chapter = '5';
     const passage = (await getPassage(`${book}+${chapter}:5-9`))["text"];
-    const response = 'Incorrect';
-
-    async function answer(answer: string) {
-        "use server";
-
-        if (answer == book+chapter) {
-            console.log('Correct');
-        } else {
-            console.log('Incorrect');
-        }
-    }
 
     return (
-        <main>
-            <Selection answer={answer} />
-            <section id="passage">
-                <h1>{today}</h1>
-                <p>{passage}</p>
-            </section>
-            <Answer answer={response} />
-        </main>
+        <Game
+            today={today}
+            book={book}
+            chapter={chapter}
+            passage={passage}
+        />
     );
 }
 
