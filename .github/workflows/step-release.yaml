@@ -1,0 +1,32 @@
+name: release
+on:
+  workflow_call:
+jobs:
+  release:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Set-up User 🐵
+        uses: fregante/setup-git-user@v2
+      - name: Bump and Tag 🏷️
+        run: |
+          npm version patch
+          git tag "$(cat package.json | jq -r '.version')" -m "[release] webapp-$(cat package.json | jq -r '.version')"
+          git push origin "$(cat package.json | jq -r '.version')"
+          echo "VERSION=$(cat package.json | jq -r '.version')" >> $GITHUB_ENV
+          echo "MAJOR=$(cat package.json | jq -r '.version' | cut -d "." -f 1)" >> $GITHUB_ENV
+          echo "MINOR=$(cat package.json | jq -r '.version' | cut -d "." -f 2)" >> $GITHUB_ENV
+          echo "PATCHED=$((1 + $(cat package.json | jq -r '.version' | cut -d "." -f 3) ))" >> $GITHUB_ENV
+        # Note :: an env var cannot be accessed from a step that defines or updates it
+      - name: Release 📦
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.VERSION }}
+      - name: Add -SNAPSHOT 📷
+        run: |
+          jq '.version="${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCHED }}-SNAPSHOT"' package.json > /tmp/package.json
+          mv /tmp/package.json package.json
+      - name: Commit -SNAPSHOT 💾
+        uses: stefanzweifel/git-auto-commit-action@v4
