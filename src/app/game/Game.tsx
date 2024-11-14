@@ -25,10 +25,10 @@ const Game = (props) => {
         const chapters = [];
         for (let i = 1; i <= total; i++)
             chapters.push({ key: i, label: i.toString() });
-        setChapters(chapters);
+        setChapters(chapters as any);
     }
 
-    function check(answer): void {
+    function check(answer: any): void {
         if (props.book+props.chapter == answer) {
             setResponse('Correct 🎉');
         } else {
@@ -46,7 +46,7 @@ const Game = (props) => {
                     <DropdownMenu
                         aria-label="Dynamic Actions"
                         items={bible}
-                        onAction={(key: string) => {
+                        onAction={(key: any) => {
                             const book = bible.find(b => b.key === key);
                             populateChapters(book.chapters);
                             setChapter('Chapter')
@@ -79,7 +79,7 @@ const Game = (props) => {
                     <DropdownMenu
                         aria-label="Dynamic Actions"
                         items={chapters}
-                        onAction={async (key: string) => {
+                        onAction={async (key: any) => {
                             setChapter(key);
                             check(book+key)
                         }}
@@ -97,7 +97,7 @@ const Game = (props) => {
                                 "data-[focus-visible=true]:ring-default-500",
                             ]
                         }}>
-                        {(item) => (
+                        {(item: any) => (
                             <DropdownItem key={item.key}>{item.label}</DropdownItem>
                         )}
                     </DropdownMenu>
