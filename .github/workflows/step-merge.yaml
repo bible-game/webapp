@@ -1,0 +1,17 @@
+name: merge
+on:
+  workflow_call:
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+      - name: Merge into Develop ➡️
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          from_branch: main
+          target_branch: develop
+          message: Merge version bump into develop
+          github_token: ${{ secrets.GITHUB_TOKEN }}
