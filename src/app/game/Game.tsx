@@ -29,7 +29,7 @@ const Game = (props) => {
     }
 
     function check(answer: any): void {
-        if (props.book+props.chapter == answer) {
+        if (props.book+props.chapter == answer.toLocaleLowerCase()) {
             setResponse('Correct 🎉');
         } else {
             setResponse('Incorrect');
