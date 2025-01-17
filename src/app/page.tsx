@@ -5,7 +5,7 @@ import moment from "moment";
 import Game from "@/app/game/Game";
 
 async function getPassage() {
-    const response = await fetch('http://localhost:8081/daily', {
+    const response = await fetch(`${process.env.passageService}/daily`, {
         method: "GET"
     });
 
