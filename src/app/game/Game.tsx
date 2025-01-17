@@ -17,6 +17,8 @@ const Game = (props) => {
         { key: "leviticus", label: "Leviticus", chapters: 27 },
         { key: "numbers", label: "Numbers", chapters: 36 },
         { key: "deuteronomy", label: "Deuteronomy", chapters: 34 },
+        { key: "joshua", label: "Joshua", chapters: 24 },
+        { key: "judges", label: "Judges", chapters: 21 },
 
         { key: "mark", label: "Mark", chapters: 16 },
     ];
@@ -29,7 +31,7 @@ const Game = (props) => {
     }
 
     function check(answer: any): void {
-        if (props.book+props.chapter == answer) {
+        if (props.book+props.chapter == answer.toLocaleLowerCase()) {
             setResponse('Correct 🎉');
         } else {
             setResponse('Incorrect');
