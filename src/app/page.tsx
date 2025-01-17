@@ -4,8 +4,8 @@ import React from "react";
 import moment from "moment";
 import Game from "@/app/game/Game";
 
-async function getPassage(passageId: string) {
-    const response = await fetch(`https://bible-api.com/${passageId}`, {
+async function getPassage() {
+    const response = await fetch(`${process.env.passageService}/daily`, {
         method: "GET"
     });
 
@@ -14,16 +14,14 @@ async function getPassage(passageId: string) {
 
 export default async function App() {
     const today = moment(new Date()).format('dddd Do MMMM YYYY');
-    const book = 'Mark';
-    const chapter = '5';
-    const passage = (await getPassage(`${book}+${chapter}:5-9`))["text"];
+    const passage = await getPassage();
 
     return (
         <Game
             today={today}
-            book={book}
-            chapter={chapter}
-            passage={passage}
+            book={passage['book']}
+            chapter={passage['chapter']}
+            passage={passage['text']}
         />
     );
 }
