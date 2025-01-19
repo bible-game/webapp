@@ -3,6 +3,8 @@
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
 import React from "react";
 import styles from "./Game.module.sass"
+import { useRouter } from 'next/navigation';
+import moment from "moment/moment";
 
 // @ts-ignore
 const Game = (props) => {
@@ -10,6 +12,13 @@ const Game = (props) => {
     const [chapter, setChapter] = React.useState('Chapter');
     const [chapters, setChapters] = React.useState([]);
     const [response, setResponse] = React.useState('Select book');
+
+    const router = useRouter();
+
+    if (props.today != moment(new Date()).format('dddd Do MMMM YYYY')) {
+        console.log('refresh hack!')
+        router.refresh();
+    }
 
     const bible: any[] = [
         { key: "genesis", label: "Genesis", chapters: 50 },
