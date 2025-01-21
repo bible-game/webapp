@@ -5,6 +5,7 @@ import styles from "./Game.module.sass"
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Button } from "@nextui-org/react";
 import { Pagination } from "@heroui/pagination";
+import { guessAction } from "@/app/game/guess-action";
 
 const Game = (props: any) => {
     const [page, setPage] = React.useState(1);
@@ -16,14 +17,6 @@ const Game = (props: any) => {
     const [response, setResponse] = React.useState('Select book');
 
     const bible: any[] = props.bible;
-
-    function check(answer: any): void {
-        if (`${props.book}${props.title}`.toLocaleLowerCase() == answer.toLocaleLowerCase()) {
-            setResponse('Correct 🎉');
-        } else {
-            setResponse('Incorrect');
-        }
-    }
 
     return <main>
         <section id="passage">
@@ -47,7 +40,7 @@ const Game = (props: any) => {
                     setBookTitle('The Law, Old Testament')
                 }}
                 variant="bordered">
-                {(item: any) => <AutocompleteItem key={item.book}>{item.book}</AutocompleteItem>}
+                {(item: any) => <AutocompleteItem className="text-black" key={item.book}>{item.book}</AutocompleteItem>}
             </Autocomplete>
             <Autocomplete
                 className="max-w-sm"
@@ -55,11 +48,13 @@ const Game = (props: any) => {
                 label={chapterTitle}
                 onSelectionChange={(key: any) => { setChapter(key); setChapterTitle('Chapter ' + (chapters as any).find((c: any) => c.title === key).chapter) }}
                 variant="bordered">
-                {(item: any) => <AutocompleteItem key={item.title}>{item.title}</AutocompleteItem>}
+                {(item: any) => <AutocompleteItem className="text-black" key={item.title}>{item.title}</AutocompleteItem>}
             </Autocomplete>
             <Button
                 id={styles.guess}
-                onClick={() => { check(book+chapter) }}
+                onClick={() => { guessAction(book, chapter)
+                    .then((closeness: any) => { setResponse(closeness + '%')})
+                }}
                 variant="bordered">
                 Guess
             </Button>
