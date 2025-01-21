@@ -21,6 +21,7 @@ export default async function App() {
             today={today}
             book={passage['book']}
             chapter={passage['chapter']}
+            summary={passage['summary']}
             passage={passage['text']}
         />
     );
