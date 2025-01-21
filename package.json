@@ -10,6 +10,7 @@
   "dependencies": {
     "@fontsource/montserrat": "^5.0.19",
     "@heroui/autocomplete": "^2.3.11",
+    "@heroui/pagination": "^2.2.9",
     "@heroui/system": "^2.4.7",
     "@heroui/theme": "^2.4.6",
     "@nextui-org/dropdown": "^2.1.29",
