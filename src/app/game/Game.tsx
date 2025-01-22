@@ -1,11 +1,12 @@
 "use client"
 
-import React from "react";
+import React, { ReactElement } from "react";
 import styles from "./Game.module.sass"
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Button } from "@nextui-org/react";
 import { Pagination } from "@heroui/pagination";
 import { guessAction } from "@/app/game/guess-action";
+import { Card, CardBody } from "@nextui-org/card";
 
 const Game = (props: any) => {
     const [page, setPage] = React.useState(1);
@@ -17,6 +18,11 @@ const Game = (props: any) => {
     const [response, setResponse] = React.useState('Select book');
 
     const bible: any[] = props.bible;
+
+
+    let guesses: ReactElement = <Card className="max-w-full flex justify-center mt-8 p-4 bg-opacity-40 bg-gray-800 text-white">
+                                    <CardBody><p>{response}</p></CardBody>
+                                </Card>;
 
     return <main>
         <section id="passage">
@@ -53,15 +59,16 @@ const Game = (props: any) => {
             <Button
                 id={styles.guess}
                 onClick={() => { guessAction(book, chapter)
-                    .then((closeness: any) => { setResponse(closeness + '%')})
+                    .then((closeness: any) => { setResponse(closeness + '%') })
                 }}
                 variant="bordered">
                 Guess
             </Button>
         </section>
-        <section id={styles.answer} className="flex justify-center mt-8">
-            <p>{response}</p>
-        </section>
+        {guesses}
+        {/*<section id={styles.answer} className="flex justify-center mt-8">*/}
+        {/*    <p>{response}</p>*/}
+        {/*</section>*/}
     </main>
 }
 
