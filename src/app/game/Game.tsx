@@ -7,7 +7,7 @@ import { Button } from "@nextui-org/react";
 import { Pagination } from "@heroui/pagination";
 import { guessAction } from "@/app/game/guess-action";
 import Guess from "@/app/game/guess/Guess";
-import guess from "@/app/game/guess/Guess";
+import moment from "moment";
 
 const Game = (props: any) => {
     const [page, setPage] = React.useState(1);
