@@ -7,8 +7,12 @@ import {Button} from "@nextui-org/react";
 const Results = (props: any) => {
     let score = 0;
     for (const guess of props.guesses) {
-        const closeness = guess.closeness.substring(0,guess.closeness.length-1)
-        if (closeness> score) score = closeness;
+        const closeness = +guess.closeness.substring(0,guess.closeness.length-1)
+        if (closeness > score) score = closeness;
+    }
+
+    if (score == 100) {
+        score *= (3 + 1 - props.guesses.length);
     }
 
     return <Card className="max-w-full flex justify-center mt-4 px-8 py-4 bg-opacity-60 bg-gray-800 text-white">

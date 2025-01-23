@@ -81,7 +81,10 @@ const Game = (props: any) => {
                                 att.push({})
                             }
                             setAttempts(att)
-                            if (guesses.length == 3 - 1) {
+                            if (closeness == '100%') {
+                                setReadonly(true);
+                                setResults(<Results guesses={[...guesses, {book, chapter, closeness}]} book={props.book} chapter={props.chapter} title={props.title}/>)
+                            } else if (guesses.length == 3 - 1) {
                                 setReadonly(true);
                                 setResults(<Results guesses={guesses} book={props.book} chapter={props.chapter} title={props.title}/>)
                             }
