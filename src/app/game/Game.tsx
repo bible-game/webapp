@@ -19,14 +19,24 @@ const Game = (props: any) => {
     const [attempts, setAttempts] = React.useState([{}, {}, {}]);
     const [readonly, setReadonly] = React.useState(false);
     const [results, setResults] = React.useState(<section></section>);
+    const [playing, setPlaying] = React.useState(true);
 
     const bible: any[] = props.bible;
 
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
+    function openPassage() {
+        setReadonly(true);
+        onOpen()
+    }
+
+    function closePassage() {
+        if (playing) setReadonly(false);
+    }
+
     return <main>
-        <section id="passage" onClick={onOpen} className="cursor-pointer">
-            <Passage isOpen={isOpen} onOpenChange={onOpenChange} today={props.today} passage={props.passage} pages={props.pages}/>
+        <section id="passage" onClick={openPassage} className="cursor-pointer">
+            <Passage isOpen={isOpen} onOpenChange={onOpenChange} onClose={closePassage} today={props.today} passage={props.passage} pages={props.pages}/>
             <h1>{props.today}</h1>
             <div className="panel">
                 <p>{props.passage.match(/[\s\S]{1,300}/g)[0]}...</p>
@@ -79,10 +89,12 @@ const Game = (props: any) => {
                             }
                             setAttempts(att)
                             if (closeness == '100%') {
+                                setPlaying(false);
                                 setReadonly(true);
                                 setResults(<Results guesses={[...guesses, {book, chapter, closeness}]} book={props.book}
                                                     chapter={props.chapter} title={props.title} today={props.today}/>)
                             } else if (guesses.length == 3 - 1) {
+                                setPlaying(false);
                                 setReadonly(true);
                                 setResults(<Results guesses={guesses} book={props.book} chapter={props.chapter}
                                                     title={props.title} today={props.today}/>)

@@ -20,7 +20,7 @@ function paginate(passage: string) {
     }
 
     const pages = new Map();
-    const segments = passage.match(/[\s\S]{1,3000}/g)!!
+    const segments = passage.match(/[\s\S]{1,2000}/g)!!
     let head = ""; let tail = "";
 
     for (let i = 0; i < segments.length; i++) {
