@@ -33,9 +33,10 @@ const Game = (props: any) => {
             </div>
         </section>
         {results}
-        {readonly ? null : <section id={styles.selection} className="flex justify-center">
+        {readonly ? null : <section id={styles.selection} className="flex justify-center mb-12">
             <Autocomplete
                 className="max-w-sm"
+                inputProps={{classNames: {inputWrapper: "border",}}}
                 isReadOnly={readonly}
                 defaultItems={bible}
                 label={bookTitle}
@@ -43,6 +44,7 @@ const Game = (props: any) => {
                     const book = bible.find(b => b.book === key);
                     setChapters(book?.chapters);
                     setChapter('Chapter')
+                    setChapterTitle('Select chapter')
                     setBook(key);
                     setBookTitle('The Law, Old Testament');
                 }}
@@ -51,16 +53,17 @@ const Game = (props: any) => {
             </Autocomplete>
             <Autocomplete
                 className="max-w-sm"
+                inputProps={{classNames: {inputWrapper: "border",}}}
                 isReadOnly={readonly}
                 defaultItems={chapters}
                 label={chapterTitle}
                 onSelectionChange={(key: any) => {
                     setChapter(key);
-                    setChapterTitle('Chapter ' + (chapters as any).find((c: any) => c.title === key).chapter)
+                    setChapterTitle('Chapter ' + (chapters as any).find((c: any) => c.title === key.split(" - ")[1]).chapter)
                 }}
                 variant="bordered">
                 {(item: any) => <AutocompleteItem className="text-black"
-                                                  key={item.title}>{item.title}</AutocompleteItem>}
+                                                  key={item.chapter + " - " + item.title}>{item.chapter + " - " + item.title}</AutocompleteItem>}
             </Autocomplete>
             <Button
                 disabled={readonly}
@@ -86,6 +89,7 @@ const Game = (props: any) => {
                             }
                         })
                 }}
+                className="border"
                 variant="bordered">
                 Guess
             </Button>
@@ -93,7 +97,7 @@ const Game = (props: any) => {
         <section className="mt-8">
             {guesses.map((guess: any) => <Guess book={guess.book} title={guess.chapter} closeness={guess.closeness}/>)}
         </section>
-        <section>
+        <section className="opacity-25">
             {attempts.map((attempt: any) => <Guess book={attempt.book} title={attempt.chapter}
                                                    closeness={attempt.closeness}/>)}
         </section>
