@@ -4,20 +4,17 @@ import React from "react";
 import styles from "./Game.module.sass"
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import {Button, useDisclosure} from "@nextui-org/react";
-import { Pagination } from "@heroui/pagination";
 import { guessAction } from "@/app/game/guess-action";
 import Guess from "@/app/game/guess/Guess";
 import Passage from "@/app/game/passage/Passage";
 import Results from "@/app/game/results/Results";
 
 const Game = (props: any) => {
-    const [page, setPage] = React.useState(1);
     const [book, setBook] = React.useState('Book');
     const [chapter, setChapter] = React.useState('Chapter');
     const [chapters, setChapters] = React.useState([]);
     const [bookTitle, setBookTitle] = React.useState('Select book');
     const [chapterTitle, setChapterTitle] = React.useState('Select chapter');
-    const [response, setResponse] = React.useState('Select book');
     const [guesses, setGuesses] = React.useState([] as any[]);
     const [attempts, setAttempts] = React.useState([{}, {}, {}]);
     const [readonly, setReadonly] = React.useState(false);
@@ -29,16 +26,14 @@ const Game = (props: any) => {
 
     return <main>
         <section id="passage" onClick={onOpen} className="cursor-pointer">
-            <Passage isOpen={isOpen} onOpenChange={onOpenChange} today={props.today} passage={props.passage}/>
+            <Passage isOpen={isOpen} onOpenChange={onOpenChange} today={props.today} passage={props.passage} pages={props.pages}/>
             <h1>{props.today}</h1>
             <div className="panel">
-                <p>{props.pages.get(page)}</p>
-                <Pagination id={styles.pagination} size="sm" initialPage={page} total={props.pages.size}
-                            onChange={(page: number) => setPage(page)}/>
+                <p>{props.passage.match(/[\s\S]{1,300}/g)[0]}...</p>
             </div>
         </section>
         {results}
-        <section id={styles.selection} className="flex justify-center">
+        {readonly ? null : <section id={styles.selection} className="flex justify-center">
             <Autocomplete
                 className="max-w-sm"
                 isReadOnly={readonly}
@@ -49,7 +44,6 @@ const Game = (props: any) => {
                     setChapters(book?.chapters);
                     setChapter('Chapter')
                     setBook(key);
-                    setResponse('Select chapter');
                     setBookTitle('The Law, Old Testament');
                 }}
                 variant="bordered">
@@ -83,17 +77,19 @@ const Game = (props: any) => {
                             setAttempts(att)
                             if (closeness == '100%') {
                                 setReadonly(true);
-                                setResults(<Results guesses={[...guesses, {book, chapter, closeness}]} book={props.book} chapter={props.chapter} title={props.title} today={props.today}/>)
+                                setResults(<Results guesses={[...guesses, {book, chapter, closeness}]} book={props.book}
+                                                    chapter={props.chapter} title={props.title} today={props.today}/>)
                             } else if (guesses.length == 3 - 1) {
                                 setReadonly(true);
-                                setResults(<Results guesses={guesses} book={props.book} chapter={props.chapter} title={props.title} today={props.today}/>)
+                                setResults(<Results guesses={guesses} book={props.book} chapter={props.chapter}
+                                                    title={props.title} today={props.today}/>)
                             }
                         })
                 }}
                 variant="bordered">
                 Guess
             </Button>
-        </section>
+        </section> }
         <section className="mt-8">
             {guesses.map((guess: any) => <Guess book={guess.book} title={guess.chapter} closeness={guess.closeness}/>)}
         </section>
@@ -103,7 +99,6 @@ const Game = (props: any) => {
         </section>
     </main>
 }
-
 
 
 export default Game;

@@ -22,7 +22,7 @@ const Results = (props: any) => {
     `;
 
 
-    return <Card className="max-w-full flex justify-center mt-4 px-8 py-4 bg-opacity-60 bg-gray-800 text-white">
+    return <Card className="max-w-full flex justify-center mt-8 px-8 py-4 bg-gray-800 text-white">
         <CardBody>
             <div className="flex justify-between">
                 <div className="w-[20rem] flex items-center"><div><p>{props.book} {props.chapter}: {props.title}</p></div></div>
