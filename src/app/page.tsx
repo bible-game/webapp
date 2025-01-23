@@ -20,7 +20,7 @@ function paginate(passage: string) {
     }
 
     const pages = new Map();
-    const segments = passage.match(/[\s\S]{1,500}/g)!!
+    const segments = passage.match(/[\s\S]{1,300}/g)!!
     let head = ""; let tail = "";
 
     for (let i = 0; i < segments.length; i++) {
@@ -55,7 +55,8 @@ export default async function App() {
             book={passage['book']}
             chapter={passage['chapter']}
             title={passage['title']}
-            passage={paginate(passage['text'])}
+            passage={passage['text']}
+            pages={paginate(passage['text'])}
             bible={bible.books}
         />
     );
