@@ -1,63 +1,26 @@
 "use server"
 
 import React from "react";
-import moment from "moment";
 import Game from "@/app/game/Game";
 import { promises as fs } from 'fs';
+import {GetServerSideProps, InferGetServerSidePropsType} from "next";
 
-async function getPassage() {
-    const response = await fetch(`${process.env.passageService}/daily`, {
-        method: "GET"
-    });
-
-    return response.json();
+type Passage = {
+    book: string
+    chapter: number
+    title: string
 }
 
-function paginate(passage: string) {
-    const remaining = (segment: string) => {
-        const sentences = segment.split(".");
-        return sentences[sentences.length - 1];
-    }
+export const getServerSideProps = (async () => {
+    const res = await fetch(`${process.env.passageService}/daily`)
+    const passage: Passage = await res.json()
 
-    const pages = new Map();
-    const segments = passage.match(/[\s\S]{1,2000}/g)!!
-    let head = ""; let tail = "";
-
-    for (let i = 0; i < segments.length; i++) {
-        const segment = segments[i];
-        const lastCharacter = segment.substring(segment.length - 1);
-
-        const last: boolean = i == segments.length - 1;
-        tail = last ? "" : lastCharacter == "." ? ".." : "...";
-
-        const page = i + 1;
-        const content = `${head}${segment}${tail}`
-        pages.set(page, content);
-
-        const first: boolean = i == 0;
-        head = first ? "" : lastCharacter == "." ? "" : remaining(segment);
-        tail = "";
-    }
-
-    return pages
-}
-
-export default async function App() {
-    const file: any = await fs.readFile(process.cwd() + '/../deployment/configuration/bible.json', 'utf8');
+    const file: any = await fs.readFile(`${process.cwd()}/${process.env.bibleConfig}`, 'utf8');
     const bible: any = JSON.parse(file);
 
-    const today = moment(new Date()).format('dddd Do MMMM YYYY');
-    const passage = await getPassage();
+    return { props: { bible, passage } }
+}) satisfies GetServerSideProps<{ bible: any, passage: Passage }>
 
-    return (
-        <Game
-            today={today}
-            book={passage['book']}
-            chapter={passage['chapter']}
-            title={passage['title']}
-            passage={passage['text']}
-            pages={paginate(passage['text'])}
-            bible={bible.books}
-        />
-    );
+export default async function Page({bible, passage}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+    return <Game bible={bible} passage={passage}/>
 }

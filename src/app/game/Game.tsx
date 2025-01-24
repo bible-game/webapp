@@ -6,10 +6,12 @@ import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import {Button, useDisclosure} from "@nextui-org/react";
 import { guessAction } from "@/app/game/guess-action";
 import Guess from "@/app/game/guess/Guess";
-import Passage from "@/app/game/passage/Passage";
-import Results from "@/app/game/results/Results";
+import {passageAction} from "@/app/game/passage-action";
 
 const Game = (props: any) => {
+    const [today, setToday] = React.useState(moment(new Date()).format('dddd Do MMMM YYYY'))
+
+    const [passage, setPassage] = React.useState({});
     const [book, setBook] = React.useState('Book');
     const [chapter, setChapter] = React.useState('Chapter');
     const [chapters, setChapters] = React.useState([]);
@@ -18,10 +20,10 @@ const Game = (props: any) => {
     const [guesses, setGuesses] = React.useState([] as any[]);
     const [attempts, setAttempts] = React.useState([{}, {}, {}]);
     const [readonly, setReadonly] = React.useState(false);
-    const [results, setResults] = React.useState(<section></section>);
+    const [results, setResults] = React.useState(<></>);
     const [playing, setPlaying] = React.useState(true);
 
-    const bible: any[] = props.bible;
+    passageAction().then((passage) => setPassage(passage));
 
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
@@ -34,32 +36,60 @@ const Game = (props: any) => {
         if (playing) setReadonly(false);
     }
 
+    function selectBook(key: any) {
+        const book = props.bible.books.find(b => b.book === key);
+        setChapters(book?.chapters);
+        setChapter('Chapter')
+        setChapterTitle('Select chapter')
+        setBook(key);
+        setBookTitle('The Law, Old Testament');
+    }
+
+    function selectPassage(key: any) {
+        setChapter(key);
+        setChapterTitle('Chapter ' + (chapters as any).find((c: any) => c.title === key.split(" - ")[1]).chapter)
+    }
+
+    function registerGuess(closeness: any) {
+        closeness += '%';
+        setGuesses([...guesses, {book, chapter, closeness}])
+        const att = [];
+        for (let i = 3; i > guesses.length + 1; i--) {
+            att.push({})
+        }
+        setAttempts(att)
+        if (closeness == '100%') {
+            setPlaying(false);
+            setReadonly(true);
+            setResults(<Results guesses={[...guesses, {book, chapter, closeness}]} book={props.book}
+                                chapter={props.chapter} title={props.title} today={today}/>)
+        } else if (guesses.length == 3 - 1) {
+            setPlaying(false);
+            setReadonly(true);
+            setResults(<Results guesses={guesses} book={props.book} chapter={props.chapter}
+                                title={props.title} today={today}/>)
+        }
+    }
+
     return <main>
-        <section id="passage" onClick={openPassage} className="cursor-pointer">
-            <Passage isOpen={isOpen} onOpenChange={onOpenChange} onClose={closePassage} today={props.today} passage={props.passage} pages={props.pages}/>
-            <h1>{props.today}</h1>
-            <div className="panel">
-                <p>{props.passage.match(/[\s\S]{1,300}/g)[0]}...</p>
-            </div>
+        <section id="text" onClick={openPassage} className="cursor-pointer">
+            <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={closePassage} today={today} text={passage.text}/>
+            <h1>{today}</h1>
+            <div className="panel"><p>{text.match(/[\s\S]{1,300}/g)[0]}...</p></div>
         </section>
         {results}
-        {readonly ? null : <section id={styles.selection} className="flex justify-center mb-12">
+        {readonly ? null :
+            <section id={styles.selection} className="flex justify-center mb-12">
             <Autocomplete
                 className="max-w-sm"
                 inputProps={{classNames: {inputWrapper: "border",}}}
                 isReadOnly={readonly}
-                defaultItems={bible}
+                defaultItems={props.bible.books}
                 label={bookTitle}
-                onSelectionChange={(key: any) => {
-                    const book = bible.find(b => b.book === key);
-                    setChapters(book?.chapters);
-                    setChapter('Chapter')
-                    setChapterTitle('Select chapter')
-                    setBook(key);
-                    setBookTitle('The Law, Old Testament');
-                }}
+                onSelectionChange={(key: any) => { selectBook(key) }}
                 variant="bordered">
-                {(item: any) => <AutocompleteItem className="text-black" key={item.book}>{item.book}</AutocompleteItem>}
+                {(item: any) =>
+                    <AutocompleteItem className="text-black" key={item.book}>{item.book}</AutocompleteItem>}
             </Autocomplete>
             <Autocomplete
                 className="max-w-sm"
@@ -67,51 +97,27 @@ const Game = (props: any) => {
                 isReadOnly={readonly}
                 defaultItems={chapters}
                 label={chapterTitle}
-                onSelectionChange={(key: any) => {
-                    setChapter(key);
-                    setChapterTitle('Chapter ' + (chapters as any).find((c: any) => c.title === key.split(" - ")[1]).chapter)
-                }}
+                onSelectionChange={(key: any) => { selectPassage(key) }}
                 variant="bordered">
-                {(item: any) => <AutocompleteItem className="text-black"
-                                                  key={item.chapter + " - " + item.title}>{item.chapter + " - " + item.title}</AutocompleteItem>}
+                {(item: any) =>
+                    <AutocompleteItem className="text-black" key={item.chapter + " - " + item.title}>{item.chapter + " - " + item.title}</AutocompleteItem>}
             </Autocomplete>
             <Button
                 disabled={readonly}
                 id={styles.guess}
-                onClick={() => {
-                    guessAction(book, chapter)
-                        .then((closeness: any) => {
-                            closeness += '%';
-                            setGuesses([...guesses, {book, chapter, closeness}])
-                            const att = [];
-                            for (let i = 3; i > guesses.length + 1; i--) {
-                                att.push({})
-                            }
-                            setAttempts(att)
-                            if (closeness == '100%') {
-                                setPlaying(false);
-                                setReadonly(true);
-                                setResults(<Results guesses={[...guesses, {book, chapter, closeness}]} book={props.book}
-                                                    chapter={props.chapter} title={props.title} today={props.today}/>)
-                            } else if (guesses.length == 3 - 1) {
-                                setPlaying(false);
-                                setReadonly(true);
-                                setResults(<Results guesses={guesses} book={props.book} chapter={props.chapter}
-                                                    title={props.title} today={props.today}/>)
-                            }
-                        })
-                }}
+                onClick={() => { guessAction(book, '', chapter).then((closeness: any) => { registerGuess(closeness) }) }}
                 className="border"
                 variant="bordered">
                 Guess
             </Button>
         </section> }
         <section className="mt-8">
-            {guesses.map((guess: any) => <Guess book={guess.book} title={guess.chapter} closeness={guess.closeness}/>)}
+            {guesses.map((guess: any) =>
+                <Guess book={guess.book} title={guess.chapter} closeness={guess.closeness}/>)}
         </section>
         <section className="opacity-25">
-            {attempts.map((attempt: any) => <Guess book={attempt.book} title={attempt.chapter}
-                                                   closeness={attempt.closeness}/>)}
+            {attempts.map((attempt: any) =>
+                <Guess book={attempt.book} title={attempt.chapter} closeness={attempt.closeness}/>)}
         </section>
     </main>
 }
