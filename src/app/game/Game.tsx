@@ -1,17 +1,21 @@
 "use client"
 
-import React from "react";
+import React, {useEffect} from "react";
 import styles from "./Game.module.sass"
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
-import {Button, useDisclosure} from "@nextui-org/react";
+import { Button, useDisclosure } from "@nextui-org/react";
 import { guessAction } from "@/app/game/guess-action";
 import Guess from "@/app/game/guess/Guess";
-import {passageAction} from "@/app/game/passage-action";
+import moment from "moment";
+import Results from "@/app/game/results/Results";
+import Text from "@/app/game/text/Text";
 
 const Game = (props: any) => {
-    const [today, setToday] = React.useState(moment(new Date()).format('dddd Do MMMM YYYY'))
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-    const [passage, setPassage] = React.useState({});
+    const [passage, setPassage] = React.useState({} as any);
+    const [condensed, setCondensed] = React.useState('');
+    const [text, setText] = React.useState(<></>);
     const [book, setBook] = React.useState('Book');
     const [chapter, setChapter] = React.useState('Chapter');
     const [chapters, setChapters] = React.useState([]);
@@ -23,21 +27,26 @@ const Game = (props: any) => {
     const [results, setResults] = React.useState(<></>);
     const [playing, setPlaying] = React.useState(true);
 
-    passageAction().then((passage) => setPassage(passage));
+    const today = moment(new Date()).format('dddd Do MMMM YYYY');
+    useEffect(() => {
+        fetch(`${process.env.passageService}/daily`, {
+            method: "GET"
+        }).then((response) => {
+            response.json().then((data) => {
+                setPassage(data);
+                setCondensed(data.text.match(/[\s\S]{1,300}/g)[0]);
+                setText(
+                    <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={closePassage} today={today} text={data.text}/>
+                )
+            });
+        });
+    })
 
-    const {isOpen, onOpen, onOpenChange} = useDisclosure();
-
-    function openPassage() {
-        setReadonly(true);
-        onOpen()
-    }
-
-    function closePassage() {
-        if (playing) setReadonly(false);
-    }
+    const openPassage = () => { setReadonly(true); onOpen(); }
+    const closePassage = () => { if (playing) setReadonly(false); }
 
     function selectBook(key: any) {
-        const book = props.bible.books.find(b => b.book === key);
+        const book = props.bible.books.find((b: any) => b.book === key);
         setChapters(book?.chapters);
         setChapter('Chapter')
         setChapterTitle('Select chapter')
@@ -61,21 +70,21 @@ const Game = (props: any) => {
         if (closeness == '100%') {
             setPlaying(false);
             setReadonly(true);
-            setResults(<Results guesses={[...guesses, {book, chapter, closeness}]} book={props.book}
-                                chapter={props.chapter} title={props.title} today={today}/>)
+            setResults(<Results guesses={[...guesses, {book, chapter, closeness}]} book={passage.book}
+                                chapter={passage.chapter} title={passage.title} today={today}/>)
         } else if (guesses.length == 3 - 1) {
             setPlaying(false);
             setReadonly(true);
-            setResults(<Results guesses={guesses} book={props.book} chapter={props.chapter}
-                                title={props.title} today={today}/>)
+            setResults(<Results guesses={guesses} book={passage.book} chapter={passage.chapter}
+                                title={passage.title} today={today}/>)
         }
     }
 
     return <main>
         <section id="text" onClick={openPassage} className="cursor-pointer">
-            <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={closePassage} today={today} text={passage.text}/>
+            {text}
             <h1>{today}</h1>
-            <div className="panel"><p>{text.match(/[\s\S]{1,300}/g)[0]}...</p></div>
+            <div className="panel"><p>{condensed}...</p></div>
         </section>
         {results}
         {readonly ? null :
