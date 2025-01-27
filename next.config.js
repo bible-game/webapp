@@ -3,6 +3,7 @@ const path = require('path')
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     env: {
+        bibleConfig: '../deployment/configuration/bible.json',
         passageService: 'http://localhost:8081' // 'http://localhost:8081', // 'https://passage-oa8a.onrender.com'
     },
     sassOptions: {
