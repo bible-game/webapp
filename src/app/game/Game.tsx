@@ -5,6 +5,10 @@ import moment from "moment";
 import Selection from "@/app/game/selection/Selection";
 
 const Game = (props: any) => {
+    let stars = 5;
+    const whichBook = `⬅️ ${props.passage.division}`
+    const whichChapters = `⬅️ ${props.passage.book}, ${props.passage.division}`
+
     const divisions: any = [
         'theLaw',
         'history',
@@ -21,17 +25,17 @@ const Game = (props: any) => {
         'joshua', 'judges', 'ruth', '1samuel', '2samuel', 'nehemiah'
     ];
     const chapters: any = [
-        '1-2', '3-4'
+        '1-2', '3-4', '5-6', '7-10', '11-13'
     ];
     const selectDivision = <Selection selection="Which division?" options={divisions} guess={(option: any): any => guess(option)}/>
-    const selectBook = <Selection selection="Which book?" options={books} guess={(option: any): any => guess(option)}/>
-    const selectChapters = <Selection selection="Which chapters?" options={chapters} guess={(option: any): any => guess(option)}/>
+    const selectBook = <Selection selection={whichBook} options={books} guess={(option: any): any => guess(option)}/>
+    const selectChapters = <Selection selection={whichChapters} options={chapters} guess={(option: any): any => guess(option)}/>
 
     const today = moment(new Date()).format('dddd Do MMMM YYYY');
     const [division, setDivision] = React.useState('division');
     const [book, setBook] = React.useState('book');
     const [chapter, setChapter] = React.useState('chapters');
-    const [stars, setStars] = React.useState(5);
+    const [score, setScore] = React.useState(5);
     const [selection, setSelection] = React.useState(selectDivision);
 
     let stage = 'DIVISION';
@@ -43,7 +47,8 @@ const Game = (props: any) => {
                 setSelection(selectBook);
                 stage = 'BOOK';
             } else {
-                setStars(stars - 1);
+                stars--;
+                setScore(stars > 0 ? stars : 0);
             }
         } else if (stage == 'BOOK') {
             if (option == props.passage.book) {
@@ -51,7 +56,8 @@ const Game = (props: any) => {
                 setSelection(selectChapters);
                 stage ='CHAPTERS';
             } else {
-                setStars(stars - 1);
+                stars--;
+                setScore(stars > 0 ? stars : 0);
             }
 
         } else if (stage == 'CHAPTERS') {
@@ -59,11 +65,14 @@ const Game = (props: any) => {
                 setChapter(option + ' ✅');
                 setSelection(<></>);
             } else {
-                setStars(stars - 1);
+                stars--;
+                setScore(stars > 0 ? stars : 0);
             }
 
         }
     }
+
+    // TODO :: need to have a rethink about the hidden...
 
     return <main>
         <section>
@@ -71,19 +80,17 @@ const Game = (props: any) => {
             <div className="panel">
                 <p className="w-full text-center text-medium">{props.passage.summary}</p>
             </div>
-            <div className="flex justify-around gap-1 my-2">
+            <div className="flex justify-around gap-1 mt-8 mb-16">
                 <div><p className="underline">{division}</p></div>
                 <div><p className="underline">{book}</p></div>
                 <div><p className="underline">{chapter}</p></div>
             </div>
         </section>
-        <section>
+        <section className="mb-16">
             {selection}
         </section>
-        <section>
-            {[...Array(stars)].map(() =>
-                <span className="p-4">⭐</span>
-            )}
+        <section className="absolute bottom-[8rem] flex justify-around">
+            <div>{[...Array(score)].map(() => <span className="p-4 text-[2rem]">⭐</span>)}</div>
         </section>
     </main>
 }
