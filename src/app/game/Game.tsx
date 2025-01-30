@@ -27,18 +27,11 @@ const Game = (props: any) => {
     const [results, setResults] = React.useState(<></>);
     const [playing, setPlaying] = React.useState(true);
 
-    const today = moment(new Date()).format('dddd Do MMMM YYYY');
+    const today = moment(new Date()).format('YYYY-MM-DD');
     useEffect(() => {
-        fetch(`${process.env.passageService}/daily`, {
-            method: "GET"
-        }).then((response) => {
-            response.json().then((data) => {
-                setPassage(data);
-                setCondensed(data.text.match(/[\s\S]{1,300}/g)[0]);
-                setText(
-                    <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={closePassage} today={today} text={data.text}/>
-                )
-            });
+        fetch(`${process.env.passageService}/daily/${today}`, { method: "GET" })
+            .then((response) => {
+            response.json().then((data) => setPassage(data));
         });
     })
 
@@ -81,53 +74,52 @@ const Game = (props: any) => {
     }
 
     return <main>
-        <section id="text" onClick={openPassage} className="cursor-pointer">
-            {text}
+        <section>
             <h1>{today}</h1>
-            <div className="panel"><p>{condensed}...</p></div>
+            <div className="panel"><p>{passage.summary}</p></div>
         </section>
-        {results}
-        {readonly ? null :
-            <section id={styles.selection} className="flex justify-center mb-12">
-            <Autocomplete
-                className="max-w-sm"
-                inputProps={{classNames: {inputWrapper: "border",}}}
-                isReadOnly={readonly}
-                defaultItems={props.bible.books}
-                label={bookTitle}
-                onSelectionChange={(key: any) => { selectBook(key) }}
-                variant="bordered">
-                {(item: any) =>
-                    <AutocompleteItem className="text-black" key={item.book}>{item.book}</AutocompleteItem>}
-            </Autocomplete>
-            <Autocomplete
-                className="max-w-sm"
-                inputProps={{classNames: {inputWrapper: "border",}}}
-                isReadOnly={readonly}
-                defaultItems={chapters}
-                label={chapterTitle}
-                onSelectionChange={(key: any) => { selectPassage(key) }}
-                variant="bordered">
-                {(item: any) =>
-                    <AutocompleteItem className="text-black" key={item.chapter + " - " + item.title}>{item.chapter + " - " + item.title}</AutocompleteItem>}
-            </Autocomplete>
-            <Button
-                disabled={readonly}
-                id={styles.guess}
-                onClick={() => { guessAction(book, '', chapter).then((closeness: any) => { registerGuess(closeness) }) }}
-                className="border"
-                variant="bordered">
-                Guess
-            </Button>
-        </section> }
-        <section className="mt-8">
-            {guesses.map((guess: any) =>
-                <Guess book={guess.book} title={guess.chapter} closeness={guess.closeness}/>)}
-        </section>
-        <section className="opacity-25">
-            {attempts.map((attempt: any) =>
-                <Guess book={attempt.book} title={attempt.chapter} closeness={attempt.closeness}/>)}
-        </section>
+        {/*{results}*/}
+        {/*{readonly ? null :*/}
+        {/*    <section id={styles.selection} className="flex justify-center mb-12">*/}
+        {/*    <Autocomplete*/}
+        {/*        className="max-w-sm"*/}
+        {/*        inputProps={{classNames: {inputWrapper: "border",}}}*/}
+        {/*        isReadOnly={readonly}*/}
+        {/*        defaultItems={props.bible.books}*/}
+        {/*        label={bookTitle}*/}
+        {/*        onSelectionChange={(key: any) => { selectBook(key) }}*/}
+        {/*        variant="bordered">*/}
+        {/*        {(item: any) =>*/}
+        {/*            <AutocompleteItem className="text-black" key={item.book}>{item.book}</AutocompleteItem>}*/}
+        {/*    </Autocomplete>*/}
+        {/*    <Autocomplete*/}
+        {/*        className="max-w-sm"*/}
+        {/*        inputProps={{classNames: {inputWrapper: "border",}}}*/}
+        {/*        isReadOnly={readonly}*/}
+        {/*        defaultItems={chapters}*/}
+        {/*        label={chapterTitle}*/}
+        {/*        onSelectionChange={(key: any) => { selectPassage(key) }}*/}
+        {/*        variant="bordered">*/}
+        {/*        {(item: any) =>*/}
+        {/*            <AutocompleteItem className="text-black" key={item.chapter + " - " + item.title}>{item.chapter + " - " + item.title}</AutocompleteItem>}*/}
+        {/*    </Autocomplete>*/}
+        {/*    <Button*/}
+        {/*        disabled={readonly}*/}
+        {/*        id={styles.guess}*/}
+        {/*        onClick={() => { guessAction(book, '', chapter).then((closeness: any) => { registerGuess(closeness) }) }}*/}
+        {/*        className="border"*/}
+        {/*        variant="bordered">*/}
+        {/*        Guess*/}
+        {/*    </Button>*/}
+        {/*</section> }*/}
+        {/*<section className="mt-8">*/}
+        {/*    {guesses.map((guess: any) =>*/}
+        {/*        <Guess book={guess.book} title={guess.chapter} closeness={guess.closeness}/>)}*/}
+        {/*</section>*/}
+        {/*<section className="opacity-25">*/}
+        {/*    {attempts.map((attempt: any) =>*/}
+        {/*        <Guess book={attempt.book} title={attempt.chapter} closeness={attempt.closeness}/>)}*/}
+        {/*</section>*/}
     </main>
 }
 
