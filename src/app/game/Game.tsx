@@ -73,13 +73,13 @@ const Game = (props: any) => {
             <h1>{today}</h1>
             <div className="panel"><p>{passage.summary}</p></div>
         </section>
-        <section className="flex justify-between gap-1 mt-6">
+        <section className="flex justify-between gap-4 mt-4">
             {guesses.map((guess: any) => <Guess book={guess.book} chapter={guess.chapter} closeness={guess.closeness}/>)}
             {[...Array(5 - guesses.length).keys()].map(x => x++).map(() => <Guess/>)}
         </section>
-        <section id={styles.selection}>
+        <section className="flex justify-between gap-4 mt-4">
             <Autocomplete
-                className="max-w-sm"
+                className="flex-1"
                 inputProps={{classNames: {inputWrapper: "border"}}}
                 defaultItems={testaments}
                 label="Testament"
@@ -89,7 +89,7 @@ const Game = (props: any) => {
                     <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
             <Autocomplete
-                className="max-w-sm"
+                className="flex-1"
                 inputProps={{classNames: {inputWrapper: "border"}}}
                 defaultItems={divisions}
                 label="Division"
@@ -99,7 +99,7 @@ const Game = (props: any) => {
                     <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
             <Autocomplete
-                className="max-w-sm"
+                className="flex-1"
                 inputProps={{classNames: {inputWrapper: "border"}}}
                 defaultItems={books}
                 label="Book"
@@ -109,7 +109,7 @@ const Game = (props: any) => {
                     <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
             <Autocomplete
-                className="max-w-sm"
+                className="flex-1"
                 inputProps={{classNames: {inputWrapper: "border"}}}
                 defaultItems={chapters}
                 onSelectionChange={(key: any) => { selectChapter(key) }}
@@ -119,8 +119,7 @@ const Game = (props: any) => {
                     <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
             <Button
-                id={styles.guess}
-                className="border"
+                className="border flex-1 text-white h-[3.5rem] p-0"
                 variant="bordered"
                 onClick={() => {
                     guessAction(today, selected.book, selected.chapter).then((closeness: any) => { addGuess(closeness)})
