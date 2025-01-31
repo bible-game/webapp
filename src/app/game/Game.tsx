@@ -96,7 +96,7 @@ const Game = (props: any) => {
 
     function addGuess(closeness: number) {
         const guess = {
-            book: selected.book,
+            book: selected.book == 'Song of Solomon' ? 'Sg. Solomon' : selected.book,
             chapter: selected.chapter,
             closeness: closeness == 100 ? '🎉' : `${closeness}%`
         };
