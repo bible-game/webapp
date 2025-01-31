@@ -2,23 +2,28 @@
 
 import React, { useEffect } from "react";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
-import { Button } from "@nextui-org/react";
+import { Button, Chip } from "@nextui-org/react";
 import moment from "moment";
 import Guess from "@/app/game/guess/Guess";
 import { guessAction } from "@/app/game/guess-action";
+import { CheckIcon } from "@heroui/shared-icons";
 
 const Game = (props: any) => {
     const today = moment(new Date()).format('YYYY-MM-DD');
 
     useEffect(() => {
         if (!passage.book) { // fixme :: hack
-            fetch(`${process.env.passageService}/daily/${today}`, { method: "GET" })
-                .then((response) => {
-                    response.json().then((data) => setPassage(data));
-                });
-
             flattenDivisions();
             flattenBooks();
+
+            fetch(`${process.env.passageService}/daily/${today}`, { method: "GET" })
+                .then((response) => {
+                    response.json().then((data) => {
+                        data.division = divisions.find((div: any) => div.books.some((book: any) => book.name == data.book)).name;
+                        data.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == data.division)).name;
+                        setPassage(data)
+                    });
+                });
         }
     })
 
@@ -29,8 +34,13 @@ const Game = (props: any) => {
     const [books, setBooks] = React.useState([] as any[]);
     const [chapters, setChapters] = React.useState([] as any);
     const [selected, setSelected] = React.useState({} as {testament: string, division: string, book: string, chapter: string});
-    const [book, setBook] = React.useState(<span className="mr-4 p-2 w-[8rem]">Book?</span>);
-    const [chapter, setChapter] = React.useState(<span className="p-2 w-[8rem]">Chapter?</span>);
+    const [book, setBook] = React.useState('Book?');
+    const [chapter, setChapter] = React.useState('Chapter?');
+
+    const [testamentFound, setTestamentFound] = React.useState(false as any);
+    const [divisionFound, setDivisionFound] = React.useState(false as any);
+    const [bookFound, setBookFound] = React.useState(false as any);
+    const [chapterFound, setChapterFound] = React.useState(false as any);
 
     function selectTestament(item: string): void {
         selected.testament = item;
@@ -88,16 +98,25 @@ const Game = (props: any) => {
         const guess = {
             book: selected.book,
             chapter: selected.chapter,
-            closeness: `${closeness}%`
-        }
+            closeness: closeness == 100 ? '🎉' : `${closeness}%`
+        };
 
         setGuesses([...guesses, guess]);
 
         if (selected.book == passage.book) {
-            setBook(<span className="mr-4 p-2 bg-green-200 text-green-950 rounded-lg w-[8rem]">{passage.book}</span>);
+            setBook(passage.book);
+            setBookFound(<CheckIcon className="text-lg text-green-200" />);
         }
         if (selected.chapter == passage.chapter) {
-            setChapter(<span className="p-2 bg-green-200 text-green-950 rounded-lg w-[8rem]">{passage.chapter}</span>);
+            setChapter(passage.chapter);
+            setChapterFound(<CheckIcon className="text-lg text-green-200" />);
+        }
+
+        if (selected.testament == passage.testament) {
+            setTestamentFound(<CheckIcon className="text-lg text-green-200" />);
+        }
+        if (selected.division == passage.division) {
+            setDivisionFound(<CheckIcon className="text-lg text-green-200" />);
         }
     }
 
@@ -113,8 +132,29 @@ const Game = (props: any) => {
         <section>
             <h1>{today}</h1>
             <div className="panel flex justify-between">
-                <div>{passage.summary}</div>
-                <div>{book}<span>{chapter}</span></div>
+                <div className="text-[1rem]">{passage.summary}</div>
+                <div>
+                    <Chip size="md"
+                          className="mr-4"
+                          classNames={ bookFound ? {
+                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
+                              content: "text-green-800 font-semibold p-1 tracking-wide w-[6rem] text-center",
+                          } : {
+                              base: "bg-clear",
+                              content: "bg-clear w-[6rem] text-center p-1 text-white",
+                          }}
+                          variant="solid">
+                        {book}</Chip>
+                    <Chip size="md"
+                          classNames={ chapterFound ? {
+                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
+                              content: "text-green-800 font-semibold p-1 tracking-wide w-[6rem] text-center",
+                          } : {
+                              base: "bg-clear",
+                              content: "bg-clear w-[6rem] text-center p-1 text-white",
+                          }}
+                          variant="solid">{chapter}</Chip>
+                </div>
             </div>
         </section>
         <section className="flex justify-between gap-4 mt-4">
@@ -123,44 +163,53 @@ const Game = (props: any) => {
         </section>
         <section className="flex justify-between gap-4 mt-4">
             <Autocomplete
-                className="flex-1"
+                className="flex-1 text-sm"
                 inputProps={{classNames: {inputWrapper: "border"}}}
                 defaultItems={testaments}
+                isReadOnly={!!testamentFound}
+                startContent={testamentFound}
                 label="Testament"
                 onClear={() => clearSelection()}
                 onSelectionChange={(key: any) => { selectTestament(key) }}
                 selectedKey={selected.testament}
                 variant="bordered">
                 {(item: any) =>
-                    <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
+                    <AutocompleteItem className="text-black text-sm" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
             <Autocomplete
-                className="flex-1"
+                className="flex-1 text-sm"
                 inputProps={{classNames: {inputWrapper: "border"}}}
                 defaultItems={divisions}
-                selectedKey={selected.division}
+                isReadOnly={!!divisionFound}
+                startContent={divisionFound}
                 label="Division"
+                selectedKey={selected.division}
                 onClear={() => clearSelection()}
                 onSelectionChange={(key: any) => { selectDivision(key) }}
                 variant="bordered">
                 {(item: any) =>
-                    <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
+                    <AutocompleteItem className="text-black text-sm" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
             <Autocomplete
-                className="flex-1"
+                className="flex-1 text-sm"
                 inputProps={{classNames: {inputWrapper: "border"}}}
                 defaultItems={books}
+                isReadOnly={!!bookFound}
+                startContent={bookFound}
+                selectedKey={selected.book}
                 label="Book"
                 onClear={() => clearSelection()}
                 onSelectionChange={(key: any) => { selectBook(key) }}
                 variant="bordered">
                 {(item: any) =>
-                    <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
+                    <AutocompleteItem className="text-black text-sm" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
             <Autocomplete
-                className="flex-1"
+                className="flex-1 text-sm"
                 inputProps={{classNames: {inputWrapper: "border"}}}
                 defaultItems={chapters}
+                isReadOnly={!!chapterFound}
+                startContent={chapterFound}
                 onClear={() => clearSelection()}
                 onSelectionChange={(key: any) => { selectChapter(key) }}
                 listboxProps={{
@@ -169,10 +218,10 @@ const Game = (props: any) => {
                 label="Chapter"
                 variant="bordered">
                 {(item: any) =>
-                    <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
+                    <AutocompleteItem className="text-black text-sm" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
             <Button
-                className="border flex-1 text-white h-[3.5rem] p-0"
+                className="border flex-1 text-white h-[3.5rem] p-0 text-sm"
                 variant="bordered"
                 onClick={() => {
                     guessAction(today, selected.book, selected.chapter).then((closeness: any) => { addGuess(closeness)})
