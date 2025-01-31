@@ -1,8 +1,7 @@
 "use server"
 
-export async function guessAction(book: String, chapter: String, title: String) {
-    // const response = await fetch(`${process.env.passageService}/guess/${book}/${chapter}/${title}`, {
-    const response = await fetch(`${process.env.passageService}/guess/${book}/${title}`, {
+export async function guessAction(date: String, book: String, chapter: String) {
+    const response = await fetch(`${process.env.passageService}/guess/${date}/${book}/${chapter}`, {
         method: "GET"
     });
 
