@@ -1,13 +1,11 @@
 "use client"
 
-import React, {useEffect} from "react";
-import styles from "./Game.module.sass"
+import React, { useEffect } from "react";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { Button } from "@nextui-org/react";
 import moment from "moment";
 import Guess from "@/app/game/guess/Guess";
-import guess from "@/app/game/guess/Guess";
-import {guessAction} from "@/app/game/guess-action";
+import { guessAction } from "@/app/game/guess-action";
 
 const Game = (props: any) => {
     const today = moment(new Date()).format('YYYY-MM-DD');
@@ -28,6 +26,8 @@ const Game = (props: any) => {
     const [books, setBooks] = React.useState([] as any);
     const [chapters, setChapters] = React.useState([] as any);
     const [selected] = React.useState({} as {testament: string, division: string, book: string, chapter: string});
+    const [book, setBook] = React.useState(<span className="mr-4 p-2 w-[8rem]">Book?</span>);
+    const [chapter, setChapter] = React.useState(<span className="p-2 w-[8rem]">Chapter?</span>);
 
     function selectTestament(item: string): void {
         selected.testament = item;
@@ -66,12 +66,22 @@ const Game = (props: any) => {
         }
 
         setGuesses([...guesses, guess]);
+
+        if (selected.book == passage.book) {
+            setBook(<span className="mr-4 p-2 bg-green-200 text-green-950 rounded-lg w-[8rem]">{passage.book}</span>);
+        }
+        if (selected.chapter == passage.chapter) {
+            setChapter(<span className="p-2 bg-green-200 text-green-950 rounded-lg w-[8rem]">{passage.chapter}</span>);
+        }
     }
 
     return <main>
         <section>
             <h1>{today}</h1>
-            <div className="panel"><p>{passage.summary}</p></div>
+            <div className="panel flex justify-between">
+                <div>{passage.summary}</div>
+                <div>{book}<span>{chapter}</span></div>
+            </div>
         </section>
         <section className="flex justify-between gap-4 mt-4">
             {guesses.map((guess: any) => <Guess book={guess.book} chapter={guess.chapter} closeness={guess.closeness}/>)}
