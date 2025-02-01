@@ -22,9 +22,8 @@ const Guess = (props: any) => {
     function grade(closeness: any): string {
         if (!!closeness) {
             closeness = parseInt(closeness);
-            // note :: closeness now defined as verse distance; % closeness is ratio to total verses (31_102)
+            // note :: closeness now defined as verse distance; % closeness is ratio to total verses
             // todo :: offer tooltip for score calculation (1+limit-guesses).(% closeness)
-            //         return floor((100.0 * (totalVerses - verseDistance)) / totalVerses).toInt()
 
             if (closeness <= 100) return Closeness.VERY_CLOSE
             if (closeness <= 500) return Closeness.CLOSE

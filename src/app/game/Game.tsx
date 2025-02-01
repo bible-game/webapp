@@ -224,7 +224,7 @@ const Game = (props: any) => {
                 className="border flex-1 text-white h-[3.5rem] p-0 text-sm"
                 variant="bordered"
                 onClick={() => {
-                    guessAction(today, selected.book, selected.chapter).then((closeness: any) => { addGuess(closeness)})
+                    guessAction(today, selected.book, selected.chapter).then((closeness: any) => { addGuess(closeness.distance)})
                 }}>
                 Guess</Button>
         </section>
