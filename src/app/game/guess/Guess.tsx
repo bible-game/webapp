@@ -4,33 +4,40 @@ import React from "react";
 import { Card, CardBody } from "@nextui-org/card";
 
 enum Closeness {
-    _UN = 'text-white',
-    _00 = 'text-transparent bg-clip-text bg-gradient-to-b from-danger-200 to-danger-500',
-    _50 = 'text-transparent bg-clip-text bg-gradient-to-b from-warning-200 to-warning-600',
-    _75 = 'text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600',
-    _85 = 'text-transparent bg-clip-text bg-gradient-to-b from-success-200 to-success-600',
-    _95 = 'text-transparent bg-clip-text bg-gradient-to-b from-teal-200 to-teal-600'
+    UNKNOWN = 'text-white',
+    VERY_FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-danger-200 to-danger-500',
+    FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-warning-200 to-warning-600',
+    MEDIUM = 'text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600',
+    CLOSE = 'text-transparent bg-clip-text bg-gradient-to-b from-lime-200 to-lime-600',
+    VERY_CLOSE = 'text-transparent bg-clip-text bg-gradient-to-b from-success-200 to-success-600'
 }
 
 const Guess = (props: any) => {
+    const formatter = Intl.NumberFormat("en", { notation: "compact" });
+
     const [colour] = React.useState(grade(props.closeness));
-    const [passage] = React.useState(format(props.book, props.chapter));
+    const [passage] = React.useState(formatPassage(props.book, props.chapter));
+    const [closeness] = React.useState(formatCloseness(props.closeness));
 
     function grade(closeness: any): string {
         if (!!closeness) {
-            closeness = parseInt(closeness.slice(0, -1));
+            closeness = parseInt(closeness);
+            // note :: closeness now defined as verse distance; % closeness is ratio to total verses (31_102)
+            // todo :: offer tooltip for score calculation (1+limit-guesses).(% closeness)
+            //         return floor((100.0 * (totalVerses - verseDistance)) / totalVerses).toInt()
 
-            if (closeness >= 95) return Closeness._95
-            if (closeness >= 85) return Closeness._85
-            if (closeness >= 75) return Closeness._75
-            if (closeness >= 50) return Closeness._50
-            if (closeness >= 0)  return Closeness._00
+            if (closeness <= 100) return Closeness.VERY_CLOSE
+            if (closeness <= 500) return Closeness.CLOSE
+            if (closeness <= 2500) return Closeness.MEDIUM
+            if (closeness <= 10000) return Closeness.FAR
+            else return Closeness.VERY_FAR
         }
 
-        return Closeness._UN
+        return Closeness.UNKNOWN
     }
 
-    function format(book: any, chapter: any): string {
+    // TODO :: extra to service-layer and apply to answer chip too!?
+    function formatPassage(book: any, chapter: any): string {
         if (!!book && !!chapter) {
             switch (book) {
                 case 'Song of Solomon':
@@ -51,11 +58,18 @@ const Guess = (props: any) => {
         return ""
     }
 
+    function formatCloseness(closeness: string): string {
+        if (closeness == '0') return '🎉'
+        else if (!!closeness) return formatter.format(parseInt(closeness))
+        else return ''
+
+    }
+
     return  <Card className="flex flex-1 p-4 justify-around bg-opacity-30 bg-gray-800 text-white h-[3.5rem]">
                 <CardBody>
                     <div className="flex justify-between">
                         <div className="flex items-center"><p className="text-xs">{passage}</p></div>
-                        <div className="text-right text-sm"><p className={colour}>{props.closeness}</p></div>
+                        <div className="text-right text-xs"><p className={colour}>{closeness}</p></div>
                     </div>
                 </CardBody>
             </Card>

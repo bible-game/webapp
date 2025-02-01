@@ -98,7 +98,7 @@ const Game = (props: any) => {
         const guess = {
             book: selected.book,
             chapter: selected.chapter,
-            closeness: closeness == 100 ? '🎉' : `${closeness}%`
+            closeness
         };
 
         setGuesses([...guesses, guess]);
@@ -138,10 +138,10 @@ const Game = (props: any) => {
                           className="mr-4"
                           classNames={ bookFound ? {
                               base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
-                              content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
+                              content: "text-black font-medium p-1 tracking-wide w-[8rem] text-center",
                           } : {
                               base: "bg-clear",
-                              content: "bg-clear w-[6rem] text-center p-1 text-white",
+                              content: "bg-clear w-[4rem] text-center p-1 text-white",
                           }}
                           variant="solid">
                         {book}</Chip>
