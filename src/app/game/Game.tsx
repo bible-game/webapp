@@ -96,7 +96,7 @@ const Game = (props: any) => {
 
     function addGuess(closeness: number) {
         const guess = {
-            book: selected.book == 'Song of Solomon' ? 'Sg. Solomon' : selected.book,
+            book: selected.book,
             chapter: selected.chapter,
             closeness: closeness == 100 ? '🎉' : `${closeness}%`
         };
@@ -138,7 +138,7 @@ const Game = (props: any) => {
                           className="mr-4"
                           classNames={ bookFound ? {
                               base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
-                              content: "text-black font-semibold p-1 tracking-wide w-[6rem] text-center",
+                              content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
                           } : {
                               base: "bg-clear",
                               content: "bg-clear w-[6rem] text-center p-1 text-white",
@@ -148,7 +148,7 @@ const Game = (props: any) => {
                     <Chip size="md"
                           classNames={ chapterFound ? {
                               base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
-                              content: "text-black font-semibold p-1 tracking-wide w-[6rem] text-center",
+                              content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
                           } : {
                               base: "bg-clear",
                               content: "bg-clear w-[6rem] text-center p-1 text-white",
