@@ -7,8 +7,10 @@ import moment from "moment";
 import Guess from "@/app/game/guess/Guess";
 import { guessAction } from "@/app/game/guess-action";
 import { CheckIcon } from "@heroui/shared-icons";
+import Results from "@/app/game/results/Results";
 
 const Game = (props: any) => {
+    const guessLimit = 5;
     const today = moment(new Date()).format('YYYY-MM-DD');
 
     useEffect(() => {
@@ -41,6 +43,9 @@ const Game = (props: any) => {
     const [divisionFound, setDivisionFound] = React.useState(false as any);
     const [bookFound, setBookFound] = React.useState(false as any);
     const [chapterFound, setChapterFound] = React.useState(false as any);
+
+    const [playing, setPlaying] = React.useState(true);
+    const [results, setResults] = React.useState(<></>);
 
     function selectTestament(item: string): void {
         selected.testament = item;
@@ -94,14 +99,17 @@ const Game = (props: any) => {
         selected.chapter = item;
     }
 
-    function addGuess(closeness: number) {
-        const guess = {
-            book: selected.book,
-            chapter: selected.chapter,
-            closeness
-        };
+    function addGuess(closeness: any) {
+        const updatedGuesses = [
+            ...guesses,
+            {
+                book: selected.book,
+                chapter: selected.chapter,
+                closeness
+            }
+        ]
 
-        setGuesses([...guesses, guess]);
+        setGuesses(updatedGuesses);
 
         if (selected.book == passage.book) {
             setBook(passage.book);
@@ -118,6 +126,13 @@ const Game = (props: any) => {
         if (selected.division == passage.division) {
             setDivisionFound(<CheckIcon className="text-lg text-green-200" />);
         }
+
+        const won = (closeness.distance == 0);
+        const limitReached = (updatedGuesses.length == guessLimit);
+        if (won || limitReached) {
+            setPlaying(false);
+            setResults(<Results guesses={updatedGuesses} today={today}/>);
+        }
     }
 
     // fixme :: behaviour not correct
@@ -130,35 +145,49 @@ const Game = (props: any) => {
 
     return <main>
         <section>
+            <div aria-hidden="true"
+                 className="fixed hidden dark:md:block dark:opacity-100 -bottom-[30%] -left-[30%] z-0">
+                <img
+                    src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/images/docs-left.png"
+                    className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-45 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
+                    alt="docs left background" data-loaded="true"/>
+            </div>
+            <div aria-hidden="true"
+                 className="fixed hidden dark:md:block dark:opacity-70 -top-[50%] -right-[60%] 2xl:-top-[60%] 2xl:-right-[45%] z-0 rotate-12">
+                <img src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/images/docs-right.png"
+                     className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-45 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
+                     alt="docs right background" data-loaded="true"/>
+            </div>
+        </section>
+        <section>
             <h1>{today}</h1>
             <div className="panel flex justify-between">
                 <div className="text-[1rem]">{passage.summary}</div>
+                {results}
                 <div>
                     <Chip size="md"
                           className="mr-4"
-                          classNames={ bookFound ? {
-                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
-                              content: "text-black font-medium p-1 tracking-wide w-[8rem] text-center",
-                          } : {
-                              base: "bg-clear",
-                              content: "bg-clear w-[4rem] text-center p-1 text-white",
-                          }}
-                          variant="solid">
-                        {book}</Chip>
+                          variant="solid"
+                          classNames={ !playing && !bookFound ?
+                              {base: "bg-gradient-to-br from-blue-50 to-blue-300 border border-white/50", content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",} :
+                              bookFound ?
+                              {base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50", content: "text-black font-medium p-1 tracking-wide w-[8rem] text-center"} :
+                              {base: "bg-clear", content: "bg-clear w-[4rem] text-center p-1 text-white"}}>
+                        {playing ? book : passage.book}</Chip>
                     <Chip size="md"
-                          classNames={ chapterFound ? {
-                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
-                              content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
-                          } : {
-                              base: "bg-clear",
-                              content: "bg-clear w-[6rem] text-center p-1 text-white",
-                          }}
-                          variant="solid">{chapter}</Chip>
+                          variant="solid"
+                          classNames={!playing && !chapterFound ?
+                              {base: "bg-gradient-to-br from-blue-50 to-blue-300 border border-white/50", content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",} :
+                                chapterFound ?
+                              {base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50", content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",} :
+                              {base: "bg-clear", content: "bg-clear w-[6rem] text-center p-1 text-white",}}>
+                        {playing ? chapter : passage.chapter}</Chip>
                 </div>
             </div>
         </section>
         <section className="flex justify-between gap-4 mt-4">
-            {guesses.map((guess: any) => <Guess book={guess.book} chapter={guess.chapter} closeness={guess.closeness}/>)}
+            {guesses.map((guess: any) => <Guess book={guess.book} chapter={guess.chapter}
+                                                closeness={guess.closeness}/>)}
             {[...Array(5 - guesses.length).keys()].map(x => x++).map(() => <Guess/>)}
         </section>
         <section className="flex justify-between gap-4 mt-4">
@@ -170,7 +199,9 @@ const Game = (props: any) => {
                 startContent={testamentFound}
                 label="Testament"
                 onClear={() => clearSelection()}
-                onSelectionChange={(key: any) => { selectTestament(key) }}
+                onSelectionChange={(key: any) => {
+                    selectTestament(key)
+                }}
                 selectedKey={selected.testament}
                 variant="bordered">
                 {(item: any) =>
@@ -185,7 +216,9 @@ const Game = (props: any) => {
                 label="Division"
                 selectedKey={selected.division}
                 onClear={() => clearSelection()}
-                onSelectionChange={(key: any) => { selectDivision(key) }}
+                onSelectionChange={(key: any) => {
+                    selectDivision(key)
+                }}
                 variant="bordered">
                 {(item: any) =>
                     <AutocompleteItem className="text-black text-sm" key={item.name}>{item.name}</AutocompleteItem>}
@@ -199,7 +232,9 @@ const Game = (props: any) => {
                 selectedKey={selected.book}
                 label="Book"
                 onClear={() => clearSelection()}
-                onSelectionChange={(key: any) => { selectBook(key) }}
+                onSelectionChange={(key: any) => {
+                    selectBook(key)
+                }}
                 variant="bordered">
                 {(item: any) =>
                     <AutocompleteItem className="text-black text-sm" key={item.name}>{item.name}</AutocompleteItem>}
@@ -211,7 +246,9 @@ const Game = (props: any) => {
                 isReadOnly={!!chapterFound}
                 startContent={chapterFound}
                 onClear={() => clearSelection()}
-                onSelectionChange={(key: any) => { selectChapter(key) }}
+                onSelectionChange={(key: any) => {
+                    selectChapter(key)
+                }}
                 listboxProps={{
                     emptyContent: "Select a book",
                 }}
@@ -220,13 +257,11 @@ const Game = (props: any) => {
                 {(item: any) =>
                     <AutocompleteItem className="text-black text-sm" key={item.name}>{item.name}</AutocompleteItem>}
             </Autocomplete>
-            <Button
-                className="border flex-1 text-white h-[3.5rem] p-0 text-sm"
-                variant="bordered"
-                onClick={() => {
-                    guessAction(today, selected.book, selected.chapter).then((closeness: any) => { addGuess(closeness.distance)})
-                }}>
-                Guess</Button>
+            {
+                playing ?
+                    <Button className="border flex-1 text-white h-[3.5rem] p-0 text-sm" variant="bordered" onClick={() => {guessAction(today, selected.book, selected.chapter).then((closeness: any) => {addGuess(closeness)})}}>Guess</Button> :
+                    <Button className="border flex-1 text-white h-[3.5rem] p-0 text-sm" variant="bordered"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.25} stroke="currentColor" className="size-4"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg> Reading</Button>
+            }
         </section>
     </main>
 }

@@ -21,7 +21,7 @@ const Guess = (props: any) => {
 
     function grade(closeness: any): string {
         if (!!closeness) {
-            closeness = parseInt(closeness);
+            closeness = parseInt(closeness.distance);
             // note :: closeness now defined as verse distance; % closeness is ratio to total verses
             // todo :: offer tooltip for score calculation (1+limit-guesses).(% closeness)
 
@@ -57,14 +57,15 @@ const Guess = (props: any) => {
         return ""
     }
 
-    function formatCloseness(closeness: string): string {
-        if (closeness == '0') return '🎉'
-        else if (!!closeness) return formatter.format(parseInt(closeness))
-        else return ''
+    function formatCloseness(closeness: any): string {
+        if (!!closeness) {
+            const distance = parseInt(closeness.distance);
+            return distance == 0 ? '🎉' : formatter.format(distance);
 
+        } else return '';
     }
 
-    return  <Card className="flex flex-1 p-4 justify-around bg-opacity-30 bg-gray-800 text-white h-[3.5rem]">
+    return  <Card className={ !!closeness ? "flex flex-1 p-4 justify-around bg-[#243245] bg-opacity-35 text-white h-[3.5rem]" : "flex flex-1 p-4 justify-around bg-[#243245] bg-opacity-10 text-white h-[3.5rem]"}>
                 <CardBody>
                     <div className="flex justify-between">
                         <div className="flex items-center"><p className="text-xs">{passage}</p></div>
