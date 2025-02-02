@@ -15,9 +15,6 @@ const Results = (props: any) => {
         else return prev;
     }).closeness;
 
-    console.log(bestGuess)
-    console.log(props.guesses)
-
     if (bestGuess.percentage == 100) {
         stars = 5 + 1 - props.guesses.length;
         message = `Well Done! ${stars} ⭐`;

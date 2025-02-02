@@ -48,9 +48,12 @@ const Text = (props: any) => {
     }
 
     function calculateReadingTime() {
-        const words = props.text.split(' ');
+        if (!!props.text) {
+            const words = props.text.split(' ');
 
-        return Math.ceil(words.length / wordsPerMinute);
+            return Math.ceil(words.length / wordsPerMinute);
+
+        } else return '';
     }
 
     return  <Modal
