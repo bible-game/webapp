@@ -158,7 +158,7 @@ const Game = (props: any) => {
     }
 
     return <main>
-        { reading ? <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={() => setReading(false)} today={today} text={passage.text}/> :
+        { reading ? <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={() => setReading(false)} today={today} passage={passage}/> :
             <>
                 <section>
                     <div aria-hidden="true"

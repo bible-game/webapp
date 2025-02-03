@@ -37,7 +37,7 @@ function paginate(text: string): Map<number, string> {
 const Text = (props: any) => {
     const wordsPerMinute = 200;
     const readingTime = `${calculateReadingTime()} minute read`;
-    const pages: Map<number, string> = paginate(props.text);
+    const pages: Map<number, string> = paginate(props.passage.text);
 
     const [currentPage, setCurrentPage] = React.useState(1);
 
@@ -48,8 +48,8 @@ const Text = (props: any) => {
     }
 
     function calculateReadingTime() {
-        if (!!props.text) {
-            const words = props.text.split(' ');
+        if (!!props.passage) {
+            const words = props.passage.text.split(' ');
 
             return Math.ceil(words.length / wordsPerMinute);
 
@@ -89,6 +89,7 @@ const Text = (props: any) => {
                             <div className="flex items-center justify-center h-full">
                                 <div className="w-[70%] h-[80%]">
                                     <h1 className="mb-6">{props.today} <span className="text-gray-500 text-sm">({readingTime})</span></h1>
+                                    <h1 className="mb-3 text-lg">{props.passage.book} {props.passage.chapter}</h1>
                                     <p className="text-xs leading-[2.5]">{pages.get(currentPage)}</p>
                                     {pagination}
                                 </div>
