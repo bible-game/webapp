@@ -8,7 +8,7 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./node_modules/@nextui-org/theme/dist/components/(dropdown|menu|divider|popover|button|ripple|spinner).js",
-    "./node_modules/@heroui/theme/dist/components/(autocomplete|pagination|button|ripple|spinner|form|input|listbox|divider|popover|scroll-shadow).js"
+    "./node_modules/@heroui/theme/dist/components/(autocomplete|date-picker|pagination|button|ripple|spinner|form|input|listbox|divider|popover|scroll-shadow|calendar|date-input).js"
   ],
   theme: {
     extend: {

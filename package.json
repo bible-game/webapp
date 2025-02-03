@@ -10,9 +10,11 @@
   "dependencies": {
     "@fontsource/montserrat": "^5.0.19",
     "@heroui/autocomplete": "^2.3.11",
+    "@heroui/date-picker": "^2.3.10",
     "@heroui/pagination": "^2.2.9",
     "@heroui/system": "^2.4.7",
     "@heroui/theme": "^2.4.6",
+    "@internationalized/date": "^3.6.0",
     "@nextui-org/dropdown": "^2.1.29",
     "@nextui-org/react": "^2.4.6",
     "@nextui-org/system": "^2.2.5",

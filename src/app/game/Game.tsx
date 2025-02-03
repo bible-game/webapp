@@ -8,7 +8,9 @@ import Guess from "@/app/game/guess/Guess";
 import Text from "@/app/game/text/Text";
 import { guessAction } from "@/app/game/guess-action";
 import { CheckIcon } from "@heroui/shared-icons";
+import { DatePicker } from "@heroui/date-picker";
 import Results from "@/app/game/results/Results";
+import { getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 
 const Game = (props: any) => {
     const guessLimit = 5;
@@ -24,7 +26,15 @@ const Game = (props: any) => {
                     response.json().then((data) => {
                         data.division = divisions.find((div: any) => div.books.some((book: any) => book.name == data.book)).name;
                         data.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == data.division)).name;
-                        setPassage(data)
+                        setPassage(data);
+                    });
+                });
+
+            fetch(`${process.env.passageService}/daily/previous`, { method: "GET" })
+                .then((response) => {
+                    response.json().then((data) => {
+                        // Remove T...
+                        setDates(data);
                     });
                 });
         }
@@ -48,6 +58,8 @@ const Game = (props: any) => {
     const [playing, setPlaying] = React.useState(true);
     const [results, setResults] = React.useState(<></>);
     const [reading, setReading] = React.useState(false);
+
+    const [dates, setDates] = React.useState([] as any[]);
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -157,6 +169,12 @@ const Game = (props: any) => {
         setReading(false);
     }
 
+    const stylesDateInput = {
+        base: ["dark", "w-max-[20rem]", "mb-2"],
+        selectorButton: ["text-white"],
+        inputWrapper: ["!bg-transparent"],
+    };
+
     return <main>
         { reading ? <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={() => setReading(false)} today={today} passage={passage}/> :
             <>
@@ -176,7 +194,12 @@ const Game = (props: any) => {
                     </div>
                 </section>
                 <section>
-                    <h1>{today}</h1>
+                    <DatePicker
+                        classNames={stylesDateInput}
+                        defaultValue={TODAY(getLocalTimeZone())}
+                        maxValue={TODAY(getLocalTimeZone())}
+                        dateInputClassNames={stylesDateInput}
+                        selectorButtonPlacement="start" />
                     <div className="panel flex justify-between">
                         <div className="text-[1rem]">{passage.summary}</div>
                         {results}
