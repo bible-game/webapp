@@ -209,29 +209,29 @@ const Game = (props: any) => {
                                   variant="solid"
                                   classNames={!playing && !bookFound ?
                                       {
-                                          base: "bg-gradient-to-br from-blue-50 to-blue-300 border border-white/50",
+                                          base: "bg-gradient-to-br from-blue-50 to-blue-300 border border-white/50 h-7",
                                           content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
                                       } :
                                       bookFound ?
                                           {
-                                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
+                                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50 h-7",
                                               content: "text-black font-medium p-1 tracking-wide w-[8rem] text-center"
                                           } :
-                                          {base: "bg-clear", content: "bg-clear w-[4rem] text-center p-1 text-white"}}>
+                                          {base: "bg-clear", content: "bg-clear w-[4rem] text-center p-1 text-white h-7"}}>
                                 {playing ? book : passage.book}</Chip>
                             <Chip size="md"
                                   variant="solid"
                                   classNames={!playing && !chapterFound ?
                                       {
-                                          base: "bg-gradient-to-br from-blue-50 to-blue-300 border border-white/50",
+                                          base: "bg-gradient-to-br from-blue-50 to-blue-300 border border-white/50 h-7",
                                           content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
                                       } :
                                       chapterFound ?
                                           {
-                                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50",
+                                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50 h-7",
                                               content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
                                           } :
-                                          {base: "bg-clear", content: "bg-clear w-[6rem] text-center p-1 text-white",}}>
+                                          {base: "bg-clear", content: "bg-clear w-[6rem] text-center p-1 text-white h-7"}}>
                                 {playing ? chapter : passage.chapter}</Chip>
                         </div>
                     </div>
