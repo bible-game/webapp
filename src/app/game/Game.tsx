@@ -30,7 +30,7 @@ const Game = (props: any) => {
                     });
                 });
 
-            fetch(`${process.env.passageService}/daily/previous`, { method: "GET" })
+            fetch(`${process.env.passageService}/daily/history`, { method: "GET" })
                 .then((response) => {
                     response.json().then((data) => {
                         // Remove T...
