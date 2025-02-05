@@ -11,13 +11,14 @@ import { CheckIcon } from "@heroui/shared-icons";
 import { DatePicker } from "@heroui/date-picker";
 import Results from "@/app/game/results/Results";
 import { getLocalTimeZone, today as TODAY, CalendarDate } from "@internationalized/date";
+import _ from "lodash";
 
 const Game = (props: any) => {
     const guessLimit = 5;
     const [today, setToday] = React.useState(moment(new Date()).format('YYYY-MM-DD'));
 
-    function retrievePassage() {
-        fetch(`${process.env.passageService}/daily/${today}`, { method: "GET" })
+    function retrievePassage(date = today) {
+        fetch(`${process.env.passageService}/daily/${date}`, { method: "GET" })
             .then((response) => {
                 response.json().then((data) => {
                     data.division = divisions.find((div: any) => div.books.some((book: any) => book.name == data.book)).name;
@@ -33,14 +34,6 @@ const Game = (props: any) => {
             flattenBooks();
 
             retrievePassage();
-
-            // fetch(`${process.env.passageService}/daily/history`, { method: "GET" })
-            //     .then((response) => {
-            //         response.json().then((data) => {
-            //             // Remove T...
-            //             setDates(data);
-            //         });
-            //     });
         }
     })
 
@@ -151,7 +144,7 @@ const Game = (props: any) => {
         const limitReached = (updatedGuesses.length == guessLimit);
         if (won || limitReached) {
             setPlaying(false);
-            setResults(<Results guesses={updatedGuesses} found={[testamentFound, divisionFound, bookFound, chapterFound]}/>);
+            setResults(<Results guesses={updatedGuesses} found={[testamentFound, divisionFound, bookFound, chapterFound]} date={today}/>);
         }
     }
 
@@ -169,17 +162,16 @@ const Game = (props: any) => {
         onOpen();
     }
 
-    function closeReading() {
-        setReading(false);
-    }
+    function changeDate(date: string | null): void {
+        date = date || _.sample(props.dates);
+        setToday(date!);
 
-    function changeDate(date: string): void {
-        setToday(date);
-        retrievePassage();
+        retrievePassage(date!);
+        // todo :: reset state of the game
     }
 
     const stylesDateInput = {
-        base: ["w-max-[20rem]", "mb-2"],
+        base: ["w-min", "mb-2"],
         selectorButton: ["text-white"],
         inputWrapper: ["dark", "!bg-transparent"]
     };
@@ -203,14 +195,28 @@ const Game = (props: any) => {
                     </div>
                 </section>
                 <section>
-                    <DatePicker
-                        classNames={stylesDateInput}
-                        defaultValue={TODAY(getLocalTimeZone())}
-                        maxValue={TODAY(getLocalTimeZone())}
-                        dateInputClassNames={stylesDateInput}
-                        value={new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]), parseInt(today.split('-')[2]))}
-                        onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
-                        selectorButtonPlacement="start" />
+                    <div className="flex gap-1 items-start">
+                        <DatePicker
+                            classNames={stylesDateInput}
+                            defaultValue={TODAY(getLocalTimeZone())}
+                            maxValue={TODAY(getLocalTimeZone())}
+                            dateInputClassNames={stylesDateInput}
+                            value={new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]), parseInt(today.split('-')[2]))}
+                            onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
+                            selectorButtonPlacement="start"/>
+                        <Button color="secondary"
+                                variant="light"
+                                size="sm"
+                                isIconOnly
+                                onClick={()=> changeDate(null)}
+                                className="mt-1 text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                 stroke="currentColor" className="size-4">
+                                <path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                            </svg>
+                        </Button>
+                    </div>
                     <div className="panel flex justify-between">
                         <div className="text-[1rem]">{passage.summary}</div>
                         {results}
@@ -228,7 +234,10 @@ const Game = (props: any) => {
                                               base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50 h-7",
                                               content: "text-black font-medium p-1 tracking-wide w-[8rem] text-center"
                                           } :
-                                          {base: "bg-clear", content: "bg-clear w-[4rem] text-center p-1 text-white h-7"}}>
+                                          {
+                                              base: "bg-clear",
+                                              content: "bg-clear w-[4rem] text-center p-1 text-white h-7"
+                                          }}>
                                 {playing ? book : passage.book}</Chip>
                             <Chip size="md"
                                   variant="solid"
@@ -242,7 +251,10 @@ const Game = (props: any) => {
                                               base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50 h-7",
                                               content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
                                           } :
-                                          {base: "bg-clear", content: "bg-clear w-[6rem] text-center p-1 text-white h-7"}}>
+                                          {
+                                              base: "bg-clear",
+                                              content: "bg-clear w-[6rem] text-center p-1 text-white h-7"
+                                          }}>
                                 {playing ? chapter : passage.chapter}</Chip>
                         </div>
                     </div>
