@@ -10,33 +10,37 @@ import { guessAction } from "@/app/game/guess-action";
 import { CheckIcon } from "@heroui/shared-icons";
 import { DatePicker } from "@heroui/date-picker";
 import Results from "@/app/game/results/Results";
-import { getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
+import { getLocalTimeZone, today as TODAY, CalendarDate } from "@internationalized/date";
 
 const Game = (props: any) => {
     const guessLimit = 5;
-    const today = moment(new Date()).format('YYYY-MM-DD');
+    const [today, setToday] = React.useState(moment(new Date()).format('YYYY-MM-DD'));
+
+    function retrievePassage() {
+        fetch(`${process.env.passageService}/daily/${today}`, { method: "GET" })
+            .then((response) => {
+                response.json().then((data) => {
+                    data.division = divisions.find((div: any) => div.books.some((book: any) => book.name == data.book)).name;
+                    data.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == data.division)).name;
+                    setPassage(data);
+                });
+            });
+    }
 
     useEffect(() => {
         if (!passage.book) { // fixme :: hack
             flattenDivisions();
             flattenBooks();
 
-            fetch(`${process.env.passageService}/daily/${today}`, { method: "GET" })
-                .then((response) => {
-                    response.json().then((data) => {
-                        data.division = divisions.find((div: any) => div.books.some((book: any) => book.name == data.book)).name;
-                        data.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == data.division)).name;
-                        setPassage(data);
-                    });
-                });
+            retrievePassage();
 
-            fetch(`${process.env.passageService}/daily/history`, { method: "GET" })
-                .then((response) => {
-                    response.json().then((data) => {
-                        // Remove T...
-                        setDates(data);
-                    });
-                });
+            // fetch(`${process.env.passageService}/daily/history`, { method: "GET" })
+            //     .then((response) => {
+            //         response.json().then((data) => {
+            //             // Remove T...
+            //             setDates(data);
+            //         });
+            //     });
         }
     })
 
@@ -169,10 +173,15 @@ const Game = (props: any) => {
         setReading(false);
     }
 
+    function changeDate(date: string): void {
+        setToday(date);
+        retrievePassage();
+    }
+
     const stylesDateInput = {
-        base: ["dark", "w-max-[20rem]", "mb-2"],
+        base: ["w-max-[20rem]", "mb-2"],
         selectorButton: ["text-white"],
-        inputWrapper: ["!bg-transparent"],
+        inputWrapper: ["dark", "!bg-transparent"]
     };
 
     return <main>
@@ -199,6 +208,8 @@ const Game = (props: any) => {
                         defaultValue={TODAY(getLocalTimeZone())}
                         maxValue={TODAY(getLocalTimeZone())}
                         dateInputClassNames={stylesDateInput}
+                        value={new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]), parseInt(today.split('-')[2]))}
+                        onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
                         selectorButtonPlacement="start" />
                     <div className="panel flex justify-between">
                         <div className="text-[1rem]">{passage.summary}</div>
