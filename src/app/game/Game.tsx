@@ -166,8 +166,18 @@ const Game = (props: any) => {
         date = date || _.sample(props.dates);
         setToday(date!);
 
+        setPlaying(true);
+        setTestamentFound(false);
+        setDivisionFound(false);
+        setBookFound(false);
+        setChapterFound(false);
+        setGuesses([]);
+        setResults(<></>);
+        setBook('Book?');
+        setChapter('Chapter?');
+
         retrievePassage(date!);
-        // todo :: reset state of the game
+        clearSelection();
     }
 
     const stylesDateInput = {
