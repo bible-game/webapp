@@ -12,6 +12,7 @@ import { DatePicker } from "@heroui/date-picker";
 import Results from "@/app/game/results/Results";
 import { getLocalTimeZone, today as TODAY, CalendarDate } from "@internationalized/date";
 import _ from "lodash";
+import { toast, Toaster } from "react-hot-toast";
 
 const Game = (props: any) => {
     const guessLimit = 5;
@@ -186,8 +187,15 @@ const Game = (props: any) => {
         inputWrapper: ["dark", "!bg-transparent"]
     };
 
+    function isExistingGuess() {
+        return guesses.map(guess => guess.book+guess.chapter)
+            .includes(selected.book+selected.chapter);
+    }
+
     return <main>
-        { reading ? <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={() => setReading(false)} today={today} passage={passage}/> :
+        <div><Toaster/></div>
+        {reading ? <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={() => setReading(false)} today={today}
+                         passage={passage}/> :
             <>
                 <section>
                     <div aria-hidden="true"
@@ -218,7 +226,7 @@ const Game = (props: any) => {
                                 variant="light"
                                 size="sm"
                                 isIconOnly
-                                onClick={()=> changeDate(null)}
+                                onClick={() => changeDate(null)}
                                 className="mt-1 text-white">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                                  stroke="currentColor" className="size-4">
@@ -348,9 +356,12 @@ const Game = (props: any) => {
                         playing ?
                             <Button className="border flex-1 text-white h-[3.5rem] p-0 text-sm" variant="bordered"
                                     onClick={() => {
-                                        guessAction(today, selected.book, selected.chapter).then((closeness: any) => {
-                                            addGuess(closeness)
-                                        })
+                                        if (isExistingGuess()) toast.error("You have already guessed this!")
+                                        else {
+                                            guessAction(today, selected.book, selected.chapter).then((closeness: any) => {
+                                                addGuess(closeness)
+                                            })
+                                        }
                                     }}>Guess</Button> :
                             <Button className="border flex-1 text-white h-[3.5rem] p-0 text-sm" variant="bordered"
                                     onClick={() => openReading()}>
