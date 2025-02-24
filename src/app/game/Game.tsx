@@ -19,7 +19,7 @@ const Game = (props: any) => {
     const [today, setToday] = React.useState(moment(new Date()).format('YYYY-MM-DD'));
 
     function retrievePassage(date = today) {
-        fetch(`${process.env.passageService}/daily/${date}`, { method: "GET" })
+        fetch(`${process.env.SVC_PASSAGE}/daily/${date}`, { method: "GET" })
             .then((response) => {
                 response.json().then((data) => {
                     data.division = divisions.find((div: any) => div.books.some((book: any) => book.name == data.book)).name;
