@@ -278,9 +278,9 @@ const Game = (props: any) => {
                     </div>
                 </section>
                 <section className="flex justify-between gap-4 mt-4">
-                    {guesses.map((guess: any) => <Guess book={guess.book} chapter={guess.chapter}
+                    {guesses.map((guess: any) => <Guess book={guess.book} key={guess.book+guess.chapter} chapter={guess.chapter}
                                                         closeness={guess.closeness}/>)}
-                    {[...Array(5 - guesses.length).keys()].map(x => x++).map(() => <Guess/>)}
+                    {[...Array(5 - guesses.length).keys()].map(x => x++).map((x: number) => <Guess key={x}/>)}
                 </section>
                 <section className="flex justify-between gap-4 mt-4">
                     <Autocomplete
