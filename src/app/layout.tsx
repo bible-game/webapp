@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.sass";
+import React from "react";
 
 export const metadata: Metadata = {
   title: "Bible Game",
-  description: "Explore the Bible with a daily passage-guessing game",
+  description: "A game that explores the Bible 📖✨",
 };
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
