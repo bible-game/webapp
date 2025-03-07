@@ -163,8 +163,7 @@ const Game = (props: any) => {
         onOpen();
     }
 
-    function changeDate(date: string | null): void {
-        date = date || _.sample(props.dates);
+    function changeDate(date: string): void {
         setToday(date!);
 
         setPlaying(true);
@@ -183,8 +182,9 @@ const Game = (props: any) => {
 
     const stylesDateInput = {
         base: ["w-min", "mb-2"],
-        selectorButton: ["text-white"],
-        inputWrapper: ["dark", "!bg-transparent"]
+        selectorButton: ["opacity-85", "text-white", "p-[1.0625rem]", "hover:!bg-[#ffffff14]"],
+        inputWrapper: ["dark", "!bg-transparent"],
+        input: ["opacity-85", "ml-2", "text-xs"]
     };
 
     function isExistingGuess() {
@@ -199,21 +199,33 @@ const Game = (props: any) => {
             <>
                 <section>
                     <div aria-hidden="true"
-                         className="fixed hidden dark:md:block dark:opacity-100 -bottom-[30%] -left-[30%] z-0">
+                         className="fixed hidden dark:md:block dark:opacity-100 -bottom-[20%] -left-[20%] z-0">
                         <img
                             src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/images/docs-left.png"
-                            className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-55 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
+                            className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-65 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
                             alt="docs left background" data-loaded="true"/>
                     </div>
                     <div aria-hidden="true"
-                         className="fixed hidden dark:md:block dark:opacity-70 -top-[50%] -right-[60%] 2xl:-top-[60%] 2xl:-right-[45%] z-0 rotate-12">
+                         className="fixed hidden dark:md:block dark:opacity-75 -top-[50%] -right-[60%] 2xl:-top-[60%] 2xl:-right-[45%] z-0 rotate-12">
                         <img src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/images/docs-right.png"
-                             className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-55 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
+                             className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-65 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
                              alt="docs right background" data-loaded="true"/>
                     </div>
                 </section>
                 <section>
                     <div className="flex gap-1 items-start">
+                        <Button variant="light"
+                                radius="full"
+                                size="sm"
+                                isIconOnly
+                                onClick={() => changeDate(_.sample(props.dates))}
+                                className="mt-1 text-white hover:!bg-[#ffffff14] opacity-85">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                 stroke="currentColor" className="size-4">
+                                <path strokeLinecap="round" strokeLinejoin="round"
+                                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                            </svg>
+                        </Button>
                         <DatePicker
                             classNames={stylesDateInput}
                             defaultValue={TODAY(getLocalTimeZone())}
@@ -222,18 +234,6 @@ const Game = (props: any) => {
                             value={new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]), parseInt(today.split('-')[2]))}
                             onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
                             selectorButtonPlacement="start"/>
-                        <Button color="secondary"
-                                variant="light"
-                                size="sm"
-                                isIconOnly
-                                onClick={() => changeDate(null)}
-                                className="mt-1 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                                 stroke="currentColor" className="size-4">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
-                            </svg>
-                        </Button>
                     </div>
                     <div className="panel flex justify-between">
                         <div className="text-[1rem]">{passage.summary}</div>
