@@ -208,12 +208,12 @@ const Game = (props: any) => {
                     <div aria-hidden="true"
                          className="fixed hidden dark:md:block dark:opacity-75 -top-[50%] -right-[60%] 2xl:-top-[60%] 2xl:-right-[45%] z-0 rotate-12">
                         <img src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/images/docs-right.png"
-                             className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-65 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
+                             className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-55 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
                              alt="docs right background" data-loaded="true"/>
                     </div>
                 </section>
                 <section>
-                    <div className="flex gap-1 items-start">
+                    <div className="ml-6 flex gap-1 items-start">
                         <Button variant="light"
                                 radius="full"
                                 size="sm"
@@ -235,46 +235,8 @@ const Game = (props: any) => {
                             onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
                             selectorButtonPlacement="start"/>
                     </div>
-                    <div className="panel flex justify-between">
-                        <div className="text-[1rem]">{passage.summary}</div>
-                        {results}
-                        <div>
-                            <Chip size="md"
-                                  className="mr-4"
-                                  variant="solid"
-                                  classNames={!playing && !bookFound ?
-                                      {
-                                          base: "bg-gradient-to-br from-blue-50 to-blue-300 border border-white/50 h-7",
-                                          content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
-                                      } :
-                                      bookFound ?
-                                          {
-                                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50 h-7",
-                                              content: "text-black font-medium p-1 tracking-wide w-[8rem] text-center"
-                                          } :
-                                          {
-                                              base: "bg-clear",
-                                              content: "bg-clear w-[4rem] text-center p-1 text-white h-7"
-                                          }}>
-                                {playing ? book : passage.book}</Chip>
-                            <Chip size="md"
-                                  variant="solid"
-                                  classNames={!playing && !chapterFound ?
-                                      {
-                                          base: "bg-gradient-to-br from-blue-50 to-blue-300 border border-white/50 h-7",
-                                          content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
-                                      } :
-                                      chapterFound ?
-                                          {
-                                              base: "bg-gradient-to-br from-green-50 to-green-300 border border-white/50 h-7",
-                                              content: "text-black font-medium p-1 tracking-wide w-[6rem] text-center",
-                                          } :
-                                          {
-                                              base: "bg-clear",
-                                              content: "bg-clear w-[6rem] text-center p-1 text-white h-7"
-                                          }}>
-                                {playing ? chapter : passage.chapter}</Chip>
-                        </div>
+                    <div className="panel text-center">
+                        <div className="text-[1rem] opacity-85">{passage.summary}</div>
                     </div>
                 </section>
                 <section className="flex justify-between gap-4 mt-4">
@@ -282,7 +244,7 @@ const Game = (props: any) => {
                                                         closeness={guess.closeness}/>)}
                     {[...Array(5 - guesses.length).keys()].map(x => x++).map((x: number) => <Guess key={x}/>)}
                 </section>
-                <section className="flex justify-between gap-4 mt-4">
+                <section className="panel flex justify-between gap-4 mt-4">
                     <Autocomplete
                         className="flex-1"
                         inputProps={{classNames: {inputWrapper: "border"}}}
