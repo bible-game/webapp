@@ -2,9 +2,8 @@
 
 import React, { useEffect } from "react";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
-import {Button, Chip, useDisclosure} from "@nextui-org/react";
+import {Button, useDisclosure} from "@nextui-org/react";
 import moment from "moment";
-import Guess from "@/app/game/guess/Guess";
 import Text from "@/app/game/text/Text";
 import { guessAction } from "@/app/game/guess-action";
 import { CheckIcon } from "@heroui/shared-icons";
@@ -13,6 +12,7 @@ import Results from "@/app/game/results/Results";
 import { getLocalTimeZone, today as TODAY, CalendarDate } from "@internationalized/date";
 import _ from "lodash";
 import { toast, Toaster } from "react-hot-toast";
+import Display from "@/app/game/display/Display";
 
 const Game = (props: any) => {
     const guessLimit = 5;
@@ -244,6 +244,9 @@ const Game = (props: any) => {
                 {/*                                        closeness={guess.closeness}/>)}*/}
                 {/*    {[...Array(5 - guesses.length).keys()].map(x => x++).map((x: number) => <Guess key={x}/>)}*/}
                 {/*</section>*/}
+                <section className="mt-4">
+                    <Display/>
+                </section>
                 <section className="panel flex justify-between mt-4">
                     {/*<Autocomplete*/}
                     {/*    className="flex-1"*/}
