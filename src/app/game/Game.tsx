@@ -235,52 +235,52 @@ const Game = (props: any) => {
                             onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
                             selectorButtonPlacement="start"/>
                     </div>
-                    <div className="panel text-center">
-                        <div className="text-[1rem] opacity-85">{passage.summary}</div>
+                    <div className="panel text-center p-4">
+                        <div className="opacity-80">{passage.summary}</div>
                     </div>
                 </section>
-                <section className="flex justify-between gap-4 mt-4">
-                    {guesses.map((guess: any) => <Guess book={guess.book} key={guess.book+guess.chapter} chapter={guess.chapter}
-                                                        closeness={guess.closeness}/>)}
-                    {[...Array(5 - guesses.length).keys()].map(x => x++).map((x: number) => <Guess key={x}/>)}
-                </section>
-                <section className="panel flex justify-between gap-4 mt-4">
+                {/*<section className="flex justify-between gap-4 mt-4">*/}
+                {/*    {guesses.map((guess: any) => <Guess book={guess.book} key={guess.book+guess.chapter} chapter={guess.chapter}*/}
+                {/*                                        closeness={guess.closeness}/>)}*/}
+                {/*    {[...Array(5 - guesses.length).keys()].map(x => x++).map((x: number) => <Guess key={x}/>)}*/}
+                {/*</section>*/}
+                <section className="panel flex justify-between mt-4">
+                    {/*<Autocomplete*/}
+                    {/*    className="flex-1"*/}
+                    {/*    inputProps={{classNames: {inputWrapper: "border"}}}*/}
+                    {/*    defaultItems={testaments}*/}
+                    {/*    isReadOnly={!!testamentFound}*/}
+                    {/*    startContent={testamentFound}*/}
+                    {/*    label="Testament"*/}
+                    {/*    onClear={() => clearSelection()}*/}
+                    {/*    onSelectionChange={(key: any) => {*/}
+                    {/*        selectTestament(key)*/}
+                    {/*    }}*/}
+                    {/*    selectedKey={selected.testament}*/}
+                    {/*    variant="bordered">*/}
+                    {/*    {(item: any) =>*/}
+                    {/*        <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}*/}
+                    {/*</Autocomplete>*/}
+                    {/*<Autocomplete*/}
+                    {/*    className="flex-1 text-sm"*/}
+                    {/*    inputProps={{classNames: {inputWrapper: "border"}}}*/}
+                    {/*    defaultItems={divisions}*/}
+                    {/*    isReadOnly={!!divisionFound}*/}
+                    {/*    startContent={divisionFound}*/}
+                    {/*    label="Division"*/}
+                    {/*    selectedKey={selected.division}*/}
+                    {/*    onClear={() => clearSelection()}*/}
+                    {/*    onSelectionChange={(key: any) => {*/}
+                    {/*        selectDivision(key)*/}
+                    {/*    }}*/}
+                    {/*    variant="bordered">*/}
+                    {/*    {(item: any) =>*/}
+                    {/*        <AutocompleteItem className="text-black text-sm"*/}
+                    {/*                          key={item.name}>{item.name}</AutocompleteItem>}*/}
+                    {/*</Autocomplete>*/}
                     <Autocomplete
-                        className="flex-1"
-                        inputProps={{classNames: {inputWrapper: "border"}}}
-                        defaultItems={testaments}
-                        isReadOnly={!!testamentFound}
-                        startContent={testamentFound}
-                        label="Testament"
-                        onClear={() => clearSelection()}
-                        onSelectionChange={(key: any) => {
-                            selectTestament(key)
-                        }}
-                        selectedKey={selected.testament}
-                        variant="bordered">
-                        {(item: any) =>
-                            <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}
-                    </Autocomplete>
-                    <Autocomplete
-                        className="flex-1 text-sm"
-                        inputProps={{classNames: {inputWrapper: "border"}}}
-                        defaultItems={divisions}
-                        isReadOnly={!!divisionFound}
-                        startContent={divisionFound}
-                        label="Division"
-                        selectedKey={selected.division}
-                        onClear={() => clearSelection()}
-                        onSelectionChange={(key: any) => {
-                            selectDivision(key)
-                        }}
-                        variant="bordered">
-                        {(item: any) =>
-                            <AutocompleteItem className="text-black text-sm"
-                                              key={item.name}>{item.name}</AutocompleteItem>}
-                    </Autocomplete>
-                    <Autocomplete
-                        className="flex-1 text-sm"
-                        inputProps={{classNames: {inputWrapper: "border"}}}
+                        className="flex-1 text-sm border-r-1 border-[#ffffff40] rounded-l-full pl-4 pr-2 py-1"
+                        inputProps={{classNames: {inputWrapper: "border-0"}}}
                         defaultItems={books}
                         isReadOnly={!!bookFound}
                         startContent={bookFound}
@@ -296,8 +296,8 @@ const Game = (props: any) => {
                                               key={item.name}>{item.name}</AutocompleteItem>}
                     </Autocomplete>
                     <Autocomplete
-                        className="flex-1 text-sm"
-                        inputProps={{classNames: {inputWrapper: "border"}}}
+                        className="flex-1 text-sm border-r-1 border-[#ffffff40] px-2 py-1"
+                        inputProps={{classNames: {inputWrapper: "border-0"}}}
                         defaultItems={chapters}
                         isReadOnly={!!chapterFound}
                         startContent={chapterFound}
@@ -316,7 +316,7 @@ const Game = (props: any) => {
                     </Autocomplete>
                     {
                         playing ?
-                            <Button className="border flex-1 text-white h-[3.5rem] p-0 text-sm" variant="bordered"
+                            <Button className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full" variant="bordered"
                                     onClick={() => {
                                         if (isExistingGuess()) toast.error("You have already guessed this!")
                                         else {
@@ -325,7 +325,7 @@ const Game = (props: any) => {
                                             })
                                         }
                                     }}>Guess</Button> :
-                            <Button className="border flex-1 text-white h-[3.5rem] p-0 text-sm" variant="bordered"
+                            <Button className="border-0 flex-1 text-white h-[3.5rem] p-0 text-sm" variant="bordered"
                                     onClick={() => openReading()}>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth={1.25} stroke="currentColor" className="size-4">
