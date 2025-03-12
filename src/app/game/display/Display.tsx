@@ -8,7 +8,8 @@ const theLaw = {
         { key: "Nu", name: "Numbers" },
         { key: "De", name: "Deuteronomy" }
     ],
-    color: "blue",
+    border: "#ffffff80",
+    colour: "from-[#36ABFF] to-[#80D2FF]",
     division: "The Law"
 };
 
@@ -17,17 +18,18 @@ const history = {
         { key: "Js", name: "Joshua" },
         { key: "Jd", name: "Judges" },
         { key: "Ru", name: "Ruth" },
-        { key: "1Sa", name: "1 Samuel" },
-        { key: "2Sa", name: "2 Samuel" },
-        { key: "1Ki", name: "1 Kings" },
-        { key: "2Ki", name: "2 Kings" },
-        { key: "1Ch", name: "1 Chronicles" },
-        { key: "2Ch", name: "2 Chronicles" },
+        { key: "Sa", name: "1 Samuel", super: "1" },
+        { key: "Sa", name: "2 Samuel", super: "2" },
+        { key: "Ki", name: "1 Kings", super: "1" },
+        { key: "Ki", name: "2 Kings", super: "2" },
+        { key: "Ch", name: "1 Chronicles", super: "1" },
+        { key: "Ch", name: "2 Chronicles", super: "2"},
         { key: "Ez", name: "Ezra" },
         { key: "Ne", name: "Nehemiah" },
         { key: "Es", name: "Esther" }
     ],
-    color: "purple",
+    border: "#ffffff80",
+    colour: "from-[#8967F6] to-[#A88CFF]",
     division: "History"
 };
 
@@ -39,7 +41,8 @@ const wisdom = {
         { key: "Ec", name: "Ecclesiastes" },
         { key: "So", name: "Songs of Solomon" }
     ],
-    color: "red",
+    border: "#ffffff80",
+    colour: "from-[#C54A84] to-[#E35D7D]",
     division: "Wisdom"
 };
 
@@ -51,7 +54,8 @@ const majorProp = {
         { key: "Ek", name: "Ezekiel" },
         { key: "Da", name: "Daniel" }
     ],
-    color: "green",
+    border: "#ffffff80",
+    colour: "from-[#4DBA7E] to-[#86FEC4]",
     division: "Major Prophets"
 };
 
@@ -70,7 +74,8 @@ const minorProp = {
         { key: "Zc", name: "Zechariah" },
         { key: "Ma", name: "Malachi" }
     ],
-    color: "yellow",
+    border: "#ffffff80",
+    colour: "from-[#D0B42B] to-[#E1DD5E]",
     division: "Minor Prophets"
 };
 
@@ -81,7 +86,8 @@ const gospels = {
         { key: "Lu", name: "Luke" },
         { key: "Jn", name: "John" },
     ],
-    color: "yellow",
+    border: "#ffffff80",
+    colour: "from-[#D0B42B] to-[#E1DD5E]",
     division: "Gospels"
 };
 
@@ -89,26 +95,28 @@ const earlyChurch = {
     books: [
         { key: "Ac", name: "Acts" }
     ],
-    color: "green",
+    border: "#ffffff80",
+    colour: "from-[#4DBA7E] to-[#86FEC4]",
     division: "Early Church"
 };
 
 const pauLetters = {
     books: [
         { key: "Ro", name: "Romans" },
-        { key: "1Co", name: "1 Corinthians" },
-        { key: "2Co", name: "2 Corinthians" },
+        { key: "Co", name: "1 Corinthians", super: "1" },
+        { key: "Co", name: "2 Corinthians", super: "1" },
         { key: "Ga", name: "Galatians" },
         { key: "Ep", name: "Ephesians" },
         { key: "Ph", name: "Philippians" },
         { key: "Cl", name: "Colossians" },
-        { key: "1Th", name: "1 Thessalonians" },
-        { key: "2Th", name: "2 Thessalonians" },
-        { key: "1Ti", name: "1 Timothy" },
-        { key: "2Ti", name: "2 Timothy" },
+        { key: "Th", name: "1 Thessalonians", super: "1" },
+        { key: "Th", name: "2 Thessalonians", super: "2" },
+        { key: "Ti", name: "1 Timothy", super: "1" },
+        { key: "Ti", name: "2 Timothy", super: "2" },
         { key: "Tu", name: "Titus" }
     ],
-    color: "blue",
+    border: "#ffffff80",
+    colour: "from-[#36ABFF] to-[#80D2FF]",
     division: "Paul's Letters"
 };
 
@@ -117,21 +125,23 @@ const moreLetters = {
         { key: "Pm", name: "Philemon" },
         { key: "He", name: "Hebrews" }
     ],
-    color: "blue",
+    border: "#ffffff80",
+    colour: "from-[#36ABFF] to-[#80D2FF]",
     division: "Paul's Letters"
 };
 
 const genLetters = {
     books: [
         { key: "Ja", name: "James" },
-        { key: "1Pe", name: "1 Peter" },
-        { key: "2Pe", name: "2 Peter" },
-        { key: "1Jn", name: "1 John" },
-        { key: "2Jn", name: "2 John" },
-        { key: "3Jn", name: "3 John" },
+        { key: "Pe", name: "1 Peter", super: "1" },
+        { key: "Pe", name: "2 Peter", super: "2" },
+        { key: "Jn", name: "1 John", super: "1" },
+        { key: "Jn", name: "2 John", super: "2" },
+        { key: "Jn", name: "3 John", super: "3" },
         { key: "Ju", name: "Ju" }
     ],
-    color: "red",
+    border: "#ffffff80",
+    colour: "from-[#C54A84] to-[#E35D7D]",
     division: "General Letters"
 };
 
@@ -139,7 +149,8 @@ const prophecy = {
     books: [
         { key: "Re", name: "Revelation" }
     ],
-    color: "purple",
+    border: "#ffffff80",
+    colour: "from-[#8967F6] to-[#A88CFF]",
     division: "Prophecy"
 };
 
@@ -151,18 +162,38 @@ const oldTestament = [
 ];
 
 const newTestament = [
-    { row: 0, divisions: [gospels] },
-    { row: 1, divisions: [earlyChurch] },
-    { row: 2, divisions: [pauLetters] },
-    { row: 3, divisions: [moreLetters, genLetters, prophecy] }
+    { row: 0, divisions: [gospels, earlyChurch] },
+    { row: 1, divisions: [pauLetters] },
+    { row: 2, divisions: [moreLetters, genLetters, prophecy] }
 ];
+
+const bookClass = (border: string, colour: string) => `text-[#060842] bg-gradient-to-tr ${colour} m-[6px] text-[1rem] rounded-md h-[40px] w-[40px] flex justify-center items-center book cursor-pointer
+`;
 
 const Display = () => {
 
-    return  <>
-        {oldTestament.map((rows: any) => <div>{rows.divisions.map((div: any) => <span>{div.books.map((book: any) => <span>{book.key}</span>)}</span>)}</div>)}
-        {newTestament.map((rows: any) => <div>{rows.divisions.map((div: any) => <span>{div.books.map((book: any) => <span>{book.key}</span>)}</span>)}</div>)}
-    </>
-}
+    return <div>
+        <div>{oldTestament.map((rows: any) => <div className="flex">{rows.divisions.map((div: any) => <div
+            className="flex">{div.books.map((book: any) =>
+            <div className="relative -top-[40px] h-[52px]">
+                <div
+                    className={"relative shadow border-1 h-[40px] w-[40px] rounded-md top-[3.125rem] left-[.625rem] -z-10 border-[" + div.border + "]"}></div>
+                <div className={bookClass(div.border, div.colour)}><p className="-translate-x-0.5 -translate-y-0.5">{book.key}</p><span className="-translate-x-0.5 -translate-y-[.375rem] text-[11px] font-semibold">{book.super}</span></div>
+            </div>)}
+        </div>)}
+        </div>)}
+        </div>
+        <div className="my-2">{newTestament.map((rows: any) => <div className="flex">{rows.divisions.map((div: any) => <div
+            className="flex">{div.books.map((book: any) =>
+            <div className="relative -top-[40px] h-[52px]">
+                <div
+                    className={"relative shadow border-1 h-[40px] w-[40px] rounded-md top-[3.125rem] left-[.625rem] -z-10 border-[" + div.border + "]"}></div>
+                <div className={bookClass(div.border, div.colour)}><p className="-translate-x-0.5 -translate-y-0.5">{book.key}</p><span className="-translate-x-0.5 -translate-y-[.375rem] text-[11px] font-semibold">{book.super}</span></div>
+            </div>)}
+        </div>)}
+        </div>)}
+        </div>
+        </div>
+        }
 
-export default Display;
+        export default Display;

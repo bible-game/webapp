@@ -244,7 +244,7 @@ const Game = (props: any) => {
                 {/*                                        closeness={guess.closeness}/>)}*/}
                 {/*    {[...Array(5 - guesses.length).keys()].map(x => x++).map((x: number) => <Guess key={x}/>)}*/}
                 {/*</section>*/}
-                <section className="mt-4">
+                <section className="mt-4 flex justify-center">
                     <Display/>
                 </section>
                 <section className="panel flex justify-between mt-4">
