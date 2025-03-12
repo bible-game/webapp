@@ -97,6 +97,8 @@ const Game = (props: any) => {
     }
 
     function selectBook(item: string): void {
+        console.log(books)
+        console.log(item);
         selected.book = item;
 
         const chapters = [];
@@ -105,8 +107,8 @@ const Game = (props: any) => {
 
         setChapters(chapters);
 
-        const division = divisions.find((div: any) => div.books.some((book: any) => book.name == item));
-        selectDivision(division.name);
+        // const division = divisions.find((div: any) => div.books.some((book: any) => book.name == item));
+        // selectDivision(division.name);
     }
 
     function selectChapter(item: string): void {
@@ -199,14 +201,14 @@ const Game = (props: any) => {
             <>
                 <section>
                     <div aria-hidden="true"
-                         className="fixed hidden dark:md:block dark:opacity-100 -bottom-[20%] -left-[20%] z-0">
+                         className="fixed hidden dark:md:block dark:opacity-100 -bottom-[20%] -left-[10%] z-0">
                         <img
                             src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/images/docs-left.png"
-                            className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-75 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
+                            className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-85 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
                             alt="docs left background" data-loaded="true"/>
                     </div>
                     <div aria-hidden="true"
-                         className="fixed hidden dark:md:block dark:opacity-75 -top-[50%] -right-[60%] 2xl:-top-[60%] 2xl:-right-[45%] z-0 rotate-12">
+                         className="fixed hidden dark:md:block dark:opacity-75 -top-[40%] -right-[60%] 2xl:-top-[60%] 2xl:-right-[45%] z-0 rotate-12">
                         <img src="https://heroui-assets.nyc3.cdn.digitaloceanspaces.com/images/docs-right.png"
                              className="relative z-10 opacity-0 shadow-black/5 data-[loaded=true]:opacity-65 shadow-none transition-transform-opacity motion-reduce:transition-none !duration-300 rounded-large"
                              alt="docs right background" data-loaded="true"/>
@@ -244,8 +246,8 @@ const Game = (props: any) => {
                 {/*                                        closeness={guess.closeness}/>)}*/}
                 {/*    {[...Array(5 - guesses.length).keys()].map(x => x++).map((x: number) => <Guess key={x}/>)}*/}
                 {/*</section>*/}
-                <section className="mt-4 flex justify-center">
-                    <Display/>
+                <section className="mt-6 flex justify-center">
+                    <Display select={selectBook}/>
                 </section>
                 <section className="panel flex justify-between mt-4">
                     {/*<Autocomplete*/}
