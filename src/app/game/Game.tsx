@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
-import {Button, useDisclosure} from "@nextui-org/react";
+import {Button, DropdownSection, useDisclosure} from "@nextui-org/react";
 import moment from "moment";
 import Text from "@/app/game/text/Text";
 import { guessAction } from "@/app/game/guess-action";
@@ -241,48 +241,10 @@ const Game = (props: any) => {
                         <div className="opacity-80">{passage.summary}</div>
                     </div>
                 </section>
-                {/*<section className="flex justify-between gap-4 mt-4">*/}
-                {/*    {guesses.map((guess: any) => <Guess book={guess.book} key={guess.book+guess.chapter} chapter={guess.chapter}*/}
-                {/*                                        closeness={guess.closeness}/>)}*/}
-                {/*    {[...Array(5 - guesses.length).keys()].map(x => x++).map((x: number) => <Guess key={x}/>)}*/}
-                {/*</section>*/}
                 <section className="mt-6 flex justify-center">
                     <Display select={selectBook}/>
                 </section>
                 <section className="panel flex justify-between mt-4">
-                    {/*<Autocomplete*/}
-                    {/*    className="flex-1"*/}
-                    {/*    inputProps={{classNames: {inputWrapper: "border"}}}*/}
-                    {/*    defaultItems={testaments}*/}
-                    {/*    isReadOnly={!!testamentFound}*/}
-                    {/*    startContent={testamentFound}*/}
-                    {/*    label="Testament"*/}
-                    {/*    onClear={() => clearSelection()}*/}
-                    {/*    onSelectionChange={(key: any) => {*/}
-                    {/*        selectTestament(key)*/}
-                    {/*    }}*/}
-                    {/*    selectedKey={selected.testament}*/}
-                    {/*    variant="bordered">*/}
-                    {/*    {(item: any) =>*/}
-                    {/*        <AutocompleteItem className="text-black" key={item.name}>{item.name}</AutocompleteItem>}*/}
-                    {/*</Autocomplete>*/}
-                    {/*<Autocomplete*/}
-                    {/*    className="flex-1 text-sm"*/}
-                    {/*    inputProps={{classNames: {inputWrapper: "border"}}}*/}
-                    {/*    defaultItems={divisions}*/}
-                    {/*    isReadOnly={!!divisionFound}*/}
-                    {/*    startContent={divisionFound}*/}
-                    {/*    label="Division"*/}
-                    {/*    selectedKey={selected.division}*/}
-                    {/*    onClear={() => clearSelection()}*/}
-                    {/*    onSelectionChange={(key: any) => {*/}
-                    {/*        selectDivision(key)*/}
-                    {/*    }}*/}
-                    {/*    variant="bordered">*/}
-                    {/*    {(item: any) =>*/}
-                    {/*        <AutocompleteItem className="text-black text-sm"*/}
-                    {/*                          key={item.name}>{item.name}</AutocompleteItem>}*/}
-                    {/*</Autocomplete>*/}
                     <Autocomplete
                         className="flex-1 text-sm border-r-1 border-[#ffffff40] rounded-l-full pl-4 pr-2 py-1"
                         inputProps={{classNames: {inputWrapper: "border-0"}}}
