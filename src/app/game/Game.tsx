@@ -14,6 +14,7 @@ import _ from "lodash";
 import { toast, Toaster } from "react-hot-toast";
 import Display from "@/app/game/display/Display";
 import { NumberInput } from "@heroui/number-input";
+import Guess from "@/app/game/guess/Guess";
 
 const Game = (props: any) => {
     const guessLimit = 5;
@@ -115,12 +116,14 @@ const Game = (props: any) => {
         setChapter("1");
 
         setChapters(chapters);
+        selected.chapter = '1';
 
         // const division = divisions.find((div: any) => div.books.some((book: any) => book.name == item));
         // selectDivision(division.name);
     }
 
     function selectChapter(item: string): void {
+        setChapter(item);
         selected.chapter = item;
     }
 
@@ -273,17 +276,18 @@ const Game = (props: any) => {
                     </Autocomplete>
                     <NumberInput
                         classNames={{
-                            base: "flex-1 text-sm border-r-1 border-[#ffffff40] px-2 pr-2 py-1",
+                            base: "flex-1 text-sm border-r-1 border-[#ffffff40] px-2 pr-2 py-1 !opacity-100",
                             inputWrapper: "border-0",
                             label: "!text-[#ffffff66]",
                             stepperButton: "text-white opacity-40"
                         }}
                         value={hasBook ? parseInt(chapter) : undefined}
                         maxValue={hasBook ? maxChapter : undefined}
-                        onChange={(e: any) => setChapter(e)}
+                        onChange={(e: any) => selectChapter(e)}
                         minValue={1}
                         label="Chapter"
                         isDisabled={!hasBook}
+                        hideStepper={!hasBook}
                         variant="bordered"
                         endContent={ !hasBook ? undefined :
                             <div className={"w-full text-left opacity-50 relative right-[3rem]"}>/ {maxChapter} </div>
@@ -300,7 +304,7 @@ const Game = (props: any) => {
                                             })
                                         }
                                     }}>Guess</Button> :
-                            <Button className="border-0 flex-1 text-white h-[3.5rem] p-0 text-sm" variant="bordered"
+                            <Button className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full" variant="bordered"
                                     onClick={() => openReading()}>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth={1.25} stroke="currentColor" className="size-4">
@@ -309,6 +313,11 @@ const Game = (props: any) => {
                                 </svg>
                                 Reading</Button>
                     }
+                </section>
+                <section className="px-4 flex justify-center flex-wrap gap-4 mt-4">
+                    {guesses.map((guess: any) => <Guess book={guess.book} key={guess.book + guess.chapter}
+                                                        chapter={guess.chapter}
+                                                        closeness={guess.closeness}/>)}
                 </section>
             </>
         }
