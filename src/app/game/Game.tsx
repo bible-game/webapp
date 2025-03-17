@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
-import {Button, DropdownSection, useDisclosure} from "@nextui-org/react";
+import {Button, useDisclosure} from "@nextui-org/react";
 import moment from "moment";
 import Text from "@/app/game/text/Text";
 import { guessAction } from "@/app/game/guess-action";
@@ -13,6 +13,7 @@ import { getLocalTimeZone, today as TODAY, CalendarDate } from "@internationaliz
 import _ from "lodash";
 import { toast, Toaster } from "react-hot-toast";
 import Display from "@/app/game/display/Display";
+import { NumberInput } from "@heroui/number-input";
 
 const Game = (props: any) => {
     const guessLimit = 5;
@@ -61,6 +62,10 @@ const Game = (props: any) => {
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+    const [hasBook, setHasBook] = React.useState(false);
+    const [maxChapter, setMaxChapter] = React.useState(0);
+
+
     function selectTestament(item: string): void {
         selected.testament = item;
 
@@ -104,6 +109,10 @@ const Game = (props: any) => {
         const chapters = [];
         const numChapters = books!!.find((book: any) => book.name === item).chapters;
         for (let i = 1; i <= numChapters; i++) chapters.push({ name: i.toString() });
+
+        setMaxChapter(numChapters);
+        setHasBook(true);
+        setChapter("1");
 
         setChapters(chapters);
 
@@ -247,7 +256,7 @@ const Game = (props: any) => {
                 <section className="panel flex justify-between mt-4">
                     <Autocomplete
                         className="flex-1 text-sm border-r-1 border-[#ffffff40] rounded-l-full pl-4 pr-2 py-1"
-                        inputProps={{classNames: {inputWrapper: "border-0"}}}
+                        inputProps={{classNames: {inputWrapper: "border-0", label: "!text-[#ffffff66]", selectorButton: "text-white opacity-40"}}}
                         defaultItems={books}
                         isReadOnly={!!bookFound}
                         startContent={bookFound}
@@ -262,25 +271,24 @@ const Game = (props: any) => {
                             <AutocompleteItem className="text-black text-sm"
                                               key={item.name}>{item.name}</AutocompleteItem>}
                     </Autocomplete>
-                    <Autocomplete
-                        className="flex-1 text-sm border-r-1 border-[#ffffff40] px-2 py-1"
-                        inputProps={{classNames: {inputWrapper: "border-0"}}}
-                        defaultItems={chapters}
-                        isReadOnly={!!chapterFound}
-                        startContent={chapterFound}
-                        onClear={() => clearSelection()}
-                        onSelectionChange={(key: any) => {
-                            selectChapter(key)
+                    <NumberInput
+                        classNames={{
+                            base: "flex-1 text-sm border-r-1 border-[#ffffff40] px-2 pr-2 py-1",
+                            inputWrapper: "border-0",
+                            label: "!text-[#ffffff66]",
+                            stepperButton: "text-white opacity-40"
                         }}
-                        listboxProps={{
-                            emptyContent: "Select a book",
-                        }}
+                        value={hasBook ? parseInt(chapter) : undefined}
+                        maxValue={hasBook ? maxChapter : undefined}
+                        onChange={(e: any) => setChapter(e)}
+                        minValue={1}
                         label="Chapter"
-                        variant="bordered">
-                        {(item: any) =>
-                            <AutocompleteItem className="text-black text-sm"
-                                              key={item.name}>{item.name}</AutocompleteItem>}
-                    </Autocomplete>
+                        isDisabled={!hasBook}
+                        variant="bordered"
+                        endContent={ !hasBook ? undefined :
+                            <div className={"w-full text-left opacity-50 relative right-[3rem]"}>/ {maxChapter} </div>
+                        }
+                    />
                     {
                         playing ?
                             <Button className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full" variant="bordered"
