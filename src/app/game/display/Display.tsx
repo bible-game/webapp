@@ -104,7 +104,7 @@ const pauLetters = {
     books: [
         {key: "Ro", name: "Romans"},
         {key: "Co", name: "1 Corinthians", super: "1"},
-        {key: "Co", name: "2 Corinthians", super: "1"},
+        {key: "Co", name: "2 Corinthians", super: "2"},
         {key: "Ga", name: "Galatians"},
         {key: "Ep", name: "Ephesians"},
         {key: "Ph", name: "Philippians"},

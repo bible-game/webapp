@@ -65,10 +65,10 @@ const Guess = (props: any) => {
         } else return '';
     }
 
-    return <div className="panel dot p-2 justify-between text-white">
+    return <div className="panel p-1 justify-between text-white">
         <div className="flex items-center">
-            <p className="text-xs"><span className={"ml-1 mr-2 " + colour}>&#9679;</span>{passage}</p>
-            <p className={"mx-2 text-xs " + colour}>{closeness}</p>
+            <p className="text-[13px]"><span className={"ml-2 mr-2 " + colour}>&#9679;</span>{passage}</p>
+            <p className={"ml-2 mr-3 text-[13px] " + colour}>{closeness}</p>
         </div>
     </div>
 }

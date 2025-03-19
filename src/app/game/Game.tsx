@@ -15,6 +15,7 @@ import { toast, Toaster } from "react-hot-toast";
 import Display from "@/app/game/display/Display";
 import { NumberInput } from "@heroui/number-input";
 import Guess from "@/app/game/guess/Guess";
+import {Chip} from "@nextui-org/chip";
 
 const Game = (props: any) => {
     const guessLimit = 5;
@@ -47,8 +48,8 @@ const Game = (props: any) => {
     const [books, setBooks] = React.useState([] as any[]);
     const [chapters, setChapters] = React.useState([] as any);
     const [selected, setSelected] = React.useState({} as {testament: string, division: string, book: string, chapter: string});
-    const [book, setBook] = React.useState('Book?');
-    const [chapter, setChapter] = React.useState('Chapter?');
+    const [book, setBook] = React.useState('');
+    const [chapter, setChapter] = React.useState('');
 
     const [testamentFound, setTestamentFound] = React.useState(false as any);
     const [divisionFound, setDivisionFound] = React.useState(false as any);
@@ -227,30 +228,49 @@ const Game = (props: any) => {
                     </div>
                 </section>
                 <section>
-                    <div className="ml-6 flex gap-1 items-start">
-                        <Button variant="light"
-                                radius="full"
-                                size="sm"
-                                isIconOnly
-                                onClick={() => changeDate(_.sample(props.dates))}
-                                className="mt-1 text-white hover:!bg-[#ffffff14] opacity-85">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                                 stroke="currentColor" className="size-4">
-                                <path strokeLinecap="round" strokeLinejoin="round"
-                                      d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
-                            </svg>
-                        </Button>
-                        <DatePicker
-                            classNames={stylesDateInput}
-                            defaultValue={TODAY(getLocalTimeZone())}
-                            maxValue={TODAY(getLocalTimeZone())}
-                            dateInputClassNames={stylesDateInput}
-                            value={new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]), parseInt(today.split('-')[2]))}
-                            onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
-                            selectorButtonPlacement="start"/>
+                    <div className="ml-6 flex gap-1 items-start justify-between">
+                        <div className="flex gap-1 items-start">
+                            <Button variant="light"
+                                    radius="full"
+                                    size="sm"
+                                    isIconOnly
+                                    onClick={() => changeDate(_.sample(props.dates))}
+                                    className="mt-1 text-white hover:!bg-[#ffffff14] opacity-85">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+                                     stroke="currentColor" className="size-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
+                                </svg>
+                            </Button>
+                            <DatePicker
+                                classNames={stylesDateInput}
+                                defaultValue={TODAY(getLocalTimeZone())}
+                                maxValue={TODAY(getLocalTimeZone())}
+                                dateInputClassNames={stylesDateInput}
+                                value={new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]), parseInt(today.split('-')[2]))}
+                                onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
+                                selectorButtonPlacement="start"/>
+
+                        </div>
+                        <div className="flex gap-1">
+                            {/*<span>407</span>*/}
+                            {/*<svg xmlns="http://www.w3.org/2000/svg" fill="gold" viewBox="0 0 24 24" stroke-width="1.5"*/}
+                            {/*     stroke="gold" className="size-6">*/}
+                            {/*    <path stroke-linecap="round" stroke-linejoin="round"*/}
+                            {/*          d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>*/}
+                            {/*</svg>*/}
+                        </div>
                     </div>
-                    <div className="panel text-center p-4">
-                        <div className="opacity-80">{passage.summary}</div>
+                    <div
+                        className={"panel p-4 h-[66px] " + (!playing ? "flex justify-between gap-2 px-6" : "text-center")}>
+                        <div className={"opacity-80 " + (!playing ? "ml-2" : "")}>{passage.summary}</div>
+                        <Chip size="sm"
+                              variant="solid"
+                              classNames={{
+                                  base: `opacity-90 bg-gradient-to-br from-green-100 to-green-300 border border-white/50 h-7 mt-0.5 ${playing ? "hidden" : ""}`,
+                                  content: "text-black font-medium px-2 py-1 tracking-wide text-center text-[11px]"
+                              }}>
+                            {passage.book + " " + passage.chapter}</Chip>
                     </div>
                 </section>
                 <section className="mt-6 flex justify-center">
@@ -259,7 +279,13 @@ const Game = (props: any) => {
                 <section className="panel flex justify-between mt-4">
                     <Autocomplete
                         className="flex-1 text-sm border-r-1 border-[#ffffff40] rounded-l-full pl-4 pr-2 py-1"
-                        inputProps={{classNames: {inputWrapper: "border-0", label: "!text-[#ffffff66]", selectorButton: "text-white opacity-40"}}}
+                        inputProps={{
+                            classNames: {
+                                inputWrapper: "border-0",
+                                label: "!text-[#ffffff66]",
+                                selectorButton: "text-white opacity-40"
+                            }
+                        }}
                         defaultItems={books}
                         isReadOnly={!!bookFound}
                         startContent={bookFound}
@@ -289,14 +315,16 @@ const Game = (props: any) => {
                         isDisabled={!hasBook}
                         hideStepper={!hasBook}
                         variant="bordered"
-                        endContent={ !hasBook ? undefined :
+                        endContent={!hasBook ? undefined :
                             <div className={"w-full text-left opacity-50 relative right-[3rem]"}>/ {maxChapter} </div>
                         }
                     />
                     {
                         playing ?
-                            <Button className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full" variant="bordered"
-                                    onClick={() => {
+                            <Button
+                                className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full"
+                                variant="bordered"
+                                onClick={() => {
                                         if (isExistingGuess()) toast.error("You have already guessed this!")
                                         else {
                                             guessAction(today, selected.book, selected.chapter).then((closeness: any) => {
