@@ -70,6 +70,8 @@ const Game = (props: any) => {
     const [stars, setStars] = React.useState(0);
     const [result, setResult] = React.useState("");
 
+    const [potential, setPotential] = React.useState([] as any);
+
     function selectTestament(item: string): void {
         selected.testament = item;
 
@@ -88,10 +90,15 @@ const Game = (props: any) => {
 
     function flattenBooks() {
         const books = [];
+        const potential = [];
         for (const div of divisions) {
-            for (const book of div.books) books.push(book);
+            for (const book of div.books) {
+                books.push(book);
+                potential.push(book.name);
+            }
         }
         setBooks(books);
+        setPotential(potential);
     }
 
     function selectDivision(item: string): void {
@@ -296,7 +303,7 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
                     </div>
                 </section>
                 <section className="mt-6 flex justify-center">
-                    <Display select={selectBook}/>
+                    <Display select={selectBook} bookFound={bookFound} passage={passage}/>
                 </section>
                 {
                     playing ? <section className="panel flex justify-between mt-4">

@@ -168,17 +168,33 @@ const newTestament = [
 ];
 
 const bookClass = (border: string, colour: string) => `-translate-x-[4px] -translate-y-[4px] text-[#060842] bg-gradient-to-tr ${colour} text-[1rem] h-[40px] w-[40px] flex justify-center items-center ${border}`;
-const shadowClass = (border: string) => `h-[40px] w-[40px] m-[4px] ${border} cursor-pointer transition duration-200 hover:-translate-y-0.5 opacity-95 hover:opacity-100`;
+const shadowClass = (border: string) => `h-[40px] w-[40px] m-[4px] ${border} cursor-pointer transition duration-200 hover:-translate-y-0.5 hover:opacity-100`;
 
 const Display = (props: any) => {
+
+    const isDim = (book: string) => {
+       // console.log(props.potential);
+       // console.log(book);
+       //  return !props.potential.includes(book);
+
+        if (props.bookFound) {
+            return book != props.passage.book;
+        }
+
+        // question?? quick and dirty way to do this... come and clean up afterwards...
+        // need to know testF, divF, bkF
+        // need to collect testament and divisions
+    }
 
     return <div>
         <div>{oldTestament.map((rows: any) => <div className="flex">{rows.divisions.map((div: any) => <div
             className="flex">{div.books.map((book: any) =>
-            <div className={shadowClass(div.border)} id={book.name} onClick={()=> props.select(book.name)}>
-                <div className={bookClass(div.border, div.colour)}>
-                    <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
-                    <span className="-translate-x-[1px] -translate-y-[.375rem] text-[9px] font-semibold">{book.super}</span>
+            <div className={isDim(book.name) ? "opacity-40" : "opacity-100"}>
+                <div className={shadowClass(div.border)} id={book.name} onClick={()=> props.select(book.name)}>
+                    <div className={bookClass(div.border, div.colour)}>
+                        <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
+                        <span className="-translate-x-[1px] -translate-y-[.375rem] text-[9px] font-semibold">{book.super}</span>
+                    </div>
                 </div>
             </div>)}
         </div>)}
@@ -187,16 +203,19 @@ const Display = (props: any) => {
         <div className="my-2">{newTestament.map((rows: any) => <div className="flex">{rows.divisions.map((div: any) =>
             <div
                 className="flex">{div.books.map((book: any) =>
-                <div className={shadowClass(div.border)} id={book.name} onClick={()=> props.select(book.name)}>
-                    <div className={bookClass(div.border, div.colour)}>
-                        <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
-                        <span className="-translate-x-[1px] -translate-y-[.375rem] text-[9px] font-semibold">{book.super}</span>
+                <div className={isDim(book.name) ? "opacity-40" : "opacity-100"}>
+                    <div className={shadowClass(div.border)} id={book.name} onClick={() => props.select(book.name)}>
+                        <div className={bookClass(div.border, div.colour)}>
+                            <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
+                            <span
+                                className="-translate-x-[1px] -translate-y-[.375rem] text-[9px] font-semibold">{book.super}</span>
+                        </div>
                     </div>
                 </div>)}
+                </div>)}
             </div>)}
-        </div>)}
         </div>
-    </div>
-}
+            </div>
+        }
 
-export default Display;
+            export default Display;
