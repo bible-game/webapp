@@ -172,13 +172,21 @@ const shadowClass = (border: string) => `h-[40px] w-[40px] m-[4px] ${border} cur
 
 const Display = (props: any) => {
 
-    const isDim = (book: string) => {
+    const isDim = (book: string, div: string, test: string) => {
        // console.log(props.potential);
        // console.log(book);
        //  return !props.potential.includes(book);
 
         if (props.bookFound) {
             return book != props.passage.book;
+        }
+
+        if (props.divFound) {
+            return div != props.passage.division;
+        }
+
+        if (props.testFound) {
+            return test != props.passage.testament;
         }
 
         // question?? quick and dirty way to do this... come and clean up afterwards...
@@ -189,8 +197,8 @@ const Display = (props: any) => {
     return <div>
         <div>{oldTestament.map((rows: any) => <div className="flex">{rows.divisions.map((div: any) => <div
             className="flex">{div.books.map((book: any) =>
-            <div className={isDim(book.name) ? "opacity-40" : "opacity-100"}>
-                <div className={shadowClass(div.border)} id={book.name} onClick={()=> props.select(book.name)}>
+            <div className={isDim(book.name, div.division, 'Old') ? "opacity-40" : "opacity-100"}>
+                <div className={shadowClass(div.border)} id={book.name} onClick={()=> props.select(book.name, isDim(book.name, div.division, 'Old'))}>
                     <div className={bookClass(div.border, div.colour)}>
                         <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
                         <span className="-translate-x-[1px] -translate-y-[.375rem] text-[9px] font-semibold">{book.super}</span>
@@ -203,10 +211,10 @@ const Display = (props: any) => {
         <div className="my-2">{newTestament.map((rows: any) => <div className="flex">{rows.divisions.map((div: any) =>
             <div
                 className="flex">{div.books.map((book: any) =>
-                <div className={isDim(book.name) ? "opacity-40" : "opacity-100"}>
-                    <div className={shadowClass(div.border)} id={book.name} onClick={() => props.select(book.name)}>
+                <div className={isDim(book.name, div.division, 'New') ? "opacity-40" : "opacity-100"}>
+                    <div className={shadowClass(div.border)} id={book.name} onClick={() => props.select(book.name, isDim(book.name, div.division, 'New'))}>
                         <div className={bookClass(div.border, div.colour)}>
-                            <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
+                        <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
                             <span
                                 className="-translate-x-[1px] -translate-y-[.375rem] text-[9px] font-semibold">{book.super}</span>
                         </div>

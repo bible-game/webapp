@@ -46,6 +46,8 @@ const Game = (props: any) => {
     const [testaments, setTestaments] = React.useState(props.bible.testaments);
     const [divisions, setDivisions] = React.useState([] as any[]);
     const [books, setBooks] = React.useState([] as any[]);
+    const [allBooks, setAllBooks] = React.useState([] as any[]);
+    const [allDivisions, setAllDivisions] = React.useState([] as any[]);
     const [chapters, setChapters] = React.useState([] as any);
     const [selected, setSelected] = React.useState({} as {testament: string, division: string, book: string, chapter: string});
     const [book, setBook] = React.useState('');
@@ -86,6 +88,7 @@ const Game = (props: any) => {
             for (const div of test.divisions) divisions.push(div);
         }
         setDivisions(divisions);
+        setAllDivisions(divisions);
     }
 
     function flattenBooks() {
@@ -99,12 +102,13 @@ const Game = (props: any) => {
         }
         setBooks(books);
         setPotential(potential);
+        setAllBooks(books);
     }
 
     function selectDivision(item: string): void {
         selected.division = item;
 
-        setBooks(divisions!!.find(
+        setBooks(allDivisions!!.find(
             (div: any) => div.name === item
         ).books);
 
@@ -112,13 +116,15 @@ const Game = (props: any) => {
         selectTestament(testament.name);
     }
 
-    function selectBook(item: string): void {
+    function selectBook(item: string, disabled: boolean): void {
+        if (disabled) return;
+
         console.log(books)
         console.log(item);
         selected.book = item;
 
         const chapters = [];
-        const numChapters = books!!.find((book: any) => book.name === item).chapters;
+        const numChapters = allBooks!!.find((book: any) => book.name === item).chapters;
         for (let i = 1; i <= numChapters; i++) chapters.push({ name: i.toString() });
 
         setMaxChapter(numChapters);
@@ -128,8 +134,8 @@ const Game = (props: any) => {
         setChapters(chapters);
         selected.chapter = '1';
 
-        // const division = divisions.find((div: any) => div.books.some((book: any) => book.name == item));
-        // selectDivision(division.name);
+        const division = allDivisions.find((div: any) => div.books.some((book: any) => book.name == item));
+        selectDivision(division.name);
     }
 
     function selectChapter(item: string): void {
@@ -303,7 +309,7 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
                     </div>
                 </section>
                 <section className="mt-6 flex justify-center">
-                    <Display select={selectBook} bookFound={bookFound} passage={passage}/>
+                    <Display select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} passage={passage}/>
                 </section>
                 {
                     playing ? <section className="panel flex justify-between mt-4">
