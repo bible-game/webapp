@@ -198,7 +198,7 @@ const Display = (props: any) => {
         <div>{oldTestament.map((rows: any) => <div className="flex" key={rows.row}>{rows.divisions.map((div: any) => <div
             key={div.division}
             className="flex">{div.books.map((book: any) =>
-            <div className={isDim(book.name, div.division, 'Old') ? "opacity-40" : "opacity-100"}>
+            <div key={book.key} className={isDim(book.name, div.division, 'Old') ? "opacity-40" : "opacity-100"}>
                 <div className={shadowClass(div.border)} id={book.name} onClick={()=> props.select(book.name, isDim(book.name, div.division, 'Old'))}>
                     <div className={bookClass(div.border, div.colour)}>
                         <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
@@ -213,7 +213,7 @@ const Display = (props: any) => {
             <div
                 key={div.division}
                 className="flex">{div.books.map((book: any) =>
-                <div className={isDim(book.name, div.division, 'New') ? "opacity-40" : "opacity-100"}>
+                <div key={book.key} className={isDim(book.name, div.division, 'New') ? "opacity-40" : "opacity-100"}>
                     <div className={shadowClass(div.border)} id={book.name} onClick={() => props.select(book.name, isDim(book.name, div.division, 'New'))}>
                         <div className={bookClass(div.border, div.colour)}>
                         <p className="-translate-x-0.5 -translate-y-0.5 font-medium">{book.key}</p>
