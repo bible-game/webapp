@@ -195,7 +195,8 @@ const Display = (props: any) => {
     }
 
     return <div>
-        <div>{oldTestament.map((rows: any) => <div className="flex">{rows.divisions.map((div: any) => <div
+        <div>{oldTestament.map((rows: any) => <div className="flex" key={rows.row}>{rows.divisions.map((div: any) => <div
+            key={div.division}
             className="flex">{div.books.map((book: any) =>
             <div className={isDim(book.name, div.division, 'Old') ? "opacity-40" : "opacity-100"}>
                 <div className={shadowClass(div.border)} id={book.name} onClick={()=> props.select(book.name, isDim(book.name, div.division, 'Old'))}>
@@ -208,8 +209,9 @@ const Display = (props: any) => {
         </div>)}
         </div>)}
         </div>
-        <div className="my-2">{newTestament.map((rows: any) => <div className="flex">{rows.divisions.map((div: any) =>
+        <div className="my-2">{newTestament.map((rows: any) => <div className="flex" key={rows.row}>{rows.divisions.map((div: any) =>
             <div
+                key={div.division}
                 className="flex">{div.books.map((book: any) =>
                 <div className={isDim(book.name, div.division, 'New') ? "opacity-40" : "opacity-100"}>
                     <div className={shadowClass(div.border)} id={book.name} onClick={() => props.select(book.name, isDim(book.name, div.division, 'New'))}>
