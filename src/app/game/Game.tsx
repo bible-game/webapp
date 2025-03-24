@@ -319,8 +319,10 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
                                     classNames: {
                                         inputWrapper: "border-0",
                                         label: "!text-[#ffffff66]",
-                                        selectorButton: "text-white opacity-40"
                                     }
+                                }}
+                                classNames={{
+                                    selectorButton: "text-white opacity-40"
                                 }}
                                 defaultItems={books}
                                 isReadOnly={!!bookFound}
