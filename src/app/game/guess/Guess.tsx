@@ -39,16 +39,16 @@ const Guess = (props: any) => {
     function formatPassage(book: any, chapter: any): string {
         if (!!book && !!chapter) {
             switch (book) {
-                case 'Song of Solomon':
-                    return `Sg. Solomon ${chapter}`;
-                case '1 Thessalonians':
-                    return `1 Thessalon. ${chapter}`;
-                case '2 Thessalonians':
-                    return `2. Thessalon ${chapter}`;
-                case '1 Corinthians':
-                    return `1 Corinth. ${chapter}`;
-                case '2 Corinthians':
-                    return `2 Corinth. ${chapter}`;
+                // case 'Song of Solomon':
+                //     return `Sg. Solomon ${chapter}`;
+                // case '1 Thessalonians':
+                //     return `1 Thessalon. ${chapter}`;
+                // case '2 Thessalonians':
+                //     return `2 Thessalon ${chapter}`;
+                // case '1 Corinthians':
+                //     return `1 Corinth. ${chapter}`;
+                // case '2 Corinthians':
+                //     return `2 Corinth. ${chapter}`;
                 default:
                     return `${book} ${chapter}`
             }
@@ -65,14 +65,12 @@ const Guess = (props: any) => {
         } else return '';
     }
 
-    return  <Card className={ !!closeness ? "flex flex-1 p-4 justify-around bg-[#243245] bg-opacity-35 text-white h-[3.5rem]" : "flex flex-1 p-4 justify-around bg-[#243245] bg-opacity-10 text-white h-[3.5rem]"}>
-                <CardBody>
-                    <div className="flex justify-between">
-                        <div className="flex items-center"><p className="text-xs">{passage}</p></div>
-                        <div className="text-right text-xs"><p className={colour}>{closeness}</p></div>
-                    </div>
-                </CardBody>
-            </Card>
+    return <div className="panel p-1 justify-between text-white">
+        <div className="flex items-center">
+            <p className="text-[13px]"><span className={"ml-2 mr-2 " + colour}>&#9679;</span>{passage}</p>
+            <p className={"ml-2 mr-3 text-[13px] " + colour}>{closeness}</p>
+        </div>
+    </div>
 }
 
 export default Guess;
