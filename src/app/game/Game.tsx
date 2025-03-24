@@ -9,7 +9,7 @@ import { guessAction } from "@/app/game/guess-action";
 import { CheckIcon } from "@heroui/shared-icons";
 import { DatePicker } from "@heroui/date-picker";
 import Results from "@/app/game/results/Results";
-import { getLocalTimeZone, today as TODAY, CalendarDate } from "@internationalized/date";
+import {getLocalTimeZone, today as TODAY, CalendarDate, parseDate, DateValue} from "@internationalized/date";
 import _ from "lodash";
 import { toast, Toaster } from "react-hot-toast";
 import Display from "@/app/game/display/Display";
@@ -63,6 +63,7 @@ const Game = (props: any) => {
     const [reading, setReading] = React.useState(false);
 
     const [dates, setDates] = React.useState([] as any[]);
+    const [date, setDate] = React.useState<DateValue>(parseDate(TODAY(getLocalTimeZone()).toString()));
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -116,7 +117,7 @@ const Game = (props: any) => {
         selectTestament(testament.name);
     }
 
-    function selectBook(item: string, disabled: boolean): void {
+    function selectBook(item: string, disabled?: boolean): void {
         if (disabled) return;
 
         console.log(books)
@@ -215,6 +216,7 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
 
     function changeDate(date: string): void {
         setToday(date!);
+        setDate(parseDate(moment(date).format('YYYY-MM-DD').toString()));
 
         setPlaying(true);
         setTestamentFound(false);
@@ -279,13 +281,11 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
                             </Button>
                             <DatePicker
                                 classNames={stylesDateInput}
-                                defaultValue={TODAY(getLocalTimeZone())}
-                                maxValue={TODAY(getLocalTimeZone())}
-                                dateInputClassNames={stylesDateInput}
-                                value={new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]), parseInt(today.split('-')[2]))}
+                                defaultValue={date as any}
+                                maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
+                                value={date as any}
                                 onChange={(value: any) => changeDate(`${value.year}-${value.month}-${value.day}`)}
                                 selectorButtonPlacement="start"/>
-
                         </div>
                         <div className="flex gap-1 mt-[14px] mr-6">
                             <span className="text-xs font-medium opacity-80 mt-[1px]">0</span>
