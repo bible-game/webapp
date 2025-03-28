@@ -120,8 +120,6 @@ const Game = (props: any) => {
     function selectBook(item: string, disabled?: boolean): void {
         if (disabled) return;
 
-        console.log(books)
-        console.log(item);
         selected.book = item;
 
         const chapters = [];
