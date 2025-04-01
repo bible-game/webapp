@@ -14,7 +14,6 @@ import Menu from "@/app/game/menu/Menu";
 import Action from "@/app/game/action/Action";
 import Guesses from "@/app/game/guess/Guesses";
 
-// TODO :: next steps -> refactor, fix stuff, enhance...
 const Game = (props: any) => {
     const [today, setToday] = React.useState(moment(new Date()).format('YYYY-MM-DD'));
     const [passage, setPassage] = React.useState({} as any); // question :: apply type?
