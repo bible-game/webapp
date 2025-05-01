@@ -9,14 +9,19 @@ import { useDisclosure } from "@nextui-org/react";
 import { CheckIcon } from "@heroui/shared-icons";
 import { Toaster } from "react-hot-toast";
 import { getLocalTimeZone, today as TODAY, CalendarDate, parseDate, DateValue } from "@internationalized/date";
-import Background from "@/app/game/background/Background";
-import Menu from "@/app/game/menu/Menu";
+import Background from "@/core/component/background";
+import Menu from "@/core/component/menu";
 import Action from "@/app/game/action/Action";
 import Guesses from "@/app/game/guess/Guesses";
 
 const Game = (props: any) => {
     const [today, setToday] = React.useState(moment(new Date()).format('YYYY-MM-DD'));
     const [passage, setPassage] = React.useState({} as any); // question :: apply type?
+    const [playing, setPlaying] = React.useState(true);
+
+
+
+
     const [guesses, setGuesses] = React.useState([] as any[]); // question :: apply type?
     const [testaments, setTestaments] = React.useState(props.bible.testaments);
     const [divisions, setDivisions] = React.useState([] as any[]);
@@ -31,7 +36,6 @@ const Game = (props: any) => {
     const [divisionFound, setDivisionFound] = React.useState(false as any);
     const [bookFound, setBookFound] = React.useState(false as any);
     const [chapterFound, setChapterFound] = React.useState(false as any);
-    const [playing, setPlaying] = React.useState(true);
     const [reading, setReading] = React.useState(false);
     const [dates, setDates] = React.useState(props.dates);
     const [date, setDate] = React.useState<DateValue>(parseDate(TODAY(getLocalTimeZone()).toString()));

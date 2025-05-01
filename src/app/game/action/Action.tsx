@@ -4,7 +4,7 @@ import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { NumberInput } from "@heroui/number-input";
 import { Button } from "@nextui-org/react";
 import { toast } from "react-hot-toast";
-import { guessAction } from "@/app/game/guess-action";
+import { guess } from "@/core/action/guess";
 
 const Action = (props: any) => {
 
@@ -62,7 +62,7 @@ const Action = (props: any) => {
                     onClick={() => {
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
                         else {
-                            guessAction(props.today, props.selected.book, props.selected.chapter).then((closeness: any) => {
+                            guess(props.today, props.selected.book, props.selected.chapter).then((closeness: any) => {
                                 props.addGuess(closeness)
                             })
                         }

@@ -8,9 +8,9 @@ import Link from "next/link";
 export const Navigation = (props: any) => {
     const links = [];
 
-    if (props.play) links.push(<Link href='/play'><p>Play</p></Link>);
-    if (props.read) links.push(<Link href='/read'><p>Read</p></Link>);
-    if (props.stats) links.push(<Link href='/stats'><p>Stats</p></Link>);
+    if (props.play) links.push(<Link href='/play' key='play'><p>Play</p></Link>);
+    if (props.read) links.push(<Link href='/read' key='read'><p>Read</p></Link>);
+    if (props.stats) links.push(<Link href='/stats' key='stats'><p>Stats</p></Link>);
 
     return (
         <section>
