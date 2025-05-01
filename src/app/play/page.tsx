@@ -4,13 +4,16 @@ import { Toaster } from "react-hot-toast";
 import React, { useEffect } from "react";
 import Navigation from "@/core/component/navigation";
 import Background from "@/core/component/background";
-import Menu from "@/core/component/menu";
+import Menu from "@/app/play/menu";
 import moment from "moment/moment";
 import { Passage } from "@/core/model/passage";
 import _ from "lodash";
 import {CalendarDate, DateValue, getLocalTimeZone, parseDate, today as TODAY} from "@internationalized/date";
 import { useDisclosure } from "@nextui-org/react";
 import { CheckIcon } from "@heroui/shared-icons";
+import Display from "@/app/play/display";
+import Guesses from "@/app/play/guesses";
+import Action from "@/app/play/action";
 
 /**
  * Game Play Page
@@ -237,11 +240,16 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
     }
 
     return (
-        <main>
-            <Toaster position="bottom-right"/>
-            <Background />
-            <Menu passage={passage} date={date} playing={playing} changeDate={changeDate} />
+        <>
+            <Background/>
             <Navigation stats={true} read={true}/>
-        </main>
+            <main>
+                <Toaster position="bottom-right"/>
+                <Menu passage={passage} date={date} playing={playing} changeDate={changeDate}/>
+                <Display select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} passage={passage}/>
+                <Action playing={playing} openReading={openReading} result={result} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} today={today} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter}/>
+                <Guesses guesses={guesses}/>
+            </main>
+        </>
     );
 }
