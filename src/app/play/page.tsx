@@ -2,8 +2,8 @@
 
 import { Toaster } from "react-hot-toast";
 import React, { useEffect } from "react";
-import Navigation from "@/core/component/navigation";
-import Background from "@/core/component/background";
+import Navigation from "@/app/navigation";
+import Background from "@/app/background";
 import Menu from "@/app/play/menu";
 import moment from "moment/moment";
 import { Passage } from "@/core/model/passage";
@@ -40,10 +40,8 @@ export default function Play() {
     const [divisionFound, setDivisionFound] = React.useState(false as any);
     const [bookFound, setBookFound] = React.useState(false as any);
     const [chapterFound, setChapterFound] = React.useState(false as any);
-    const [reading, setReading] = React.useState(false);
     const [dates, setDates] = React.useState({} as any);
     const [date, setDate] = React.useState<DateValue>(parseDate(TODAY(getLocalTimeZone()).toString()));
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [hasBook, setHasBook] = React.useState(false);
     const [maxChapter, setMaxChapter] = React.useState(0);
     const [stars, setStars] = React.useState(0);
@@ -228,12 +226,6 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
         selected.chapter = '';
     }
 
-    function openReading() {
-        setReading(true);
-
-        onOpen();
-    }
-
     function isExistingGuess() {
         return guesses.map(guess => guess.book+guess.chapter)
             .includes(selected.book+selected.chapter);
@@ -247,7 +239,7 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
                 <Toaster position="bottom-right"/>
                 <Menu passage={passage} date={date} playing={playing} changeDate={changeDate}/>
                 <Display select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} passage={passage}/>
-                <Action playing={playing} openReading={openReading} result={result} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} today={today} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter}/>
+                <Action passage={passage} playing={playing} result={result} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} today={today} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter}/>
                 <Guesses guesses={guesses}/>
             </main>
         </>

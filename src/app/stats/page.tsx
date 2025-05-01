@@ -1,6 +1,6 @@
 import { Toaster } from "react-hot-toast";
 import React from "react";
-import Navigation from "@/core/component/navigation";
+import Navigation from "@/app/navigation";
 
 /**
  * Statistics Page

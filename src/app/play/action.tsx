@@ -5,6 +5,7 @@ import { NumberInput } from "@heroui/number-input";
 import { Button } from "@nextui-org/react";
 import { toast } from "react-hot-toast";
 import { guess } from "@/core/action/guess";
+import {redirect} from "next/navigation";
 
 const Action = (props: any) => {
 
@@ -103,7 +104,7 @@ const Action = (props: any) => {
                 <Button
                     className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[13.33rem]"
                     variant="bordered"
-                    onClick={() => props.openReading()}>
+                    onClick={() => redirect(`/read/${props.passage.book}${props.passage.chapter}`)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          strokeWidth={1.25} stroke="currentColor" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round"
