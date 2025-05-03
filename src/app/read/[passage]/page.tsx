@@ -1,5 +1,7 @@
 import React from "react";
 import Navigation from "@/app/navigation";
+import {Button} from "@nextui-org/react";
+import ReadAction from "@/app/read/readaction";
 
 function get(path: string): Promise<any> {
     return fetch(`${process.env.SVC_PASSAGE}/temp/reading/${path}`, { method: "GET" })
@@ -41,6 +43,7 @@ export default async function Read({params}: { params: Promise<{ passage: string
                         <div>
                             {verses.map((verse: any) => <p className="my-4"><span className="text-gray-400 text-xs">{verse.verse} </span> {verse.text}</p>)}
                         </div>
+                        <ReadAction/>
                     </main>
                 </div>
             </div>
