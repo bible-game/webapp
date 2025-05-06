@@ -8,13 +8,54 @@ import Link from "next/link";
 export const Navigation = (props: any) => {
     const links = [];
 
-    if (props.play) links.push(<div className="w-[4rem]"><Link href='/play' key='play'><p className="text-blue-400">Play</p></Link></div>);
-    if (props.read) links.push(<div className="w-[4rem]"><Link href='/read/genesis1' key='read'><p className="text-purple-400">Read</p></Link></div>);
-    if (props.stats) links.push(<div className="w-[4rem]"><Link href='/stats' key='stats'><p className="text-green-400">Stats</p></Link></div>);
+    const textStyle = `${props.dark ? "text-black" : "text-white"} font-light text-sm`
+
+    if (props.play) links.push(
+        <div className="w-[4rem]">
+            <Link href='/play' key='stats'>
+                <div className="flex gap-1 items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.25"
+                         stroke={props.dark ? "black" : "currentColor"} className="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"/>
+                    </svg>
+                    <p className={textStyle}>Play</p>
+                </div>
+            </Link>
+        </div>);
+    if (props.read) links.push(
+        <div className="w-[4rem]">
+            <Link href='/read/genesis1' key='read'>
+                <div className="flex gap-1 items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.25"
+                         stroke={props.dark ? "black" : "currentColor"} className="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/>
+                    </svg>
+                    <p className={textStyle}>Read</p>
+                </div>
+            </Link>
+        </div>
+    )
+    ;
+    if (props.stats) links.push(
+        <div className="w-[4rem]">
+            <Link href='/stats' key='stats'>
+                <div className="flex gap-1 items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.25"
+                         stroke={props.dark ? "black" : "currentColor"} className="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
+                    </svg>
+                    <p className={textStyle}>Stats</p>
+                </div>
+            </Link>
+        </div>
+    );
 
     return (
-        <section className="flex absolute top-[4.375rem] w-[38rem] justify-end">
-            <div className="flex justify-end relative">
+        <section className="flex absolute top-[4.5rem] w-[38rem] justify-end">
+            <div className="flex justify-end relative gap-4">
                 {links.map((link: any) => link)}
             </div>
         </section>
