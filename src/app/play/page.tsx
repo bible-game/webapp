@@ -8,11 +8,12 @@ import Menu from "@/app/play/menu";
 import moment from "moment/moment";
 import { Passage } from "@/core/model/passage";
 import _ from "lodash";
-import {CalendarDate, DateValue, getLocalTimeZone, parseDate, today as TODAY} from "@internationalized/date";
+import { CalendarDate, DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import { CheckIcon } from "@heroui/shared-icons";
 import Display from "@/app/play/display";
 import Guesses from "@/app/play/guesses";
 import Action from "@/app/play/action";
+import { GameStates, GameStatesService } from '@/app/service/game-states-service'
 
 /**
  * Game Play Page
@@ -78,24 +79,13 @@ export default function Play() {
                 retrievePassage();
             })
         }
-    })
-
-    function changeDate(date: string = _.sample(dates)): void {
-        setToday(date!);
-        setDate(parseDate(moment(date).format('YYYY-MM-DD').toString()));
-
-        setPlaying(true);
-        setTestamentFound(false);
-        setDivisionFound(false);
-        setBookFound(false);
-        setChapterFound(false);
-        setGuesses([]);
-        setBook('Book?');
-        setChapter('Chapter?');
-
-        retrievePassage(date!);
-        clearSelection();
-    }
+        if (!guesses[0]) {
+            const state = GameStatesService.getStateForDate(today)
+            setGuesses(state.guesses)
+            setStars(state.stars || 0)
+            setPlaying(state.playing)
+        }
+    }, [passage, guesses])
 
     function selectTestament(item: string): void {
         selected.testament = item;
@@ -190,31 +180,18 @@ export default function Play() {
             setDivisionFound(<CheckIcon className="text-lg text-green-200" />);
         }
 
+        let starResult = 0
         const won = (closeness.distance == 0);
-        const limitReached = (updatedGuesses.length == 5);
+        const limitReached = (updatedGuesses.length >= 5);
         if (won || limitReached) {
             setPlaying(false);
-            if (limitReached) {
-                setStars(0);
-            } else setStars(5 + 1 - updatedGuesses.length);
-
-            if (won) {
-                setResult(`${'⭐'.repeat(5 + 1 - updatedGuesses.length)}
-https://bible.game
-${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
-
-            } else {
-                const bestGuess: any = guesses.reduce(function(prev: any, current: any) {
-                    if (+current.closeness.percentage > +prev.closeness.percentage) return current
-                    else return prev;
-                }).closeness;
-
-                setResult(`📖 ${Intl.NumberFormat("en", { notation: "compact" }).format(bestGuess.distance)}
-https://bible.game
-${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
-
+            if (!limitReached) {
+                starResult = 5 + 1 - updatedGuesses.length
             }
+            generateResultString(won, updatedGuesses.length)
         }
+        setStars(starResult)
+        GameStatesService.setStateForDate(starResult, updatedGuesses, !(won || limitReached), today)
     }
 
     // fixme :: behaviour not correct
@@ -225,9 +202,50 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
         selected.chapter = '';
     }
 
+    function generateResultString(won: boolean, guessCount: number) {
+        if (won) {
+            setResult(`${'⭐'.repeat(5 + 1 - guessCount)}
+https://bible.game
+${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
+
+        } else {
+            const bestGuess: any = guesses.reduce(function(prev: any, current: any) {
+                if (+current.closeness.percentage > +prev.closeness.percentage) return current
+                else return prev;
+            }).closeness;
+
+            setResult(`📖 ${Intl.NumberFormat("en", { notation: "compact" }).format(bestGuess.distance)}
+https://bible.game
+${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
+
+        }
+    }
+
     function isExistingGuess() {
         return guesses.map(guess => guess.book+guess.chapter)
             .includes(selected.book+selected.chapter);
+    }
+
+    function changeDate(date: string = _.sample(dates)): void {
+        setToday(date!);
+        setDate(parseDate(moment(date).format('YYYY-MM-DD').toString()));
+
+        const gameState = GameStatesService.getStateForDate(date);
+        const starState = gameState.stars || 0;
+        setPlaying(gameState.playing);
+        setTestamentFound(!gameState.playing);
+        setDivisionFound(!gameState.playing);
+        setBookFound(!gameState.playing);
+        setChapterFound(!gameState.playing);
+        setGuesses(gameState.guesses);
+        setStars(starState)
+        setBook('Book?');
+        setChapter('Chapter?');
+
+        generateResultString(starState > 0, gameState.guesses.length)
+
+        retrievePassage(date!);
+        clearSelection();
     }
 
     return (
