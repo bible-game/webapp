@@ -9,7 +9,6 @@ import moment from "moment/moment";
 import { Passage } from "@/core/model/passage";
 import _ from "lodash";
 import {CalendarDate, DateValue, getLocalTimeZone, parseDate, today as TODAY} from "@internationalized/date";
-import { useDisclosure } from "@nextui-org/react";
 import { CheckIcon } from "@heroui/shared-icons";
 import Display from "@/app/play/display";
 import Guesses from "@/app/play/guesses";
