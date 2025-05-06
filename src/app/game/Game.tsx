@@ -13,6 +13,7 @@ import Background from "@/app/game/background/Background";
 import Menu from "@/app/game/menu/Menu";
 import Action from "@/app/game/action/Action";
 import Guesses from "@/app/game/guess/Guesses";
+import { GameStates, GameStatesService } from '@/app/service/game-states-service'
 
 const Game = (props: any) => {
     const [today, setToday] = React.useState(moment(new Date()).format('YYYY-MM-DD'));
@@ -58,7 +59,13 @@ const Game = (props: any) => {
             flattenBooks();
             retrievePassage();
         }
-    })
+        if (!guesses[0]) {
+            const state = GameStatesService.getStateForDate(today)
+            setGuesses(state.guesses)
+            setStars(state.stars || 0)
+            setPlaying(state.playing)
+        }
+    }, [passage, guesses])
 
     function selectTestament(item: string): void {
         selected.testament = item;
@@ -153,31 +160,18 @@ const Game = (props: any) => {
             setDivisionFound(<CheckIcon className="text-lg text-green-200" />);
         }
 
+        let starResult = 0
         const won = (closeness.distance == 0);
-        const limitReached = (updatedGuesses.length == 5);
+        const limitReached = (updatedGuesses.length >= 5);
         if (won || limitReached) {
             setPlaying(false);
-            if (limitReached) {
-                setStars(0);
-            } else setStars(5 + 1 - updatedGuesses.length);
-
-            if (won) {
-                setResult(`${'⭐'.repeat(5 + 1 - updatedGuesses.length)}
-https://bible.game
-${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
-
-            } else {
-                const bestGuess: any = guesses.reduce(function(prev: any, current: any) {
-                    if (+current.closeness.percentage > +prev.closeness.percentage) return current
-                    else return prev;
-                }).closeness;
-
-                setResult(`📖 ${Intl.NumberFormat("en", { notation: "compact" }).format(bestGuess.distance)}
-https://bible.game
-${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
-
+            if (!limitReached) {
+                starResult = 5 + 1 - updatedGuesses.length
             }
+            generateResultString(won, updatedGuesses.length)
         }
+        setStars(starResult)
+        GameStatesService.setStateForDate(starResult, updatedGuesses, !(won || limitReached), today)
     }
 
     // fixme :: behaviour not correct
@@ -186,6 +180,25 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
         selected.division = '';
         selected.book = '';
         selected.chapter = '';
+    }
+
+    function generateResultString(won: boolean, guessCount: number) {
+        if (won) {
+            setResult(`${'⭐'.repeat(5 + 1 - guessCount)}
+https://bible.game
+${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
+
+        } else {
+            const bestGuess: any = guesses.reduce(function(prev: any, current: any) {
+                if (+current.closeness.percentage > +prev.closeness.percentage) return current
+                else return prev;
+            }).closeness;
+
+            setResult(`📖 ${Intl.NumberFormat("en", { notation: "compact" }).format(bestGuess.distance)}
+https://bible.game
+${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
+
+        }
     }
 
     function openReading() {
@@ -203,14 +216,19 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
         setToday(date!);
         setDate(parseDate(moment(date).format('YYYY-MM-DD').toString()));
 
-        setPlaying(true);
-        setTestamentFound(false);
-        setDivisionFound(false);
-        setBookFound(false);
-        setChapterFound(false);
-        setGuesses([]);
+        const gameState = GameStatesService.getStateForDate(date)
+        const starState = gameState.stars || 0
+        setPlaying(gameState.playing);
+        setTestamentFound(!gameState.playing);
+        setDivisionFound(!gameState.playing);
+        setBookFound(!gameState.playing);
+        setChapterFound(!gameState.playing);
+        setGuesses(gameState.guesses);
+        setStars(starState)
         setBook('Book?');
         setChapter('Chapter?');
+
+        generateResultString(starState > 0, gameState.guesses.length)
 
         retrievePassage(date!);
         clearSelection();
