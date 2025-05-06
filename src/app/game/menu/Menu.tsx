@@ -35,7 +35,7 @@ const Menu = (props: any) => {
                     defaultValue={props.date as any}
                     maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
                     value={props.date as any}
-                    onChange={(value: any) => props.changeDate(`${value.year}-${value.month}-${value.day}`)}
+                    onChange={(value: any) => props.changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
                     selectorButtonPlacement="start"/>
             </div>
             <div className="flex gap-1 mt-[14px] mr-6">
