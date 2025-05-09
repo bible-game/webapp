@@ -1,12 +1,12 @@
 "use client"
 
 import { Toaster } from "react-hot-toast";
-import React from "react";
+import React, {useEffect} from "react";
 import Navigation from "@/app/navigation";
 import Background from "@/app/background";
 import Cell from "@/app/stats/cell";
-import {GameStates, GameStatesService} from "@/core/service/game-states-service";
-import {CompletionService} from "@/core/service/completion-service";
+import { GameStatesService } from "@/core/service/game-states-service";
+import { CompletionService } from "@/core/service/completion-service";
 
 /**
  * Statistics Page
@@ -14,11 +14,19 @@ import {CompletionService} from "@/core/service/completion-service";
  */
 export default function Stats() {
 
-    const [stars, setStars] = React.useState(CompletionService.calcStars);
-    const [games, setGames] = React.useState(CompletionService.calcGames);
-    const [streak, setStreak] = React.useState(CompletionService.calcStreak);
-    const [completion, setCompletion] = React.useState(GameStatesService.getCompletion);
-    const [complete, setComplete] = React.useState(CompletionService.calcCompletion);
+    const [stars, setStars] = React.useState(0);
+    const [games, setGames] = React.useState(0);
+    const [streak, setStreak] = React.useState(0);
+    const [completion, setCompletion] = React.useState([] as any[]);
+    const [complete, setComplete] = React.useState("");
+
+    useEffect(() => {
+        setStars(CompletionService.calcStars);
+        setGames(CompletionService.calcGames);
+        setStreak(CompletionService.calcStreak);
+        setCompletion(GameStatesService.getCompletion);
+        setComplete(CompletionService.calcCompletion);
+    }, []);
 
     return (
         <>
