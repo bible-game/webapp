@@ -67,7 +67,7 @@ export default async function Read({params}: { params: Promise<{ passage: string
                             <span className="text-gray-400 text-sm font-light">{readingTime}</span>
                         </div>
                         <div>
-                            {verses.map((verse: any) => <div className="my-8 flex gap-2 items-start">
+                            {verses.map((verse: any) => <div key={verse.verse} className="my-8 flex gap-2 items-start">
                                 <div className="text-gray-400 text-[10px] font-light pt-2">{verse.verse}</div>
                                 <div className="text-gray-800 text-[18px] font-light leading-[2rem]">{verse.text}</div>
                             </div>)}

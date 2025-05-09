@@ -44,8 +44,8 @@ export default function Stats() {
                     </div>
                 </section>
                 <section className="flex flex-wrap">
-                    {completion.map((c: any) => c.chapter.map((chapter: any, index = 0) => <Cell
-                        label={c.book + ++index} chapter={chapter}/>))}
+                    {completion.map((c: any) => c.chapter.map((chapter: any, index = 0) =>
+                        <Cell key={c.book + index} label={c.book + ++index} chapter={chapter}/>))}
                 </section>
             </main>
         </>
