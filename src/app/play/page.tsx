@@ -13,7 +13,8 @@ import { CheckIcon } from "@heroui/shared-icons";
 import Display from "@/app/play/display";
 import Guesses from "@/app/play/guesses";
 import Action from "@/app/play/action";
-import { GameStates, GameStatesService } from '@/app/service/game-states-service'
+import { GameStatesService } from '@/core/service/game-states-service'
+import {CompletionService} from "@/core/service/completion-service";
 
 /**
  * Game Play Page
@@ -69,11 +70,13 @@ export default function Play() {
         if (!passage.book) { // fixme :: hack
             get('config/bible').then((bible: any) => {
                 setBible(bible);
-                setTestaments(bible.testaments)
+                setTestaments(bible.testaments);
+                flattenDivisions();
+                flattenBooks();
             })
             get('daily/history').then((history: any) => {
                 setHistory(history);
-                setDates(history)
+                setDates(history);
                 flattenDivisions();
                 flattenBooks();
                 retrievePassage();
@@ -84,8 +87,12 @@ export default function Play() {
             setGuesses(state.guesses)
             setStars(state.stars || 0)
             setPlaying(state.playing)
+
+            generateResultString(true, state.guesses.length)
         }
-    }, [passage, guesses])
+
+        GameStatesService.initCompletion();
+    })
 
     function selectTestament(item: string): void {
         selected.testament = item;
@@ -183,6 +190,7 @@ export default function Play() {
         let starResult = 0
         const won = (closeness.distance == 0);
         const limitReached = (updatedGuesses.length >= 5);
+        if (won) GameStatesService.updateCompletion(selected.book, parseInt(selected.chapter), false)
         if (won || limitReached) {
             setPlaying(false);
             if (!limitReached) {
@@ -206,7 +214,8 @@ export default function Play() {
         if (won) {
             setResult(`${'⭐'.repeat(5 + 1 - guessCount)}
 https://bible.game
-${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
+${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}
+`);
 
         } else {
             const bestGuess: any = guesses.reduce(function(prev: any, current: any) {
@@ -216,7 +225,8 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
 
             setResult(`📖 ${Intl.NumberFormat("en", { notation: "compact" }).format(bestGuess.distance)}
 https://bible.game
-${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
+${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}
+`);
 
         }
     }

@@ -1,6 +1,7 @@
 import React from "react";
 import Navigation from "@/app/navigation";
 import ReadAction from "@/app/read/readaction";
+import { GameStatesService } from "@/core/service/game-states-service";
 
 async function get(path: string): Promise<any> {
     const response = await fetch(`${process.env.SVC_PASSAGE}/temp/reading/${path}`, {method: "GET"});
@@ -44,6 +45,17 @@ export default async function Read({params}: { params: Promise<{ passage: string
         return prettied;
     }
 
+    function getChapter() {
+        const split = pretty(passage).split(" ")
+        let chapter = "";
+
+        for (let i = 1; i < split.length; i++) {
+            chapter += split[i];
+        }
+
+        return chapter;
+    }
+
     return (
         <>
             <div className="bg-white absolute top-0 left-0 w-full">
@@ -60,7 +72,7 @@ export default async function Read({params}: { params: Promise<{ passage: string
                                 <div className="text-gray-800 text-[18px] font-light leading-[2rem]">{verse.text}</div>
                             </div>)}
                         </div>
-                        <ReadAction/>
+                        <ReadAction book={pretty(passage).split(" ")[0]} chapter={getChapter()}/>
                     </main>
                 </div>
             </div>
