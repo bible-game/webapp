@@ -1,53 +1,66 @@
 "use client"
 
-import Display from "@/app/game/display/Display";
-import React, { useEffect } from "react";
-import Text from "@/app/game/text/Text";
-import _ from "lodash";
-import moment from "moment";
-import { useDisclosure } from "@nextui-org/react";
-import { CheckIcon } from "@heroui/shared-icons";
 import { Toaster } from "react-hot-toast";
-import { getLocalTimeZone, today as TODAY, CalendarDate, parseDate, DateValue } from "@internationalized/date";
-import Background from "@/app/game/background/Background";
-import Menu from "@/app/game/menu/Menu";
-import Action from "@/app/game/action/Action";
-import Guesses from "@/app/game/guess/Guesses";
-import { GameStates, GameStatesService } from '@/app/service/game-states-service'
+import React, { useEffect } from "react";
+import Navigation from "@/app/navigation";
+import Background from "@/app/background";
+import Menu from "@/app/play/menu";
+import moment from "moment/moment";
+import { Passage } from "@/core/model/passage";
+import _ from "lodash";
+import { CalendarDate, DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
+import { CheckIcon } from "@heroui/shared-icons";
+import Display from "@/app/play/display";
+import Guesses from "@/app/play/guesses";
+import Action from "@/app/play/action";
+import { GameStatesService } from '@/core/service/game-states-service'
+import {CompletionService} from "@/core/service/completion-service";
 
-const Game = (props: any) => {
+/**
+ * Game Play Page
+ * @since 12th April 2025
+ */
+export default function Play() {
+
+    const [bible, setBible] = React.useState({} as any);
+    const [history, setHistory] = React.useState({} as any);
     const [today, setToday] = React.useState(moment(new Date()).format('YYYY-MM-DD'));
-    const [passage, setPassage] = React.useState({} as any); // question :: apply type?
+    const [passage, setPassage] = React.useState({} as Passage);
+    const [playing, setPlaying] = React.useState(true);
     const [guesses, setGuesses] = React.useState([] as any[]); // question :: apply type?
-    const [testaments, setTestaments] = React.useState(props.bible.testaments);
+    const [testaments, setTestaments] = React.useState({} as any);
     const [divisions, setDivisions] = React.useState([] as any[]);
     const [books, setBooks] = React.useState([] as any[]);
     const [allBooks, setAllBooks] = React.useState([] as any[]);
     const [allDivisions, setAllDivisions] = React.useState([] as any[]);
     const [chapters, setChapters] = React.useState([] as any);
-    const [selected, setSelected] = React.useState({} as {testament: string, division: string, book: string, chapter: string});
+    const [selected, setSelected] = React.useState({} as Passage);
     const [book, setBook] = React.useState('');
     const [chapter, setChapter] = React.useState('');
     const [testamentFound, setTestamentFound] = React.useState(false as any);
     const [divisionFound, setDivisionFound] = React.useState(false as any);
     const [bookFound, setBookFound] = React.useState(false as any);
     const [chapterFound, setChapterFound] = React.useState(false as any);
-    const [playing, setPlaying] = React.useState(true);
-    const [reading, setReading] = React.useState(false);
-    const [dates, setDates] = React.useState(props.dates);
+    const [dates, setDates] = React.useState({} as any);
     const [date, setDate] = React.useState<DateValue>(parseDate(TODAY(getLocalTimeZone()).toString()));
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
     const [hasBook, setHasBook] = React.useState(false);
     const [maxChapter, setMaxChapter] = React.useState(0);
     const [stars, setStars] = React.useState(0);
     const [result, setResult] = React.useState("");
+
+    function get(path: string): Promise<any> {
+        return fetch(`${process.env.SVC_PASSAGE}/${path}`, { method: "GET" })
+            .then((response) => {
+                return response.json()
+            });
+    }
 
     function retrievePassage(date = today) {
         fetch(`${process.env.SVC_PASSAGE}/daily/${date}`, { method: "GET" })
             .then((response) => {
                 response.json().then((data) => {
                     data.division = divisions.find((div: any) => div.books.some((book: any) => book.name == data.book)).name;
-                    data.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == data.division)).name;
+                    data.testament = bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == data.division)).name;
                     setPassage(data);
                 });
             });
@@ -55,17 +68,31 @@ const Game = (props: any) => {
 
     useEffect(() => {
         if (!passage.book) { // fixme :: hack
-            flattenDivisions();
-            flattenBooks();
-            retrievePassage();
+            get('config/bible').then((bible: any) => {
+                setBible(bible);
+                setTestaments(bible.testaments);
+                flattenDivisions();
+                flattenBooks();
+            })
+            get('daily/history').then((history: any) => {
+                setHistory(history);
+                setDates(history);
+                flattenDivisions();
+                flattenBooks();
+                retrievePassage();
+            })
         }
         if (!guesses[0]) {
             const state = GameStatesService.getStateForDate(today)
             setGuesses(state.guesses)
             setStars(state.stars || 0)
             setPlaying(state.playing)
+
+            generateResultString(true, state.guesses.length)
         }
-    }, [passage, guesses])
+
+        GameStatesService.initCompletion();
+    })
 
     function selectTestament(item: string): void {
         selected.testament = item;
@@ -163,6 +190,7 @@ const Game = (props: any) => {
         let starResult = 0
         const won = (closeness.distance == 0);
         const limitReached = (updatedGuesses.length >= 5);
+        if (won) GameStatesService.updateCompletion(selected.book, parseInt(selected.chapter), false)
         if (won || limitReached) {
             setPlaying(false);
             if (!limitReached) {
@@ -186,7 +214,8 @@ const Game = (props: any) => {
         if (won) {
             setResult(`${'⭐'.repeat(5 + 1 - guessCount)}
 https://bible.game
-${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
+${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}
+`);
 
         } else {
             const bestGuess: any = guesses.reduce(function(prev: any, current: any) {
@@ -196,15 +225,10 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
 
             setResult(`📖 ${Intl.NumberFormat("en", { notation: "compact" }).format(bestGuess.distance)}
 https://bible.game
-${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}`);
+${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-')[1]) - 1, parseInt(today.split('-')[2]))).format('Do MMMM YYYY')}
+`);
 
         }
-    }
-
-    function openReading() {
-        setReading(true);
-
-        onOpen();
     }
 
     function isExistingGuess() {
@@ -216,8 +240,8 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
         setToday(date!);
         setDate(parseDate(moment(date).format('YYYY-MM-DD').toString()));
 
-        const gameState = GameStatesService.getStateForDate(date)
-        const starState = gameState.stars || 0
+        const gameState = GameStatesService.getStateForDate(date);
+        const starState = gameState.stars || 0;
         setPlaying(gameState.playing);
         setTestamentFound(!gameState.playing);
         setDivisionFound(!gameState.playing);
@@ -234,19 +258,17 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
         clearSelection();
     }
 
-    return <main>
-        <Toaster position="bottom-right"/>
-        {reading ? <Text isOpen={isOpen} onOpenChange={onOpenChange} onClose={() => setReading(false)} today={today} passage={passage}/> :
-            <>
-                <Background />
-                <Menu passage={passage} date={date} playing={playing} changeDate={changeDate} />
+    return (
+        <>
+            <Background/>
+            <Navigation stats={true} read={true}/>
+            <main>
+                <Toaster position="bottom-right"/>
+                <Menu passage={passage} date={date} playing={playing} changeDate={changeDate}/>
                 <Display select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} passage={passage}/>
-                <Action playing={playing} openReading={openReading} result={result} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} today={today} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter}/>
+                <Action passage={passage} playing={playing} result={result} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} today={today} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter}/>
                 <Guesses guesses={guesses}/>
-            </>
-        }
-    </main>
+            </main>
+        </>
+    );
 }
-
-
-export default Game;

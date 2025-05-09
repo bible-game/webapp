@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react";
-import Guess from "@/app/game/guess/Guess";
+import Guess from "@/app/play/guess";
 
 const Guesses = (props: any) => {
 
