@@ -65,7 +65,7 @@ export default function Play() {
             });
     }
 
-    useEffect(() => {
+    useEffect(() => { // TODO :: use SWR...? Extract to svc?
         if (!passage.book) { // fixme :: hack
             get('config/bible').then((bible: any) => {
                 setBible(bible);
