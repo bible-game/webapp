@@ -79,19 +79,20 @@ export default function Play() {
                 flattenDivisions();
                 flattenBooks();
                 retrievePassage();
+                loadState();
             })
         }
-        if (!guesses[0]) {
-            const state = GameStatesService.getStateForDate(today)
-            setGuesses(state.guesses)
-            setStars(state.stars || 0)
-            setPlaying(state.playing)
-
-            generateResultString(true, state.guesses.length)
-        }
-
-        GameStatesService.initCompletion();
     })
+
+    function loadState() {
+        const state = GameStatesService.getStateForDate(today)
+        setGuesses(state.guesses)
+        setStars(state.stars || 0)
+        setPlaying(state.playing)
+
+        generateResultString(true, state.guesses.length)
+        GameStatesService.initCompletion();
+    }
 
     function selectTestament(item: string): void {
         selected.testament = item;
@@ -255,6 +256,7 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
 
         retrievePassage(date!);
         clearSelection();
+        loadState();
     }
 
     return (
