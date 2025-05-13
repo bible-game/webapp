@@ -4,25 +4,27 @@ import { Toaster } from "react-hot-toast";
 import React, { useEffect } from "react";
 import Navigation from "@/app/navigation";
 import Background from "@/app/background";
-import Menu from "@/app/play/menu";
+import Menu from "@/app/play/[game]/menu";
 import moment from "moment/moment";
 import { Passage } from "@/core/model/passage";
 import _ from "lodash";
 import { CalendarDate, DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import { CheckIcon } from "@heroui/shared-icons";
-import Display from "@/app/play/display";
-import Guesses from "@/app/play/guesses";
-import Action from "@/app/play/action";
+import Display from "@/app/play/[game]/display/display";
+import Guesses from "@/app/play/[game]/guesses";
+import Action from "@/app/play/[game]/action";
 import { GameStatesService } from '@/core/service/game-states-service'
+import useSWR from "swr";
 
 /**
  * Game Play Page
  * @since 12th April 2025
  */
 export default function Play() {
+    const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher)
 
     const [bible, setBible] = React.useState({} as any);
-    const [history, setHistory] = React.useState({} as any);
+    const [history, setHistory] = React.useState(data);
     const [today, setToday] = React.useState(moment(new Date()).format('YYYY-MM-DD'));
     const [passage, setPassage] = React.useState({} as Passage);
     const [playing, setPlaying] = React.useState(true);
@@ -40,7 +42,7 @@ export default function Play() {
     const [divisionFound, setDivisionFound] = React.useState(false as any);
     const [bookFound, setBookFound] = React.useState(false as any);
     const [chapterFound, setChapterFound] = React.useState(false as any);
-    const [dates, setDates] = React.useState({} as any);
+    const [dates, setDates] = React.useState(data);
     const [date, setDate] = React.useState<DateValue>(parseDate(TODAY(getLocalTimeZone()).toString()));
     const [hasBook, setHasBook] = React.useState(false);
     const [maxChapter, setMaxChapter] = React.useState(0);
@@ -65,22 +67,19 @@ export default function Play() {
             });
     }
 
-    useEffect(() => { // TODO :: use SWR...? Extract to svc?
+    useEffect(() => {
         if (!passage.book) { // fixme :: hack
-            get('config/bible').then((bible: any) => {
+            setHistory(data);
+            setDates(data);
+
+            get('config/bible').then((bible: any) => { // TODO :: server
                 setBible(bible);
                 setTestaments(bible.testaments);
                 flattenDivisions();
                 flattenBooks();
             })
-            get('daily/history').then((history: any) => {
-                setHistory(history);
-                setDates(history);
-                flattenDivisions();
-                flattenBooks();
-                retrievePassage();
-                loadState();
-            })
+            retrievePassage(); // server action?
+            loadState();
         }
     })
 
@@ -100,26 +99,6 @@ export default function Play() {
         setDivisions(testaments.find(
             (test: any) => test.name === item
         ).divisions);
-    }
-
-    function flattenDivisions() {
-        const divisions = [];
-        for (const test of testaments) {
-            for (const div of test.divisions) divisions.push(div);
-        }
-        setDivisions(divisions);
-        setAllDivisions(divisions);
-    }
-
-    function flattenBooks() {
-        const books = [];
-        for (const div of divisions) {
-            for (const book of div.books) {
-                books.push(book);
-            }
-        }
-        setBooks(books);
-        setAllBooks(books);
     }
 
     function selectDivision(item: string): void {
@@ -237,6 +216,8 @@ ${moment(new CalendarDate(parseInt(today.split('-')[0]), parseInt(today.split('-
     }
 
     function changeDate(date: string = _.sample(dates)): void {
+        console.log(dates);
+
         setToday(date!);
         setDate(parseDate(moment(date).format('YYYY-MM-DD').toString()));
 

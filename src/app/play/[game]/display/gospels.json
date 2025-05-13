@@ -1,0 +1,10 @@
+{
+  "books": [
+    {"key": "Mt", "name": "Mathew"},
+    {"key": "Mk", "name": "Mark"},
+    {"key": "Lu", "name": "Luke"},
+    {"key": "Jn", "name": "John"}
+  ],
+  "colour": "yellow",
+  "division": "Gospels"
+}
