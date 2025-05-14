@@ -11,7 +11,7 @@ export const Navigation = (props: any) => {
     const textStyle = `${props.dark ? "text-black" : "text-white"} font-light text-sm`
 
     if (props.play) links.push(
-        <Link href='/' key='stats'>
+        <Link href='/' key='play'>
             <div className="flex gap-1 items-center w-[4rem]">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
                      stroke={props.dark ? "black" : "currentColor"} className="size-4">

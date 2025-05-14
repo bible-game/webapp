@@ -7,7 +7,7 @@ import { Passage } from "@/core/model/passage";
 import Display from "@/app/play/[game]/display/display";
 import { CalendarDate, DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
-import {CheckIcon} from "@heroui/shared-icons";
+import { CheckIcon } from "@heroui/shared-icons";
 import { GameStatesService } from "@/core/service/game-states-service";
 import moment from "moment";
 import Guesses from "@/app/play/[game]/guesses";
@@ -24,7 +24,7 @@ export default function Game(props: any) {
 
     const [playing, setPlaying] = React.useState(true);
     const [guesses, setGuesses] = React.useState([] as any[]); // question :: apply type?
-    const [testaments, setTestaments] = React.useState({} as any);
+    const [testaments, setTestaments] = React.useState(props.bible.testaments);
     const [divisions, setDivisions] = React.useState(props.divisions);
     const [books, setBooks] = React.useState(props.books);
     const [allBooks, setAllBooks] = React.useState(props.books);
@@ -46,10 +46,10 @@ export default function Game(props: any) {
     const [state, setState] = React.useState({} as any);
 
     useEffect(() => {
-        if (!state) {
+        if (typeof window !== "undefined") {
             loadState();
         }
-    })
+    }, []);
 
     function loadState() {
         const state = GameStatesService.getStateForDate(props.game)
@@ -185,12 +185,17 @@ ${moment(new CalendarDate(parseInt(props.game.split('-')[0]), parseInt(props.gam
     }
 
     if (isLoading) return <div>Loading...</div>
-    else return (
-        <>
-            <Menu passage={passage} playing={true}/>
-            <Display passage={passage} select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound}/>
-            <Action passage={passage} playing={playing} result={result} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} today={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter}/>
-            <Guesses guesses={guesses}/>
-        </>
-    );
+    else {
+        passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
+        passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
+
+        return (
+            <>
+                <Menu passage={passage} playing={playing}/>
+                <Display passage={passage} select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound}/>
+                <Action passage={passage} playing={playing} result={result} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} today={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter}/>
+                <Guesses guesses={guesses}/>
+            </>
+        );
+    }
 }
