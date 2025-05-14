@@ -1,0 +1,11 @@
+{
+  "books": [
+    {"key": "Is", "name": "Isaiah"},
+    {"key": "Je", "name": "Jeremiah"},
+    {"key": "La", "name": "Lamentations"},
+    {"key": "Ek", "name": "Ezekiel"},
+    {"key": "Da", "name": "Daniel"}
+  ],
+  "colour": "green",
+  "division": "Major Prophets"
+}

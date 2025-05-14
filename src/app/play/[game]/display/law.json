@@ -1,0 +1,11 @@
+{
+  "books": [
+    {"key": "Ge", "name": "Genesis"},
+    {"key": "Ex", "name": "Exodus"},
+    {"key": "Le", "name": "Leviticus"},
+    {"key": "Nu", "name": "Numbers"},
+    {"key": "De", "name": "Deuteronomy"}
+  ],
+  "colour": "blue",
+  "division": "The Law"
+}

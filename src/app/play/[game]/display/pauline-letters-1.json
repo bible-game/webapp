@@ -1,0 +1,18 @@
+{
+  "books": [
+    {"key": "Ro", "name": "Romans"},
+    {"key": "Co", "name": "1 Corinthians", "super": "1"},
+    {"key": "Co", "name": "2 Corinthians", "super": "2"},
+    {"key": "Ga", "name": "Galatians"},
+    {"key": "Ep", "name": "Ephesians"},
+    {"key": "Ph", "name": "Philippians"},
+    {"key": "Cl", "name": "Colossians"},
+    {"key": "Th", "name": "1 Thessalonians", "super": "1"},
+    {"key": "Th", "name": "2 Thessalonians", "super": "2"},
+    {"key": "Ti", "name": "1 Timothy", "super": "1"},
+    {"key": "Ti", "name": "2 Timothy", "super": "2"},
+    {"key": "Tu", "name": "Titus"}
+  ],
+  "colour": "blue",
+  "division": "Paul's Letters"
+}

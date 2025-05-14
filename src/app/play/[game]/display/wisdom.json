@@ -1,0 +1,11 @@
+{
+  "books": [
+    {"key": "Jb", "name": "Job"},
+    {"key": "Ps", "name": "Psalms"},
+    {"key": "Pr", "name": "Proverbs"},
+    {"key": "Ec", "name": "Ecclesiastes"},
+    {"key": "So", "name": "Song of Solomon"}
+  ],
+  "colour": "red",
+  "division": "Wisdom"
+}

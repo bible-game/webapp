@@ -1,0 +1,18 @@
+{
+  "books": [
+    {"key": "Js", "name": "Joshua"},
+    {"key": "Jd", "name": "Judges"},
+    {"key": "Ru", "name": "Ruth"},
+    {"key": "Sa", "name": "1 Samuel", "super": "1"},
+    {"key": "Sa", "name": "2 Samuel", "super": "2"},
+    {"key": "Ki", "name": "1 Kings", "super": "1"},
+    {"key": "Ki", "name": "2 Kings", "super": "2"},
+    {"key": "Ch", "name": "1 Chronicles", "super": "1"},
+    {"key": "Ch", "name": "2 Chronicles", "super": "2"},
+    {"key": "Ez", "name": "Ezra"},
+    {"key": "Ne", "name": "Nehemiah"},
+    {"key": "Es", "name": "Esther"}
+  ],
+  "colour": "purple",
+  "division": "History"
+}
