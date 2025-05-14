@@ -1,7 +1,6 @@
 import React from "react";
 import Navigation from "@/app/navigation";
 import ReadAction from "@/app/read/readaction";
-import { GameStatesService } from "@/core/service/game-states-service";
 
 async function get(path: string): Promise<any> {
     const response = await fetch(`${process.env.SVC_PASSAGE}/temp/reading/${path}`, {method: "GET"});
