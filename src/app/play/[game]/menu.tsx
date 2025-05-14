@@ -6,14 +6,14 @@ import { DatePicker } from "@heroui/date-picker";
 import { getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import { Chip } from "@nextui-org/chip";
 import _ from "lodash";
-import moment from "moment";
 import { redirect } from "next/navigation";
 import useSWR from "swr";
+import { I18nProvider } from "@react-aria/i18n";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const Menu = (props: any) => {
-    const date = parseDate(moment(props.passage.date.split("T")[0]).format('YYYY-MM-DD').toString());
+    const date = parseDate(props.date);
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher)
 
     const stylesDateInput = {
@@ -43,13 +43,15 @@ const Menu = (props: any) => {
                               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
                     </svg>
                 </Button>
-                <DatePicker
-                    classNames={stylesDateInput}
-                    defaultValue={date as any}
-                    maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
-                    value={date as any}
-                    onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
-                    selectorButtonPlacement="start"/>
+                <I18nProvider locale="en-GB">
+                    <DatePicker
+                        classNames={stylesDateInput}
+                        defaultValue={date as any}
+                        maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
+                        value={date as any}
+                        onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
+                        selectorButtonPlacement="start"/>
+                </I18nProvider>
             </div>
         </div>
         <div

@@ -6,8 +6,39 @@ import { Button } from "@nextui-org/react";
 import { toast } from "react-hot-toast";
 import { guess } from "@/core/action/guess";
 import {redirect} from "next/navigation";
+import moment from "moment";
+import {CalendarDate} from "@internationalized/date";
+import {CompletionService} from "@/core/service/completion-service";
 
 const Action = (props: any) => {
+
+
+    function calcGuessBlocks() {
+        let guessBlocks = '';
+
+        for (const guess of props.guesses) {
+            if (guess.closeness.distance == 0)     { continue }
+            if (guess.closeness.distance <= 100)   { guessBlocks += '🟩'; continue; }
+            if (guess.closeness.distance <= 500)   { guessBlocks += '🟩'; continue; }
+            if (guess.closeness.distance <= 2500)  { guessBlocks += '🟨'; continue; }
+            if (guess.closeness.distance <= 10000) { guessBlocks += '🟧' }
+            else guessBlocks += '🟥'
+        }
+
+        return guessBlocks;
+    }
+
+    function results() {
+        let won = false;
+        props.guesses.forEach((guess: any) => {
+            if (guess.closeness.distance == 0) won = true;
+        })
+
+        return `bible.game
+${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
+${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
+⭐ ${CompletionService.calcStars()} 📖 ${CompletionService.calcCompletion()}%`;
+    }
 
     return                 <>{
         props.playing ? <section className="panel flex justify-between mt-4">
@@ -63,7 +94,7 @@ const Action = (props: any) => {
                     onClick={() => {
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
                         else {
-                            guess(props.today, props.selected.book, props.selected.chapter).then((closeness: any) => {
+                            guess(props.date, props.selected.book, props.selected.chapter).then((closeness: any) => {
                                 props.addGuess(closeness)
                             })
                         }
@@ -93,7 +124,7 @@ const Action = (props: any) => {
                 <Button
                     className="border-0 flex-1 text-white h-[66px] text-sm rounded-none border-[#ffffff40] border-x-1 w-[13.33rem]"
                     variant="bordered"
-                    onClick={() => navigator.clipboard.writeText(props.result)}>
+                    onClick={() => navigator.clipboard.writeText(results())}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          strokeWidth={1.25} stroke="currentColor" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round"

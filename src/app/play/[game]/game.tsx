@@ -5,11 +5,10 @@ import React, {useEffect} from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/passage";
 import Display from "@/app/play/[game]/display/display";
-import { CalendarDate, DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
+import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
 import { GameStatesService } from "@/core/service/game-states-service";
-import moment from "moment";
 import Guesses from "@/app/play/[game]/guesses";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -42,7 +41,6 @@ export default function Game(props: any) {
     const [hasBook, setHasBook] = React.useState(false);
     const [maxChapter, setMaxChapter] = React.useState(0);
     const [stars, setStars] = React.useState(0);
-    const [result, setResult] = React.useState("");
     const [state, setState] = React.useState({} as any);
 
     useEffect(() => {
@@ -56,8 +54,6 @@ export default function Game(props: any) {
         setGuesses(state.guesses)
         setStars(state.stars || 0)
         setPlaying(state.playing)
-
-        generateResultString(true, state.guesses.length)
         GameStatesService.initCompletion();
         setState(state);
     }
@@ -144,7 +140,6 @@ export default function Game(props: any) {
             if (!limitReached) {
                 starResult = 5 + 1 - updatedGuesses.length
             }
-            generateResultString(won, updatedGuesses.length)
         }
         setStars(starResult)
         GameStatesService.setStateForDate(starResult, updatedGuesses, !(won || limitReached), props.game)
@@ -156,27 +151,6 @@ export default function Game(props: any) {
         selected.division = '';
         selected.book = '';
         selected.chapter = '';
-    }
-
-    function generateResultString(won: boolean, guessCount: number) {
-        if (won) {
-            setResult(`${'⭐'.repeat(5 + 1 - guessCount)}
-https://bible.game
-${moment(new CalendarDate(parseInt(props.game.split('-')[0]), parseInt(props.game.split('-')[1]) - 1, parseInt(props.game.split('-')[2]))).format('Do MMMM YYYY')}
-`);
-
-        } else {
-            const bestGuess: any = guesses.reduce(function(prev: any, current: any) {
-                if (+current.closeness.percentage > +prev.closeness.percentage) return current
-                else return prev;
-            }).closeness;
-
-            setResult(`📖 ${Intl.NumberFormat("en", { notation: "compact" }).format(bestGuess.distance)}
-https://bible.props.game
-${moment(new CalendarDate(parseInt(props.game.split('-')[0]), parseInt(props.game.split('-')[1]) - 1, parseInt(props.game.split('-')[2]))).format('Do MMMM YYYY')}
-`);
-
-        }
     }
 
     function isExistingGuess() {
@@ -191,9 +165,9 @@ ${moment(new CalendarDate(parseInt(props.game.split('-')[0]), parseInt(props.gam
 
         return (
             <>
-                <Menu passage={passage} playing={playing}/>
+                <Menu passage={passage} playing={playing} date={props.game}/>
                 <Display passage={passage} select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound}/>
-                <Action passage={passage} playing={playing} result={result} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} today={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter}/>
+                <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                 <Guesses guesses={guesses}/>
             </>
         );
