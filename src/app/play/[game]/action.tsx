@@ -35,8 +35,8 @@ const Action = (props: any) => {
         })
 
         return `bible.game
-${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
+${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ⭐ ${CompletionService.calcStars()} 📖 ${CompletionService.calcCompletion()}%`;
     }
 
