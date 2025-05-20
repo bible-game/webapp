@@ -54,9 +54,9 @@ const Display = (props: any) => {
 
     return <section className="mt-6 flex justify-center">
             <div>
-            <div>{oldTestament.map((rows: any) => <div className="flex" key={rows.row}>{rows.divisions.map((div: any) => <div
+            <div>{oldTestament.map((rows: any) => <div className="flex flex-wrap" key={rows.row}>{rows.divisions.map((div: any) => <div
                 key={div.division}
-                className="flex">{div.books.map((book: any) =>
+                className="flex flex-wrap">{div.books.map((book: any) =>
                 <div key={book.key + book.super} className={isDim(book.name, div.division, 'Old') ? "opacity-40" : "opacity-100"}>
                     <div className={shadowClass(div.colour)} id={book.name} onClick={()=> props.select(book.name, isDim(book.name, div.division, 'Old'))}>
                         <div className={bookClass(div.colour)}>
@@ -68,10 +68,10 @@ const Display = (props: any) => {
             </div>)}
             </div>)}
             </div>
-            <div className="my-2">{newTestament.map((rows: any) => <div className="flex" key={rows.row}>{rows.divisions.map((div: any) =>
+            <div className="my-2">{newTestament.map((rows: any) => <div className="flex flex-wrap" key={rows.row}>{rows.divisions.map((div: any) =>
                 <div
                     key={div.division}
-                    className="flex">{div.books.map((book: any) =>
+                    className="flex flex-wrap">{div.books.map((book: any) =>
                     <div key={book.key + book.super} className={isDim(book.name, div.division, 'New') ? "opacity-40" : "opacity-100"}>
                         <div className={shadowClass(div.colour)} id={book.name} onClick={() => props.select(book.name, isDim(book.name, div.division, 'New'))}>
                             <div className={bookClass(div.colour)}>

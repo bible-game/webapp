@@ -35,7 +35,7 @@ export default async function Read({params}: { params: Promise<{ book: string, c
             <div className="bg-white absolute top-0 left-0 w-full">
                 <div className="flex justify-center">
                     <Navigation stats={true} play={true} dark={true}/>
-                    <main className="h-full w-[40rem] text-black relative top-[6rem] overflow-auto mb-[12rem]">
+                    <main className="h-full w-[75vw] sm:w-[40rem] text-black relative top-[6rem] overflow-auto mb-[12rem]">
                         <div className="mb-10">
                             <p className="text-[2.5rem] font-light">{reference}</p>
                             <span className="text-gray-400 text-sm font-light">{readingTime}</span>
