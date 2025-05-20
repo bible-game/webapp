@@ -28,6 +28,16 @@ export default function Stats() {
         setComplete(CompletionService.calcCompletion);
     }, []);
 
+    function pretty(text: string): any {
+        const parts = text.split(/\d/);
+
+        if (parts.length == 1)
+            return text.charAt(0).toUpperCase() + text.substring(1).toLowerCase();
+
+        else
+            return `${text[0]} ${pretty(parts[1])}`;
+    }
+
     return (
         <>
             <Background/>
@@ -53,7 +63,7 @@ export default function Stats() {
                 </section>
                 <section className="flex flex-wrap">
                     {completion.map((c: any) => c.chapter.map((chapter: any, index = 0) =>
-                        <Cell key={c.book + index} label={c.book + ++index} chapter={chapter}/>))}
+                        <Cell key={c.book + index} label={`${pretty(c.book)} ${++index}`} chapter={chapter}/>))}
                 </section>
             </main>
         </>

@@ -11,11 +11,13 @@ async function get(path: string): Promise<any> {
  * Read Passage Page
  * @since 12th April 2025
  */
-export default async function Read({params}: { params: Promise<{ passage: string }>}) {
+export default async function Read({params}: { params: Promise<{ book: string, chapter: string }>}) {
 
-    const { passage } = await params;
-    const text = (await get(passage))['text'];
-    const verses = (await get(passage))['verses'];
+    const { book, chapter } = await params;
+    const passage = await get(book+chapter)
+    const text = passage['text'];
+    const verses = passage['verses'];
+    const reference = passage['reference'];
     const wordsPerMinute = 160;
     const readingTime = `${calculateReadingTime()} mins`;
 
@@ -28,33 +30,6 @@ export default async function Read({params}: { params: Promise<{ passage: string
         } else return '';
     }
 
-    function pretty(passage: string): string {
-        let i = 0;
-        let prettied = "";
-        const characters = passage.split("");
-
-        for (const char of characters) {
-            if (/^\d+$/.test(char)) prettied += " ";
-
-            if (i == 0) prettied += char.toUpperCase()
-            else prettied += char
-            i++;
-        }
-
-        return prettied;
-    }
-
-    function getChapter() {
-        const split = pretty(passage).split(" ")
-        let chapter = "";
-
-        for (let i = 1; i < split.length; i++) {
-            chapter += split[i];
-        }
-
-        return chapter;
-    }
-
     return (
         <>
             <div className="bg-white absolute top-0 left-0 w-full">
@@ -62,7 +37,7 @@ export default async function Read({params}: { params: Promise<{ passage: string
                     <Navigation stats={true} play={true} dark={true}/>
                     <main className="h-full w-[40rem] text-black relative top-[6rem] overflow-auto mb-[12rem]">
                         <div className="mb-10">
-                            <p className="text-[2.5rem] font-light">{pretty(passage)}</p>
+                            <p className="text-[2.5rem] font-light">{reference}</p>
                             <span className="text-gray-400 text-sm font-light">{readingTime}</span>
                         </div>
                         <div>
@@ -71,7 +46,7 @@ export default async function Read({params}: { params: Promise<{ passage: string
                                 <div className="text-gray-800 text-[18px] font-light leading-[2rem]">{verse.text}</div>
                             </div>)}
                         </div>
-                        <ReadAction book={pretty(passage).split(" ")[0]} chapter={getChapter()}/>
+                        <ReadAction book={book} chapter={chapter}/>
                     </main>
                 </div>
             </div>
