@@ -1,7 +1,7 @@
 "use client"
 
 import Menu from "@/app/play/[game]/menu";
-import React, {useEffect} from "react";
+import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/passage";
 import Display from "@/app/play/[game]/display/display";
@@ -10,6 +10,7 @@ import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
 import { GameStatesService } from "@/core/service/game-states-service";
 import Guesses from "@/app/play/[game]/guesses";
+import Confetti from "@/core/component/confetti";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -21,33 +22,36 @@ export default function Game(props: any) {
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
     const passage = data as Passage;
 
-    const [playing, setPlaying] = React.useState(true);
-    const [guesses, setGuesses] = React.useState([] as any[]); // question :: apply type?
-    const [testaments, setTestaments] = React.useState(props.bible.testaments);
-    const [divisions, setDivisions] = React.useState(props.divisions);
-    const [books, setBooks] = React.useState(props.books);
-    const [allBooks, setAllBooks] = React.useState(props.books);
-    const [allDivisions, setAllDivisions] = React.useState(props.divisions);
-    const [chapters, setChapters] = React.useState([] as any);
-    const [selected, setSelected] = React.useState({} as Passage);
-    const [book, setBook] = React.useState('');
-    const [chapter, setChapter] = React.useState('');
-    const [testamentFound, setTestamentFound] = React.useState(false as any);
-    const [divisionFound, setDivisionFound] = React.useState(false as any);
-    const [bookFound, setBookFound] = React.useState(false as any);
-    const [chapterFound, setChapterFound] = React.useState(false as any);
-    const [dates, setDates] = React.useState(data);
-    const [date, setDate] = React.useState<DateValue>(parseDate(TODAY(getLocalTimeZone()).toString()));
-    const [hasBook, setHasBook] = React.useState(false);
-    const [maxChapter, setMaxChapter] = React.useState(0);
-    const [stars, setStars] = React.useState(0);
-    const [state, setState] = React.useState({} as any);
+    const [playing, setPlaying] = useState(true);
+    const [guesses, setGuesses] = useState([] as any[]); // question :: apply type?
+    const [testaments, setTestaments] = useState(props.bible.testaments);
+    const [divisions, setDivisions] = useState(props.divisions);
+    const [books, setBooks] = useState(props.books);
+    const [allBooks, setAllBooks] = useState(props.books);
+    const [allDivisions, setAllDivisions] = useState(props.divisions);
+    const [chapters, setChapters] = useState([] as any);
+    const [selected, setSelected] = useState({} as Passage);
+    const [book, setBook] = useState('');
+    const [chapter, setChapter] = useState('');
+    const [testamentFound, setTestamentFound] = useState(false as any);
+    const [divisionFound, setDivisionFound] = useState(false as any);
+    const [bookFound, setBookFound] = useState(false as any);
+    const [chapterFound, setChapterFound] = useState(false as any);
+    const [dates, setDates] = useState(data);
+    const [date, setDate] = useState<DateValue>(parseDate(TODAY(getLocalTimeZone()).toString()));
+    const [hasBook, setHasBook] = useState(false);
+    const [maxChapter, setMaxChapter] = useState(0);
+    const [stars, setStars] = useState(0);
+    const [state, setState] = useState({} as any);
+    const [confetti, setConfetti] = useState(false)
 
     useEffect(() => {
+        if (confetti) setConfetti(false);
+
         if (typeof window !== "undefined") {
             loadState();
         }
-    }, []);
+    }, [stars]);
 
     function loadState() {
         const state = GameStatesService.getStateForDate(props.game)
@@ -134,7 +138,10 @@ export default function Game(props: any) {
         let starResult = 0
         const won = (closeness.distance == 0);
         const limitReached = (updatedGuesses.length >= 5);
-        if (won) GameStatesService.updateCompletion(selected.book, parseInt(selected.chapter), false)
+        if (won) {
+            GameStatesService.updateCompletion(selected.book, parseInt(selected.chapter), false);
+            setConfetti(true);
+        }
         if (won || limitReached) {
             setPlaying(false);
             if (!limitReached) {
@@ -169,6 +176,7 @@ export default function Game(props: any) {
                 <Display passage={passage} select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound}/>
                 <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                 <Guesses guesses={guesses}/>
+                <Confetti fire={confetti}/>
             </>
         );
     }
