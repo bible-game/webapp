@@ -55,7 +55,7 @@ const Menu = (props: any) => {
             </div>
         </div>
         <div
-            className={"panel p-4 h-[66px] " + (!props.playing ? "flex justify-between gap-2 px-6" : "text-center")}>
+            className={"panel p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-2 px-6" : "text-center")}>
             <div className={"opacity-80 " + (!props.playing ? "ml-2" : "")}>{props.passage.summary}</div>
             <Chip size="sm"
                   variant="solid"
