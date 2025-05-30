@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { useState } from "react";
 
 enum Closeness {
     UNKNOWN = 'text-white',
@@ -14,9 +14,9 @@ enum Closeness {
 const Guess = (props: any) => {
     const formatter = Intl.NumberFormat("en", { notation: "compact" });
 
-    const [colour] = React.useState(grade(props.closeness));
-    const [passage] = React.useState(formatPassage(props.book, props.chapter));
-    const [closeness] = React.useState(formatCloseness(props.closeness));
+    const [colour] = useState(grade(props.closeness));
+    const [passage] = useState(formatPassage(props.book, props.chapter));
+    const [closeness] = useState(formatCloseness(props.closeness));
 
     function grade(closeness: any): string {
         if (!!closeness) {

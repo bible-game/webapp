@@ -1,7 +1,7 @@
 "use client"
 
 import { Toaster } from "react-hot-toast";
-import React, {useEffect} from "react";
+import React, { useEffect, useState } from "react";
 import Navigation from "@/app/navigation";
 import Background from "@/app/background";
 import Cell from "@/app/stats/cell";
@@ -14,11 +14,11 @@ import { CompletionService } from "@/core/service/completion-service";
  */
 export default function Stats() {
 
-    const [stars, setStars] = React.useState(0);
-    const [games, setGames] = React.useState(0);
-    const [streak, setStreak] = React.useState(0);
-    const [completion, setCompletion] = React.useState([] as any[]);
-    const [complete, setComplete] = React.useState("");
+    const [stars, setStars] = useState(0);
+    const [games, setGames] = useState(0);
+    const [streak, setStreak] = useState(0);
+    const [completion, setCompletion] = useState([] as any[]);
+    const [complete, setComplete] = useState("");
 
     useEffect(() => {
         setStars(CompletionService.calcStars);
@@ -27,6 +27,16 @@ export default function Stats() {
         setCompletion(GameStatesService.getCompletion);
         setComplete(CompletionService.calcCompletion);
     }, []);
+
+    function pretty(text: string): any {
+        const parts = text.split(/\d/);
+
+        if (parts.length == 1)
+            return text.charAt(0).toUpperCase() + text.substring(1).toLowerCase();
+
+        else
+            return `${text[0]} ${pretty(parts[1])}`;
+    }
 
     return (
         <>
@@ -53,7 +63,7 @@ export default function Stats() {
                 </section>
                 <section className="flex flex-wrap">
                     {completion.map((c: any) => c.chapter.map((chapter: any, index = 0) =>
-                        <Cell key={c.book + index} label={c.book + ++index} chapter={chapter}/>))}
+                        <Cell key={c.book + index} label={`${pretty(c.book)} ${++index}`} chapter={chapter}/>))}
                 </section>
             </main>
         </>
