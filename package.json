@@ -8,6 +8,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@carrotsearch/foamtree": "^3.5.2",
     "@fontsource/inter": "^5.2.5",
     "@fontsource/roboto": "^5.2.5",
     "@heroui/autocomplete": "^2.3.11",
