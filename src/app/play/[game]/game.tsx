@@ -4,13 +4,13 @@ import Menu from "@/app/play/[game]/menu";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/passage";
-import Display from "@/app/play/[game]/display/display";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
 import { GameStatesService } from "@/core/service/game-states-service";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
+import Treemap from "@/app/play/[game]/treemap";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -173,7 +173,7 @@ export default function Game(props: any) {
         return (
             <>
                 <Menu passage={passage} playing={playing} date={props.game}/>
-                <Display passage={passage} select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound}/>
+                <Treemap passage={passage} select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments}/>
                 <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                 <Guesses guesses={guesses}/>
                 <Confetti fire={confetti}/>
