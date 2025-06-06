@@ -6,16 +6,15 @@ import React, { useEffect, useRef, useState } from 'react';
  * Voronoi Treemap Component for displaying the Bible
  * @since 1st June 2025
  */
-//@ts-ignore
-const Treemap = ({ data }) => {
-    //@ts-ignore
-    const element = useRef()
-    const [ treemap, setTreemap ] = useState();
+const Treemap = (props: any) => {
+    const [treemap, setTreemap] = useState({} as any);
 
     useEffect(() => {
         import("@carrotsearch/foamtree").then(module => {
             setTreemap(new module.FoamTree({
-                element: element.current,
+                id: 'treemap',
+                logging: true,
+                dataObject: props.data,
                 layoutByWeightOrder: false,
                 relaxationInitializer: "treemap",
                 descriptionGroupType: "floating",
@@ -73,28 +72,18 @@ const Treemap = ({ data }) => {
                 //     }
                 // }
             }));
-        });
 
-        return () => {
-            if (treemap) {
-                //@ts-ignore
-                treemap.dispose();
-                //@ts-ignore
-                setTreemap(null);
+            const element = document.getElementById('treemap') as any;
+            if (element) {
+                console.log(element.hasAttribute('data-foamtree'));
+                element.removeAttribute('data-foamtree');
+                console.log(element.hasAttribute('data-foamtree'));
             }
-        }
+        });
     }, []);
 
-    useEffect(() => {
-        if (treemap) {
-            //@ts-ignore
-            treemap.set("dataObject", data);
-        }
-    }, [ treemap, data ]);
-
     return (
-        //@ts-ignore
-        <div ref={element} className="absolute w-full h-full" id="treemap"></div>
+        <div className="absolute w-full h-full" id="treemap"></div>
     );
 };
 
