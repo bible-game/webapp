@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import Navigation from "@/app/navigation";
 import Background from "@/app/background";
 import Cell from "@/app/stats/cell";
-import { GameStatesService } from "@/core/service/game-states-service";
+import { GameStatesService } from "@/core/service/state/game-states-service";
 import { CompletionService } from "@/core/service/completion-service";
 
 /**
@@ -41,7 +41,7 @@ export default function Stats() {
     return (
         <>
             <Background/>
-            <Navigation play={true} read={true}/>
+            <Navigation play={true} read={true} account={true}/>
             <main>
                 <Toaster position="bottom-right"/>
                 <section>

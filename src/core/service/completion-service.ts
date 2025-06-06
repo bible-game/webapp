@@ -1,4 +1,4 @@
-import {GameStates, GameStatesService} from "@/core/service/game-states-service";
+import {GameStates, GameStatesService} from "@/core/service/state/game-states-service";
 
 /**
  * Completion-related Logic

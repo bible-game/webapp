@@ -8,7 +8,7 @@ import Display from "@/app/play/[game]/display/display";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
-import { GameStatesService } from "@/core/service/game-states-service";
+import { GameStatesService } from "@/core/service/state/game-states-service";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
 

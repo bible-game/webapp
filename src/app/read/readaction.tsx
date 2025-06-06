@@ -2,7 +2,7 @@
 
 import { Button } from "@nextui-org/react";
 import React from "react";
-import { GameStatesService } from "@/core/service/game-states-service";
+import { GameStatesService } from "@/core/service/state/game-states-service";
 import { toast, Toaster } from "react-hot-toast";
 
 const ReadAction = (props: any) => {

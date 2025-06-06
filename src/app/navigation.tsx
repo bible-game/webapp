@@ -46,6 +46,18 @@ export const Navigation = (props: any) => {
             </div>
         </Link>
     );
+    if (props.account) links.push(
+        <Link href='/account' key='account'>
+            <div className="flex gap-1 items-center w-[4rem]">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
+                     stroke={props.dark ? "black" : "currentColor"} className="size-4">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                          d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
+                </svg>
+                <p className={textStyle}>Account</p>
+            </div>
+        </Link>
+    );
 
     return (
         <section className="flex absolute justify-end sm:top-[4.5rem] w-[75vw] sm:w-[38rem] top-[2rem]">

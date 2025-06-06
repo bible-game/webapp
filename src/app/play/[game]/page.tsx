@@ -37,7 +37,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
     else return (
         <>
             <Background/>
-            <Navigation stats={true} read={true}/>
+            <Navigation stats={true} read={true} account={true}/>
             <main>
                 <Toaster position="bottom-right"/>
                 <Game game={game} bible={bible} divisions={divisions} books={books}/>
