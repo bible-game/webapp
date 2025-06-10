@@ -8,7 +8,8 @@ const nextConfig = {
     },
     sassOptions: {
         includePaths: [path.join(__dirname, 'styles')],
-    }
+    },
+    reactStrictMode: false,
 }
 
 module.exports = nextConfig

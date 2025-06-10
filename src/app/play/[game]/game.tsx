@@ -165,6 +165,13 @@ export default function Game(props: any) {
             .includes(selected.book+selected.chapter);
     }
 
+    function select(book: any, chapter: any) {
+        const bookName = allBooks.find((bk: any) => bk.key == book).name;
+
+        selectBook(bookName);
+        selectChapter(chapter);
+    }
+
     if (isLoading) return <div>Loading...</div>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
@@ -172,11 +179,17 @@ export default function Game(props: any) {
 
         return (
             <>
-                <Menu passage={passage} playing={playing} date={props.game}/>
-                <Treemap passage={passage} select={selectBook} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments}/>
-                <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                <Guesses guesses={guesses}/>
-                <Confetti fire={confetti}/>
+                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments}/>
+                <section className="relative z-1 h-full pointer-events-none">
+                    <section className="pointer-events-auto">
+                        <Menu passage={passage} playing={playing} date={props.game}/>
+                    </section>
+                    <section className="absolute bottom-0 pointer-events-auto">
+                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                        <Guesses guesses={guesses}/>
+                    </section>
+                    <Confetti fire={confetti}/>
+                </section>
             </>
         );
     }
