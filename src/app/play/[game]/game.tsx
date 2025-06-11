@@ -179,7 +179,7 @@ export default function Game(props: any) {
 
         return (
             <>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments}/>
+                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} />
                 <section className="relative z-1 h-full pointer-events-none">
                     <section className="pointer-events-auto">
                         <Menu passage={passage} playing={playing} date={props.game}/>

@@ -12,8 +12,8 @@ const Treemap = (props: any ) => {
     const element = useRef()
     const [ treemap, setTreemap ] = useState();
 
-    const [ divisions, setDivisions ] = getDivKeys();
-    const [ books, setBooks ] = getBookKeys();
+    const [ divisions, setDivisions ] = useState(getDivKeys());
+    const [ books, setBooks ] = useState(getBookKeys());
 
     useEffect(() => {
         //@ts-ignore
@@ -40,6 +40,10 @@ const Treemap = (props: any ) => {
                     groupColorDecorator: function (opts: any, params: any, vars: any) {
                         vars.groupColor = params.group.color;
                         vars.labelColor = "auto";
+
+                        if (params.group.dim) {
+                            vars.groupColor = "#060842";
+                        }
                     },
                     groupFillType: "plain",
                     groupLabelFontFamily: "inter",
@@ -57,10 +61,7 @@ const Treemap = (props: any ) => {
                     rolloutMethod: "groups",
 
                     onRolloutComplete: function () {
-                        if (treemap) {
-                            //@ts-ignore
-                            treemap.set("open", { open: false, groups: [...divisions, ...books] });
-                        }
+                        this.set("open", { open: false, groups: [...divisions, ...books] });
                     },
                     onGroupClick: function (event: any) {
                         const selection = event.group.id.split('/');
@@ -68,27 +69,22 @@ const Treemap = (props: any ) => {
                     },
                     openCloseDuration: 1000,
                     onGroupHover: function (event: any) {
-                        if (event.group && treemap) {
+                        if (event.group) {
                             //@ts-ignore
-                            treemap.open(event.group.id);
+                            this.open(event.group.id);
                         }
                     },
                     onGroupMouseWheel: function (event: any) {
                         if (event.delta < 0) {
-                            if (treemap) {
-                                //@ts-ignore
-                                treemap.set("open", {
-                                    groups: [...books, ...divisions],
-                                    open: false,
-                                    keepPrevious: true
-                                });
-                            }
+                            //@ts-ignore
+                            this.set("open", {
+                                groups: [...books, ...divisions],
+                                open: false,
+                                keepPrevious: true
+                            });
                         }
                         if (event.delta > 0) {
-                            if (treemap) {
-                                //@ts-ignore
-                                treemap.open(event.group.id);
-                            }
+                            this.open(event.group.id);
                         }
                     }
                 });
@@ -111,42 +107,52 @@ const Treemap = (props: any ) => {
         }
     }, []);
 
+    useEffect(() => {
+        if (treemap && (props.bookFound || props.divFound || props.testFound)) {
+            //@ts-ignore
+            treemap.set("dataObject", configure(props.data));
+            console.log(props.passage);
+        }
+    }, [props.bookFound, props.divFound, props.testFound]);
+
     function configure(data: any) {
         const testaments: any[] = [];
 
         for (const test of data) {
             testaments.push({
                 id: test.name.toLowerCase(),
-                groups: getDivisions(test.divisions),
+                groups: getDivisions(test.name, test.divisions),
                 label: test.name,
                 open: true,
                 weight: getTestamentWeight(test),
-                unselectable: true
+                unselectable: true,
+                dim: isDim(test.name, 'testament', props.testFound)
             })
         }
 
         return { groups: testaments }
     }
 
-    function getDivisions(div: any) {
+    function getDivisions(test: string, div: any) {
         const divisions: any[] = [];
 
         for (const d of div) {
             divisions.push({
                 id: d.name.toLowerCase().replace(/\s/g, '-'),
-                groups: getBooks(d.books),
+                groups: getBooks(test, d.name, d.books),
                 label: d.name,
                 open: true,
                 weight: getDivisionWeight(d),
                 color: getColour(d.books[0].key),
-                unselectable: true
+                unselectable: true,
+                dim: isDim(d.name, 'division', props.divFound)
             })
         }
 
         return divisions
     }
 
-    function getBooks(bk: any) {
+    function getBooks(test: string, div: string, bk: any) {
         const books: any[] = [];
 
         for (const b of bk) {
@@ -154,17 +160,18 @@ const Treemap = (props: any ) => {
                 id: b.key,
                 label: b.name,
                 open: true,
-                groups: getChapters(b, b.chapters),
+                groups: getChapters(test, div, b, b.chapters),
                 weight: getBookWeight(b),
                 color: getColour(b.key),
-                unselectable: true
+                unselectable: true,
+                dim: isDim(b.name, 'book', props.bookFound)
             })
         }
 
         return books
     }
 
-    function getChapters(book: any, ch: number) {
+    function getChapters(test: string, div: string,book: any, ch: number) {
         const chapters: any[] = [];
 
         for (let c = 1; c <= ch; c++) {
@@ -172,7 +179,8 @@ const Treemap = (props: any ) => {
                 id: book.key+'/'+c.toString(),
                 label: c,
                 weight: parseFloat(book.verses[c-1]),
-                color: getColour(book.key)
+                color: getColour(book.key),
+                dim: isDim(book.name, 'book', props.bookFound)
             })
         }
 
@@ -233,6 +241,12 @@ const Treemap = (props: any ) => {
         }
 
         return book;
+    }
+
+    const isDim = (name: string, level: string, found: boolean) => {
+        if (found) {
+            return name != props.passage[level];
+        }
     }
 
     const getColour = (book: string): any => {
