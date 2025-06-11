@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 /**
  * Voronoi Treemap Component for displaying the Bible
@@ -42,7 +42,7 @@ const Treemap = (props: any ) => {
                         vars.labelColor = "auto";
 
                         if (params.group.dim) {
-                            vars.groupColor = "#060842";
+                            vars.groupColor = average(params.group.color, "#0f0a31");
                         }
                     },
                     groupFillType: "plain",
@@ -111,7 +111,6 @@ const Treemap = (props: any ) => {
         if (treemap && (props.bookFound || props.divFound || props.testFound)) {
             //@ts-ignore
             treemap.set("dataObject", configure(props.data));
-            console.log(props.passage);
         }
     }, [props.bookFound, props.divFound, props.testFound]);
 
@@ -329,6 +328,21 @@ const Treemap = (props: any ) => {
         }
 
         return colour[book];
+    }
+
+    function average(color1: any,color2: any): any{
+        const avg  = function(a: any,b: any){ return (a+b)/2; },
+            t16  = function(c: any){ return parseInt((''+c).replace('#',''),16) },
+            hex  = function(c: any){ const t = (c>>0).toString(16);
+                return t.length == 2 ? t : '0' + t },
+            hex1 = t16(color1),
+            hex2 = t16(color2),
+            r    = function(hex: any){ return hex >> 16 & 0xFF},
+            g    = function(hex: any){ return hex >> 8 & 0xFF},
+            b    = function(hex: any){ return hex & 0xFF};
+        return '#' + hex(avg(r(hex1), r(hex2)))
+            + hex(avg(g(hex1), g(hex2)))
+            + hex(avg(b(hex1), b(hex2)));
     }
 
     return (
