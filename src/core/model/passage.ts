@@ -6,6 +6,7 @@ export type Passage = {
     title: string
     testament: string
     division: string
-    book: string
+    book: string,
+    bookKey: string
     chapter: string
 }

@@ -165,11 +165,15 @@ export default function Game(props: any) {
             .includes(selected.book+selected.chapter);
     }
 
-    function select(book: any, chapter: any) {
-        const bookName = allBooks.find((bk: any) => bk.key == book).name;
+    function select(book: any, chapter: any, isBookKey = true) {
+        if (isBookKey) {
+            const bookName = allBooks.find((bk: any) => bk.key == book).name;
+            if (book) selectBook(bookName);
 
-        selectBook(bookName);
-        selectChapter(chapter);
+        } else {
+            selectBook(book);
+        }
+        if (chapter) selectChapter(chapter);
     }
 
     if (isLoading) return <div>Loading...</div>

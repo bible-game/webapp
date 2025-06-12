@@ -41,7 +41,7 @@ const Treemap = (props: any ) => {
                         vars.groupColor = params.group.color;
                         vars.labelColor = "auto";
 
-                        if (params.group.dim) {
+                        if (params.group.dim || params.parent?.dim) {
                             vars.groupColor = average(params.group.color, "#0f0a31");
                         }
                     },
@@ -59,26 +59,39 @@ const Treemap = (props: any ) => {
 
                     // Roll out in groups
                     rolloutMethod: "groups",
+                    // rolloutDuration: 0,
 
                     onRolloutComplete: function () {
-                        this.set("open", { open: false, groups: [...divisions, ...books] });
-                    },
-                    onGroupClick: function (event: any) {
-                        const selection = event.group.id.split('/');
-                        props.select(selection[0], selection[1]);
-                    },
-                    openCloseDuration: 1000,
-                    onGroupHover: function (event: any) {
-                        if (event.group) {
-                            //@ts-ignore
-                            this.open(event.group.id);
+                        // this.set("open", { open: false, groups: [...divisions, ...books] });
+                        this.set("open", { open: false, groups: [...books] });
+
+                        if (props.bookFound) {
+                            this.open(props.passage.book);
                         }
                     },
+                    onGroupClick: function (event: any) {
+                        if (event.group.id.includes('/')) {
+                            const selection = event.group.id.split('/');
+                            props.select(selection[0], selection[1]);
+                        } else {
+                            //ts-ignore
+                            this.open(event.group.id);
+                            props.select(event.group.id, null, false);
+                        }
+                    },
+                    openCloseDuration: 1000,
+                    // onGroupHover: function (event: any) {
+                    //     if (event.group) {
+                    //         //@ts-ignore
+                    //         this.open(event.group.id);
+                    //     }
+                    // },
                     onGroupMouseWheel: function (event: any) {
                         if (event.delta < 0) {
                             //@ts-ignore
                             this.set("open", {
-                                groups: [...books, ...divisions],
+                                // groups: [...books, ...divisions],
+                                groups: [...books],
                                 open: false,
                                 keepPrevious: true
                             });
@@ -110,7 +123,46 @@ const Treemap = (props: any ) => {
     useEffect(() => {
         if (treemap && (props.bookFound || props.divFound || props.testFound)) {
             //@ts-ignore
-            treemap.set("dataObject", configure(props.data));
+            // treemap.set("dataObject", configure(props.data));
+            treemap.set({
+                groupColorDecorator: function(opts: any, params: any, vars: any) {
+
+                    if (props.bookFound) {
+                        if ((params.group.level == "book" || params.group.level == "chapter") && (params.group.id == props.passage.book || params.group.id.includes(props.passage.bookKey))) {
+                            vars.groupColor = params.group.color;
+                        } else if (params.group.level == "book") {
+                            vars.groupColor = average(params.group.color, "#0f0a31");
+                        }
+                    }
+
+                    if (props.divFound) {
+                        if ((params.group.level == "division") && (params.group.id == props.passage.division.toLowerCase().replace(/\s/g, '-'))) {
+                            vars.groupColor = params.group.color;
+                        } else if (params.group.level == "division") {
+                            vars.groupColor = average(params.group.color, "#0f0a31");
+                        }
+                    }
+
+                    if (props.testFound) {
+                        if ((params.group.level == "testament") && (params.group.id == props.passage.testament.toLowerCase())) {
+                            vars.groupColor = params.group.color;
+                        } else if (params.group.level == "testament") {
+                            vars.groupColor = average(params.group.color, "#0f0a31");
+                        }
+                    }
+                }
+        });
+        }
+
+        //@ts-ignore
+        if (props.bookFound) treemap.zoom(props.passage.book)
+        //@ts-ignore
+        else if (props.divFound) treemap.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'))
+        //@ts-ignore
+        else if (props.testFound) treemap.zoom(props.passage.testament.toLowerCase());
+
+        return () => {
+
         }
     }, [props.bookFound, props.divFound, props.testFound]);
 
@@ -123,9 +175,11 @@ const Treemap = (props: any ) => {
                 groups: getDivisions(test.name, test.divisions),
                 label: test.name,
                 open: true,
+                colour: getColour(test.name.toUpperCase()),
                 weight: getTestamentWeight(test),
                 unselectable: true,
-                dim: isDim(test.name, 'testament', props.testFound)
+                dim: isDim(test.name, 'testament', props.testFound),
+                level: 'testament'
             })
         }
 
@@ -144,7 +198,8 @@ const Treemap = (props: any ) => {
                 weight: getDivisionWeight(d),
                 color: getColour(d.books[0].key),
                 unselectable: true,
-                dim: isDim(d.name, 'division', props.divFound)
+                dim: isDim(d.name, 'division', props.divFound) || isDim(test, 'testament', props.testFound),
+                level: 'division'
             })
         }
 
@@ -156,14 +211,15 @@ const Treemap = (props: any ) => {
 
         for (const b of bk) {
             books.push({
-                id: b.key,
+                id: b.name,
                 label: b.name,
                 open: true,
                 groups: getChapters(test, div, b, b.chapters),
                 weight: getBookWeight(b),
                 color: getColour(b.key),
-                unselectable: true,
-                dim: isDim(b.name, 'book', props.bookFound)
+                // unselectable: true,
+                dim: isDim(b.name, 'book', props.bookFound),
+                level: 'book'
             })
         }
 
@@ -179,7 +235,8 @@ const Treemap = (props: any ) => {
                 label: c,
                 weight: parseFloat(book.verses[c-1]),
                 color: getColour(book.key),
-                dim: isDim(book.name, 'book', props.bookFound)
+                dim: isDim(book.name, 'book', props.bookFound),
+                level: 'chapter'
             })
         }
 
@@ -234,7 +291,12 @@ const Treemap = (props: any ) => {
         for (const test of props.data) {
             for (const d of test.divisions) {
                 for (const bk of d.books) {
-                    book.push(bk.key)
+                    book.push(bk.name)
+                    // book.push(bk.key)
+
+                    if (bk.name == props.passage.book) {
+                        props.passage.bookKey = bk.key
+                    }
                 }
             }
         }
@@ -250,6 +312,9 @@ const Treemap = (props: any ) => {
 
     const getColour = (book: string): any => {
         const colour: any = {
+            "OLD": "#ffa700",
+            "NEW": "#ffd500",
+
             "GEN": "#36ABFF",
             "EXO": "#36ABFF",
             "LEV": "#1591ea",
