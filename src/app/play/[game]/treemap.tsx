@@ -1,13 +1,23 @@
 "use client"
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+const mobileOptimisations = {
+    relaxationVisible: false,
+    relaxationQualityThreshold: 5,
+    rolloutDuration: 0,
+    pullbackDuration: 0,
+    finalCompleteDrawMaxDuration: 50,
+    finalIncrementalDrawMaxDuration: 20,
+    interactionHandler: "hammerjs"
+}
 
 /**
  * Voronoi Treemap Component for displaying the Bible
  * @since 1st June 2025
  */
 //@ts-ignore
-const Treemap = (props: any ) => {
+const Treemap = (props: any) => {
     //@ts-ignore
     const element = useRef()
     const [ treemap, setTreemap ] = useState();
@@ -48,14 +58,7 @@ const Treemap = (props: any ) => {
                     groupFillType: "plain",
                     groupLabelFontFamily: "inter",
 
-                    // mobile optimisation
-                    // relaxationVisible: false,
-                    // relaxationQualityThreshold: 5,
-                    // rolloutDuration: 0,
-                    // pullbackDuration: 0,
-                    // finalCompleteDrawMaxDuration: 50,
-                    // finalIncrementalDrawMaxDuration: 20,
-                    // interactionHandler: "hammerjs",
+                    ...(props.device == 'mobile' ? mobileOptimisations : {}),
 
                     // Roll out in groups
                     rolloutMethod: "groups",

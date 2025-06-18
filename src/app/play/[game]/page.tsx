@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 
 import React from "react";
 import Game from "@/app/play/[game]/game";
+import { headers } from "next/headers";
 
 async function get(path: string): Promise<any> {
     const response = await fetch(`${process.env.SVC_PASSAGE}/${path}`, {method: "GET"});
@@ -26,6 +27,8 @@ const flat = (group: any, subgroup: any) => {
  * @since 12th April 2025
  */
 export default async function Play({params}: { params: Promise<{ game: string }>}) {
+    const headersList = await headers();
+    const device = headersList.get('x-device-type');
 
     const { game } = await params;
     const bible = await get(`config/bible`);
@@ -39,7 +42,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
             <Background/>
             <main>
                 <Toaster position="bottom-right"/>
-                <Game game={game} bible={bible} divisions={divisions} books={books}/>
+                <Game game={game} bible={bible} divisions={divisions} books={books} device={device}/>
             </main>
             <Navigation stats={true} read={true}/>
         </>
