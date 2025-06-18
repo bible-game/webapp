@@ -26,15 +26,15 @@ const flat = (group: any, subgroup: any) => {
  * Game Play Page
  * @since 12th April 2025
  */
-export default async function Play({params}: { params: Promise<{ game: string }>}) {
+export default async function Play({params}: { params: Promise<{ game: string }> }) {
     const headersList = await headers();
     const device = headersList.get('x-device-type');
 
-    const { game } = await params;
+    const {game} = await params;
     const bible = await get(`config/bible`);
 
     const divisions = flat(bible.testaments, 'divisions');
-    const books     = flat(divisions, 'books');
+    const books = flat(divisions, 'books');
 
     if (!game || !bible) return <div>Loading...</div>
     else return (
