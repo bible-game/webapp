@@ -58,7 +58,7 @@ const Treemap = (props: any) => {
                     groupFillType: "plain",
                     groupLabelFontFamily: "inter",
 
-                    ...(props.device == 'mobile' ? mobileOptimisations : {}),
+                    ...(props.device != 'mobile' ? mobileOptimisations : {}),
 
                     // Roll out in groups
                     rolloutMethod: "groups",
