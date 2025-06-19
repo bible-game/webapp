@@ -183,7 +183,6 @@ export default function Game(props: any) {
 
         return (
             <>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device}/>
                 <section className="relative z-1 h-full pointer-events-none">
                     <section className="pointer-events-auto">
                         {props.device}<Menu passage={passage} playing={playing} date={props.game}/>
@@ -194,6 +193,7 @@ export default function Game(props: any) {
                     </section>
                     <Confetti fire={confetti}/>
                 </section>
+                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device}/>
             </>
         );
     }
