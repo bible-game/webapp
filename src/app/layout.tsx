@@ -26,10 +26,11 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
           <SpeedInsights/>
           <Head>
               <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+              <script src="./hammer.min.js"></script>
           </Head>
           <body>
-              <Providers>
-                  {children}
+          <Providers>
+          {children}
               </Providers>
           </body>
       </html>
