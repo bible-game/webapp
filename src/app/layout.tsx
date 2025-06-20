@@ -14,6 +14,7 @@ export const viewport: Viewport = {
     width: 'device-width',
     initialScale: 1,
     userScalable: false,
+    viewportFit: 'cover'
     // Also supported but less commonly used
     // interactiveWidget: 'resizes-visual',
 }
