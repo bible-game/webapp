@@ -416,7 +416,7 @@ const Treemap = (props: any) => {
 
     return (
         //@ts-ignore
-        <div ref={element} className="absolute w-full h-[calc(100%-17rem)] left-0 top-[8rem]" id="treemap"></div>
+        <div ref={element} className="absolute w-full h-[calc(100%-14rem)] sm:h-[calc(100%-17rem)] left-0 top-[6.5rem] sm:top-[8rem]" id="treemap"></div>
     );
 };
 

@@ -34,18 +34,17 @@ main
     font-size: 14px
     margin: 2rem 0 1rem 1rem
 
-  .panel
-    @include panel
-    line-height: 2rem
+  @responsive
+    .panel
+      @include panel
+      line-height: 2rem
 
 /** Mobile Styling */
 @media only screen and (max-width: 440px)
   main
     height: 100vh
     width: 75vw
-
     position: relative
-    top: 4rem
 
     section
       width: $panel-width-mobile
