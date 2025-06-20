@@ -100,7 +100,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         }
                     }}>Guess</Button>
             </section> :
-            <section className="panel flex justify-between mt-4 items-center">
+            <section className="sm:panel flex justify-between mt-4 items-center">
                 <div className="w-[13.33rem] flex justify-center gap-0.5 mr-[3px]">
                     {[...Array(props.stars)].map((i: any) =>
                         <svg key={i} xmlns="http://www.w3.org/2000/svg" fill="gold" viewBox="0 0 24 24"
