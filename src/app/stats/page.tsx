@@ -45,7 +45,6 @@ export default function Stats() {
             <main>
                 <Toaster position="bottom-right"/>
                 <section>
-                    <p className="text-[1.5rem]">Statistics</p>
                     <div className="flex my-8 justify-start gap-12 items-center">
                         <div className="flex items-center">
                             <p className="text-[1.5rem]">{stars}</p>
