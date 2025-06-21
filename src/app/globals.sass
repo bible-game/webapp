@@ -50,8 +50,6 @@ main
     section
       width: $panel-width-mobile
 
-@supports (padding-top: env(safe-area-inset-top))
-main
-  --safe-area-inset-top: env(safe-area-inset-top)
-  height: calc(100vh + var(--safe-area-inset-top))
+  .menu-wrapper
+    top: calc(0.375rem + env(safe-area-inset-top))
 
