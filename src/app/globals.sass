@@ -51,5 +51,6 @@ main
       width: $panel-width-mobile
 
   .menu-wrapper
-    top: calc(0.375rem + env(safe-area-inset-top))
+    --safe-area-inset-top: env(safe-area-inset-top)
+    top: calc(0.375rem + var(--safe-area-inset-top))
 
