@@ -42,7 +42,7 @@ export default function Stats() {
         <>
             <Background/>
             <Navigation play={true} read={true}/>
-            <main className="flex items-center sm:top-0 top-[12rem]">
+            <main className="flex items-center sm:top-0 top-[14rem]">
                 <Toaster position="bottom-right"/>
                 <section>
                     <h1 className="text-[1.5rem]">Statistics</h1>
