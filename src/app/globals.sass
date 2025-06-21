@@ -13,6 +13,7 @@ html
   color: $white !important
   background: linear-gradient(45deg, $violet 0%, $cove 100%)
   height: 100%
+  overflow-x: hidden
 
   display: flex
   align-items: center
@@ -48,3 +49,9 @@ main
 
     section
       width: $panel-width-mobile
+
+@supports (padding-top: env(safe-area-inset-top))
+main
+  --safe-area-inset-top: env(safe-area-inset-top)
+  height: calc(100vh + var(--safe-area-inset-top))
+
