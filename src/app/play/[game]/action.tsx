@@ -100,8 +100,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         }
                     }}>Guess</Button>
             </section> :
-            <section className="sm:panel flex justify-between mt-4 items-center">
-                <div className="w-[13.33rem] flex justify-center gap-0.5 mr-[3px]">
+            <section className="sm:panel flex justify-between mt-4 items-center flex-wrap">
+                <div className="w-[100%] sm:w-[13.33rem] flex justify-center gap-0.5 mr-[3px]">
                     {[...Array(props.stars)].map((i: any) =>
                         <svg key={i} xmlns="http://www.w3.org/2000/svg" fill="gold" viewBox="0 0 24 24"
                              strokeWidth="1.5"
@@ -122,7 +122,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     )}
                 </div>
                 <Button
-                    className="border-0 flex-1 text-white h-[66px] text-sm rounded-none border-[#ffffff40] sm:border-x-1 w-[13.33rem]"
+                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
                     onClick={() => navigator.clipboard.writeText(results())}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -133,7 +133,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     Share Result
                 </Button>
                 <Button
-                    className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[13.33rem]"
+                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
                     onClick={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}/${props.passage.chapter}`)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
