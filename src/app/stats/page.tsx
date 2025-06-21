@@ -42,11 +42,12 @@ export default function Stats() {
         <>
             <Background/>
             <Navigation play={true} read={true}/>
-            <main className="flex items-center">
+            <main className="flex items-center sm:top-0 top-[12rem]">
                 <Toaster position="bottom-right"/>
                 <section>
-                    <section>
-                        <div className="flex my-8 justify-start gap-12 items-center">
+                    <h1 className="text-[1.5rem]">Statistics</h1>
+                    <section className="sm:w-[46rem] w-[80vw]">
+                        <div className="flex my-8 justify-start gap-12 items-center flex-wrap">
                             <div className="flex items-center">
                                 <p className="text-[1.5rem]">{stars}</p>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="gold" viewBox="0 0 24 24"
@@ -64,7 +65,7 @@ export default function Stats() {
                                 className="text-gray-400 text-[1rem]">%</span></p></div>
                         </div>
                     </section>
-                    <section className="flex flex-wrap">
+                    <section className="flex flex-wrap sm:w-[46rem] w-[80vw] mb-12">
                         {completion.map((c: any) => c.chapter.map((chapter: any, index = 0) =>
                             <Cell key={c.book + index} label={`${pretty(c.book)} ${++index}`} chapter={chapter}/>))}
                     </section>
