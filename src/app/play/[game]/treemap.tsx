@@ -1,13 +1,24 @@
 "use client"
 
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+const mobileOptimisations = {
+    pixelRatio: window.devicePixelRatio || 1,
+    relaxationVisible: false,
+    relaxationQualityThreshold: 5,
+    rolloutDuration: 0,
+    pullbackDuration: 0,
+    finalCompleteDrawMaxDuration: 50,
+    finalIncrementalDrawMaxDuration: 20,
+    interactionHandler: "hammerjs"
+}
 
 /**
  * Voronoi Treemap Component for displaying the Bible
  * @since 1st June 2025
  */
 //@ts-ignore
-const Treemap = (props: any ) => {
+const Treemap = (props: any) => {
     //@ts-ignore
     const element = useRef()
     const [ treemap, setTreemap ] = useState();
@@ -48,14 +59,7 @@ const Treemap = (props: any ) => {
                     groupFillType: "plain",
                     groupLabelFontFamily: "inter",
 
-                    // mobile optimisation
-                    // relaxationVisible: false,
-                    // relaxationQualityThreshold: 5,
-                    // rolloutDuration: 0,
-                    // pullbackDuration: 0,
-                    // finalCompleteDrawMaxDuration: 50,
-                    // finalIncrementalDrawMaxDuration: 20,
-                    // interactionHandler: "hammerjs",
+                    ...(props.device == 'mobile' ? mobileOptimisations : {}),
 
                     // Roll out in groups
                     rolloutMethod: "groups",
@@ -412,7 +416,7 @@ const Treemap = (props: any ) => {
 
     return (
         //@ts-ignore
-        <div ref={element} className="absolute w-full h-full left-0 top-0" id="treemap"></div>
+        <div ref={element} className="absolute w-full h-[calc(100%-17.5rem)] sm:h-[calc(100%-17rem)] left-0 top-[10rem] sm:top-[8rem]" id="treemap"></div>
     );
 };
 

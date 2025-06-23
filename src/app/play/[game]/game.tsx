@@ -112,6 +112,7 @@ export default function Game(props: any) {
             ...guesses,
             {
                 book: selected.book,
+                bookKey: allBooks.find((bk: any) => bk.name == selected.book).key,
                 chapter: selected.chapter,
                 closeness
             }
@@ -183,12 +184,12 @@ export default function Game(props: any) {
 
         return (
             <>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} />
+                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device}/>
                 <section className="relative z-1 h-full pointer-events-none">
-                    <section className="pointer-events-auto">
+                    <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
                         <Menu passage={passage} playing={playing} date={props.game}/>
                     </section>
-                    <section className="absolute bottom-0 pointer-events-auto">
+                    <section className="pointer-events-auto absolute bottom-2 sm:bottom-[4.25rem]">
                         <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                         <Guesses guesses={guesses}/>
                     </section>
