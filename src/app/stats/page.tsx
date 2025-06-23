@@ -7,6 +7,7 @@ import Background from "@/app/background";
 import Cell from "@/app/stats/cell";
 import { GameStatesService } from "@/core/service/game-states-service";
 import { CompletionService } from "@/core/service/completion-service";
+import Image from 'next/image'
 
 /**
  * Statistics Page
@@ -68,6 +69,11 @@ export default function Stats() {
                     <section className="flex flex-wrap sm:w-[46rem] w-[80vw] mb-12">
                         {completion.map((c: any) => c.chapter.map((chapter: any, index = 0) =>
                             <Cell key={c.book + index} label={`${pretty(c.book)} ${++index}`} chapter={chapter}/>))}
+                    </section>
+                    <section className="flex justify-center pb-8 absolute sm:w-[46rem] w-full">
+                        <a href="https://discord.gg/6ZJYbQcph5" target="_blank" className="flex gap-2 items-center">
+                            <Image src="/discord.png" alt="discord" width={160} height={0}/>
+                        </a>
                     </section>
                 </section>
             </main>
