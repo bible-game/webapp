@@ -323,7 +323,11 @@ export class GameStatesService {
             },
         ]
 
-        localStorage.setItem('completion', JSON.stringify(completion));
+        GameStatesService.setState(completion);
+    }
+
+    static setState(state: any) {
+        localStorage.setItem('completion', JSON.stringify(state));
     }
 
 }
