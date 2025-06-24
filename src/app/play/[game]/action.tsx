@@ -34,16 +34,16 @@ const Action = (props: any) => {
             if (guess.closeness.distance == 0) won = true;
         })
 
-        return `bible.game
+        return `https://bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ⭐ ${CompletionService.calcStars()} 📖 ${CompletionService.calcCompletion()}%`;
     }
 
     return                 <>{
-        props.playing ? <section className="panel flex justify-between mt-4">
+        props.playing ? <section className="sm:panel flex justify-between mt-4 flex-wrap">
                 <Autocomplete
-                    className="flex-1 text-sm border-r-1 border-[#ffffff40] rounded-l-full pl-4 pr-2 py-1 w-[13.33rem]"
+                    className="sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] sm:rounded-l-full pl-4 pr-2 py-1 sm:w-[13.33rem] w-[50%]"
                     inputProps={{
                         classNames: {
                             inputWrapper: "border-0",
@@ -69,7 +69,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 </Autocomplete>
                 <NumberInput
                     classNames={{
-                        base: "flex-1 text-sm border-r-1 border-[#ffffff40] px-2 pr-2 py-1 !opacity-100",
+                        base: "sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] px-2 pr-2 py-1 !opacity-100",
                         inputWrapper: "border-0",
                         label: "!text-[#ffffff66]",
                         stepperButton: "text-white opacity-40"
@@ -82,14 +82,14 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     isDisabled={!props.hasBook}
                     hideStepper={!props.hasBook}
                     variant="bordered"
-                    className="w-[13.33rem]"
+                    className="w-[50%] sm:w-[13.33rem]"
                     endContent={!props.hasBook ? undefined :
                         <div
                             className={"w-full text-left opacity-50 relative right-[3rem]"}>/ {props.maxChapter} </div>
                     }
                 />
                 <Button
-                    className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[13.33rem] -ml-[14px]"
+                    className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-sm rounded-l-none sm:rounded-r-full sm:w-[13.33rem] w-[100%] sm:-ml-[14px]"
                     variant="bordered"
                     onClick={() => {
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
@@ -100,8 +100,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         }
                     }}>Guess</Button>
             </section> :
-            <section className="panel flex justify-between mt-4 items-center">
-                <div className="w-[13.33rem] flex justify-center gap-0.5 mr-[3px]">
+            <section className="sm:panel flex justify-between mt-4 items-center flex-wrap">
+                <div className="w-[100%] sm:w-[13.33rem] flex justify-center gap-0.5 mr-[3px]">
                     {[...Array(props.stars)].map((i: any) =>
                         <svg key={i} xmlns="http://www.w3.org/2000/svg" fill="gold" viewBox="0 0 24 24"
                              strokeWidth="1.5"
@@ -122,7 +122,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     )}
                 </div>
                 <Button
-                    className="border-0 flex-1 text-white h-[66px] text-sm rounded-none border-[#ffffff40] border-x-1 w-[13.33rem]"
+                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
                     onClick={() => navigator.clipboard.writeText(results())}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -133,7 +133,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     Share Result
                 </Button>
                 <Button
-                    className="border-0 flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[13.33rem]"
+                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
                     onClick={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}/${props.passage.chapter}`)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

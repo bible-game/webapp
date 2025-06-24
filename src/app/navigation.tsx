@@ -60,7 +60,7 @@ export const Navigation = (props: any) => {
     );
 
     return (
-        <section className="flex absolute justify-end sm:top-[4.5rem] w-[75vw] sm:w-[38rem] top-[2rem]">
+        <section className="flex absolute justify-end w-full sm:right-[inherit] sm:w-[46rem] top-[1rem] right-[1rem]">
             <div className="flex justify-end relative gap-4">
                 {links.map((link: any) => link)}
             </div>
