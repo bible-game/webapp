@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 
 import React from "react";
 import Game from "@/app/play/[game]/game";
+import { headers } from "next/headers";
 
 async function get(path: string): Promise<any> {
     const response = await fetch(`${process.env.SVC_PASSAGE}/${path}`, {method: "GET"});
@@ -25,23 +26,25 @@ const flat = (group: any, subgroup: any) => {
  * Game Play Page
  * @since 12th April 2025
  */
-export default async function Play({params}: { params: Promise<{ game: string }>}) {
+export default async function Play({params}: { params: Promise<{ game: string }> }) {
+    const headersList = await headers();
+    const device = headersList.get('x-device-type');
 
-    const { game } = await params;
+    const {game} = await params;
     const bible = await get(`config/bible`);
 
     const divisions = flat(bible.testaments, 'divisions');
-    const books     = flat(divisions, 'books');
+    const books = flat(divisions, 'books');
 
     if (!game || !bible) return <div>Loading...</div>
     else return (
         <>
             <Background/>
-            <Navigation stats={true} read={true} account={true}/>
-            <main>
+            <main className="w-full">
                 <Toaster position="bottom-right"/>
-                <Game game={game} bible={bible} divisions={divisions} books={books}/>
+                <Game game={game} bible={bible} divisions={divisions} books={books} device={device}/>
             </main>
+            <Navigation stats={true} read={true} account={true}/>
         </>
     );
 

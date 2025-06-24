@@ -29,7 +29,7 @@ const Menu = (props: any) => {
 
     if (isLoading) return <div>Loading...</div>
     else return <section>
-        <div className="ml-6 flex gap-1 items-start justify-between">
+        <div className="ml-4 sm:ml-6 flex gap-1 items-start justify-between">
             <div className="flex gap-1 items-start">
                 <Button variant="light"
                         radius="full"
@@ -55,7 +55,7 @@ const Menu = (props: any) => {
             </div>
         </div>
         <div
-            className={"panel p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-2 px-6" : "text-center")}>
+            className={"sm:panel p-1 sm:p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-2 px-6" : "text-center")}>
             <div className={"opacity-80 " + (!props.playing ? "ml-2" : "")}>{props.passage.summary}</div>
             <Chip size="sm"
                   variant="solid"
