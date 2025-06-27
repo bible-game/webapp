@@ -127,43 +127,32 @@ const Treemap = (props: any) => {
     useEffect(() => {
         if (treemap && (props.bookFound || props.divFound || props.testFound)) {
             //@ts-ignore
-            // treemap.set("dataObject", configure(props.data));
             treemap.set({
                 groupColorDecorator: function(opts: any, params: any, vars: any) {
 
+                    // note :: these colour updates are a bit slow!
                     if (props.bookFound) {
                         if ((params.group.level == "book" || params.group.level == "chapter") && (params.group.id == props.passage.book || params.group.id.includes(props.passage.bookKey))) {
                             vars.groupColor = params.group.color;
                         } else if (params.group.level == "book") {
                             vars.groupColor = average(params.group.color, "#0f0a31");
                         }
-                    }
-
-                    if (props.divFound) {
-                        if ((params.group.level == "division") && (params.group.id == props.passage.division.toLowerCase().replace(/\s/g, '-'))) {
+                    } else if (props.divFound) {
+                        if ((params.group.level == "book") && (params.parent.id == props.passage.division.toLowerCase().replace(/\s/g, '-'))) {
                             vars.groupColor = params.group.color;
                         } else if (params.group.level == "division") {
                             vars.groupColor = average(params.group.color, "#0f0a31");
                         }
-                    }
-
-                    if (props.testFound) {
-                        if ((params.group.level == "testament") && (params.group.id == props.passage.testament.toLowerCase())) {
+                    } else if (props.testFound) {
+                        if ((params.group.level == "division") && (params.parent.id == props.passage.testament.toLowerCase())) {
                             vars.groupColor = params.group.color;
-                        } else if (params.group.level == "testament") {
+                        } else if (params.group.level == "division") {
                             vars.groupColor = average(params.group.color, "#0f0a31");
                         }
                     }
                 }
         });
         }
-
-        //@ts-ignore
-        if (props.bookFound) treemap.zoom(props.passage.book)
-        //@ts-ignore
-        else if (props.divFound) treemap.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'))
-        //@ts-ignore
-        else if (props.testFound) treemap.zoom(props.passage.testament.toLowerCase());
 
         return () => {
 
@@ -321,51 +310,51 @@ const Treemap = (props: any) => {
 
             "GEN": "#36ABFF",
             "EXO": "#36ABFF",
-            "LEV": "#1591ea",
-            "NUM": "#317db5",
-            "DEU": "#4aa5e6",
+            "LEV": "#36ABFF",
+            "NUM": "#36ABFF",
+            "DEU": "#36ABFF",
 
             "JOS": "#8967F6",
-            "JDG": "#6c4ad8",
-            "RUT": "#6339ea",
-            "1SA": "#805af8",
-            "2SA": "#8d6ef1",
-            "1KI": "#6134f3",
-            "2KI": "#6644d3",
-            "1CH": "#7352dd",
-            "2CH": "#7b57f1",
-            "EZR": "#7756e1",
-            "NEH": "#6d4dd5",
-            "EST": "#7158c1",
+            "JDG": "#8967F6",
+            "RUT": "#8967F6",
+            "1SA": "#8967F6",
+            "2SA": "#8967F6",
+            "1KI": "#8967F6",
+            "2KI": "#8967F6",
+            "1CH": "#8967F6",
+            "2CH": "#8967F6",
+            "EZR": "#8967F6",
+            "NEH": "#8967F6",
+            "EST": "#8967F6",
 
             "JOB": "#C54A84",
             "PSA": "#C54A84",
-            "PRO": "#e64993",
-            "ECC": "#c52b73",
-            "SNG": "#ef4a98",
+            "PRO": "#C54A84",
+            "ECC": "#C54A84",
+            "SNG": "#C54A84",
 
             "ISA": "#58da93",
-            "JER": "#4DBA7E",
-            "LAM": "#2bca73",
-            "EZK": "#199a53",
-            "DAN": "#3c9f68",
+            "JER": "#58da93",
+            "LAM": "#58da93",
+            "EZK": "#58da93",
+            "DAN": "#58da93",
 
             "HOS": "#D0B42B",
             "JOL": "#D0B42B",
             "AMO": "#D0B42B",
             "OBA": "#D0B42B",
-            "JON": "#cdaf1c",
-            "MIC": "#bda320",
-            "NAM": "#bca536",
-            "HAB": "#cdaf1c",
-            "ZEP": "#c5a81c",
+            "JON": "#D0B42B",
+            "MIC": "#D0B42B",
+            "NAM": "#D0B42B",
+            "HAB": "#D0B42B",
+            "ZEP": "#D0B42B",
             "HAG": "#D0B42B",
             "ZEC": "#D0B42B",
-            "MAL": "#caad1e",
+            "MAL": "#D0B42B",
 
             "MAT": "#D0B42B",
-            "MRK": "#c5ad3c",
-            "LUK": "#cdaf1c",
+            "MRK": "#D0B42B",
+            "LUK": "#D0B42B",
             "JHN": "#D0B42B",
 
             "ACT": "#4DBA7E",
@@ -374,24 +363,24 @@ const Treemap = (props: any) => {
             "1CO": "#36ABFF",
             "2CO": "#36ABFF",
             "GAL": "#36ABFF",
-            "EPH": "#1a74b5",
-            "PHP": "#3ca0e8",
+            "EPH": "#36ABFF",
+            "PHP": "#36ABFF",
             "COL": "#36ABFF",
-            "1TH": "#2786ca",
+            "1TH": "#36ABFF",
             "2TH": "#36ABFF",
             "1TI": "#36ABFF",
-            "2TI": "#1e8edf",
-            "TIT": "#458dc1",
+            "2TI": "#36ABFF",
+            "TIT": "#36ABFF",
             "PHM": "#36ABFF",
-            "HEB": "#2190df",
+            "HEB": "#36ABFF",
 
             "JAS": "#C54A84",
             "1PE": "#C54A84",
-            "2PE": "#e15094",
-            "1JN": "#c81f6f",
-            "2JN": "#b85684",
-            "3JN": "#e12b81",
-            "JUD": "#ea4b96",
+            "2PE": "#C54A84",
+            "1JN": "#C54A84",
+            "2JN": "#C54A84",
+            "3JN": "#C54A84",
+            "JUD": "#C54A84",
 
             "REV": "#8967F6"
         }
