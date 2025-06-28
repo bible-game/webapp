@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react';
+import hexToRgba from 'hex-to-rgba';
 
 const mobileOptimisations = {
     pixelRatio: window.devicePixelRatio || 1,
@@ -35,12 +36,12 @@ const Treemap = (props: any) => {
                     dataObject: configure(props.data),
                     layoutByWeightOrder: false,
                     relaxationInitializer: "treemap",
-                    descriptionGroupType: "floating",
+                    // descriptionGroupType: "floating",
                     descriptionGroupMinHeight: 64,
                     descriptionGroupMaxHeight: 0.125,
                     groupBorderWidth: 4,
                     groupBorderRadius: 0.55,
-                    groupInsetWidth: 4,
+                    groupInsetWidth: 2,
                     groupLabelMinFontSize: 0,
                     groupLabelMaxFontSize: 16,
                     rectangleAspectRatioPreference: 0,
@@ -49,11 +50,22 @@ const Treemap = (props: any) => {
                     groupLabelColorThreshold: 0.75,
                     parentFillOpacity: 1,
                     groupColorDecorator: function (opts: any, params: any, vars: any) {
-                        vars.groupColor = params.group.color;
                         vars.labelColor = "auto";
 
-                        if (params.group.dim || params.parent?.dim) {
-                            vars.groupColor = average(params.group.color, "#0f0a31");
+                        if (params.group.level == "chapter" && !!params.group.color) {
+                            const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                            const parts = rgba.split(', ');
+
+                            vars.groupColor.r = parts[0];
+                            vars.groupColor.g = parts[1];
+                            vars.groupColor.b = parts[2];
+                            vars.groupColor.a = 0.99;
+
+                            if (params.group.level == "chapter" && (parseInt(params.group.chapter) % 10 == 0)) {
+                                vars.groupColor.a = 0.90;
+                            }
+                        } else {
+                            vars.groupColor = params.group.color;
                         }
                     },
                     groupFillType: "plain",
@@ -67,7 +79,7 @@ const Treemap = (props: any) => {
 
                     onRolloutComplete: function () {
                         // this.set("open", { open: false, groups: [...divisions, ...books] });
-                        this.set("open", { open: false, groups: [...books] });
+                        // this.set("open", { open: false, groups: [...books] });
 
                         if (props.bookFound) {
                             this.open(props.passage.book);
@@ -91,18 +103,18 @@ const Treemap = (props: any) => {
                     //     }
                     // },
                     onGroupMouseWheel: function (event: any) {
-                        if (event.delta < 0) {
-                            //@ts-ignore
-                            this.set("open", {
-                                // groups: [...books, ...divisions],
-                                groups: [...books],
-                                open: false,
-                                keepPrevious: true
-                            });
-                        }
-                        if (event.delta > 0) {
-                            this.open(event.group.id);
-                        }
+                        // if (event.delta < 0) {
+                        //     //@ts-ignore
+                        //     this.set("open", {
+                        //         // groups: [...books, ...divisions],
+                        //         groups: [...books],
+                        //         open: false,
+                        //         keepPrevious: true
+                        //     });
+                        // }
+                        // if (event.delta > 0) {
+                        //     this.open(event.group.id);
+                        // }
                     }
                 });
 
@@ -130,12 +142,20 @@ const Treemap = (props: any) => {
             treemap.set({
                 groupColorDecorator: function(opts: any, params: any, vars: any) {
 
-                    // note :: these colour updates are a bit slow!
+                    // note :: these colour updates are a bit flakey & slow! rewrite from scratch!
                     if (props.bookFound) {
                         if ((params.group.level == "book" || params.group.level == "chapter") && (params.group.id == props.passage.book || params.group.id.includes(props.passage.bookKey))) {
                             vars.groupColor = params.group.color;
-                        } else if (params.group.level == "book") {
-                            vars.groupColor = average(params.group.color, "#0f0a31");
+                        } else if (params.group.level == "chapter" && !!params.group.color) {
+                            const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                            const parts = rgba.split(', ');
+
+                            vars.groupColor.r = parts[0];
+                            vars.groupColor.g = parts[1];
+                            vars.groupColor.b = parts[2];
+                            vars.groupColor.a = 0.5;
+                        } else {
+                            vars.groupColor = params.group.color;
                         }
                     } else if (props.divFound) {
                         if ((params.group.level == "book") && (params.parent.id == props.passage.division.toLowerCase().replace(/\s/g, '-'))) {
@@ -225,11 +245,13 @@ const Treemap = (props: any) => {
         for (let c = 1; c <= ch; c++) {
             chapters.push({
                 id: book.key+'/'+c.toString(),
-                label: c,
+                label: c % 10 == 0 ? '🕊️' : '',
                 weight: parseFloat(book.verses[c-1]),
                 color: getColour(book.key),
                 dim: isDim(book.name, 'book', props.bookFound),
-                level: 'chapter'
+                // dim: c % 10 != 0 || isDim(book.name, 'book', props.bookFound),
+                level: 'chapter',
+                chapter: c
             })
         }
 
