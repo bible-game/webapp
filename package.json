@@ -1,6 +1,6 @@
 {
   "name": "webapp",
-  "version": "0.8.2-SNAPSHOT",
+  "version": "0.9.0-SNAPSHOT",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
