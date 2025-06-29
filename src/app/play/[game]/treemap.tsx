@@ -48,7 +48,7 @@ const Treemap = (props: any) => {
                     groupLabelDarkColor: "#98a7d8",
                     groupLabelLightColor: "#060842",
                     groupLabelColorThreshold: 1,
-                    parentFillOpacity: 0.9,
+                    parentFillOpacity: 0.65,
                     groupColorDecorator: function (opts: any, params: any, vars: any) {
                         vars.labelColor = "auto";
 
