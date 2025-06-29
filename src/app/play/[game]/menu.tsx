@@ -9,12 +9,18 @@ import _ from "lodash";
 import { redirect } from "next/navigation";
 import useSWR from "swr";
 import { I18nProvider } from "@react-aria/i18n";
+import { Tooltip } from "@heroui/tooltip";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const Menu = (props: any) => {
     const date = parseDate(props.date);
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher)
+
+    const tooltip = <div className="px-1 py-2">
+        <div className="text-small font-bold">{props.passage.icon} {themeMap[props.passage.icon].name}</div>
+        <div className="text-tiny">{themeMap[props.passage.icon].description}</div>
+    </div>
 
     const stylesDateInput = {
         base: ["w-min", "mb-2"],
@@ -56,7 +62,12 @@ const Menu = (props: any) => {
         </div>
         <div
             className={"sm:panel p-1 sm:p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-2 px-6" : "text-center")}>
-            <div className={"opacity-80 " + (!props.playing ? "ml-2" : "")}>️️️{props.passage.icon}️ {props.passage.summary}</div>
+            <div className={"opacity-80 " + (!props.playing ? "ml-2" : "")}>️️️
+                <Tooltip showArrow={true} content={tooltip} classNames={{content: ["bg-[#060842] text-white max-w-[20rem]"]}}>
+                    <span className="mr-4 cursor-pointer">{props.passage.icon}️</span>
+                </Tooltip>
+                {props.passage.summary}
+            </div>
             <Chip size="sm"
                   variant="solid"
                   classNames={{
@@ -69,3 +80,38 @@ const Menu = (props: any) => {
 }
 
 export default Menu;
+
+const themeMap: any = {
+    '📖': {
+        name: 'History',
+        description: 'Narrative-focused chapters telling stories, biographies, events, or genealogies'
+    },
+    '💔': {
+        name: 'Sin',
+        description: 'Chapters emphasizing human failure, rebellion, judgment, hypocrisy, or moral failure'
+    },
+    '✝️': {
+        name: 'Gospel',
+        description: 'Chapters focused on Jesus’ identity, mission, and the message of salvation by grace through faith'
+    },
+    '✨': {
+        name: 'Prophecy',
+        description: 'Divine messages, often foretelling future events, including apocalyptic visions and eschatological themes'
+    },
+    '🧠': {
+        name: 'Wisdom',
+        description: 'Reflective or philosophical chapters offering life advice, ethical reflection, or theological insight that is more meditative than commanding'
+    },
+    '🙏': {
+        name: 'History',
+        description: 'Chapters centered on praise, prayer, devotion, and liturgical expressions'
+    },
+    '⚖️': {
+        name: 'Instruction',
+        description: 'Rule-based chapters giving practical commands or ethical guidelines for living, worship, leadership, and community behavior'
+    },
+    '☀️': {
+        name: 'Hope',
+        description: 'Encouraging chapters that offer comfort, restoration, victory, and assurance of God’s faithfulness and future glory'
+    }
+};

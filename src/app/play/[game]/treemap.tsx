@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import hexToRgba from 'hex-to-rgba';
+import { toast } from "react-hot-toast";
 
 const mobileOptimisations = {
     pixelRatio: window.devicePixelRatio || 1,
@@ -48,7 +49,7 @@ const Treemap = (props: any) => {
                     groupLabelDarkColor: "#98a7d8",
                     groupLabelLightColor: "#060842",
                     groupLabelColorThreshold: 1,
-                    parentFillOpacity: 1,
+                    parentFillOpacity: 0.65,
                     groupColorDecorator: function (opts: any, params: any, vars: any) {
                         vars.labelColor = "auto";
 
@@ -59,7 +60,7 @@ const Treemap = (props: any) => {
                             vars.groupColor.r = parts[0];
                             vars.groupColor.g = parts[1];
                             vars.groupColor.b = parts[2];
-                            vars.groupColor.a = 0.9;
+                            vars.groupColor.a = 0.95;
 
                             if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
                                 vars.groupColor.a = 1;
@@ -79,7 +80,7 @@ const Treemap = (props: any) => {
 
                     onRolloutComplete: function () {
                         // this.set("open", { open: false, groups: [...divisions, ...books] });
-                        // this.set("open", { open: false, groups: [...books] });
+                        this.set("open", { open: false, groups: [...books] });
 
                         if (props.bookFound) {
                             this.open(props.passage.book);
@@ -89,32 +90,34 @@ const Treemap = (props: any) => {
                         if (event.group.id.includes('/')) {
                             const selection = event.group.id.split('/');
                             props.select(selection[0], selection[1]);
+                            toast.success(`${selection[0]} ${selection[1]}`);
                         } else {
                             //ts-ignore
                             this.open(event.group.id);
                             props.select(event.group.id, null, false);
+                            toast.success(`${event.group.id} 1`);
                         }
                     },
                     openCloseDuration: 1000,
-                    // onGroupHover: function (event: any) {
-                    //     if (event.group) {
-                    //         //@ts-ignore
-                    //         this.open(event.group.id);
-                    //     }
-                    // },
-                    onGroupMouseWheel: function (event: any) {
-                        // if (event.delta < 0) {
+                    onGroupHover: function (event: any) {
+                        // if (event.group) {
                         //     //@ts-ignore
-                        //     this.set("open", {
-                        //         // groups: [...books, ...divisions],
-                        //         groups: [...books],
-                        //         open: false,
-                        //         keepPrevious: true
-                        //     });
-                        // }
-                        // if (event.delta > 0) {
                         //     this.open(event.group.id);
                         // }
+                    },
+                    onGroupMouseWheel: function (event: any) {
+                        if (event.delta < 0) {
+                            //@ts-ignore
+                            this.set("open", {
+                                // groups: [...books, ...divisions],
+                                groups: [...books],
+                                open: false,
+                                keepPrevious: true
+                            });
+                        }
+                        if (event.delta > 0) {
+                            this.open(event.group.id);
+                        }
                     }
                 });
 
@@ -142,10 +145,21 @@ const Treemap = (props: any) => {
             treemap.set({
                 groupColorDecorator: function(opts: any, params: any, vars: any) {
 
-                    // note :: these colour updates are a bit flakey & slow! rewrite from scratch!
                     if (props.bookFound) {
                         if (params.group.level == "chapter" && !!params.group.color ) {
                             if (params.group.book == props.passage.book) {
+                                vars.groupColor = params.group.color;
+                            } else {
+                                const rgba = hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else if (params.group.level == "book" && !!params.group.color ) {
+                            if (params.group.label == props.passage.book) {
                                 vars.groupColor = params.group.color;
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -161,11 +175,23 @@ const Treemap = (props: any) => {
                         }
                     } else if (props.divFound) {
                         if (params.group.level == "chapter" && !!params.group.color) {
-                            if (params.group.testament == props.passage.testament) {
+                            if (params.group.division == props.passage.division) {
                                 vars.groupColor = params.group.color;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else if (params.group.level == "book" && !!params.group.color ) {
+                            if (params.group.division == props.passage.division) {
+                                vars.groupColor = params.group.color;
+                            } else {
+                                const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
 
                                 vars.groupColor.r = parts[0];
@@ -183,6 +209,18 @@ const Treemap = (props: any) => {
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else if (params.group.level == "book" && !!params.group.color ) {
+                            if (params.group.testament == props.passage.testament) {
+                                vars.groupColor = params.group.color;
+                            } else {
+                                const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
 
                                 vars.groupColor.r = parts[0];
@@ -264,7 +302,10 @@ const Treemap = (props: any) => {
                 color: getColour(b.key),
                 // unselectable: true,
                 dim: isDim(b.name, 'book', props.bookFound),
-                level: 'book'
+                level: 'book',
+                testament: test,
+                division: div,
+                book: b.name
             })
         }
 
