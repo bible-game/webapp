@@ -47,7 +47,7 @@ const Treemap = (props: any) => {
                     rectangleAspectRatioPreference: 0,
                     groupLabelDarkColor: "#98a7d8",
                     groupLabelLightColor: "#060842",
-                    groupLabelColorThreshold: 0.75,
+                    groupLabelColorThreshold: 1,
                     parentFillOpacity: 1,
                     groupColorDecorator: function (opts: any, params: any, vars: any) {
                         vars.labelColor = "auto";
@@ -59,10 +59,10 @@ const Treemap = (props: any) => {
                             vars.groupColor.r = parts[0];
                             vars.groupColor.g = parts[1];
                             vars.groupColor.b = parts[2];
-                            vars.groupColor.a = 0.80;
+                            vars.groupColor.a = 0.9;
 
                             if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
-                                vars.groupColor.a = 0.9;
+                                vars.groupColor.a = 1;
                             }
                         } else {
                             vars.groupColor = params.group.color;
@@ -144,35 +144,67 @@ const Treemap = (props: any) => {
 
                     // note :: these colour updates are a bit flakey & slow! rewrite from scratch!
                     if (props.bookFound) {
-                        if ((params.group.level == "book" || params.group.level == "chapter") && (params.group.id == props.passage.book || params.group.id.includes(props.passage.bookKey))) {
-                            vars.groupColor = params.group.color;
-                        } else if (params.group.level == "chapter" && !!params.group.color) {
-                            const rgba =  hexToRgba(params.group.color).substring(5, 18);
-                            const parts = rgba.split(', ');
+                        if (params.group.level == "chapter" && !!params.group.color ) {
+                            if (params.group.book == props.passage.book) {
+                                vars.groupColor = params.group.color;
+                            } else {
+                                const rgba = hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
 
-                            vars.groupColor.r = parts[0];
-                            vars.groupColor.g = parts[1];
-                            vars.groupColor.b = parts[2];
-                            vars.groupColor.a = 0.5;
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
                         } else {
                             vars.groupColor = params.group.color;
                         }
                     } else if (props.divFound) {
-                        if ((params.group.level == "book") && (params.parent.id == props.passage.division.toLowerCase().replace(/\s/g, '-'))) {
+                        if (params.group.level == "chapter" && !!params.group.color) {
+                            if (params.group.testament == props.passage.testament) {
+                                vars.groupColor = params.group.color;
+
+                            } else {
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else {
                             vars.groupColor = params.group.color;
-                        } else if (params.group.level == "division") {
-                            vars.groupColor = average(params.group.color, "#0f0a31");
                         }
                     } else if (props.testFound) {
-                        if ((params.group.level == "division") && (params.parent.id == props.passage.testament.toLowerCase())) {
+                        if (params.group.level == "chapter" && !!params.group.color) {
+                            if (params.group.testament == props.passage.testament) {
+                                vars.groupColor = params.group.color;
+
+                            } else {
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else {
                             vars.groupColor = params.group.color;
-                        } else if (params.group.level == "division") {
-                            vars.groupColor = average(params.group.color, "#0f0a31");
                         }
                     }
                 }
         });
         }
+
+        // question :: alt to zoom?
+        //@ts-ignore
+        if (props.bookFound) treemap.zoom(props.passage.book)
+        //@ts-ignore
+        else if (props.divFound) treemap.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'))
+        //@ts-ignore
+        else if (props.testFound) treemap.zoom(props.passage.testament.toLowerCase());
 
         return () => {
 
@@ -245,14 +277,16 @@ const Treemap = (props: any) => {
         for (let c = 1; c <= ch; c++) {
             chapters.push({
                 id: book.key+'/'+c.toString(),
-                label: props.passage.icon == book.icons[c-1] ? props.passage.icon : '',
+                label: props.passage.icon == book.icons[c-1] ? c : '',
                 weight: parseFloat(book.verses[c-1]),
                 color: getColour(book.key),
                 dim: isDim(book.name, 'book', props.bookFound),
-                // dim: c % 10 != 0 || isDim(book.name, 'book', props.bookFound),
                 level: 'chapter',
                 chapter: c,
-                icon: book.icons[c-1]
+                icon: book.icons[c-1],
+                testament: test,
+                division: div,
+                book: book.name
             })
         }
 

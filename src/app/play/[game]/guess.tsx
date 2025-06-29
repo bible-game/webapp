@@ -17,6 +17,16 @@ const Guess = (props: any) => {
     const [colour] = useState(grade(props.closeness));
     const [passage] = useState(formatPassage(props.book, props.chapter));
     const [closeness] = useState(formatCloseness(props.closeness));
+    const [arrow] = useState(props.closeness.distance.toString().includes('-') ?
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+             stroke="currentColor" className="size-4 mx-2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/>
+        </svg> :
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
+             stroke="currentColor" className="size-4 mx-2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+        </svg>
+    );
 
     function grade(closeness: any): string {
         if (!!closeness) {
@@ -59,15 +69,16 @@ const Guess = (props: any) => {
     function formatCloseness(closeness: any): string {
         if (!!closeness) {
             const distance = parseInt(closeness.distance);
-            return distance == 0 ? '🎉' : formatter.format(distance);
+            return distance == 0 ? '🎉' : formatter.format(Math.abs(distance));
 
         } else return '';
     }
 
     return <div className="sm:panel p-1 justify-between text-white">
         <div className="flex items-center">
-            <p className="text-[13px]"><span className={"ml-2 mr-2 " + colour}>&#9679;</span>{passage}</p>
-            <p className={"ml-2 mr-3 text-[13px] " + colour}>{closeness}</p>
+            {closeness == '🎉' ? '' : arrow}
+            <p className={"text-[12px] " + (closeness == '🎉' ? 'ml-3' : '')}>{passage}</p>
+            <p className={"ml-2 mr-3 text-[12px] " + colour}>{closeness}</p>
         </div>
     </div>
 }
