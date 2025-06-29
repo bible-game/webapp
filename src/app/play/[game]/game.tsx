@@ -148,9 +148,7 @@ export default function Game(props: any) {
         }
         if (won || limitReached) {
             setPlaying(false);
-            if (!limitReached) {
-                starResult = 5 + 1 - updatedGuesses.length
-            }
+            starResult = won ? 5 + 1 - updatedGuesses.length : 0;
         }
         setStars(starResult)
         GameStatesService.setStateForDate(starResult, updatedGuesses, !(won || limitReached), props.game)
