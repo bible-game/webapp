@@ -59,10 +59,10 @@ const Treemap = (props: any) => {
                             vars.groupColor.r = parts[0];
                             vars.groupColor.g = parts[1];
                             vars.groupColor.b = parts[2];
-                            vars.groupColor.a = 1;
+                            vars.groupColor.a = 0.80;
 
-                            if (params.group.level == "chapter" && (parseInt(params.group.chapter) % 10 == 0)) {
-                                vars.groupColor.a = 0.97;
+                            if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
+                                vars.groupColor.a = 0.9;
                             }
                         } else {
                             vars.groupColor = params.group.color;
@@ -239,19 +239,20 @@ const Treemap = (props: any) => {
         return books
     }
 
-    function getChapters(test: string, div: string,book: any, ch: number) {
+    function getChapters(test: string, div: string, book: any, ch: number) {
         const chapters: any[] = [];
 
         for (let c = 1; c <= ch; c++) {
             chapters.push({
                 id: book.key+'/'+c.toString(),
-                label: c % 10 == 0 ? '🕊️' : '',
+                label: props.passage.icon == book.icons[c-1] ? props.passage.icon : '',
                 weight: parseFloat(book.verses[c-1]),
                 color: getColour(book.key),
                 dim: isDim(book.name, 'book', props.bookFound),
                 // dim: c % 10 != 0 || isDim(book.name, 'book', props.bookFound),
                 level: 'chapter',
-                chapter: c
+                chapter: c,
+                icon: book.icons[c-1]
             })
         }
 
