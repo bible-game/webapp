@@ -59,10 +59,10 @@ const Treemap = (props: any) => {
                             vars.groupColor.r = parts[0];
                             vars.groupColor.g = parts[1];
                             vars.groupColor.b = parts[2];
-                            vars.groupColor.a = 0.99;
+                            vars.groupColor.a = 1;
 
                             if (params.group.level == "chapter" && (parseInt(params.group.chapter) % 10 == 0)) {
-                                vars.groupColor.a = 0.90;
+                                vars.groupColor.a = 0.97;
                             }
                         } else {
                             vars.groupColor = params.group.color;
