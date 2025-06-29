@@ -59,7 +59,7 @@ const Treemap = (props: any) => {
                             vars.groupColor.r = parts[0];
                             vars.groupColor.g = parts[1];
                             vars.groupColor.b = parts[2];
-                            vars.groupColor.a = 0.9;
+                            vars.groupColor.a = 0.99;
 
                             if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
                                 vars.groupColor.a = 1;
