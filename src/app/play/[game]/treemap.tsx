@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import hexToRgba from 'hex-to-rgba';
+import { toast } from "react-hot-toast";
 
 const mobileOptimisations = {
     pixelRatio: window.devicePixelRatio || 1,
@@ -89,10 +90,12 @@ const Treemap = (props: any) => {
                         if (event.group.id.includes('/')) {
                             const selection = event.group.id.split('/');
                             props.select(selection[0], selection[1]);
+                            toast.success(`${selection[0]} ${selection[1]}`);
                         } else {
                             //ts-ignore
                             this.open(event.group.id);
                             props.select(event.group.id, null, false);
+                            toast.success(`${event.group.id} 1`);
                         }
                     },
                     openCloseDuration: 1000,
