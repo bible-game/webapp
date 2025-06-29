@@ -105,6 +105,9 @@ export default function Game(props: any) {
     function selectChapter(item: string): void {
         setChapter(item);
         selected.chapter = item;
+
+        selected.icon = allBooks!!.find((book: any) => book.name === selected.book).icons[parseInt(item) - 1];
+
     }
 
     function addGuess(closeness: any) {
@@ -166,6 +169,10 @@ export default function Game(props: any) {
             .includes(selected.book+selected.chapter);
     }
 
+    function isInvalidGuess(icon: string) {
+        return passage.icon != icon
+    }
+
     function select(book: any, chapter: any, isBookKey = true) {
         if (isBookKey) {
             const bookName = allBooks.find((bk: any) => bk.key == book).name;
@@ -190,7 +197,7 @@ export default function Game(props: any) {
                         <Menu passage={passage} playing={playing} date={props.game}/>
                     </section>
                     <section className="pointer-events-auto absolute bottom-2 sm:bottom-[4.25rem]">
-                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                         <Guesses guesses={guesses}/>
                     </section>
                     <Confetti fire={confetti}/>
