@@ -87,15 +87,35 @@ const Treemap = (props: any) => {
                         }
                     },
                     onGroupClick: function (event: any) {
-                        if (event.group.id.includes('/')) {
-                            const selection = event.group.id.split('/');
-                            props.select(selection[0], selection[1]);
-                            toast.success(`${selection[0]} ${selection[1]}`);
+                        const selection = event.group.id.split('/');
+
+                        if (props.playing && event.group.id.includes('/')) {
+                            if (event.group.icon != props.passage.icon) {
+                                toast.error(`${selection[0]} ${selection[1]} has a different theme ${event.group.icon}`);
+
+                            } else {
+                                props.select(selection[0], selection[1]);
+                                toast.success(`${selection[0]} ${selection[1]}`);
+                            }
                         } else {
                             //ts-ignore
                             this.open(event.group.id);
-                            props.select(event.group.id, null, false);
-                            toast.success(`${event.group.id} 1`);
+                            if (!props.playing) return;
+
+                            let first = null;
+                            for (const ch of event.group.groups) {
+                                if (ch.icon == props.passage.icon) {
+                                    first = ch; break;
+                                }
+                            }
+
+                            if (first) {
+                                props.select(event.group.id, first.id.split("/")[1], false);
+                                toast.success(`${event.group.id} ${first.id.split("/")[1]}`);
+                            } else {
+                                if (event.group.level == 'book')
+                                    toast.error(`${event.group.id} has no valid chapters ${props.passage.icon}`);
+                            }
                         }
                     },
                     openCloseDuration: 1000,
