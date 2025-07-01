@@ -86,6 +86,9 @@ const Treemap = (props: any) => {
                             this.open(props.passage.book);
                         }
                     },
+                    onGroupDoubleClick: function (event: any) {
+                        event.preventDefault();
+                    },
                     onGroupClick: function (event: any) {
                         const selection = event.group.id.split('/');
 
