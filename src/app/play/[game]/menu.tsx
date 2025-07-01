@@ -10,12 +10,15 @@ import { redirect } from "next/navigation";
 import useSWR from "swr";
 import { I18nProvider } from "@react-aria/i18n";
 import { Tooltip } from "@heroui/tooltip";
+import {useDisclosure} from "@heroui/react";
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 const Menu = (props: any) => {
     const date = parseDate(props.date);
-    const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher)
+    const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher);
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
     const tooltip = <div className="px-1 py-2">
         <div className="text-small font-bold">{props.passage.icon} {themeMap[props.passage.icon].name}</div>
@@ -41,7 +44,19 @@ const Menu = (props: any) => {
                         radius="full"
                         size="sm"
                         isIconOnly
-                        onClick={() => changeDate()}
+                        onPress={onOpen}
+                        className="mt-1 text-white hover:!bg-[#ffffff14] opacity-75 text-sm mr-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5"
+                         stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round"
+                              d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"/>
+                    </svg>
+                </Button>
+                <Button variant="light"
+                        radius="full"
+                        size="sm"
+                        isIconOnly
+                        onPress={() => changeDate()}
                         className="mt-1 text-white hover:!bg-[#ffffff14] opacity-85">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
                          stroke="currentColor" className="size-4">
@@ -58,6 +73,33 @@ const Menu = (props: any) => {
                         onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
                         selectorButtonPlacement="start"/>
                 </I18nProvider>
+                <Modal
+                    backdrop="opaque"
+                    classNames={{
+                        body: "p-8",
+                        backdrop: "bg-[#060842]/75",
+                        base: "max-w-[40rem] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border-[1px] border-[#ffffff]/25",
+                        header: "pt-6 w-full text-center",
+                        closeButton: "hover:bg-white/5 active:bg-white/10 absolute right-4 top-4",
+                    }}
+                    isOpen={isOpen}
+                    radius="lg"
+                    placement="center"
+                    onOpenChange={onOpenChange}
+                >
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">How to Play</ModalHeader>
+                                <ModalBody>
+                                    <p>1. Each chapter has been categorised into one of 8 themes</p>
+                                    <p>2. A chapter is randomly selected each day and summarised</p>
+                                    <p>3. Guess from the set of other chapters with the same theme</p>
+                                </ModalBody>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
             </div>
         </div>
         <div
