@@ -63,7 +63,7 @@ const Menu = (props: any) => {
         <div
             className={"sm:panel p-1 sm:p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-2 px-6" : "text-center")}>
             <div className={"opacity-80 " + (!props.playing ? "ml-2" : "")}>️️️
-                <Tooltip showArrow={true} content={tooltip} classNames={{content: ["bg-[#060842] text-white max-w-[20rem]"]}}>
+                <Tooltip showArrow={true} content={tooltip} classNames={{content: ["text-white max-w-[20rem] bg-gradient-to-t from-[#0f0a31] to-[#060842]"]}}>
                     <span className="mr-4 cursor-pointer">{props.passage.icon}️</span>
                 </Tooltip>
                 {props.passage.summary}
