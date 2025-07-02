@@ -81,7 +81,7 @@ const Menu = (props: any) => {
                         backdrop: "bg-[#060842]/75",
                         base: "max-w-[40rem] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border-[1px] border-[#ffffff]/25",
                         header: "pt-8 w-full text-center",
-                        closeButton: "hover:bg-white/5 active:bg-white/10 absolute right-2 top-2",
+                        closeButton: "hover:bg-white/5 active:bg-white/10 absolute right-6 top-6",
                     }}
                     isOpen={isOpen}
                     radius="lg"
@@ -91,7 +91,7 @@ const Menu = (props: any) => {
                     <ModalContent>
                         {(onClose) => (
                             <>
-                                <ModalHeader className="flex flex-col gap-1 text-xl">How to Play</ModalHeader>
+                                <ModalHeader className="flex flex-col gap-1">How to Play</ModalHeader>
                                 <ModalBody>
                                     <p className="p-1 font-extralight">Each chapter has been assigned a theme</p>
                                     <div className="flex gap-8 mb-6 justify-center">
@@ -111,7 +111,7 @@ const Menu = (props: any) => {
                                         <Code color="success" size="sm" radius="lg">Acts 3</Code> &#8594; <Code
                                         color="success" size="sm" radius="lg">Peter heals a lame man in faith</Code>
                                     </div>
-                                    <p className="p-1 font-extralight">Click the map to guess chapters with today's theme</p>
+                                    <p className="p-1 font-extralight">Click the map to choose chapters with today&apos;s theme</p>
                                     <div className="flex mb-6 justify-center">
                                         <Image src="/mark-1.png" alt="mark1" width={30 * 16} height={0} className="rounded"/>
                                     </div>
