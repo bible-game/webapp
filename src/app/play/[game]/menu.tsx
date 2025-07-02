@@ -10,8 +10,9 @@ import { redirect } from "next/navigation";
 import useSWR from "swr";
 import { I18nProvider } from "@react-aria/i18n";
 import { Tooltip } from "@heroui/tooltip";
-import {useDisclosure} from "@heroui/react";
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
+import { Code, useDisclosure } from "@heroui/react";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
+import Image from "next/image";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -76,11 +77,11 @@ const Menu = (props: any) => {
                 <Modal
                     backdrop="opaque"
                     classNames={{
-                        body: "p-8",
+                        body: "p-8 text-center",
                         backdrop: "bg-[#060842]/75",
                         base: "max-w-[40rem] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border-[1px] border-[#ffffff]/25",
-                        header: "pt-6 w-full text-center",
-                        closeButton: "hover:bg-white/5 active:bg-white/10 absolute right-4 top-4",
+                        header: "pt-8 w-full text-center",
+                        closeButton: "hover:bg-white/5 active:bg-white/10 absolute right-2 top-2",
                     }}
                     isOpen={isOpen}
                     radius="lg"
@@ -90,14 +91,37 @@ const Menu = (props: any) => {
                     <ModalContent>
                         {(onClose) => (
                             <>
-                                <ModalHeader className="flex flex-col gap-1">How to Play</ModalHeader>
+                                <ModalHeader className="flex flex-col gap-1 text-xl">How to Play</ModalHeader>
                                 <ModalBody>
-                                    <p>1. Each chapter has been categorised into one of 8 themes</p>
-                                    <p>2. A chapter is randomly selected each day and summarised</p>
-                                    <p>3. Guess from the set of other chapters with the same theme</p>
+                                    <p className="p-1 font-extralight">Each chapter has been assigned a theme</p>
+                                    <div className="flex gap-8 mb-6 justify-center">
+                                        {
+                                            Object.keys(themeMap).map(function (theme: string, i: number) {
+                                                return <div key={themeMap[theme].name}>
+                                                    <Tooltip placement="bottom" content={themeMap[theme].name}
+                                                             classNames={{content: ["text-white max-w-[20rem] bg-[#0f0a31]"]}}>
+                                                        <span className="cursor-pointer">{theme}</span>
+                                                    </Tooltip>
+                                                </div>
+                                            })
+                                        }
+                                    </div>
+                                    <p className="p-1 font-extralight">A chapter is randomly selected and summarised</p>
+                                    <div className="mb-6">
+                                        <Code color="success" size="sm" radius="lg">Acts 3</Code> &#8594; <Code
+                                        color="success" size="sm" radius="lg">Peter heals a lame man in faith</Code>
+                                    </div>
+                                    <p className="p-1 font-extralight">Click the map to guess chapters with today's theme</p>
+                                    <div className="flex mb-6 justify-center">
+                                        <Image src="/mark-1.png" alt="mark1" width={30 * 16} height={0} className="rounded"/>
+                                    </div>
+                                    <p className="p-1 font-extralight">Use the number of verses to narrow your guess</p>
+                                    <div className="flex mb-6 justify-center">
+                                        <Image src="/guesses.png" alt="guesses" width={40 * 16} height={0}/>
+                                    </div>
                                 </ModalBody>
                             </>
-                        )}
+                            )}
                     </ModalContent>
                 </Modal>
             </div>
@@ -145,7 +169,7 @@ const themeMap: any = {
         description: 'Reflective or philosophical chapters offering life advice, ethical reflection, or theological insight that is more meditative than commanding'
     },
     '🙏': {
-        name: 'History',
+        name: 'Worship',
         description: 'Chapters centered on praise, prayer, devotion, and liturgical expressions'
     },
     '⚖️': {
