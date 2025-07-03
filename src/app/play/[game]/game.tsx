@@ -172,6 +172,7 @@ export default function Game(props: any) {
     }
 
     function select(book: any, chapter: any, isBookKey = true) {
+        console.log(chapter);
         if (isBookKey) {
             const bookName = allBooks.find((bk: any) => bk.key == book).name;
             if (book) selectBook(bookName);
@@ -189,7 +190,7 @@ export default function Game(props: any) {
 
         return (
             <>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device}/>
+                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device} playing={playing}/>
                 <section className="relative z-1 h-full pointer-events-none">
                     <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
                         <Menu passage={passage} playing={playing} date={props.game}/>
