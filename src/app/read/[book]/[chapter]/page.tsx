@@ -2,6 +2,7 @@ import React from "react";
 import Navigation from "@/app/navigation";
 import ReadAction from "@/app/read/readaction";
 import Context from "@/app/read/[book]/[chapter]/context";
+import ScrollProgress from "@/app/read/[book]/[chapter]/scroll-progress";
 
 async function getReading(path: string): Promise<any> {
     const response = await fetch(`${process.env.SVC_PASSAGE}/temp/reading/${path}`, {method: "GET"});
@@ -52,6 +53,7 @@ export default async function Read({params}: { params: Promise<{ book: string, c
                             <p className="text-[2.5rem] font-light">{reference}</p>
                             <span className="text-gray-400 text-sm font-light">{readingTime}</span>
                         </div>
+                        <ScrollProgress />
                         <Context content={preContext.text} />
                         <div>
                             {verses.map((verse: any) => <div key={verse.verse} className="my-8 flex gap-2 items-start">
