@@ -55,7 +55,7 @@ const Menu = (props: any) => {
                 </Button>
                 <Button variant="light"
                         radius="full"
-                        size="sm"
+                        size={props.device == 'mobile' ? 'md' : 'sm'}
                         isIconOnly
                         onPress={() => changeDate()}
                         className="mt-1 text-white hover:!bg-[#ffffff14] opacity-85">
@@ -65,15 +65,17 @@ const Menu = (props: any) => {
                               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
                     </svg>
                 </Button>
-                <I18nProvider locale="en-GB">
-                    <DatePicker
-                        classNames={stylesDateInput}
-                        defaultValue={date as any}
-                        maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
-                        value={date as any}
-                        onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
-                        selectorButtonPlacement="start"/>
-                </I18nProvider>
+                {
+                    props.device == "mobile" ? <></> : <I18nProvider locale="en-GB">
+                        <DatePicker
+                            classNames={stylesDateInput}
+                            defaultValue={date as any}
+                            maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
+                            value={date as any}
+                            onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
+                            selectorButtonPlacement="start"/>
+                    </I18nProvider>
+                }
                 <Modal
                     backdrop="opaque"
                     classNames={{
