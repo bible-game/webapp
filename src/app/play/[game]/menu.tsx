@@ -30,7 +30,7 @@ const Menu = (props: any) => {
         base: ["w-min", "mb-2"],
         selectorButton: ["opacity-85", "text-white", "p-[1.0625rem]", "hover:!bg-[#ffffff14]"],
         inputWrapper: ["dark", "!bg-transparent"],
-        input: ["opacity-85", "ml-2", "text-xs"]
+        input: ["opacity-85", "ml-2", "text-xs", props.device == 'mobile' ? "hidden" : ""]
     };
 
     function changeDate(date: string = _.sample(data)): void {
@@ -60,22 +60,23 @@ const Menu = (props: any) => {
                         onPress={() => changeDate()}
                         className="mt-1 text-white hover:!bg-[#ffffff14] opacity-85">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                         stroke="currentColor" className="size-4">
+                         stroke="currentColor" className={props.device == 'mobile' ? 'size-5' : 'size-4'}>
                         <path strokeLinecap="round" strokeLinejoin="round"
                               d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"/>
                     </svg>
                 </Button>
-                {
-                    props.device == "mobile" ? <></> : <I18nProvider locale="en-GB">
-                        <DatePicker
-                            classNames={stylesDateInput}
-                            defaultValue={date as any}
-                            maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
-                            value={date as any}
-                            onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
-                            selectorButtonPlacement="start"/>
-                    </I18nProvider>
-                }
+                <I18nProvider locale="en-GB">
+                    <DatePicker
+                        classNames={stylesDateInput}
+                        defaultValue={date as any}
+                        maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
+                        value={date as any}
+                        onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
+                        selectorButtonPlacement="start"/>
+                </I18nProvider>
+                {/*{*/}
+                {/*    props.device == "mobile" ? <></> :*/}
+                {/*}*/}
                 <Modal
                     backdrop="opaque"
                     classNames={{
