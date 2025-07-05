@@ -28,7 +28,7 @@ const Menu = (props: any) => {
 
     const stylesDateInput = {
         base: ["w-min", "mb-2"],
-        selectorButton: ["opacity-85", "text-white", "p-[1.0625rem]", "hover:!bg-[#ffffff14]"],
+        selectorButton: ["opacity-85", "text-white", "p-[1.5rem]", "sm:p-[1.0625rem]", "hover:!bg-[#ffffff14]"],
         inputWrapper: ["dark", "!bg-transparent"],
         input: ["opacity-85", "ml-2", "text-xs", props.device == 'mobile' ? "hidden" : ""]
     };
@@ -39,7 +39,7 @@ const Menu = (props: any) => {
 
     if (isLoading) return <div>Loading...</div>
     else return <section>
-        <div className="ml-4 sm:ml-6 flex gap-4 sm:gap-1 items-start justify-between sm:mb-[inherit] mb-2">
+        <div className="ml-4 sm:ml-6 flex gap-4 sm:gap-1 items-start justify-between">
             <div className="flex gap-1 items-start">
                 <Button variant="light"
                         radius="full"
