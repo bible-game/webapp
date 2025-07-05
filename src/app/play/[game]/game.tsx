@@ -11,6 +11,8 @@ import { GameStatesService } from "@/core/service/game-states-service";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
 import Treemap from "@/app/play/[game]/treemap";
+import moment from "moment/moment";
+import {redirect} from "next/navigation";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -19,6 +21,10 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
  * @since 13th May 2025
  */
 export default function Game(props: any) {
+    if (props.game == 'today') {
+        redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
+    }
+
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
     const passage = data as Passage;
 
