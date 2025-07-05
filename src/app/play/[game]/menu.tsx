@@ -27,7 +27,7 @@ const Menu = (props: any) => {
     // </div>
 
     const stylesDateInput = {
-        base: ["w-min", "mb-2"],
+        base: ["w-min", "mb-2", props.device == 'mobile' ? "mt-2" : ""],
         selectorButton: ["opacity-85", "text-white", "p-[1.5rem]", "sm:p-[1.0625rem]", "hover:!bg-[#ffffff14]"],
         inputWrapper: ["dark", "!bg-transparent"],
         input: ["opacity-85", "ml-2", "text-xs", props.device == 'mobile' ? "hidden" : ""]
