@@ -99,7 +99,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                 props.addGuess(closeness)
                             })
                         }
-                    }}>Guess</Button>
+                    }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>
             </section> :
             <section className="sm:panel flex justify-between mt-4 items-center flex-wrap">
                 <div className="w-[100%] sm:w-[13.33rem] flex justify-center gap-0.5 mr-[3px]">
