@@ -9,5 +9,5 @@ export type Passage = {
     book: string,
     bookKey: string
     chapter: string,
-    icon: string
+    // icon: string
 }
