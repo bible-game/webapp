@@ -21,10 +21,10 @@ const Menu = (props: any) => {
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
-    const tooltip = <div className="px-1 py-2">
-        <div className="text-small font-bold">{props.passage.icon} {themeMap[props.passage.icon].name}</div>
-        <div className="text-tiny">{themeMap[props.passage.icon].description}</div>
-    </div>
+    // const tooltip = <div className="px-1 py-2">
+    //     <div className="text-small font-bold">{props.passage.icon} {themeMap[props.passage.icon].name}</div>
+    //     <div className="text-tiny">{themeMap[props.passage.icon].description}</div>
+    // </div>
 
     const stylesDateInput = {
         base: ["w-min", "mb-2"],

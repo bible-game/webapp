@@ -93,7 +93,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     variant="bordered"
                     onPress={() => {
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
-                        else if (props.isInvalidGuess(props.selected.icon)) toast.error(`Today's chapter is of theme ${props.passage.icon}!`)
+                        // else if (props.isInvalidGuess(props.selected.icon)) toast.error(`Today's chapter is of theme ${props.passage.icon}!`)
                         else {
                             guess(props.date, props.selected.book, props.selected.chapter).then((closeness: any) => {
                                 props.addGuess(closeness)
