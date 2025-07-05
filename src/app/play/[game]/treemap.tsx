@@ -360,7 +360,7 @@ const Treemap = (props: any) => {
                 dim: isDim(book.name, 'book', props.bookFound),
                 level: 'chapter',
                 chapter: c,
-                icon: book.icons[c-1],
+                // icon: book.icons[c-1],
                 testament: test,
                 division: div,
                 book: book.name

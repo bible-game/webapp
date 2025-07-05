@@ -106,7 +106,7 @@ export default function Game(props: any) {
         setChapter(item);
         selected.chapter = item;
 
-        selected.icon = allBooks!!.find((book: any) => book.name === selected.book).icons[parseInt(item) - 1];
+        // selected.icon = allBooks!!.find((book: any) => book.name === selected.book).icons[parseInt(item) - 1];
 
     }
 
