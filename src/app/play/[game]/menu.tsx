@@ -93,25 +93,26 @@ const Menu = (props: any) => {
                             <>
                                 <ModalHeader className="flex flex-col gap-1">How to Play</ModalHeader>
                                 <ModalBody>
-                                    <p className="p-1 font-extralight">Each chapter has been assigned a theme</p>
-                                    <div className="flex gap-8 mb-6 justify-center">
-                                        {
-                                            Object.keys(themeMap).map(function (theme: string, i: number) {
-                                                return <div key={themeMap[theme].name}>
-                                                    <Tooltip placement="bottom" content={themeMap[theme].name}
-                                                             classNames={{content: ["text-white max-w-[20rem] bg-[#0f0a31]"]}}>
-                                                        <span className="cursor-pointer">{theme}</span>
-                                                    </Tooltip>
-                                                </div>
-                                            })
-                                        }
-                                    </div>
+                                    {/*<p className="p-1 font-extralight">Each chapter has been assigned a theme</p>*/}
+                                    {/*<div className="flex gap-8 mb-6 justify-center">*/}
+                                    {/*    {*/}
+                                    {/*        Object.keys(themeMap).map(function (theme: string, i: number) {*/}
+                                    {/*            return <div key={themeMap[theme].name}>*/}
+                                    {/*                <Tooltip placement="bottom" content={themeMap[theme].name}*/}
+                                    {/*                         classNames={{content: ["text-white max-w-[20rem] bg-[#0f0a31]"]}}>*/}
+                                    {/*                    <span className="cursor-pointer">{theme}</span>*/}
+                                    {/*                </Tooltip>*/}
+                                    {/*            </div>*/}
+                                    {/*        })*/}
+                                    {/*    }*/}
+                                    {/*</div>*/}
                                     <p className="p-1 font-extralight">A chapter is randomly selected and summarised</p>
                                     <div className="mb-6">
                                         <Code color="success" size="sm" radius="lg">Acts 3</Code> &#8594; <Code
                                         color="success" size="sm" radius="lg">Peter heals a lame man in faith</Code>
                                     </div>
-                                    <p className="p-1 font-extralight">Click the map to choose chapters with today&apos;s theme</p>
+                                    {/*<p className="p-1 font-extralight">Click the map to choose chapters with today&apos;s theme</p>*/}
+                                    <p className="p-1 font-extralight">Click the map to select a chapter</p>
                                     <div className="flex mb-6 justify-center">
                                         <Image src="/mark-1.png" alt="mark1" width={30 * 16} height={0} className="rounded"/>
                                     </div>
@@ -129,9 +130,9 @@ const Menu = (props: any) => {
         <div
             className={"sm:panel p-1 sm:p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-2 px-6" : "text-center")}>
             <div className={"opacity-80 " + (!props.playing ? "ml-2" : "")}>️️️
-                <Tooltip showArrow={true} content={tooltip} classNames={{content: ["text-white max-w-[20rem] bg-gradient-to-t from-[#0f0a31] to-[#060842]"]}}>
-                    <span className="mr-4 cursor-pointer">{props.passage.icon}️</span>
-                </Tooltip>
+                {/*<Tooltip showArrow={true} content={tooltip} classNames={{content: ["text-white max-w-[20rem] bg-gradient-to-t from-[#0f0a31] to-[#060842]"]}}>*/}
+                {/*    <span className="mr-4 cursor-pointer">{props.passage.icon}️</span>*/}
+                {/*</Tooltip>*/}
                 {props.passage.summary}
             </div>
             <Chip size="sm"
