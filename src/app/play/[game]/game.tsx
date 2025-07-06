@@ -25,7 +25,13 @@ export default function Game(props: any) {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
 
-    const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
+    // getConsentState() => return null;
+    // const consent = GameStatesService.getConsentState();
+    // if (!consent) {
+    //     modal.open()
+    // }
+
+    const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
     const passage = data as Passage;
 
     const [playing, setPlaying] = useState(true);
