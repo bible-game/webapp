@@ -13,6 +13,7 @@ import Confetti from "@/core/component/confetti";
 import Treemap from "@/app/play/[game]/treemap";
 import moment from "moment/moment";
 import {redirect} from "next/navigation";
+import PopUp from "./pop-up";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -197,6 +198,7 @@ export default function Game(props: any) {
 
         return (
             <>
+                <PopUp />
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device} playing={playing}/>
                 <section className="relative z-1 h-full pointer-events-none">
                     <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
