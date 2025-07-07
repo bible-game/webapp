@@ -11,7 +11,7 @@ const Context = (props: any) => {
     const [loading, setLoading] = useState(false);
 
     function toggle(e: any): void {
-        if (e.size) {
+        if (!context && e.size) {
             setLoading(true);
 
             (props.context == 'after' ? getPostContext : getPreContext)(props.passageKey).then((ctx: any) => {

@@ -68,9 +68,11 @@ export default function Content(props: any) {
             <ScrollProgress/>
             <div>
                 {loading ? <Spinner color="secondary" /> : <div>
+                    { passage.verses ? <>
                     <Context passageKey={key} context='before'/>
                     {verses}
                     <Context passageKey={key} context='after'/>
+                    </> : <></>}
                 </div>}
             </div>
         </section>
