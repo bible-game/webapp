@@ -140,20 +140,20 @@ const Treemap = (props: any) => {
                         //     this.open(event.group.id);
                         // }
                     },
-                    onGroupMouseWheel: function (event: any) {
-                        if (event.delta < 0) {
-                            //@ts-ignore
-                            this.set("open", {
-                                // groups: [...books, ...divisions],
-                                groups: [...books],
-                                open: false,
-                                keepPrevious: true
-                            });
-                        }
-                        if (event.delta > 0) {
-                            this.open(event.group.id);
-                        }
-                    }
+                    // onGroupMouseWheel: function (event: any) {
+                    //     if (event.delta < 0) {
+                    //         //@ts-ignore
+                    //         this.set("open", {
+                    //             // groups: [...books, ...divisions],
+                    //             groups: [...books],
+                    //             open: false,
+                    //             keepPrevious: true
+                    //         });
+                    //     }
+                    //     if (event.delta > 0) {
+                    //         this.open(event.group.id);
+                    //     }
+                    // }
                 });
 
                 //@ts-ignore
