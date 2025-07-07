@@ -15,8 +15,6 @@ export const viewport: Viewport = {
     initialScale: 1.0,
     userScalable: false,
     viewportFit: 'cover'
-    // Also supported but less commonly used
-    // interactiveWidget: 'resizes-visual',
 }
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
