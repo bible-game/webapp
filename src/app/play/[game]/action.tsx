@@ -139,7 +139,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 <Button
                     className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
-                    onPress={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}/${props.passage.chapter}`)}>
+                    onPress={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          strokeWidth={1.25} stroke="currentColor" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round"
