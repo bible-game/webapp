@@ -39,7 +39,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
     if (!game || !bible) return <div>Loading...</div>
     else return (
         <>
-            <Background/>
+            {/*<Background/>*/}
             <main className="w-full">
                 <Toaster position="bottom-right"/>
                 <Game game={game} bible={bible} divisions={divisions} books={books} device={device}/>
