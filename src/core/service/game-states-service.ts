@@ -23,305 +23,75 @@ export class GameStatesService {
     }
 
     static getGameStates(): Map<string, GameStates> {
-        const json = localStorage.getItem('game-states') || '[]';
+        const json = localStorage.getItem('game-states') ?? '[]';
         return new Map(JSON.parse(json));
     }
 
-    static updateCompletion(book: string, chapter: number, read: boolean) {
+    static updateCompletion(
+        read: boolean,
+        book: string,
+        chapter: number,
+        verseStart: number | undefined = undefined,
+        verseEnd: number | undefined = undefined) {
         const completion = this.getCompletion();
 
         completion.forEach(c =>  {
-            if (c.book != book.toLowerCase().replace(/\s/g, "")) return;
+            if (c.book != book.replace(/\s/g, "") && c.book != book.toLowerCase().replace(/\s/g, "")) return;
 
-            c.chapter[chapter - 1] = read ? 2 : 1;
+            const ch = c.chapters[chapter - 1];
+            for (let i = 0; i < ch.verses.length; i++) {
+                if (!read) {
+                    ch.verses[i] = 0;
+                } else {
+                    if (!verseStart) {
+                        ch.verses[i] = 1;
+                    } else if (verseStart) {
+                        if (verseEnd) {
+                            if (i - 1 >= verseStart && i < verseEnd) ch.verses[i - 1] = 1;
+                        } else {
+                            ch.verses[verseStart - 1] = 1;
+                        }
+                    }
+                }
+
+                c.chapters[chapter - 1] = ch;
+            }
         });
 
         localStorage.setItem('completion', JSON.stringify(completion));
     }
 
     static getCompletion(): any[] {
-        const json = localStorage.getItem('completion') || '[]'
+        const json = localStorage.getItem('completion') ?? '[]'
         return JSON.parse(json);
     }
 
-    static initCompletion(): void {
+    static initCompletion(config: any): void {
         if (!!localStorage.getItem('completion')) return;
 
-        const completion = [
-            {
-                book: "genesis",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0]
-            },
-            {
-                book: "exodus",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0]
-            },
-            {
-                book: "leviticus",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0]
-            },
-            {
-                book: "numbers",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0, 0]
-            },
-            {
-                book: "deuteronomy",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0]
-            },
+        let completion = [];
+        for (const testament of config) {
+            for (const division of testament.divisions) {
+                for (const book of division.books) {
+                    const bk = {} as any;
 
-            {
-                book: "joshua",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0]
-            },
-            {
-                book: "judges",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0]
-            },
-            {
-                book: "ruth",
-                chapter: [0,0,0,0]
-            },
-            {
-                book: "1samuel",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0]
-            },
-            {
-                book: "2samuel",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0]
-            },
-            {
-                book: "1kings",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0]
-            },
-            {
-                book: "2kings",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0]
-            },
-            {
-                book: "1chronicles",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0]
-            },
-            {
-                book: "2chronicles",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0, 0,0]
-            },
-            {
-                book: "ezra",
-                chapter: [0,0,0,0,0, 0,0,0,0,0]
-            },
-            {
-                book: "nehemiah",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0]
-            },
-            {
-                book: "esther",
-                chapter: [0,0,0,0,0, 0,0,0,0,0]
-            },
+                    bk['book'] = book.name;
+                    bk['chapters'] = [];
+                    for (let i = 0; i < book.chapters; i++) {
+                        bk['chapters'].push({
+                            chapter: i + 1,
+                            verses: []
+                        });
 
-            {
-                book: "job",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0]
-            },
-            {
-                book: "psalms",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0]
-            },
-            {
-                book: "proverbs",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0]
-            },
-            {
-                book: "ecclesiastes",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,]
-            },
-            {
-                book: "songofsolomon",
-                chapter: [0,0,0,0,0, 0,0,0]
-            },
+                        for (let j = 1; j <= book.verses[i]; j++) {
+                            bk['chapters'][i].verses.push('');
+                        }
+                    }
 
-            {
-                book: "isaiah",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0]
-            },
-            {
-                book: "jeremiah",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0]
-            },
-            {
-                book: "lamentations",
-                chapter: [0,0,0,0,0]
-            },
-            {
-                book: "ezekiel",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,]
-            },
-            {
-                book: "daniel",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,]
-            },
-
-            {
-                book: "hosea",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0]
-            },
-            {
-                book: "joel",
-                chapter: [0,0,0,0]
-            },
-            {
-                book: "amos",
-                chapter: [0,0,0,0,0, 0,0,0,0,]
-            },
-            {
-                book: "obadiah",
-                chapter: [0,]
-            },
-            {
-                book: "jonah",
-                chapter: [0,0,0,0]
-            },
-            {
-                book: "micah",
-                chapter: [0,0,0,0,0, 0,0]
-            },
-            {
-                book: "nahum",
-                chapter: [0,0,0,]
-            },
-            {
-                book: "habakkuk",
-                chapter: [0,0,0,]
-            },
-            {
-                book: "zephaniah",
-                chapter: [0,0,0,]
-            },
-            {
-                book: "haggai",
-                chapter: [0,0,]
-            },
-            {
-                book: "zechariah",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0]
-            },
-            {
-                book: "malachi",
-                chapter: [0,0,0,]
-            },
-
-            {
-                book: "mathew",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,]
-            },
-            {
-                book: "mark",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0]
-            },
-            {
-                book: "luke",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0]
-            },
-            {
-                book: "john",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,]
-            },
-
-            {
-                book: "acts",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,0,0,0,0 ,0,0,0,0,0 ,0,0,0]
-            },
-
-            {
-                book: "romans",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,]
-            },
-            {
-                book: "1corinthians",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0 ,0,]
-            },
-            {
-                book: "2corinthians",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,]
-            },
-            {
-                book: "galatians",
-                chapter: [0,0,0,0,0, 0,]
-            },
-            {
-                book: "ephesians",
-                chapter: [0,0,0,0,0, 0,]
-            },
-            {
-                book: "philippians",
-                chapter: [0,0,0,0]
-            },
-            {
-                book: "colossians",
-                chapter: [0,0,0,0,]
-            },
-            {
-                book: "1thessalonians",
-                chapter: [0,0,0,0,0,]
-            },
-            {
-                book: "2thessalonians",
-                chapter: [0,0,0,]
-            },
-            {
-                book: "1timothy",
-                chapter: [0,0,0,0,0, 0,]
-            },
-            {
-                book: "2timothy",
-                chapter: [0,0,0,0]
-            },
-            {
-                book: "titus",
-                chapter: [0,0,0,]
-            },
-            {
-                book: "philemon",
-                chapter: [0,]
-            },
-            {
-                book: "hebrews",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,]
-            },
-
-            {
-                book: "james",
-                chapter: [0,0,0,0,0,]
-            },
-            {
-                book: "1peter",
-                chapter: [0,0,0,0,0]
-            },
-            {
-                book: "2peter",
-                chapter: [0,0,0]
-            },
-            {
-                book: "1john",
-                chapter: [0,0,0,0,0,]
-            },
-            {
-                book: "2john",
-                chapter: [0,]
-            },
-            {
-                book: "3john",
-                chapter: [0,]
-            },
-            {
-                book: "jude",
-                chapter: [0,]
-            },
-
-            {
-                book: "revelation",
-                chapter: [0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,]
-            },
-        ]
+                    completion.push(bk);
+                }
+            }
+        }
 
         localStorage.setItem('completion', JSON.stringify(completion));
     }

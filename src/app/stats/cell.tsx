@@ -5,13 +5,14 @@ import { Tooltip } from "@heroui/react";
 
 const Cell = (props: any) => {
 
-    const style = () => {
+    const style = (verse: any) => {
         let colour = "bg-white opacity-5 hover:opacity-20 duration-200";
 
-        if (props.chapter == 1) colour = "bg-[#FFB86C] opacity-85 hover:opacity-95 duration-200"
-        if (props.chapter == 2) colour = "bg-[#50FA7B] opacity-85 hover:opacity-95 duration-200"
+        if (verse === '') colour = colour
+        else if (verse === 0) colour = "bg-[#FFB86C] opacity-85 hover:opacity-95 duration-200"
+        else if (verse >= 1) colour = "bg-[#50FA7B] opacity-85 hover:opacity-95 duration-200"
 
-        return `h-[12px] w-[12px] m-0.5 cursor-pointer rounded-sm ${colour}`;
+        return `h-[3px] w-[3px] cursor-pointer rounded-sm ${colour}`;
     }
 
     const colour = () => {
@@ -24,11 +25,11 @@ const Cell = (props: any) => {
     }
 
     return <>
-        <Tooltip offset={1} className="text-tiny bg-[#060842]" content={
-            <div className={colour()}>{props.label}</div>
-        }>
-            <div className={style()}></div>
-        </Tooltip>
+        {/*<Tooltip offset={1} className="text-tiny bg-[#060842]" content={*/}
+        {/*    <div className={colour()}>{props.label}</div>*/}
+        {/*}>*/}
+            <div className={style(props.verse)}></div>
+        {/*</Tooltip>*/}
     </>
 
 }

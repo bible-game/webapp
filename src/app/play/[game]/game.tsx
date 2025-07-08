@@ -70,7 +70,7 @@ export default function Game(props: any) {
         setGuesses(state.guesses)
         setStars(state.stars || 0)
         setPlaying(state.playing)
-        GameStatesService.initCompletion();
+        GameStatesService.initCompletion(props.bible.testaments);
         setState(state);
     }
 
@@ -155,7 +155,7 @@ export default function Game(props: any) {
         const won = (closeness.distance == 0);
         const limitReached = (updatedGuesses.length >= 5);
         if (won) {
-            GameStatesService.updateCompletion(selected.book, parseInt(selected.chapter), false);
+            GameStatesService.updateCompletion(false, selected.book, parseInt(selected.chapter));
             setConfetti(true);
         }
         if (won || limitReached) {
