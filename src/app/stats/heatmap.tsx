@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 const mobileOptimisations = {
-    pixelRatio: window.devicePixelRatio || 1,
+    // pixelRatio: window.devicePixelRatio || 1,
     relaxationVisible: false,
     relaxationQualityThreshold: 5,
     rolloutDuration: 0,
