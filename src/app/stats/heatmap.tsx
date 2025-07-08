@@ -42,7 +42,7 @@ const Heatmap = (props: any) => {
                     parentFillOpacity: 0.65,
                     groupLabelFontFamily: "inter",
 
-                    ...(mobileOptimisations),
+                    ...(props.device == 'mobile' ? mobileOptimisations : {}),
 
                     // Roll out in groups
                     rolloutMethod: "groups",
