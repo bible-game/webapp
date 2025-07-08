@@ -61,6 +61,22 @@ export default function Game(props: any) {
         if (confetti) setConfetti(false);
 
         if (typeof window !== "undefined") {
+            import('hammerjs').then((Hammer: any) => {
+                (window as any).Hammer = Hammer;
+
+                //// global.d.ts
+                // import type * as HammerType from 'hammerjs';
+                //
+                // declare global {
+                //   interface Window {
+                //     Hammer: typeof HammerType;
+                //   }
+                // }
+                /**
+                 * You can tell TypeScript about window.Hammer by augmenting the global Window type. Create a global.d.ts file in your project root (or anywhere under /types, as long as it's included in your tsconfig.json), and add this:
+                 */
+            });
+
             loadState();
         }
     }, [stars]);
