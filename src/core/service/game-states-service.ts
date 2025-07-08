@@ -36,7 +36,9 @@ export class GameStatesService {
         const completion = this.getCompletion();
 
         completion.forEach(c =>  {
-            if (c.book != book.replace(/\s/g, "") && c.book != book.toLowerCase().replace(/\s/g, "")) return;
+            if (c.book.replace(/\s/g, "") != book &&
+                c.book != book.replace(/\s/g, "") &&
+                c.book != book.toLowerCase().replace(/\s/g, "")) return;
 
             const ch = c.chapters[chapter - 1];
             for (let i = 0; i < ch.verses.length; i++) {
