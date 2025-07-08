@@ -31,7 +31,6 @@ export default function Stats() {
         setComplete(CompletionService.calcCompletion);
     }, []);
 
-    // Fix this BS... loading spinner, load, push to dev and refresh cache (confirm working)
     useEffect(() => {
         if (completion) setLoading(false);
     }, [completion]); // fixMe
