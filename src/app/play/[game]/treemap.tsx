@@ -43,6 +43,7 @@ const Treemap = (props: any) => {
                     groupBorderWidth: 4,
                     groupBorderRadius: 0.55,
                     groupInsetWidth: 2,
+                    groupMinDiameter: 0,
                     groupLabelMinFontSize: 0,
                     groupLabelMaxFontSize: 16,
                     rectangleAspectRatioPreference: 0,
