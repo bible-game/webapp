@@ -1,6 +1,6 @@
 {
   "name": "webapp",
-  "version": "0.9.3-SNAPSHOT",
+  "version": "0.10.0-SNAPSHOT",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -24,6 +24,7 @@
     "@nextui-org/system": "^2.2.5",
     "@nextui-org/theme": "^2.4.5",
     "@vercel/speed-insights": "^1.2.0",
+    "bible-passage-reference-parser": "^3.0.0",
     "dotenv": "^16.4.7",
     "framer-motion": "^12.5.0",
     "hammerjs": "^1.0.9",

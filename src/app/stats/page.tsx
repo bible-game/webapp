@@ -4,10 +4,11 @@ import { Toaster } from "react-hot-toast";
 import React, { useEffect, useState } from "react";
 import Navigation from "@/app/navigation";
 import Background from "@/app/background";
-import Cell from "@/app/stats/cell";
 import { GameStatesService } from "@/core/service/game-states-service";
 import { CompletionService } from "@/core/service/completion-service";
 import Image from 'next/image'
+import Heatmap from "@/app/stats/heatmap";
+import { Spinner } from "@heroui/react";
 
 /**
  * Statistics Page
@@ -20,6 +21,7 @@ export default function Stats() {
     const [streak, setStreak] = useState(0);
     const [completion, setCompletion] = useState([] as any[]);
     const [complete, setComplete] = useState("");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         setStars(CompletionService.calcStars);
@@ -29,21 +31,15 @@ export default function Stats() {
         setComplete(CompletionService.calcCompletion);
     }, []);
 
-    function pretty(text: string): any {
-        const parts = text.split(/\d/);
-
-        if (parts.length == 1)
-            return text.charAt(0).toUpperCase() + text.substring(1).toLowerCase();
-
-        else
-            return `${text[0]} ${pretty(parts[1])}`;
-    }
+    useEffect(() => {
+        if (completion) setLoading(false);
+    }, [completion]); // fixMe
 
     return (
         <>
             <Background/>
             <Navigation play={true} read={true}/>
-            <main className="flex items-center sm:top-0 top-[14rem]">
+            <main className="flex sm:top-0 top-[14rem]">
                 <Toaster position="bottom-right"/>
                 <section>
                     <h1 className="text-[1.5rem]">Statistics</h1>
@@ -66,11 +62,8 @@ export default function Stats() {
                                 className="text-gray-400 text-[1rem]">%</span></p></div>
                         </div>
                     </section>
-                    <section className="flex flex-wrap sm:w-[46rem] w-[80vw] mb-12">
-                        {completion.map((c: any) => c.chapter.map((chapter: any, index = 0) =>
-                            <Cell key={c.book + index} label={`${pretty(c.book)} ${++index}`} chapter={chapter}/>))}
-                    </section>
-                    <section className="flex justify-center pb-8 absolute sm:w-[46rem] w-full">
+                    {loading ? <Spinner color="primary" /> : <Heatmap data={completion} />}
+                    <section className="flex justify-center bottom-8 absolute sm:w-[46rem] w-full">
                         <a href="https://discord.gg/6ZJYbQcph5" target="_blank" className="flex gap-2 items-center">
                             <Image src="/discord.png" alt="discord" width={160} height={0}/>
                         </a>

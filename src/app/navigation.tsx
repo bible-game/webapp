@@ -23,7 +23,7 @@ export const Navigation = (props: any) => {
         </Link>
     );
     if (props.read) links.push(
-        <Link href='/read/Genesis/1' key='read'>
+        <Link href='/read' key='read'>
             <div className="flex gap-1 items-center w-[4rem]">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
                      stroke={props.dark ? "black" : "currentColor"} className="size-4">

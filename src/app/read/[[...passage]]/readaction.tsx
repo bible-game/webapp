@@ -8,9 +8,18 @@ import { toast, Toaster } from "react-hot-toast";
 const ReadAction = (props: any) => {
 
     function tickRead() {
-        GameStatesService.updateCompletion(props.book, props.chapter, true);
+        GameStatesService.updateCompletion(true, props.book, props.chapter, props.verseStart, props.verseEnd);
 
-        toast.success(`${props.book} ${props.chapter}`);
+        if (props.verseStart) {
+            if (props.verseEnd) {
+                toast.success(`${props.book} ${props.chapter} : ${props.verseStart} - ${props.verseEnd}`);
+            } else {
+                toast.success(`${props.book} ${props.chapter} : ${props.verseStart}`);
+            }
+
+        } else {
+            toast.success(`${props.book} ${props.chapter}`);
+        }
     }
 
     return <>

@@ -43,6 +43,7 @@ const Treemap = (props: any) => {
                     groupBorderWidth: 4,
                     groupBorderRadius: 0.55,
                     groupInsetWidth: 2,
+                    groupMinDiameter: 0,
                     groupLabelMinFontSize: 0,
                     groupLabelMaxFontSize: 16,
                     rectangleAspectRatioPreference: 0,
@@ -60,11 +61,12 @@ const Treemap = (props: any) => {
                             vars.groupColor.r = parts[0];
                             vars.groupColor.g = parts[1];
                             vars.groupColor.b = parts[2];
-                            vars.groupColor.a = 0.95;
+                            // vars.groupColor.a = 0.95;
+                            vars.groupColor.a = 0.99;
 
-                            if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
-                                vars.groupColor.a = 1;
-                            }
+                            // if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
+                            //     vars.groupColor.a = 1;
+                            // }
                         } else {
                             vars.groupColor = params.group.color;
                         }
@@ -90,36 +92,47 @@ const Treemap = (props: any) => {
                         event.preventDefault();
                     },
                     onGroupClick: function (event: any) {
-                        const selection = event.group.id.split('/');
-
-                        if (props.playing && event.group.id.includes('/')) {
-                            if (event.group.icon != props.passage.icon) {
-                                toast.error(`${selection[0]} ${selection[1]} has a different theme ${event.group.icon}`);
-
-                            } else {
-                                props.select(selection[0], selection[1]);
-                                toast.success(`${selection[0]} ${selection[1]}`);
-                            }
+                        if (event.group.id.includes('/')) {
+                            const selection = event.group.id.split('/');
+                            props.select(selection[0], selection[1]);
+                            toast.success(`${selection[0]} ${selection[1]}`);
                         } else {
                             //ts-ignore
                             this.open(event.group.id);
-                            if (!props.playing) return;
-
-                            let first = null;
-                            for (const ch of event.group.groups) {
-                                if (ch.icon == props.passage.icon) {
-                                    first = ch; break;
-                                }
-                            }
-
-                            if (first) {
-                                props.select(event.group.id, first.id.split("/")[1], false);
-                                toast.success(`${event.group.id} ${first.id.split("/")[1]}`);
-                            } else {
-                                if (event.group.level == 'book')
-                                    toast.error(`${event.group.id} has no valid chapters ${props.passage.icon}`);
-                            }
+                            props.select(event.group.id, null, false);
+                            toast.success(`${event.group.id} 1`);
                         }
+
+                        // const selection = event.group.id.split('/');
+                        //
+                        // if (props.playing && event.group.id.includes('/')) {
+                        //     if (event.group.icon != props.passage.icon) {
+                        //         toast.error(`${selection[0]} ${selection[1]} has a different theme ${event.group.icon}`);
+                        //
+                        //     } else {
+                        //         props.select(selection[0], selection[1]);
+                        //         toast.success(`${selection[0]} ${selection[1]}`);
+                        //     }
+                        // } else {
+                        //     //ts-ignore
+                        //     this.open(event.group.id);
+                        //     if (!props.playing) return;
+                        //
+                        //     let first = null;
+                        //     for (const ch of event.group.groups) {
+                        //         if (ch.icon == props.passage.icon) {
+                        //             first = ch; break;
+                        //         }
+                        //     }
+                        //
+                        //     if (first) {
+                        //         props.select(event.group.id, first.id.split("/")[1], false);
+                        //         toast.success(`${event.group.id} ${first.id.split("/")[1]}`);
+                        //     } else {
+                        //         if (event.group.level == 'book')
+                        //             toast.error(`${event.group.id} has no valid chapters ${props.passage.icon}`);
+                        //     }
+                        // }
                     },
                     openCloseDuration: 1000,
                     onGroupHover: function (event: any) {
@@ -341,13 +354,14 @@ const Treemap = (props: any) => {
         for (let c = 1; c <= ch; c++) {
             chapters.push({
                 id: book.key+'/'+c.toString(),
-                label: props.passage.icon == book.icons[c-1] ? c : '',
+                label: c,
+                // label: props.passage.icon == book.icons[c-1] ? c : '',
                 weight: parseFloat(book.verses[c-1]),
                 color: getColour(book.key),
                 dim: isDim(book.name, 'book', props.bookFound),
                 level: 'chapter',
                 chapter: c,
-                icon: book.icons[c-1],
+                // icon: book.icons[c-1],
                 testament: test,
                 division: div,
                 book: book.name
