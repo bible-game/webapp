@@ -20,6 +20,8 @@ export default function Content(props: any) {
     const [passage, setPassage] = React.useState({} as any);
     const [loading, setLoading] = React.useState(false);
     const [audioloading, setAudioLoading] = React.useState(false);
+    const [playing, setPlaying] = React.useState(false);
+    const [current, setCurrent] = React.useState("");
 
     useEffect(() => {
         if (props.passageKey) {
@@ -94,13 +96,15 @@ export default function Content(props: any) {
                     setAudioLoading(false);
                     const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" }); // Assuming MP3
                     const audioUrl = URL.createObjectURL(audioBlob);
-                    const audioElement = new Audio(audioUrl);
-                    audioElement.play();
+                    setCurrent(audioUrl);
+                    // const audioElement = new Audio(audioUrl);
+                    setPlaying(true);
+                    // audioElement.play().then(() => setPlaying(false));
 
                     // Clean up the URL after the audio finishes playing
-                    audioElement.onended = () => {
-                        URL.revokeObjectURL(audioUrl);
-                    };
+                    // audioElement.onended = () => {
+                    //     URL.revokeObjectURL(audioUrl);
+                    // };
                 }
             });
         }
@@ -123,16 +127,22 @@ export default function Content(props: any) {
                            });
                        }}/>
                 <span className="text-gray-400 text-sm font-light">{readingTime}</span>
-                {loading ? <></> : <Button onPress={playAudio}
+                {playing ? <></> : <Button onPress={playAudio}
                                            className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] m-2"
                                            variant="bordered">
                     {audioloading ? <Spinner color="secondary" /> : 'Listen' }</Button>
                 }
+                {
+                    playing ? <audio controls autoPlay={true}>
+                        <source src={current} type="audio/mpeg"/>
+                        Your browser does not support the audio element.
+                    </audio> : <></>
+                }
             </div>
             <ScrollProgress/>
             <div>
-                {loading ? <Spinner color="secondary" /> : <div>
-                    { passage.verses ? <>
+                {loading ? <Spinner color="secondary"/> : <div>
+                    {passage.verses ? <>
                     <Context passageKey={key} context='before'/>
                     {verses}
                     <Context passageKey={key} context='after'/>
