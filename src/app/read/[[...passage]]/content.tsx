@@ -19,7 +19,7 @@ export default function Content(props: any) {
     const wordsPerMinute = 160;
     const [passage, setPassage] = React.useState({} as any);
     const [loading, setLoading] = React.useState(false);
-    const [audioloading, setAudioLoading] = React.useState(false);
+    const [audioLoading, setAudioLoading] = React.useState(false);
     const [playing, setPlaying] = React.useState(false);
     const [current, setCurrent] = React.useState("");
 
@@ -130,7 +130,7 @@ export default function Content(props: any) {
                 {playing ? <></> : <Button onPress={playAudio}
                                            className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] m-2"
                                            variant="bordered">
-                    {audioloading ? <Spinner color="secondary" /> : 'Listen' }</Button>
+                    {audioLoading ? <Spinner color="secondary" /> : 'Listen' }</Button>
                 }
                 {
                     playing ? <audio controls autoPlay={true}>
@@ -146,15 +146,15 @@ export default function Content(props: any) {
                     <Context passageKey={key} context='before'/>
                     {verses}
                     <Context passageKey={key} context='after'/>
+                    <ReadAction
+                        book={split(key).book}
+                        chapter={split(key).chapter}
+                        verseStart={split(key).verseStart}
+                        verseEnd={split(key).verseEnd}
+                    />
                     </> : <></>}
                 </div>}
             </div>
-            <ReadAction
-                book={split(key).book}
-                chapter={split(key).chapter}
-                verseStart={split(key).verseStart}
-                verseEnd={split(key).verseEnd}
-            />
         </section>
 
     );
