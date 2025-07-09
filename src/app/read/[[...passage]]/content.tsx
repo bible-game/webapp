@@ -9,6 +9,8 @@ import Context from "@/app/read/[[...passage]]/context";
 import ReadAction from "@/app/read/[[...passage]]/readaction";
 import { bcv_parser } from "bible-passage-reference-parser/esm/bcv_parser";
 import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
+import { Button } from "@nextui-org/react";
+import { getAudio } from "@/core/action/get-audio";
 
 export default function Content(props: any) {
 
@@ -83,6 +85,24 @@ export default function Content(props: any) {
         }
     }
 
+    function playAudio(): void {
+        if (key) {
+            getAudio(key).then((audioBuffer: any) => {
+                if (audioBuffer) {
+                    const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" }); // Assuming MP3
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audioElement = new Audio(audioUrl);
+                    audioElement.play();
+
+                    // Clean up the URL after the audio finishes playing
+                    audioElement.onended = () => {
+                        URL.revokeObjectURL(audioUrl);
+                    };
+                }
+            });
+        }
+    }
+
     return (
         <section className="w-[75vw] sm:w-[40rem]">
             <div className="mb-10">
@@ -100,6 +120,11 @@ export default function Content(props: any) {
                            });
                        }}/>
                 <span className="text-gray-400 text-sm font-light">{readingTime}</span>
+                {loading ? <></> : <Button onPress={playAudio}
+                                           className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] m-2"
+                                           variant="bordered">
+                                    Listen</Button>
+                }
             </div>
             <ScrollProgress/>
             <div>
