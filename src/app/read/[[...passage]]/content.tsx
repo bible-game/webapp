@@ -19,6 +19,7 @@ export default function Content(props: any) {
     const wordsPerMinute = 160;
     const [passage, setPassage] = React.useState({} as any);
     const [loading, setLoading] = React.useState(false);
+    const [audioloading, setAudioLoading] = React.useState(false);
 
     useEffect(() => {
         if (props.passageKey) {
@@ -87,8 +88,10 @@ export default function Content(props: any) {
 
     function playAudio(): void {
         if (key) {
+            setAudioLoading(true);
             getAudio(key).then((audioBuffer: any) => {
                 if (audioBuffer) {
+                    setAudioLoading(false);
                     const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" }); // Assuming MP3
                     const audioUrl = URL.createObjectURL(audioBlob);
                     const audioElement = new Audio(audioUrl);
@@ -123,7 +126,7 @@ export default function Content(props: any) {
                 {loading ? <></> : <Button onPress={playAudio}
                                            className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] m-2"
                                            variant="bordered">
-                                    Listen</Button>
+                    {audioloading ? <Spinner color="secondary" /> : 'Listen' }</Button>
                 }
             </div>
             <ScrollProgress/>
