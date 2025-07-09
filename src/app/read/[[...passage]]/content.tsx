@@ -46,9 +46,15 @@ export default function Content(props: any) {
         <div className="text-gray-800 text-[18px] font-light leading-[2rem]">{verse.text}</div>
     </div>) : <></>;
 
-    function split(passageKey: string): {book: string, chapter: string, verseStart: number | undefined, verseEnd: number | undefined} {
+    function split(passageKey: any): {book: string, chapter: string, verseStart: number | undefined, verseEnd: number | undefined} {
+        let key: string;
+        if (passageKey instanceof Array) {
+            key = passageKey[0]
+        } else {
+            key = passageKey;
+        }
         const bcv = new bcv_parser(lang);
-        const osis = bcv.parse(passageKey).osis();
+        const osis = bcv.parse(key).osis();
 
         const hasVerses = osis.includes('-');
 
