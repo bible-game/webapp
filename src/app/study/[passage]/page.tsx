@@ -1,10 +1,7 @@
 "use server"
 
-import { Toaster } from "react-hot-toast";
 import React from "react";
-import Background from "@/app/background";
-import Navigation from "@/app/navigation";
-import Explorer from "@/app/study/[passage]/explorer";
+import Link from "next/link";
 
 /**
  * Study Page
@@ -15,17 +12,14 @@ export default async function Study({params}: { params: Promise<{ passage: strin
     const { passage } = await params;
 
     return (
-        <>
-            <Background/>
-            <Navigation play={true} stats={true}/>
-            <main className="flex top-8 sm:mt-8 m-0">
-                <Toaster position="bottom-right"/>
-                <section>
-                    <h1 className="text-[1.5rem] mx-0">Study</h1>
+        <div className="bg-white absolute top-0 left-0 w-full h-full">
+            <div className="flex justify-center">
+                <Link href={"/read/"+passage} className="text-black">Back to Reading</Link>
+                <main
+                    className="bg-white h-min w-full text-black relative top-[6rem] overflow-auto pb-[12rem] flex justify-center">
                     { passage }
-                    <Explorer />
-                </section>
-            </main>
-        </>
+                </main>
+            </div>
+        </div>
     );
 }
