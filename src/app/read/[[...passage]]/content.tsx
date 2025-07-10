@@ -5,12 +5,14 @@ import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
 import { Input } from "@heroui/input";
 import { getPassage } from "@/core/action/get-passage";
 import { Spinner } from "@heroui/react";
+import { Card, CardBody } from "@heroui/card";
 import Context from "@/app/read/[[...passage]]/context";
 import ReadAction from "@/app/read/[[...passage]]/readaction";
 import { bcv_parser } from "bible-passage-reference-parser/esm/bcv_parser";
 import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
 import { Button } from "@nextui-org/react";
 import { getAudio } from "@/core/action/get-audio";
+import Link from "next/link";
 
 export default function Content(props: any) {
 
@@ -155,6 +157,19 @@ export default function Content(props: any) {
                     </> : <></>}
                 </div>}
             </div>
+            <Link href={'/study/'+split(key).book+split(key).chapter} key='study'>
+                <Card classNames={{base: "hover:opacity-100 cursor-pointer mt-4 opacity-80 bg-gradient-to-bl from-purple-50 to-purple-100 p-4 rounded border-1 border-purple-200 text-purple-900 font-light"}}>
+                    <CardBody>
+                        <div className="flex gap-2 items-center">
+                            <p>Complete the study for {split(key).book} {split(key).chapter}</p>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
+                                 stroke="currentColor" className="size-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                            </svg>
+                        </div>
+                    </CardBody>
+                </Card>
+            </Link>
         </section>
 
     );
