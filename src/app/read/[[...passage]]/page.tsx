@@ -1,3 +1,5 @@
+"use server"
+
 import React from "react";
 import Navigation from "@/app/navigation";
 import Content from "@/app/read/[[...passage]]/content";

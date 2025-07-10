@@ -128,9 +128,9 @@ export default function Content(props: any) {
                        }}/>
                 <span className="text-gray-400 text-sm font-light">{readingTime}</span>
                 {playing ? <></> : <Button onPress={playAudio}
-                                           className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] m-2"
+                                           className="text-blue-600 h-[66px] text-sm rounded-none border-[#ffffff40] m-2"
                                            variant="bordered">
-                    {audioLoading ? <Spinner color="secondary" /> : 'Listen' }</Button>
+                    {audioLoading ? <Spinner color="primary" /> : 'Listen' }</Button>
                 }
                 {
                     playing ? <audio controls autoPlay={true}>
@@ -141,7 +141,7 @@ export default function Content(props: any) {
             </div>
             <ScrollProgress/>
             <div>
-                {loading ? <Spinner color="secondary"/> : <div>
+                {loading ? <Spinner color="primary"/> : <div>
                     {passage.verses ? <>
                     <Context passageKey={key} context='before'/>
                     {verses}
@@ -173,8 +173,8 @@ const osisToName = (osis: any) => {
         Judg: "Judges",
         Ruth: "Ruth",
         Isa: "Isaiah",
-        "1Sa": "1Samuel",
-        "2Sa": "2Sameul",
+        "1Sam": "1Samuel",
+        "2Sam": "2Samuel",
         "1Kgs": "1Kings",
         "2Kgs": "2Kings",
         "2Chr": "2Chronicles",

@@ -48,7 +48,7 @@ export default function ScrollProgress(props: Props) {
 
     return (
         <div
-            className={`fixed top-0 left-0 w-full bg-secondary-200 ${className}`}
+            className={`fixed top-0 left-0 w-full bg-blue-700 ${className}`}
             style={{ width: `${scrollProgress}%`, height: `${height}px`, zIndex: 99999 }}
         />
     );
