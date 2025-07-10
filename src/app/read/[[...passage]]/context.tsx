@@ -10,8 +10,7 @@ const Context = (props: any) => {
     const [context, setContext] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const [title] = useState(props.context == 'before' ? 'Before' : 'After');
-    const [subtitle] = useState(props.context == 'before' ? `Click for context leading up to ${props.passageKey}` : `Click to understand the events following ${props.passageKey}`);
+    const [title] = useState(props.context == 'before' ? 'Pre-Context' : 'Post-Context');
 
     function toggle(e: any): void {
         if (!context && e.size) {
@@ -25,11 +24,11 @@ const Context = (props: any) => {
     }
 
     // TODO :: quality of life -> make accordion colour match the division?
-    return <Accordion className="bg-secondary-50 p-4 rounded" onSelectionChange={toggle}>
-        <AccordionItem key="1" aria-label="pre-context" title={title} subtitle={subtitle} className="text-secondary-800">
+    return <Accordion className="opacity-80 bg-gradient-to-bl from-blue-50 to-blue-100 p-4 rounded border-1 border-blue-200 text-blue-700 font-light" onSelectionChange={toggle} isCompact={true}>
+        <AccordionItem key="1" aria-label="context" title={title}>
             {
-                loading ? <Spinner color="secondary"/> :
-                    <p className="max-w-[16rem] sm:max-w-[38rem] font-light text-sm leading-6 text-secondary-800">{context}</p>
+                loading ? <Spinner color="primary"/> :
+                    <p className="max-w-[16rem] sm:max-w-[38rem] font-extralight text-sm leading-6 text-gray-700">{context}</p>
             }
 
         </AccordionItem>

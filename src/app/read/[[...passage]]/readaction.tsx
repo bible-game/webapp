@@ -26,7 +26,7 @@ const ReadAction = (props: any) => {
         <Toaster position="bottom-right"/>
         <Button
             onPress={tickRead}
-            className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] mt-8"
+            className="text-blue-600 h-[66px] text-sm rounded-none border-[#ffffff40] mt-8"
             variant="bordered">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                  strokeWidth={1.25} stroke="currentColor" className="size-4">
