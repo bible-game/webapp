@@ -22,13 +22,13 @@ export default async function Stats() {
                 <Toaster position="bottom-right"/>
                 <section>
                     <h1 className="text-[1.5rem]">Statistics</h1>
-                    <Metrics />
-                    <Completion />
-                    <section className="flex justify-center bottom-8 absolute sm:w-[46rem] w-full">
+                    <Metrics/>
+                    <section className="flex justify-center sm:w-[46rem] w-full">
                         <a href="https://discord.gg/6ZJYbQcph5" target="_blank" className="flex gap-2 items-center">
                             <Image src="/discord.png" alt="discord" width={160} height={0}/>
                         </a>
                     </section>
+                    <Completion/>
                 </section>
             </main>
         </>
