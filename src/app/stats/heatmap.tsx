@@ -6,7 +6,7 @@ import Cell from "@/app/stats/cell";
 const Heatmap = (props: any) => {
 
     return (
-        <section className="flex flex-wrap sm:w-[46rem] w-[80vw] pb-[10rem]">
+        <section className="flex flex-wrap sm:w-[46rem] w-[80vw] pb-12">
             {props.data.map((data: any) => <div className="p-0 flex flex-wrap">
                 <p className="font-extralight text-[10px] w-full pb-1 pt-2 opacity-80">{data.book}</p>
                 {data.chapters.map((chapter: any) => <div className="p-[1px] flex flex-wrap">{chapter.verses.map((verse: any, index: number) =>

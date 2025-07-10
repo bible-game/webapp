@@ -21,14 +21,14 @@ export default async function Stats() {
             <main className="flex sm:top-0 top-[14rem]">
                 <Toaster position="bottom-right"/>
                 <section>
-                    <h1 className="text-[1.5rem]">Statistics</h1>
+                    <h1 className="text-[1.5rem] mx-0">Statistics</h1>
                     <Metrics/>
-                    <section className="flex justify-center sm:w-[46rem] w-full">
+                    <Completion/>
+                    <section className="flex justify-center sm:w-[46rem] w-full absolute pb-12">
                         <a href="https://discord.gg/6ZJYbQcph5" target="_blank" className="flex gap-2 items-center">
                             <Image src="/discord.png" alt="discord" width={160} height={0}/>
                         </a>
                     </section>
-                    <Completion/>
                 </section>
             </main>
         </>
