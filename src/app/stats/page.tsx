@@ -18,7 +18,7 @@ export default async function Stats() {
         <>
             <Background/>
             <Navigation play={true} read={true}/>
-            <main className="flex top-8 sm:mt-8 m-0">
+            <main className="flex top-12 sm:mt-8 m-0">
                 <Toaster position="bottom-right"/>
                 <section>
                     <h1 className="text-[1.5rem] mx-0">Statistics</h1>
