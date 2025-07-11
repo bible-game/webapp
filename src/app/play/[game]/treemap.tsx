@@ -22,158 +22,170 @@ const mobileOptimisations = {
 //@ts-ignore
 const Treemap = (props: any) => {
     //@ts-ignore
-    const element = useRef()
+    const element = useRef();
+    const [ FoamTreeClass, setFoamTreeClass ] = useState();
+    const [ foamtreeInstance, setFoamTreeInstance ] = useState();
+
     const [ treemap, setTreemap ] = useState();
 
     const [ divisions, setDivisions ] = useState(getDivKeys());
     const [ books, setBooks ] = useState(getBookKeys());
 
     useEffect(() => {
-        //@ts-ignore
-        if (!element.current.foamTree) {
-            import("@carrotsearch/foamtree").then(module => {
-                const tree = new module.FoamTree({
-                    element: element.current,
-                    dataObject: configure(props.data),
-                    layoutByWeightOrder: false,
-                    relaxationInitializer: "treemap",
-                    // descriptionGroupType: "floating",
-                    descriptionGroupMinHeight: 64,
-                    descriptionGroupMaxHeight: 0.125,
-                    groupBorderWidth: 4,
-                    groupBorderRadius: 0.55,
-                    groupInsetWidth: 2,
-                    groupMinDiameter: 0,
-                    groupLabelMinFontSize: 0,
-                    groupLabelMaxFontSize: 16,
-                    rectangleAspectRatioPreference: 0,
-                    groupLabelDarkColor: "#98a7d8",
-                    groupLabelLightColor: "#060842",
-                    groupLabelColorThreshold: 1,
-                    parentFillOpacity: 0.65,
-                    groupColorDecorator: function (opts: any, params: any, vars: any) {
-                        vars.labelColor = "auto";
+        let disposed = false;
+        import("@carrotsearch/foamtree").then(module => {
+            if (disposed) {
+                return;
+            }
 
-                        if (params.group.level == "chapter" && !!params.group.color) {
-                            const rgba =  hexToRgba(params.group.color).substring(5, 18);
-                            const parts = rgba.split(', ');
+            if (!disposed) {
+                setFoamTreeClass(() => module.FoamTree);
+            }
+        });
 
-                            vars.groupColor.r = parts[0];
-                            vars.groupColor.g = parts[1];
-                            vars.groupColor.b = parts[2];
-                            // vars.groupColor.a = 0.95;
-                            vars.groupColor.a = 0.99;
+        return () => {
+            disposed = true;
+        }
+    }, []);
 
-                            // if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
-                            //     vars.groupColor.a = 1;
-                            // }
-                        } else {
-                            vars.groupColor = params.group.color;
-                        }
-                    },
-                    groupFillType: "plain",
-                    groupLabelFontFamily: "inter",
+    useEffect(() => {
+        if (FoamTreeClass && !foamtreeInstance) {
+            //@ts-ignore
+            setFoamTreeInstance(new FoamTreeClass({
+                element: element.current,
+                dataObject: configure(props.data),
+                layoutByWeightOrder: false,
+                relaxationInitializer: "treemap",
+                // descriptionGroupType: "floating",
+                descriptionGroupMinHeight: 64,
+                descriptionGroupMaxHeight: 0.125,
+                groupBorderWidth: 4,
+                groupBorderRadius: 0.55,
+                groupInsetWidth: 2,
+                groupMinDiameter: 0,
+                groupLabelMinFontSize: 0,
+                groupLabelMaxFontSize: 16,
+                rectangleAspectRatioPreference: 0,
+                groupLabelDarkColor: "#98a7d8",
+                groupLabelLightColor: "#060842",
+                groupLabelColorThreshold: 1,
+                parentFillOpacity: 0.65,
+                groupColorDecorator: function (opts: any, params: any, vars: any) {
+                    vars.labelColor = "auto";
 
-                    ...(props.device == 'mobile' ? mobileOptimisations : {}),
+                    if (params.group.level == "chapter" && !!params.group.color) {
+                        const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                        const parts = rgba.split(', ');
 
-                    // Roll out in groups
-                    rolloutMethod: "groups",
-                    // rolloutDuration: 0,
+                        vars.groupColor.r = parts[0];
+                        vars.groupColor.g = parts[1];
+                        vars.groupColor.b = parts[2];
+                        // vars.groupColor.a = 0.95;
+                        vars.groupColor.a = 0.99;
 
-                    onRolloutComplete: function () {
-                        // this.set("open", { open: false, groups: [...divisions, ...books] });
-                        this.set("open", { open: false, groups: [...books] });
-
-                        if (props.bookFound) {
-                            this.open(props.passage.book);
-                        }
-                    },
-                    onGroupDoubleClick: function (event: any) {
-                        event.preventDefault();
-                    },
-                    onGroupClick: function (event: any) {
-                        if (event.group.id.includes('/')) {
-                            const selection = event.group.id.split('/');
-                            props.select(selection[0], selection[1]);
-                            toast.success(`${selection[0]} ${selection[1]}`);
-                        } else {
-                            //ts-ignore
-                            this.open(event.group.id);
-                            props.select(event.group.id, null, false);
-                            toast.success(`${event.group.id} 1`);
-                        }
-
-                        // const selection = event.group.id.split('/');
-                        //
-                        // if (props.playing && event.group.id.includes('/')) {
-                        //     if (event.group.icon != props.passage.icon) {
-                        //         toast.error(`${selection[0]} ${selection[1]} has a different theme ${event.group.icon}`);
-                        //
-                        //     } else {
-                        //         props.select(selection[0], selection[1]);
-                        //         toast.success(`${selection[0]} ${selection[1]}`);
-                        //     }
-                        // } else {
-                        //     //ts-ignore
-                        //     this.open(event.group.id);
-                        //     if (!props.playing) return;
-                        //
-                        //     let first = null;
-                        //     for (const ch of event.group.groups) {
-                        //         if (ch.icon == props.passage.icon) {
-                        //             first = ch; break;
-                        //         }
-                        //     }
-                        //
-                        //     if (first) {
-                        //         props.select(event.group.id, first.id.split("/")[1], false);
-                        //         toast.success(`${event.group.id} ${first.id.split("/")[1]}`);
-                        //     } else {
-                        //         if (event.group.level == 'book')
-                        //             toast.error(`${event.group.id} has no valid chapters ${props.passage.icon}`);
-                        //     }
+                        // if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
+                        //     vars.groupColor.a = 1;
                         // }
-                    },
-                    openCloseDuration: 1000,
-                    onGroupHover: function (event: any) {
-                        // if (event.group) {
-                        //     //@ts-ignore
-                        //     this.open(event.group.id);
-                        // }
-                    },
-                    onGroupMouseWheel: function (event: any) {
-                        if (event.delta < 0) {
-                            //@ts-ignore
-                            this.set("open", {
-                                // groups: [...books, ...divisions],
-                                groups: [...books],
-                                open: false,
-                                keepPrevious: true
-                            });
-                        }
-                        if (event.delta > 0) {
-                            this.open(event.group.id);
-                        }
+                    } else {
+                        vars.groupColor = params.group.color;
                     }
-                });
+                },
+                groupFillType: "plain",
+                groupLabelFontFamily: "inter",
 
-                //@ts-ignore
-                element.current.foamTree = tree;
-                setTreemap(tree);
-            });
+                ...(props.device == 'mobile' ? mobileOptimisations : {}),
+
+                // Roll out in groups
+                rolloutMethod: "groups",
+                // rolloutDuration: 0,
+
+                onRolloutComplete: function () {
+                    // this.set("open", { open: false, groups: [...divisions, ...books] });
+                    this.set("open", { open: false, groups: [...books] });
+
+                    if (props.bookFound) {
+                        this.open(props.passage.book);
+                    }
+                },
+                onGroupDoubleClick: function (event: any) {
+                    event.preventDefault();
+                },
+                onGroupClick: function (event: any) {
+                    if (event.group.id.includes('/')) {
+                        const selection = event.group.id.split('/');
+                        props.select(selection[0], selection[1]);
+                        toast.success(`${selection[0]} ${selection[1]}`);
+                    } else {
+                        //ts-ignore
+                        this.open(event.group.id);
+                        props.select(event.group.id, null, false);
+                        toast.success(`${event.group.id} 1`);
+                    }
+
+                    // const selection = event.group.id.split('/');
+                    //
+                    // if (props.playing && event.group.id.includes('/')) {
+                    //     if (event.group.icon != props.passage.icon) {
+                    //         toast.error(`${selection[0]} ${selection[1]} has a different theme ${event.group.icon}`);
+                    //
+                    //     } else {
+                    //         props.select(selection[0], selection[1]);
+                    //         toast.success(`${selection[0]} ${selection[1]}`);
+                    //     }
+                    // } else {
+                    //     //ts-ignore
+                    //     this.open(event.group.id);
+                    //     if (!props.playing) return;
+                    //
+                    //     let first = null;
+                    //     for (const ch of event.group.groups) {
+                    //         if (ch.icon == props.passage.icon) {
+                    //             first = ch; break;
+                    //         }
+                    //     }
+                    //
+                    //     if (first) {
+                    //         props.select(event.group.id, first.id.split("/")[1], false);
+                    //         toast.success(`${event.group.id} ${first.id.split("/")[1]}`);
+                    //     } else {
+                    //         if (event.group.level == 'book')
+                    //             toast.error(`${event.group.id} has no valid chapters ${props.passage.icon}`);
+                    //     }
+                    // }
+                },
+                openCloseDuration: 1000,
+                onGroupHover: function (event: any) {
+                    // if (event.group) {
+                    //     //@ts-ignore
+                    //     this.open(event.group.id);
+                    // }
+                },
+                onGroupMouseWheel: function (event: any) {
+                    if (event.delta < 0) {
+                        //@ts-ignore
+                        this.set("open", {
+                            // groups: [...books, ...divisions],
+                            groups: [...books],
+                            open: false,
+                            keepPrevious: true
+                        });
+                    }
+                    if (event.delta > 0) {
+                        this.open(event.group.id);
+                    }
+                }
+            }));
         }
 
         return () => {
-            if (treemap) {
+            if (foamtreeInstance) {
                 //@ts-ignore
-                treemap.dispose();
+                foamtreeInstance.dispose();
                 //@ts-ignore
-                element.current.foamTree = null;
-                //@ts-ignore
-                setTreemap(null);
+                setFoamTreeInstance(null);
             }
         }
-    }, []);
+    }, [ FoamTreeClass, foamtreeInstance ]);
 
     useEffect(() => {
         if (treemap && (props.bookFound || props.divFound || props.testFound)) {
