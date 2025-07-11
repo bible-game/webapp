@@ -120,7 +120,7 @@ export default function Questions(props: any) {
                 </div>
               ))}
               {
-                !stars ? <button onClick={handleSubmit} className="bg-blue-500 text-white px-4 py-2 rounded-lg mt-4"
+                !stars ? <button onClick={handleSubmit} className="mb-[8rem] bg-blue-500 text-white px-4 py-2 rounded-lg mt-4"
                                 disabled={submitted}>Submit</button> : <></>
               }
             </>

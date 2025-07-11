@@ -23,7 +23,7 @@ export default async function Study({params}: { params: Promise<{ passage: strin
                     <span className="font-light">Back to Read</span>
                 </Link>
                 <main
-                    className="bg-white flex justify-center sm:w-[46rem] w-full text-black relative top-0 overflow-auto pb-[2rem]">
+                    className="bg-white flex justify-center sm:w-[46rem] w-full text-black relative top-10 sm:top-0 overflow-auto pb-[2rem]">
                     <div className="w-full max-w-4xl p-4">
                     <h1 className="text-3xl mb-4">{passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, '$& ')}</h1>
                     <Questions passage={passage} />
