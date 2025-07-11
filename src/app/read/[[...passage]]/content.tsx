@@ -73,7 +73,7 @@ export default function Content(props: any) {
 
             const book = osisToName(firstParts[0]);
             return {
-                book: book,
+                book: book ? book.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, '$& ') : '',
                 chapter: firstParts[1] || 1,
                 verseStart: firstParts[2],
                 verseEnd: secondParts[2]
@@ -82,7 +82,7 @@ export default function Content(props: any) {
             const parts = osis.split('.');
             const book = osisToName(parts[0]);
             return {
-                book: book,
+                book: book ? book.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, '$& ') : '',
                 chapter: parts[1] || 1,
                 verseStart: undefined,
                 verseEnd: undefined
@@ -157,7 +157,7 @@ export default function Content(props: any) {
                     </> : <></>}
                 </div>}
             </div>
-            <Link href={'/study/'+split(key).book+split(key).chapter} key='study'>
+            <Link href={'/study/'+split(key).book.replace(/\s/g, "")+split(key).chapter} key='study'>
                 <Card classNames={{base: "hover:opacity-100 cursor-pointer mt-4 opacity-80 bg-gradient-to-bl from-purple-50 to-purple-100 p-4 rounded border-1 border-purple-200 text-purple-900 font-light"}}>
                     <CardBody>
                         <div className="flex gap-2 items-center">
