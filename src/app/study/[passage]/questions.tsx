@@ -89,17 +89,17 @@ export default function Questions(props: any) {
               {questions.map((q: any, questionIndex: any) => (
                 <div
                   key={questionIndex}
-                  className={`my-4 p-4 border rounded-lg ${
+                  className={`p-2 my-12 rounded transition-all duration-300 ${
                     submitted
                       ? selectedAnswers[questionIndex] === q.correct
-                        ? 'border-green-600 bg-gradient-to-br from-green-50 to-green-100'
-                        : 'border-red-600 bg-gradient-to-br from-red-50 to-red-100'
-                      : ''
+                        ? 'bg-gradient-to-tr from-green-50 to-green-100 border-1 border-green-300'
+                        : 'bg-gradient-to-tr from-red-50 to-red-100 border-1 border-red-300'
+                      : 'bg-white border-1 border-gray-200'
                   }`}>
-                  <p className="font-bold">{q.content}</p>
-                  <div className="my-2">
+                  <p className="p-4 font-medium text-[14px] text-gray-800">{q.content}</p>
+                  <div className="">
                     {[q.optionOne, q.optionTwo, q.optionThree].map((option: any, optionIndex: any) => (
-                      <div key={optionIndex} className="flex items-center my-1">
+                      <div key={optionIndex} className="flex items-center">
                         <input
                           type="radio"
                           id={`question-${questionIndex}-option-${optionIndex}`}
@@ -107,15 +107,19 @@ export default function Questions(props: any) {
                           value={option}
                           checked={selectedAnswers[questionIndex] === option}
                           onChange={() => handleOptionChange(questionIndex, option)}
-                          className="mr-2"
+                          className="hidden peer"
                           disabled={submitted}
                         />
-                        <label htmlFor={`question-${questionIndex}-option-${optionIndex}`}>{option}</label>
+                        <label htmlFor={`question-${questionIndex}-option-${optionIndex}`} className="text-sm flex items-center justify-between w-full p-4 rounded cursor-pointer hover:translate-x-0.5 duration-250 text-gray-600 peer-checked:font-bold">
+                          <span>{option}</span>
+                        </label>
                       </div>
                     ))}
                   </div>
                   {submitted && selectedAnswers[questionIndex] !== q.correct && (
-                    <p className="text-sm text-gray-800 mt-2">Correct answer: <span className="font-bold">{q.correct}</span></p>
+                    <div className="p-4 rounded bg-yellow-50 border-t-1 border-yellow-400">
+                      <p className="text-sm text-yellow-800"><span className="font-semibold">{q.correct}</span></p>
+                    </div>
                   )}
                 </div>
               ))}
