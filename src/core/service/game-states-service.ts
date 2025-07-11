@@ -36,7 +36,8 @@ export class GameStatesService {
         const completion = this.getCompletion();
 
         completion.forEach(c =>  {
-            if (c.book.replace(/\s/g, "") != book &&
+            if (c.book != book &&
+                c.book.replace(/\s/g, "") != book &&
                 c.book != book.replace(/\s/g, "") &&
                 c.book != book.toLowerCase().replace(/\s/g, "")) return;
 
