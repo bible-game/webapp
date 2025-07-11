@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { getStudy } from "@/core/action/get-study";
 import Questions from "@/app/study/[passage]/questions";
 
 /**
@@ -12,8 +11,6 @@ import Questions from "@/app/study/[passage]/questions";
 export default async function Study({params}: { params: Promise<{ passage: string }>}) {
 
     const { passage } = await params;
-
-    const study: any = await getStudy(passage);
 
     return (
         <div className="bg-white absolute top-0 left-0 w-full h-full">
@@ -29,7 +26,7 @@ export default async function Study({params}: { params: Promise<{ passage: strin
                     className="bg-white flex justify-center sm:w-[46rem] w-full text-black relative top-0 overflow-auto pb-[2rem]">
                     <div className="w-full max-w-4xl p-4">
                     <h1 className="text-3xl mb-4">{passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, '$& ')}</h1>
-                    <Questions questions={study.questions} passage={passage} />
+                    <Questions passage={passage} />
                     </div>
                 </main>
             </div>
