@@ -110,17 +110,19 @@ export default function Questions(props: any) {
                           className="hidden peer"
                           disabled={submitted}
                         />
-                        <label htmlFor={`question-${questionIndex}-option-${optionIndex}`} className="text-sm flex items-center justify-between w-full p-4 rounded cursor-pointer hover:translate-x-0.5 duration-250 text-gray-600 peer-checked:font-bold">
+                        <label
+                          htmlFor={`question-${questionIndex}-option-${optionIndex}`}
+                          className={`text-sm flex items-center justify-between w-full p-4 rounded cursor-pointer hover:translate-x-0.5 duration-250 text-gray-600 peer-checked:font-bold ${
+                            submitted && selectedAnswers[questionIndex] !== q.correct && option === q.correct
+                              ? 'bg-green-100 !font-bold text-green-800'
+                              : ''
+                          }`}
+                        >
                           <span>{option}</span>
                         </label>
                       </div>
                     ))}
                   </div>
-                  {submitted && selectedAnswers[questionIndex] !== q.correct && (
-                    <div className="p-4 rounded bg-yellow-50 border-t-1 border-yellow-400">
-                      <p className="text-sm text-yellow-800"><span className="font-semibold">{q.correct}</span></p>
-                    </div>
-                  )}
                 </div>
               ))}
               {
