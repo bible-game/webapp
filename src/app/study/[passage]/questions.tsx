@@ -5,6 +5,7 @@ import { getStudy, Question } from '@/core/action/get-study';
 import { GameStatesService } from "@/core/service/game-states-service";
 import moment from "moment";
 import { Spinner } from "@heroui/react";
+import { Button } from "@nextui-org/react";
 
 interface QuestionsProps {
   passage: string;
@@ -19,15 +20,7 @@ export default function Questions(props: any) {
   const [stars, setStars] = useState(0);
   const [date, setDate] = useState("");
 
-  useEffect(() => {
-    loadState();
-    getStudy(props.passage).then((response: any) => {
-        setQuestions(response.questions);
-        setLoading(false);
-    });
-  }, [props.passage]);
-
-  function loadState() {
+  const loadState = React.useCallback(() => {
     const state = GameStatesService.getStudy(props.passage)
     setSelectedAnswers(state.answers || []);
     setStars(state.stars || 0);
@@ -35,7 +28,15 @@ export default function Questions(props: any) {
     if (state.answers && state.answers.length > 0) {
       setSubmitted(true);
     }
-  }
+  }, [props.passage]);
+
+  useEffect(() => {
+    loadState();
+    getStudy(props.passage).then((response: any) => {
+        setQuestions(response.questions);
+        setLoading(false);
+    });
+  }, [props.passage, loadState]);
 
   const handleOptionChange = (questionIndex: number, option: string) => {
     const newSelectedAnswers = [...selectedAnswers];
@@ -112,10 +113,18 @@ export default function Questions(props: any) {
                         />
                         <label
                           htmlFor={`question-${questionIndex}-option-${optionIndex}`}
-                          className={`text-sm flex items-center justify-between w-full p-4 rounded cursor-pointer hover:translate-x-0.5 duration-250 text-gray-600 peer-checked:font-bold ${
+                          className={`text-sm flex items-center justify-between w-full p-4 rounded cursor-pointer peer-checked:text-blue-800 hover:translate-x-0.5 duration-250 text-gray-600 peer-checked:font-bold ${
                             submitted && selectedAnswers[questionIndex] !== q.correct && option === q.correct
-                              ? 'bg-green-100 !font-bold text-green-800'
-                              : ''
+                              ? 'bg-gradient-to-tr from-blue-50 to-blue-100 border-1 border-blue-300 text-blue-800'
+                              : 'font-light opacity-80'
+                          } ${
+                              submitted && selectedAnswers[questionIndex] === q.correct && option === q.correct
+                                  ? '!text-green-900'
+                                  : ''
+                          } ${
+                            submitted && selectedAnswers[questionIndex] !== q.correct && option !== q.correct
+                            ? '!text-red-900'
+                            : ''
                           }`}
                         >
                           <span>{option}</span>
@@ -126,8 +135,8 @@ export default function Questions(props: any) {
                 </div>
               ))}
               {
-                !stars ? <button onClick={handleSubmit} className="mb-[8rem] bg-blue-500 text-white px-4 py-2 rounded-lg mt-4"
-                                disabled={submitted}>Submit</button> : <></>
+                !stars ? <Button onPress={handleSubmit} className="rounded mb-[8rem] mt-2 bg-gradient-to-tr from-blue-700 to-blue-800 text-white"
+                                 disabled={submitted}>Submit</Button> : <></>
               }
             </>
         )}
