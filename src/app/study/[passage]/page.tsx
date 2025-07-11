@@ -24,7 +24,7 @@ export default async function Study({params}: { params: Promise<{ passage: strin
                     <div className="w-full max-w-4xl p-4">
                         <h1 className="text-2xl font-bold mb-4">{study.passage}</h1>
                         <p className="mb-8">{study.text}</p>
-                        <Questions questions={study.questions} />
+                        <Questions questions={study.questions} passage={passage} />
                     </div>
                 </main>
             </div>

@@ -74,7 +74,7 @@ export default function Content(props: any) {
             const book = osisToName(firstParts[0]);
             return {
                 book: book,
-                chapter: firstParts[1],
+                chapter: firstParts[1] || 1,
                 verseStart: firstParts[2],
                 verseEnd: secondParts[2]
             }
@@ -83,7 +83,7 @@ export default function Content(props: any) {
             const book = osisToName(parts[0]);
             return {
                 book: book,
-                chapter: parts[1],
+                chapter: parts[1] || 1,
                 verseStart: undefined,
                 verseEnd: undefined
             }

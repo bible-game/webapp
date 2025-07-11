@@ -27,6 +27,11 @@ export class GameStatesService {
         return new Map(JSON.parse(json));
     }
 
+    static getStudies(): Map<string, any> {
+        const json = localStorage.getItem('studies') ?? '[]';
+        return new Map(JSON.parse(json));
+    }
+
     static updateCompletion(
         read: boolean,
         book: string,
@@ -97,6 +102,23 @@ export class GameStatesService {
         }
 
         localStorage.setItem('completion', JSON.stringify(completion));
+    }
+
+    static getStudy(passageKey: string) {
+        let study = this.getStudies().get(passageKey)
+        study ??= {stars: undefined, answers: [], passageKey: ""};
+        return study
+    }
+
+    static setStudy(stars: number | undefined, answers: any[], passageKey: string) {
+        const studies = this.getStudies()
+        let study = this.getStudy(passageKey)
+
+        study.answers = answers
+        study.stars = stars
+        study.passageKey = passageKey
+        studies.set(passageKey, study)
+        localStorage.setItem('studies', JSON.stringify(Array.from(studies.entries())))
     }
 
 }

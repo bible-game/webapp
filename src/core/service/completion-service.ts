@@ -13,6 +13,10 @@ export class CompletionService {
             stars += (state as GameStates).stars!;
         }
 
+        for (const state of GameStatesService.getStudies().values()) {
+            stars += (state as any).stars!;
+        }
+
         return stars;
     }
 
