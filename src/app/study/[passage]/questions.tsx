@@ -74,7 +74,15 @@ export default function Questions(props: any) {
         <p className="font-extralight text-xs text-gray-500 ml-4">{date}</p>
       </div>
       {props.questions.map((q: any, questionIndex: any) => (
-        <div key={questionIndex} className="my-4 p-4 border rounded-lg">
+        <div
+          key={questionIndex}
+          className={`my-4 p-4 border rounded-lg ${
+            submitted
+              ? selectedAnswers[questionIndex] === q.correct
+                ? 'border-green-600 bg-gradient-to-br from-green-50 to-green-100'
+                : 'border-red-600 bg-gradient-to-br from-red-50 to-red-100'
+              : ''
+          }`}>
           <p className="font-bold">{q.content}</p>
           <div className="my-2">
             {[q.optionOne, q.optionTwo, q.optionThree].map((option: any, optionIndex: any) => (
@@ -93,11 +101,6 @@ export default function Questions(props: any) {
               </div>
             ))}
           </div>
-          {submitted && (
-            <p className={`text-sm ${selectedAnswers[questionIndex] === q.correct ? 'text-green-600' : 'text-red-600'}`}>
-              {selectedAnswers[questionIndex] === q.correct ? 'Correct!' : `Incorrect. The correct answer is ${q.correct}`}
-            </p>
-          )}
         </div>
       ))}
       {
