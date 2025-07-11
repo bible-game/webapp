@@ -114,6 +114,9 @@ export default function Questions(props: any) {
                       </div>
                     ))}
                   </div>
+                  {submitted && selectedAnswers[questionIndex] !== q.correct && (
+                    <p className="text-sm text-gray-800 mt-2">Correct answer: <span className="font-bold">{q.correct}</span></p>
+                  )}
                 </div>
               ))}
               {
