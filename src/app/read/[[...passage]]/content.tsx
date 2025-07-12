@@ -154,17 +154,15 @@ export default function Content(props: any) {
                             chapter={split(key).chapter}
                             verseStart={split(key).verseStart}
                             verseEnd={split(key).verseEnd}/>
-                        <Link href={'/study/'+split(key).book.replace(/\s/g, "")+split(key).chapter} key='study'>
-                            <Button
-                                className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] mt-8"
-                                variant="bordered">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     strokeWidth={1.25} stroke="currentColor" className="size-4">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
-                                </svg>
-                                Study {split(key).book} {split(key).chapter}
-                            </Button>
-                        </Link>
+                        <Button as={Link} href={'/study/'+split(key).book.replace(/\s/g, "")+split(key).chapter}
+                            className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] mt-8"
+                            variant="bordered">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 strokeWidth={1.25} stroke="currentColor" className="size-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                            </svg>
+                            Study {split(key).book} {split(key).chapter}
+                        </Button>
                     </div>
                     </> : <></>}
                 </div>}
