@@ -17,11 +17,12 @@ const Action = (props: any) => {
         let guessBlocks = '';
 
         for (const guess of props.guesses) {
-            if (guess.closeness.distance == 0)     { continue }
-            if (guess.closeness.distance <= 100)   { guessBlocks += '🟩'; continue; }
-            if (guess.closeness.distance <= 500)   { guessBlocks += '🟩'; continue; }
-            if (guess.closeness.distance <= 2500)  { guessBlocks += '🟨'; continue; }
-            if (guess.closeness.distance <= 10000) { guessBlocks += '🟧' }
+            const distance = Math.abs(guess.closeness.distance);
+            if (distance == 0)     { continue }
+            if (distance <= 100)   { guessBlocks += '🟩'; continue; }
+            if (distance <= 500)   { guessBlocks += '🟩'; continue; }
+            if (distance <= 2000)  { guessBlocks += '🟨'; continue; }
+            if (distance <= 5000) { guessBlocks += '🟧' }
             else guessBlocks += '🟥'
         }
 

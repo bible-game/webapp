@@ -4,8 +4,8 @@ import React, { useState } from "react";
 
 enum Closeness {
     UNKNOWN = 'text-white',
-    VERY_FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-danger-200 to-danger-500',
-    FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-warning-200 to-warning-600',
+    VERY_FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-danger-200 to-danger-600',
+    FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-orange-200 to-orange-600',
     MEDIUM = 'text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600',
     CLOSE = 'text-transparent bg-clip-text bg-gradient-to-b from-lime-200 to-lime-600',
     VERY_CLOSE = 'text-transparent bg-clip-text bg-gradient-to-b from-success-200 to-success-600'
@@ -29,15 +29,14 @@ const Guess = (props: any) => {
     );
 
     function grade(closeness: any): string {
-        if (!!closeness) {
-            closeness = parseInt(closeness.distance);
+        if (closeness) {
+            closeness = Math.abs(parseInt(closeness.distance));
             // note :: closeness now defined as verse distance; % closeness is ratio to total verses
-            // todo :: offer tooltip for score calculation (1+limit-guesses).(% closeness)
 
             if (closeness <= 100) return Closeness.VERY_CLOSE
             if (closeness <= 500) return Closeness.CLOSE
-            if (closeness <= 2500) return Closeness.MEDIUM
-            if (closeness <= 10000) return Closeness.FAR
+            if (closeness <= 2000) return Closeness.MEDIUM
+            if (closeness <= 5000) return Closeness.FAR
             else return Closeness.VERY_FAR
         }
 
