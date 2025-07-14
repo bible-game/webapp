@@ -212,7 +212,7 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
-    if (isLoading) return <Spinner color="primary"/>
+    if (isLoading) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;

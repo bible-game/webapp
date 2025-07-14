@@ -36,7 +36,7 @@ const Menu = (props: any) => {
         redirect(`/play/${date.split("T")[0]}`);
     }
 
-    if (isLoading) return <Spinner color="primary"/>
+    if (isLoading) return <></>
     else return <section>
         <div className="ml-4 sm:ml-6 flex gap-4 sm:gap-1 items-start justify-between">
             <div className="flex gap-1 items-start">
