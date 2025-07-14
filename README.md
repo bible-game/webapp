@@ -3,6 +3,6 @@
 <!--<a><img src="./documentation/coverage/coverage.svg"></a>-->
 <!-- FixMe ^^ -->
 
-# Bible Game
+# <img src="./public/icon.png" width="24" alt="Logo"> [bible.game](https://bible.game)
+
 ![](https://github.com/bible-game/webapp/blob/develop/public/bible-game.gif)
-Explore the Bible with a daily passage guessing game 📖✨
