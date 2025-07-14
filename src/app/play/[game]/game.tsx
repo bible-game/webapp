@@ -14,6 +14,7 @@ import Treemap from "@/app/play/[game]/treemap";
 import moment from "moment/moment";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
+import { Spinner } from "@heroui/react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -26,6 +27,7 @@ export default function Game(props: any) {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
 
+    // TODO :: Stanley
     // getConsentState() => return null;
     // const consent = GameStatesService.getConsentState();
     // if (!consent) {
@@ -210,7 +212,7 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
-    if (isLoading) return <div>Loading...</div>
+    if (isLoading) return <Spinner color="primary"/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;

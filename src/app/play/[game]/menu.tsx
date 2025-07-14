@@ -9,8 +9,7 @@ import _ from "lodash";
 import { redirect } from "next/navigation";
 import useSWR from "swr";
 import { I18nProvider } from "@react-aria/i18n";
-import { Tooltip } from "@heroui/tooltip";
-import { Code, useDisclosure } from "@heroui/react";
+import { Code, Spinner, useDisclosure } from "@heroui/react";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
 import Image from "next/image";
 
@@ -37,7 +36,7 @@ const Menu = (props: any) => {
         redirect(`/play/${date.split("T")[0]}`);
     }
 
-    if (isLoading) return <div>Loading...</div>
+    if (isLoading) return <Spinner color="primary"/>
     else return <section>
         <div className="ml-4 sm:ml-6 flex gap-4 sm:gap-1 items-start justify-between">
             <div className="flex gap-1 items-start">

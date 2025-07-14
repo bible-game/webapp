@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import React from "react";
 import Game from "@/app/play/[game]/game";
 import { headers } from "next/headers";
+import { Spinner } from "@heroui/react";
 
 async function get(path: string): Promise<any> {
     const response = await fetch(`${process.env.SVC_PASSAGE}/${path}`, {method: "GET"});
@@ -30,14 +31,13 @@ export default async function Play({params}: { params: Promise<{ game: string }>
     const headersList = await headers();
     const device = headersList.get('x-device-type');
 
-    const {game} = await params;
+    const { game } = await params;
     const bible = await get(`config/bible`);
 
     const divisions = flat(bible.testaments, 'divisions');
     const books = flat(divisions, 'books');
 
-    if (!game || !bible) return <div>Loading...</div>
-    else return (
+    return (
         <>
             <Background/>
             <main className="w-full">

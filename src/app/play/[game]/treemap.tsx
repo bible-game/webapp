@@ -5,7 +5,7 @@ import hexToRgba from 'hex-to-rgba';
 import { toast } from "react-hot-toast";
 
 const mobileOptimisations = {
-    pixelRatio: window.devicePixelRatio || 1,
+    pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
     relaxationVisible: false,
     relaxationQualityThreshold: 5,
     rolloutDuration: 0,
