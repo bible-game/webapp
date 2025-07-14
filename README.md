@@ -4,6 +4,5 @@
 <!-- FixMe ^^ -->
 
 # Bible Game
-<img alt="Bible Game" width=800 src="">
-![](https://github.com/bible-game/webapp/public/bible-game.gif)
+![](https://github.com/bible-game/webapp/blob/develop/public/bible-game.gif)
 Explore the Bible with a daily passage guessing game 📖✨
