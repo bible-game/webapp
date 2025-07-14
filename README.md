@@ -3,6 +3,6 @@
 <!--<a><img src="./documentation/coverage/coverage.svg"></a>-->
 <!-- FixMe ^^ -->
 
-## <img src="./public/icon.png" width="24" alt="Logo"> [bible.game](https://bible.game)
-
+# <img src="./public/icon.png" width="24" alt="Logo"> [bible.game](https://bible.game)
+A game that explores the Bible 📖✨
 ![](https://github.com/bible-game/webapp/blob/develop/public/bible-game.gif)
