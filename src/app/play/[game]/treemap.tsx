@@ -73,7 +73,7 @@ const Treemap = (props: any) => {
                     vars.labelColor = "auto";
 
                     if (params.group.level == "chapter" && !!params.group.color) {
-                        const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                        const rgba = hexToRgba(params.group.color).substring(5, 18);
                         const parts = rgba.split(', ');
 
                         vars.groupColor.r = parts[0];
@@ -281,6 +281,21 @@ const Treemap = (props: any) => {
                     }
                 }
         });
+        }
+
+        if (foamtreeInstance) {
+            //@ts-ignore
+            foamtreeInstance.set("onKeyUp", function(event: any) {
+                if (event.keyCode === 27) {
+                    event.preventDefault();
+                }
+            });
+            //@ts-ignore
+            foamtreeInstance.set("onTransformEnd", function(event: any) {
+                if (event.touches === 3) {
+                    event.preventDefault();
+                }
+            });
         }
 
         // question :: alt to zoom?
