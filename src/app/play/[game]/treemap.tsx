@@ -5,7 +5,7 @@ import hexToRgba from 'hex-to-rgba';
 import { toast } from "react-hot-toast";
 
 const mobileOptimisations = {
-    pixelRatio: window.devicePixelRatio || 1,
+    pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
     relaxationVisible: false,
     relaxationQualityThreshold: 5,
     rolloutDuration: 0,
@@ -25,8 +25,6 @@ const Treemap = (props: any) => {
     const element = useRef();
     const [ FoamTreeClass, setFoamTreeClass ] = useState();
     const [ foamtreeInstance, setFoamTreeInstance ] = useState();
-
-    const [ treemap, setTreemap ] = useState();
 
     const [ divisions, setDivisions ] = useState(getDivKeys());
     const [ books, setBooks ] = useState(getBookKeys());
@@ -63,6 +61,7 @@ const Treemap = (props: any) => {
                 groupBorderRadius: 0.55,
                 groupInsetWidth: 2,
                 groupMinDiameter: 0,
+                groupStrokeWidth: 0,
                 groupLabelMinFontSize: 0,
                 groupLabelMaxFontSize: 16,
                 rectangleAspectRatioPreference: 0,
@@ -173,7 +172,17 @@ const Treemap = (props: any) => {
                     if (event.delta > 0) {
                         this.open(event.group.id);
                     }
-                }
+                },
+                onKeyUp: (e: any) => {
+                    if (e.keyCode === 27) {
+                        e.preventDefault();
+                    }
+                },
+                onTransformEnd: (e: any) => {
+                    if (e.touches === 3) {
+                        e.preventDefault();
+                    }
+                },
             }));
         }
 
@@ -188,9 +197,9 @@ const Treemap = (props: any) => {
     }, [ FoamTreeClass, foamtreeInstance ]);
 
     useEffect(() => {
-        if (treemap && (props.bookFound || props.divFound || props.testFound)) {
+        if (foamtreeInstance && (props.bookFound || props.divFound || props.testFound)) {
             //@ts-ignore
-            treemap.set({
+            foamtreeInstance.set({
                 groupColorDecorator: function(opts: any, params: any, vars: any) {
 
                     if (props.bookFound) {
@@ -286,11 +295,11 @@ const Treemap = (props: any) => {
 
         // question :: alt to zoom?
         //@ts-ignore
-        if (props.bookFound) treemap.zoom(props.passage.book)
+        if (props.bookFound) foamtreeInstance.zoom(props.passage.book)
         //@ts-ignore
-        else if (props.divFound) treemap.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'))
+        else if (props.divFound) foamtreeInstance.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'))
         //@ts-ignore
-        else if (props.testFound) treemap.zoom(props.passage.testament.toLowerCase());
+        else if (props.testFound) foamtreeInstance.zoom(props.passage.testament.toLowerCase());
 
         return () => {
 

@@ -148,28 +148,25 @@ export default function Content(props: any) {
                     <Context passageKey={key} context='before'/>
                     {verses}
                     <Context passageKey={key} context='after'/>
-                    <ReadAction
-                        book={split(key).book}
-                        chapter={split(key).chapter}
-                        verseStart={split(key).verseStart}
-                        verseEnd={split(key).verseEnd}
-                    />
+                    <div>
+                        <ReadAction
+                            book={split(key).book}
+                            chapter={split(key).chapter}
+                            verseStart={split(key).verseStart}
+                            verseEnd={split(key).verseEnd}/>
+                        <Button as={Link} href={'/study/'+split(key).book.replace(/\s/g, "")+split(key).chapter}
+                            className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] mt-8"
+                            variant="bordered">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 strokeWidth={1.25} stroke="currentColor" className="size-4">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                            </svg>
+                            Study {split(key).book} {split(key).chapter}
+                        </Button>
+                    </div>
                     </> : <></>}
                 </div>}
             </div>
-            <Link href={'/study/'+split(key).book.replace(/\s/g, "")+split(key).chapter} key='study'>
-                <Card classNames={{base: "hover:opacity-100 cursor-pointer mt-4 opacity-80 bg-gradient-to-bl from-purple-50 to-purple-100 p-4 rounded border-1 border-purple-200 text-purple-900 font-light"}}>
-                    <CardBody>
-                        <div className="flex gap-2 items-center">
-                            <p>Complete the study for {split(key).book} {split(key).chapter}</p>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
-                                 stroke="currentColor" className="size-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
-                            </svg>
-                        </div>
-                    </CardBody>
-                </Card>
-            </Link>
         </section>
 
     );
