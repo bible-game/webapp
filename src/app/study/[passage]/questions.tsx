@@ -42,6 +42,7 @@ export default function Questions(props: any) {
     setStars(state.stars || 0);
     setDate(state.date || "");
     setSummary(state.summary || "");
+    setGradingResult(state.gradingResult || null);
     if (state.answers && state.answers.length > 0) {
       setSubmitted(true);
     }
@@ -71,8 +72,23 @@ export default function Questions(props: any) {
       return acc;
     }, 0);
 
-    GameStatesService.setStudy(correctAnswers, selectedAnswers, props.passage, moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary);
+    let finalStars = correctAnswers;
+    if (gradingResult && gradingResult.score > 0.7) {
+      finalStars += 1;
+    }
+
+    GameStatesService.setStudy(finalStars, selectedAnswers, props.passage, moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary, gradingResult);
     loadState();
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score > 0.7) {
+      return 'bg-gradient-to-tr from-green-50 to-green-100 border-1 border-green-300';
+    }
+    if (score > 0.5) {
+      return 'bg-gradient-to-tr from-amber-50 to-amber-100 border-1 border-amber-300';
+    }
+    return 'bg-gradient-to-tr from-red-50 to-red-100 border-1 border-red-300';
   };
 
   return (
@@ -92,7 +108,7 @@ export default function Questions(props: any) {
                             d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
                     </svg>
                 )}
-                {[...Array(questions.length - stars)].map((i: any, index: number) =>
+                {[...Array(1 + questions.length - stars)].map((i: any, index: number) =>
                     <div className="opacity-20" key={'blank'+index}>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="#D9D9D9" viewBox="0 0 24 24"
                            strokeWidth="1.5"
@@ -162,10 +178,8 @@ export default function Questions(props: any) {
                   disabled={submitted}
                 />
                 {gradingResult && (
-                  <div className="p-4 bg-gray-50 rounded-md">
-                    <p className="text-sm font-medium text-gray-800">Grading Feedback</p>
-                    <p className="text-sm text-gray-600">{gradingResult.message}</p>
-                    <p className="text-sm text-gray-600">Score: {Math.round(gradingResult.score * 100)}%</p>
+                  <div className={`p-4 rounded-md ${getScoreColor(gradingResult.score)}`}>
+                    <p className="text-sm text-gray-600"><span className="font-semibold mr-2">{Math.round(gradingResult.score * 100)}%</span>{gradingResult.message}</p>
                   </div>
                 )}
               </div>
