@@ -19,12 +19,18 @@ export default function Questions(props: any) {
 
   const [stars, setStars] = useState(0);
   const [date, setDate] = useState("");
+  const [summary, setSummary] = useState("");
+
+  const handleSummaryChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setSummary(event.target.value);
+  };
 
   const loadState = React.useCallback(() => {
     const state = GameStatesService.getStudy(props.passage)
     setSelectedAnswers(state.answers || []);
     setStars(state.stars || 0);
     setDate(state.date || "");
+    setSummary(state.summary || "");
     if (state.answers && state.answers.length > 0) {
       setSubmitted(true);
     }
@@ -54,7 +60,7 @@ export default function Questions(props: any) {
       return acc;
     }, 0);
 
-    GameStatesService.setStudy(correctAnswers, selectedAnswers, props.passage, moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString());
+    GameStatesService.setStudy(correctAnswers, selectedAnswers, props.passage, moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary);
     loadState();
   };
 
@@ -134,6 +140,18 @@ export default function Questions(props: any) {
                   </div>
                 </div>
               ))}
+              <div className="my-12">
+                <h2 className="text-lg font-medium text-gray-800">Summary</h2>
+                <p className="text-sm font-light text-gray-600 mb-4">Confirm your understanding with your own summary</p>
+                <textarea
+                  value={summary}
+                  onChange={handleSummaryChange}
+                  className="w-full p-4 border-1 border-gray-200 rounded-md bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={5}
+                  placeholder="Example: Paul encourages the church to value unity within diversity. He explains that spiritual gifts come from the same Spirit and are given to help the whole church. Using the metaphor of the human body, he teaches that each member is essential, no matter their role..."
+                  disabled={submitted}
+                />
+              </div>
               {
                 !stars ? <Button onPress={handleSubmit} className="rounded mb-[8rem] mt-2 bg-gradient-to-tr from-blue-700 to-blue-800 text-white"
                                  disabled={submitted}>Submit</Button> : <></>
