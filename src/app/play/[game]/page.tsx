@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import React from "react";
 import Game from "@/app/play/[game]/game";
 import { headers } from "next/headers";
+import { Spinner } from "@heroui/react";
 import { UserAuthService } from "@/core/service/user-auth-service";
 
 async function get(url: string): Promise<any> {
@@ -39,15 +40,14 @@ export default async function Play({params}: { params: Promise<{ game: string }>
 
     await UserAuthService.loadState();
 
-    if (!game || !bible) return <div>Loading...</div>
-    else return (
+    return (
         <>
             <Background/>
             <main className="w-full">
                 <Toaster position="bottom-right"/>
                 <Game game={game} bible={bible} divisions={divisions} books={books} device={device}/>
             </main>
-            <Navigation stats={true} read={true} account={true}/>
+            <Navigation stats={true} read={true}/>
         </>
     );
 

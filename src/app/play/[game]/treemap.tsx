@@ -1,9 +1,11 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react';
+import hexToRgba from 'hex-to-rgba';
+import { toast } from "react-hot-toast";
 
 const mobileOptimisations = {
-    pixelRatio: window.devicePixelRatio || 1,
+    pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
     relaxationVisible: false,
     relaxationQualityThreshold: 5,
     rolloutDuration: 0,
@@ -20,150 +22,287 @@ const mobileOptimisations = {
 //@ts-ignore
 const Treemap = (props: any) => {
     //@ts-ignore
-    const element = useRef()
-    const [ treemap, setTreemap ] = useState();
+    const element = useRef();
+    const [ FoamTreeClass, setFoamTreeClass ] = useState();
+    const [ foamtreeInstance, setFoamTreeInstance ] = useState();
 
     const [ divisions, setDivisions ] = useState(getDivKeys());
     const [ books, setBooks ] = useState(getBookKeys());
 
     useEffect(() => {
-        //@ts-ignore
-        if (!element.current.foamTree) {
-            import("@carrotsearch/foamtree").then(module => {
-                const tree = new module.FoamTree({
-                    element: element.current,
-                    dataObject: configure(props.data),
-                    layoutByWeightOrder: false,
-                    relaxationInitializer: "treemap",
-                    descriptionGroupType: "floating",
-                    descriptionGroupMinHeight: 64,
-                    descriptionGroupMaxHeight: 0.125,
-                    groupBorderWidth: 4,
-                    groupBorderRadius: 0.55,
-                    groupInsetWidth: 4,
-                    groupLabelMinFontSize: 0,
-                    groupLabelMaxFontSize: 16,
-                    rectangleAspectRatioPreference: 0,
-                    groupLabelDarkColor: "#98a7d8",
-                    groupLabelLightColor: "#060842",
-                    groupLabelColorThreshold: 0.75,
-                    parentFillOpacity: 1,
-                    groupColorDecorator: function (opts: any, params: any, vars: any) {
-                        vars.groupColor = params.group.color;
-                        vars.labelColor = "auto";
+        let disposed = false;
+        import("@carrotsearch/foamtree").then(module => {
+            if (disposed) {
+                return;
+            }
 
-                        if (params.group.dim || params.parent?.dim) {
-                            vars.groupColor = average(params.group.color, "#0f0a31");
-                        }
-                    },
-                    groupFillType: "plain",
-                    groupLabelFontFamily: "inter",
-
-                    ...(props.device == 'mobile' ? mobileOptimisations : {}),
-
-                    // Roll out in groups
-                    rolloutMethod: "groups",
-                    // rolloutDuration: 0,
-
-                    onRolloutComplete: function () {
-                        // this.set("open", { open: false, groups: [...divisions, ...books] });
-                        this.set("open", { open: false, groups: [...books] });
-
-                        if (props.bookFound) {
-                            this.open(props.passage.book);
-                        }
-                    },
-                    onGroupClick: function (event: any) {
-                        if (event.group.id.includes('/')) {
-                            const selection = event.group.id.split('/');
-                            props.select(selection[0], selection[1]);
-                        } else {
-                            //ts-ignore
-                            this.open(event.group.id);
-                            props.select(event.group.id, null, false);
-                        }
-                    },
-                    openCloseDuration: 1000,
-                    // onGroupHover: function (event: any) {
-                    //     if (event.group) {
-                    //         //@ts-ignore
-                    //         this.open(event.group.id);
-                    //     }
-                    // },
-                    onGroupMouseWheel: function (event: any) {
-                        if (event.delta < 0) {
-                            //@ts-ignore
-                            this.set("open", {
-                                // groups: [...books, ...divisions],
-                                groups: [...books],
-                                open: false,
-                                keepPrevious: true
-                            });
-                        }
-                        if (event.delta > 0) {
-                            this.open(event.group.id);
-                        }
-                    }
-                });
-
-                //@ts-ignore
-                element.current.foamTree = tree;
-                setTreemap(tree);
-            });
-        }
+            if (!disposed) {
+                setFoamTreeClass(() => module.FoamTree);
+            }
+        });
 
         return () => {
-            if (treemap) {
-                //@ts-ignore
-                treemap.dispose();
-                //@ts-ignore
-                element.current.foamTree = null;
-                //@ts-ignore
-                setTreemap(null);
-            }
+            disposed = true;
         }
     }, []);
 
     useEffect(() => {
-        if (treemap && (props.bookFound || props.divFound || props.testFound)) {
+        if (FoamTreeClass && !foamtreeInstance) {
             //@ts-ignore
-            // treemap.set("dataObject", configure(props.data));
-            treemap.set({
+            setFoamTreeInstance(new FoamTreeClass({
+                element: element.current,
+                dataObject: configure(props.data),
+                layoutByWeightOrder: false,
+                relaxationInitializer: "treemap",
+                // descriptionGroupType: "floating",
+                descriptionGroupMinHeight: 64,
+                descriptionGroupMaxHeight: 0.125,
+                groupBorderWidth: 4,
+                groupBorderRadius: 0.55,
+                groupInsetWidth: 2,
+                groupMinDiameter: 0,
+                groupStrokeWidth: 0,
+                groupLabelMinFontSize: 0,
+                groupLabelMaxFontSize: 16,
+                rectangleAspectRatioPreference: 0,
+                groupLabelDarkColor: "#98a7d8",
+                groupLabelLightColor: "#060842",
+                groupLabelColorThreshold: 1,
+                parentFillOpacity: 0.65,
+                groupColorDecorator: function (opts: any, params: any, vars: any) {
+                    vars.labelColor = "auto";
+
+                    if (params.group.level == "chapter" && !!params.group.color) {
+                        const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                        const parts = rgba.split(', ');
+
+                        vars.groupColor.r = parts[0];
+                        vars.groupColor.g = parts[1];
+                        vars.groupColor.b = parts[2];
+                        // vars.groupColor.a = 0.95;
+                        vars.groupColor.a = 0.99;
+
+                        // if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
+                        //     vars.groupColor.a = 1;
+                        // }
+                    } else {
+                        vars.groupColor = params.group.color;
+                    }
+                },
+                groupFillType: "plain",
+                groupLabelFontFamily: "inter",
+
+                ...(props.device == 'mobile' ? mobileOptimisations : {}),
+
+                // Roll out in groups
+                rolloutMethod: "groups",
+                // rolloutDuration: 0,
+
+                onRolloutComplete: function () {
+                    // this.set("open", { open: false, groups: [...divisions, ...books] });
+                    this.set("open", { open: false, groups: [...books] });
+
+                    if (props.bookFound) {
+                        this.open(props.passage.book);
+                    }
+                },
+                onGroupDoubleClick: function (event: any) {
+                    event.preventDefault();
+                },
+                onGroupClick: function (event: any) {
+                    if (event.group.id.includes('/')) {
+                        const selection = event.group.id.split('/');
+                        props.select(selection[0], selection[1]);
+                        toast.success(`${selection[0]} ${selection[1]}`);
+                    } else {
+                        //ts-ignore
+                        this.open(event.group.id);
+                        props.select(event.group.id, null, false);
+                        toast.success(`${event.group.id} 1`);
+                    }
+
+                    // const selection = event.group.id.split('/');
+                    //
+                    // if (props.playing && event.group.id.includes('/')) {
+                    //     if (event.group.icon != props.passage.icon) {
+                    //         toast.error(`${selection[0]} ${selection[1]} has a different theme ${event.group.icon}`);
+                    //
+                    //     } else {
+                    //         props.select(selection[0], selection[1]);
+                    //         toast.success(`${selection[0]} ${selection[1]}`);
+                    //     }
+                    // } else {
+                    //     //ts-ignore
+                    //     this.open(event.group.id);
+                    //     if (!props.playing) return;
+                    //
+                    //     let first = null;
+                    //     for (const ch of event.group.groups) {
+                    //         if (ch.icon == props.passage.icon) {
+                    //             first = ch; break;
+                    //         }
+                    //     }
+                    //
+                    //     if (first) {
+                    //         props.select(event.group.id, first.id.split("/")[1], false);
+                    //         toast.success(`${event.group.id} ${first.id.split("/")[1]}`);
+                    //     } else {
+                    //         if (event.group.level == 'book')
+                    //             toast.error(`${event.group.id} has no valid chapters ${props.passage.icon}`);
+                    //     }
+                    // }
+                },
+                openCloseDuration: 1000,
+                onGroupHover: function (event: any) {
+                    // if (event.group) {
+                    //     //@ts-ignore
+                    //     this.open(event.group.id);
+                    // }
+                },
+                onViewResetting: function(e: any) {
+                    e.preventDefault();
+                },
+                onGroupMouseWheel: function (event: any) {
+                    if (event.delta < 0) {
+                        //@ts-ignore
+                        this.set("open", {
+                            // groups: [...books, ...divisions],
+                            groups: [...books],
+                            open: false,
+                            keepPrevious: true
+                        });
+                    }
+                    if (event.delta > 0) {
+                        this.open(event.group.id);
+                    }
+                },
+                onKeyUp: (e: any) => {
+                    if (e.keyCode === 27) {
+                        e.preventDefault();
+                    }
+                },
+                onTransformEnd: (e: any) => {
+                    if (e.touches === 3) {
+                        e.preventDefault();
+                    }
+                },
+            }));
+        }
+
+        return () => {
+            if (foamtreeInstance) {
+                //@ts-ignore
+                foamtreeInstance.dispose();
+                //@ts-ignore
+                setFoamTreeInstance(null);
+            }
+        }
+    }, [ FoamTreeClass, foamtreeInstance ]);
+
+    useEffect(() => {
+        if (foamtreeInstance && (props.bookFound || props.divFound || props.testFound)) {
+            //@ts-ignore
+            foamtreeInstance.set({
                 groupColorDecorator: function(opts: any, params: any, vars: any) {
 
                     if (props.bookFound) {
-                        if ((params.group.level == "book" || params.group.level == "chapter") && (params.group.id == props.passage.book || params.group.id.includes(props.passage.bookKey))) {
-                            vars.groupColor = params.group.color;
-                        } else if (params.group.level == "book") {
-                            vars.groupColor = average(params.group.color, "#0f0a31");
-                        }
-                    }
+                        if (params.group.level == "chapter" && !!params.group.color ) {
+                            if (params.group.book == props.passage.book) {
+                                vars.groupColor = params.group.color;
+                            } else {
+                                const rgba = hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
 
-                    if (props.divFound) {
-                        if ((params.group.level == "division") && (params.group.id == props.passage.division.toLowerCase().replace(/\s/g, '-'))) {
-                            vars.groupColor = params.group.color;
-                        } else if (params.group.level == "division") {
-                            vars.groupColor = average(params.group.color, "#0f0a31");
-                        }
-                    }
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else if (params.group.level == "book" && !!params.group.color ) {
+                            if (params.group.label == props.passage.book) {
+                                vars.groupColor = params.group.color;
+                            } else {
+                                const rgba = hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
 
-                    if (props.testFound) {
-                        if ((params.group.level == "testament") && (params.group.id == props.passage.testament.toLowerCase())) {
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else {
                             vars.groupColor = params.group.color;
-                        } else if (params.group.level == "testament") {
-                            vars.groupColor = average(params.group.color, "#0f0a31");
+                        }
+                    } else if (props.divFound) {
+                        if (params.group.level == "chapter" && !!params.group.color) {
+                            if (params.group.division == props.passage.division) {
+                                vars.groupColor = params.group.color;
+
+                            } else {
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else if (params.group.level == "book" && !!params.group.color ) {
+                            if (params.group.division == props.passage.division) {
+                                vars.groupColor = params.group.color;
+                            } else {
+                                const rgba = hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else {
+                            vars.groupColor = params.group.color;
+                        }
+                    } else if (props.testFound) {
+                        if (params.group.level == "chapter" && !!params.group.color) {
+                            if (params.group.testament == props.passage.testament) {
+                                vars.groupColor = params.group.color;
+
+                            } else {
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else if (params.group.level == "book" && !!params.group.color ) {
+                            if (params.group.testament == props.passage.testament) {
+                                vars.groupColor = params.group.color;
+                            } else {
+                                const rgba = hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.5;
+                            }
+                        } else {
+                            vars.groupColor = params.group.color;
                         }
                     }
                 }
         });
         }
 
+        // question :: alt to zoom?
         //@ts-ignore
-        if (props.bookFound) treemap.zoom(props.passage.book)
+        if (props.bookFound) foamtreeInstance.zoom(props.passage.book)
         //@ts-ignore
-        else if (props.divFound) treemap.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'))
+        else if (props.divFound) foamtreeInstance.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'))
         //@ts-ignore
-        else if (props.testFound) treemap.zoom(props.passage.testament.toLowerCase());
+        else if (props.testFound) foamtreeInstance.zoom(props.passage.testament.toLowerCase());
 
         return () => {
 
@@ -223,24 +362,33 @@ const Treemap = (props: any) => {
                 color: getColour(b.key),
                 // unselectable: true,
                 dim: isDim(b.name, 'book', props.bookFound),
-                level: 'book'
+                level: 'book',
+                testament: test,
+                division: div,
+                book: b.name
             })
         }
 
         return books
     }
 
-    function getChapters(test: string, div: string,book: any, ch: number) {
+    function getChapters(test: string, div: string, book: any, ch: number) {
         const chapters: any[] = [];
 
         for (let c = 1; c <= ch; c++) {
             chapters.push({
                 id: book.key+'/'+c.toString(),
                 label: c,
+                // label: props.passage.icon == book.icons[c-1] ? c : '',
                 weight: parseFloat(book.verses[c-1]),
                 color: getColour(book.key),
                 dim: isDim(book.name, 'book', props.bookFound),
-                level: 'chapter'
+                level: 'chapter',
+                chapter: c,
+                // icon: book.icons[c-1],
+                testament: test,
+                division: div,
+                book: book.name
             })
         }
 
@@ -321,51 +469,51 @@ const Treemap = (props: any) => {
 
             "GEN": "#36ABFF",
             "EXO": "#36ABFF",
-            "LEV": "#1591ea",
-            "NUM": "#317db5",
-            "DEU": "#4aa5e6",
+            "LEV": "#36ABFF",
+            "NUM": "#36ABFF",
+            "DEU": "#36ABFF",
 
             "JOS": "#8967F6",
-            "JDG": "#6c4ad8",
-            "RUT": "#6339ea",
-            "1SA": "#805af8",
-            "2SA": "#8d6ef1",
-            "1KI": "#6134f3",
-            "2KI": "#6644d3",
-            "1CH": "#7352dd",
-            "2CH": "#7b57f1",
-            "EZR": "#7756e1",
-            "NEH": "#6d4dd5",
-            "EST": "#7158c1",
+            "JDG": "#8967F6",
+            "RUT": "#8967F6",
+            "1SA": "#8967F6",
+            "2SA": "#8967F6",
+            "1KI": "#8967F6",
+            "2KI": "#8967F6",
+            "1CH": "#8967F6",
+            "2CH": "#8967F6",
+            "EZR": "#8967F6",
+            "NEH": "#8967F6",
+            "EST": "#8967F6",
 
             "JOB": "#C54A84",
             "PSA": "#C54A84",
-            "PRO": "#e64993",
-            "ECC": "#c52b73",
-            "SNG": "#ef4a98",
+            "PRO": "#C54A84",
+            "ECC": "#C54A84",
+            "SNG": "#C54A84",
 
             "ISA": "#58da93",
-            "JER": "#4DBA7E",
-            "LAM": "#2bca73",
-            "EZK": "#199a53",
-            "DAN": "#3c9f68",
+            "JER": "#58da93",
+            "LAM": "#58da93",
+            "EZK": "#58da93",
+            "DAN": "#58da93",
 
             "HOS": "#D0B42B",
             "JOL": "#D0B42B",
             "AMO": "#D0B42B",
             "OBA": "#D0B42B",
-            "JON": "#cdaf1c",
-            "MIC": "#bda320",
-            "NAM": "#bca536",
-            "HAB": "#cdaf1c",
-            "ZEP": "#c5a81c",
+            "JON": "#D0B42B",
+            "MIC": "#D0B42B",
+            "NAM": "#D0B42B",
+            "HAB": "#D0B42B",
+            "ZEP": "#D0B42B",
             "HAG": "#D0B42B",
             "ZEC": "#D0B42B",
-            "MAL": "#caad1e",
+            "MAL": "#D0B42B",
 
             "MAT": "#D0B42B",
-            "MRK": "#c5ad3c",
-            "LUK": "#cdaf1c",
+            "MRK": "#D0B42B",
+            "LUK": "#D0B42B",
             "JHN": "#D0B42B",
 
             "ACT": "#4DBA7E",
@@ -374,24 +522,24 @@ const Treemap = (props: any) => {
             "1CO": "#36ABFF",
             "2CO": "#36ABFF",
             "GAL": "#36ABFF",
-            "EPH": "#1a74b5",
-            "PHP": "#3ca0e8",
+            "EPH": "#36ABFF",
+            "PHP": "#36ABFF",
             "COL": "#36ABFF",
-            "1TH": "#2786ca",
+            "1TH": "#36ABFF",
             "2TH": "#36ABFF",
             "1TI": "#36ABFF",
-            "2TI": "#1e8edf",
-            "TIT": "#458dc1",
+            "2TI": "#36ABFF",
+            "TIT": "#36ABFF",
             "PHM": "#36ABFF",
-            "HEB": "#2190df",
+            "HEB": "#36ABFF",
 
             "JAS": "#C54A84",
             "1PE": "#C54A84",
-            "2PE": "#e15094",
-            "1JN": "#c81f6f",
-            "2JN": "#b85684",
-            "3JN": "#e12b81",
-            "JUD": "#ea4b96",
+            "2PE": "#C54A84",
+            "1JN": "#C54A84",
+            "2JN": "#C54A84",
+            "3JN": "#C54A84",
+            "JUD": "#C54A84",
 
             "REV": "#8967F6"
         }

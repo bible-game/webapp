@@ -11,6 +11,10 @@ import { GameStatesService } from "@/core/service/state/game-states-service";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
 import Treemap from "@/app/play/[game]/treemap";
+import moment from "moment/moment";
+import { redirect } from "next/navigation";
+import * as Hammer from 'hammerjs';
+import { Spinner } from "@heroui/react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -19,7 +23,18 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
  * @since 13th May 2025
  */
 export default function Game(props: any) {
-    const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
+    if (props.game == 'today') {
+        redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
+    }
+
+    // TODO :: Stanley
+    // getConsentState() => return null;
+    // const consent = GameStatesService.getConsentState();
+    // if (!consent) {
+    //     modal.open()
+    // }
+
+    const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
     const passage = data as Passage;
 
     const [playing, setPlaying] = useState(true);
@@ -49,6 +64,19 @@ export default function Game(props: any) {
         if (confetti) setConfetti(false);
 
         if (typeof window !== "undefined") {
+            (window as any).Hammer = Hammer.default;
+                //// global.d.ts
+                // import type * as HammerType from 'hammerjs';
+                //
+                // declare global {
+                //   interface Window {
+                //     Hammer: typeof HammerType;
+                //   }
+                // }
+                /**
+                 * You can tell TypeScript about window.Hammer by augmenting the global Window type. Create a global.d.ts file in your project root (or anywhere under /types, as long as it's included in your tsconfig.json), and add this:
+                 */
+
             loadState();
         }
     }, [stars]);
@@ -58,7 +86,7 @@ export default function Game(props: any) {
         setGuesses(state.guesses)
         setStars(state.stars || 0)
         setPlaying(state.playing)
-        GameStatesService.initCompletion();
+        GameStatesService.initCompletion(props.bible.testaments);
         setState(state);
     }
 
@@ -105,6 +133,9 @@ export default function Game(props: any) {
     function selectChapter(item: string): void {
         setChapter(item);
         selected.chapter = item;
+
+        // selected.icon = allBooks!!.find((book: any) => book.name === selected.book).icons[parseInt(item) - 1];
+
     }
 
     function addGuess(closeness: any) {
@@ -140,14 +171,12 @@ export default function Game(props: any) {
         const won = (closeness.distance == 0);
         const limitReached = (updatedGuesses.length >= 5);
         if (won) {
-            GameStatesService.updateCompletion(selected.book, parseInt(selected.chapter), false);
+            GameStatesService.updateCompletion(false, selected.book, parseInt(selected.chapter));
             setConfetti(true);
         }
         if (won || limitReached) {
             setPlaying(false);
-            if (!limitReached) {
-                starResult = 5 + 1 - updatedGuesses.length
-            }
+            starResult = won ? 5 + 1 - updatedGuesses.length : 0;
         }
         setStars(starResult)
         GameStatesService.setStateForDate(starResult, updatedGuesses, !(won || limitReached), props.game)
@@ -166,7 +195,13 @@ export default function Game(props: any) {
             .includes(selected.book+selected.chapter);
     }
 
+    function isInvalidGuess(icon: string) {
+        return false;
+        // return passage.icon != icon;
+    }
+
     function select(book: any, chapter: any, isBookKey = true) {
+        console.log(chapter);
         if (isBookKey) {
             const bookName = allBooks.find((bk: any) => bk.key == book).name;
             if (book) selectBook(bookName);
@@ -177,21 +212,21 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
-    if (isLoading) return <div>Loading...</div>
+    if (isLoading) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
 
         return (
             <>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device}/>
+                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device} playing={playing}/>
                 <section className="relative z-1 h-full pointer-events-none">
                     <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
-                        <Menu passage={passage} playing={playing} date={props.game}/>
+                        <Menu passage={passage} playing={playing} date={props.game} device={props.device}/>
                     </section>
                     <section className="pointer-events-auto absolute bottom-2 sm:bottom-[4.25rem]">
-                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                        <Guesses guesses={guesses}/>
+                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                        <Guesses guesses={guesses} bookFound={bookFound}/>
                     </section>
                     <Confetti fire={confetti}/>
                 </section>

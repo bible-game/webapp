@@ -17,11 +17,12 @@ const Action = (props: any) => {
         let guessBlocks = '';
 
         for (const guess of props.guesses) {
-            if (guess.closeness.distance == 0)     { continue }
-            if (guess.closeness.distance <= 100)   { guessBlocks += '🟩'; continue; }
-            if (guess.closeness.distance <= 500)   { guessBlocks += '🟩'; continue; }
-            if (guess.closeness.distance <= 2500)  { guessBlocks += '🟨'; continue; }
-            if (guess.closeness.distance <= 10000) { guessBlocks += '🟧' }
+            const distance = Math.abs(guess.closeness.distance);
+            if (distance == 0)     { continue }
+            if (distance <= 100)   { guessBlocks += '🟩'; continue; }
+            if (distance <= 500)   { guessBlocks += '🟩'; continue; }
+            if (distance <= 2000)  { guessBlocks += '🟨'; continue; }
+            if (distance <= 5000) { guessBlocks += '🟧' }
             else guessBlocks += '🟥'
         }
 
@@ -91,27 +92,28 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 <Button
                     className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-sm rounded-l-none sm:rounded-r-full sm:w-[13.33rem] w-[100%] sm:-ml-[14px]"
                     variant="bordered"
-                    onClick={() => {
+                    onPress={() => {
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
+                        // else if (props.isInvalidGuess(props.selected.icon)) toast.error(`Today's chapter is of theme ${props.passage.icon}!`)
                         else {
                             guess(props.date, props.selected.book, props.selected.chapter).then((closeness: any) => {
                                 props.addGuess(closeness)
                             })
                         }
-                    }}>Guess</Button>
+                    }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>
             </section> :
             <section className="sm:panel flex justify-between mt-4 items-center flex-wrap">
                 <div className="w-[100%] sm:w-[13.33rem] flex justify-center gap-0.5 mr-[3px]">
-                    {[...Array(props.stars)].map((i: any) =>
-                        <svg key={i} xmlns="http://www.w3.org/2000/svg" fill="gold" viewBox="0 0 24 24"
+                    {[...Array(props.stars)].map((i: any, index: number) =>
+                        <svg key={'star-'+index} xmlns="http://www.w3.org/2000/svg" fill="gold" viewBox="0 0 24 24"
                              strokeWidth="1.5"
                              stroke="gold" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round"
                                   d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
                         </svg>
                     )}
-                    {[...Array(5 - props.stars)].map((i: any) =>
-                        <div className="opacity-20" key={i}>
+                    {[...Array(5 - props.stars)].map((i: any, index: number) =>
+                        <div className="opacity-20" key={'blank-'+index}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="#D9D9D9" viewBox="0 0 24 24"
                                  strokeWidth="1.5"
                                  stroke="#D9D9D9" className="size-6">
@@ -124,7 +126,10 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 <Button
                     className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
-                    onClick={() => navigator.clipboard.writeText(results())}>
+                    onPress={() => {
+                        navigator.clipboard.writeText(results())
+                        toast.success("Results copied!")
+                    }}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          strokeWidth={1.25} stroke="currentColor" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round"
@@ -135,7 +140,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 <Button
                     className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
-                    onClick={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}/${props.passage.chapter}`)}>
+                    onPress={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          strokeWidth={1.25} stroke="currentColor" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round"

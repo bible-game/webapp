@@ -43,7 +43,7 @@ export const Navigation = (props: any) => {
         </Link>
     );
     if (props.read) links.push(
-        <Link href='/read/Genesis/1' key='read'>
+        <Link href='/read' key='read'>
             <div className="flex gap-1 items-center w-[4rem]">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
                      stroke={props.dark ? "black" : "currentColor"} className="size-4">
@@ -66,6 +66,18 @@ export const Navigation = (props: any) => {
             </div>
         </Link>
     );
+    if (props.study) links.push(
+        <Link href='/study' key='stats'>
+            <div className="flex gap-1 items-center w-[4rem]">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
+                     stroke={props.dark ? "black" : "currentColor"} className="size-4">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
+                </svg>
+                <p className={textStyle}>Study</p>
+            </div>
+        </Link>
+);
     if (props.account) links.push(
         <Link href='/account' key='account'>
             <div className="flex gap-1 items-center w-[4rem]">

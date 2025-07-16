@@ -13,6 +13,10 @@ export class CompletionService {
             stars += (state as GameStates).stars!;
         }
 
+        for (const state of GameStatesService.getStudies().values()) {
+            stars += (state as any).stars!;
+        }
+
         return stars;
     }
 
@@ -45,12 +49,14 @@ export class CompletionService {
         let completed = 0;
 
         for (const book of GameStatesService.getCompletion()) {
-            for (const chapter of book.chapter) {
-                if (chapter != 0) completed++
+            for (const chapter of book.chapters) {
+                for (const verse of chapter.verses) {
+                    if (verse != '') completed++
+                }
             }
         }
 
-        return (100 * completed / 1_091).toFixed(2);
+        return (100 * completed / 31_102).toFixed(2);
     }
 
 
