@@ -82,10 +82,10 @@ export default function Questions(props: any) {
   };
 
   const getScoreColor = (score: number) => {
-    if (score > 70) {
+    if (score > 60) {
       return 'bg-gradient-to-tr from-green-50 to-green-100 border-1 border-green-300';
     }
-    if (score > 50) {
+    if (score > 40) {
       return 'bg-gradient-to-tr from-amber-50 to-amber-100 border-1 border-amber-300';
     }
     return 'bg-gradient-to-tr from-red-50 to-red-100 border-1 border-red-300';
@@ -179,7 +179,7 @@ export default function Questions(props: any) {
                 />
                 {gradingResult && (
                   <div className={`p-4 rounded-md ${getScoreColor(gradingResult.score)}`}>
-                    <p className="text-sm text-gray-600"><span className="font-semibold mr-2">{gradingResult.score}%</span>{gradingResult.message}</p>
+                    <p className="text-sm text-gray-600">{gradingResult.message}</p>
                   </div>
                 )}
               </div>
