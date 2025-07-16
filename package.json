@@ -23,6 +23,7 @@
     "@nextui-org/react": "^2.4.6",
     "@nextui-org/system": "^2.2.5",
     "@nextui-org/theme": "^2.4.5",
+    "@uidotdev/usehooks": "^2.4.1",
     "@vercel/speed-insights": "^1.2.0",
     "dotenv": "^16.4.7",
     "framer-motion": "^12.5.0",
@@ -35,7 +36,8 @@
     "react-canvas-confetti": "^1.4.0",
     "react-dom": "19.0.0",
     "react-hot-toast": "^2.5.1",
-    "swr": "^2.3.3"
+    "swr": "^2.3.3",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@types/node": "^20",
