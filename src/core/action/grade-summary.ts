@@ -1,15 +1,11 @@
 'use server'
 
-export async function gradeSummary(passage: string, summary: string): Promise<any> {
-  console.log(`Grading summary for passage: ${passage}`);
-  console.log(`Summary: ${summary}`);
+export async function gradeSummary(passageKey: string, userSummary: string): Promise<any> {
+  const key = encodeURIComponent(passageKey.replace(/ /g, ""));
+  const summary = encodeURIComponent(userSummary)
+  const url = `${process.env.SVC_PASSAGE}/study/grade/${key}?summary=${summary}`;
 
-  // This is a placeholder for your grading logic.
-  // You can replace this with a call to a service that grades the summary.
-  const score = Math.round(100 * Math.random()) / 100;
+  const response = await fetch(url, { method: "GET" });
 
-  return {
-    message: "Nice job! You covered 3 of the 4 major themes in this chapter.",
-    score: score
-  };
+  return response.json();
 }
