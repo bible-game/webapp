@@ -106,11 +106,11 @@ export class GameStatesService {
 
     static getStudy(passageKey: string) {
         let study = this.getStudies().get(passageKey)
-        study ??= {stars: undefined, answers: [], passageKey: "", date: ""};
+        study ??= {stars: undefined, answers: [], passageKey: "", date: "", summary: "", gradingResult: null};
         return study
     }
 
-    static setStudy(stars: number | undefined, answers: any[], passageKey: string, date: string) {
+    static setStudy(stars: number | undefined, answers: any[], passageKey: string, date: string, summary: string, gradingResult: { score: number; message: string } | null) {
         const studies = this.getStudies()
         let study = this.getStudy(passageKey)
 
@@ -118,6 +118,8 @@ export class GameStatesService {
         study.stars = stars
         study.passageKey = passageKey
         study.date = date
+        study.summary = summary
+        study.gradingResult = gradingResult
         studies.set(passageKey, study)
         localStorage.setItem('studies', JSON.stringify(Array.from(studies.entries())))
     }

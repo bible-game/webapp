@@ -6,6 +6,9 @@ import { GameStatesService } from "@/core/service/game-states-service";
 import moment from "moment";
 import { Spinner } from "@heroui/react";
 import { Button } from "@nextui-org/react";
+import TextareaAutosize from 'react-textarea-autosize';
+import { gradeSummary } from '@/core/action/grade-summary';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface QuestionsProps {
   passage: string;
@@ -19,12 +22,27 @@ export default function Questions(props: any) {
 
   const [stars, setStars] = useState(0);
   const [date, setDate] = useState("");
+  const [summary, setSummary] = useState("");
+  const [gradingResult, setGradingResult] = useState<{ score: number; message: string } | null>(null);
+
+  const debouncedGradeSummary = useDebouncedCallback((summary: string) => {
+    gradeSummary(props.passage, summary).then((response) => {
+      setGradingResult(response);
+    });
+  }, 1000);
+
+  const handleSummaryChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setSummary(event.target.value);
+    debouncedGradeSummary(event.target.value);
+  };
 
   const loadState = React.useCallback(() => {
     const state = GameStatesService.getStudy(props.passage)
     setSelectedAnswers(state.answers || []);
     setStars(state.stars || 0);
     setDate(state.date || "");
+    setSummary(state.summary || "");
+    setGradingResult(state.gradingResult || null);
     if (state.answers && state.answers.length > 0) {
       setSubmitted(true);
     }
@@ -54,8 +72,23 @@ export default function Questions(props: any) {
       return acc;
     }, 0);
 
-    GameStatesService.setStudy(correctAnswers, selectedAnswers, props.passage, moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString());
+    let finalStars = correctAnswers;
+    if (gradingResult && gradingResult.score > 0.7) {
+      finalStars += 1;
+    }
+
+    GameStatesService.setStudy(finalStars, selectedAnswers, props.passage, moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary, gradingResult);
     loadState();
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score > 70) {
+      return 'bg-gradient-to-tr from-green-50 to-green-100 border-1 border-green-300';
+    }
+    if (score > 50) {
+      return 'bg-gradient-to-tr from-amber-50 to-amber-100 border-1 border-amber-300';
+    }
+    return 'bg-gradient-to-tr from-red-50 to-red-100 border-1 border-red-300';
   };
 
   return (
@@ -75,7 +108,7 @@ export default function Questions(props: any) {
                             d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
                     </svg>
                 )}
-                {[...Array(questions.length - stars)].map((i: any, index: number) =>
+                {[...Array(1 + questions.length - stars)].map((i: any, index: number) =>
                     <div className="opacity-20" key={'blank'+index}>
                       <svg xmlns="http://www.w3.org/2000/svg" fill="#D9D9D9" viewBox="0 0 24 24"
                            strokeWidth="1.5"
@@ -134,6 +167,22 @@ export default function Questions(props: any) {
                   </div>
                 </div>
               ))}
+              <div className="p-2 my-12 rounded transition-all duration-300 bg-white border-1 border-gray-200">
+                <p className="p-4 font-medium text-[14px] text-gray-800">Summarise the passage in your own words</p>
+                <TextareaAutosize
+                  value={summary}
+                  onChange={handleSummaryChange}
+                  minRows={4}
+                  className="my-4 w-full px-4 rounded-md bg-white text-sm text-gray-800 focus:outline-none font-light"
+                  placeholder="Example: Paul encourages the church to value unity within diversity. He explains that spiritual gifts come from the same Spirit and are given to help the whole church. Using the metaphor of the human body, he teaches that each member is essential, no matter their role..."
+                  disabled={submitted}
+                />
+                {gradingResult && (
+                  <div className={`p-4 rounded-md ${getScoreColor(gradingResult.score)}`}>
+                    <p className="text-sm text-gray-600"><span className="font-semibold mr-2">{gradingResult.score}%</span>{gradingResult.message}</p>
+                  </div>
+                )}
+              </div>
               {
                 !stars ? <Button onPress={handleSubmit} className="rounded mb-[8rem] mt-2 bg-gradient-to-tr from-blue-700 to-blue-800 text-white"
                                  disabled={submitted}>Submit</Button> : <></>
