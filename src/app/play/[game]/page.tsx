@@ -7,8 +7,6 @@ import { Toaster } from "react-hot-toast";
 import React from "react";
 import Game from "@/app/play/[game]/game";
 import { headers } from "next/headers";
-import { Spinner } from "@heroui/react";
-import { UserAuthService } from "@/core/service/user-auth-service";
 
 async function get(url: string): Promise<any> {
     const response = await fetch(url, {method: "GET"});
@@ -37,8 +35,6 @@ export default async function Play({params}: { params: Promise<{ game: string }>
 
     const divisions = flat(bible.testaments, 'divisions');
     const books = flat(divisions, 'books');
-
-    await UserAuthService.loadState();
 
     return (
         <>

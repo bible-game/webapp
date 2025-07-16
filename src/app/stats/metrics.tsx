@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import { CompletionService } from "@/core/service/completion-service";
+import { CompletionService } from "@/core/service/state/completion-service";
 
 const Metrics = () => {
 

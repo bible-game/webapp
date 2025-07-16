@@ -3,7 +3,7 @@ import { GameStatesService } from "@/core/service/state/game-states-service";
 import 'server-only'
 import { SignJWT, jwtVerify } from 'jose'
 
-export class UserAuthService {
+export class AuthService {
 
     private readonly loginEndpoint = `${process.env.USER_SVC}/auth/login`
     private readonly registerEndpoint = `${process.env.USER_SVC}/auth/register`
@@ -22,9 +22,9 @@ export class UserAuthService {
 
     public static async loadState(): Promise<void> {
 
-        if (UserAuthService.isLoggedIn()) {
+        if (AuthService.isLoggedIn()) {
             const cookie = (await cookies()).get('session')?.value;
-            const session = await UserAuthService.decrypt(cookie)
+            const session = await AuthService.decrypt(cookie)
 
             const state = await fetch(`${process.env.SVC_USER}/state/${session?.userId}`, {
                 method: "GET",
@@ -33,7 +33,7 @@ export class UserAuthService {
                 }
             });
 
-            GameStatesService.setState(state)
+            // GameStatesService.setState(state)
         }
     }
 

@@ -8,7 +8,7 @@ import { guess } from "@/core/action/guess";
 import {redirect} from "next/navigation";
 import moment from "moment";
 import {CalendarDate} from "@internationalized/date";
-import {CompletionService} from "@/core/service/completion-service";
+import {CompletionService} from "@/core/service/state/completion-service";
 
 const Action = (props: any) => {
 
