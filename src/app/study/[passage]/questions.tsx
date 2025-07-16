@@ -6,6 +6,9 @@ import { GameStatesService } from "@/core/service/game-states-service";
 import moment from "moment";
 import { Spinner } from "@heroui/react";
 import { Button } from "@nextui-org/react";
+import TextareaAutosize from 'react-textarea-autosize';
+import { gradeSummary } from '@/core/action/grade-summary';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface QuestionsProps {
   passage: string;
@@ -20,9 +23,17 @@ export default function Questions(props: any) {
   const [stars, setStars] = useState(0);
   const [date, setDate] = useState("");
   const [summary, setSummary] = useState("");
+  const [gradingResult, setGradingResult] = useState<{ score: number; message: string } | null>(null);
+
+  const debouncedGradeSummary = useDebouncedCallback((summary: string) => {
+    gradeSummary(props.passage, summary).then((response) => {
+      setGradingResult(response);
+    });
+  }, 1000);
 
   const handleSummaryChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSummary(event.target.value);
+    debouncedGradeSummary(event.target.value);
   };
 
   const loadState = React.useCallback(() => {
@@ -140,17 +151,23 @@ export default function Questions(props: any) {
                   </div>
                 </div>
               ))}
-              <div className="my-12">
-                <h2 className="text-lg font-medium text-gray-800">Summary</h2>
-                <p className="text-sm font-light text-gray-600 mb-4">Confirm your understanding with your own summary</p>
-                <textarea
+              <div className="p-2 my-12 rounded transition-all duration-300 bg-white border-1 border-gray-200">
+                <p className="p-4 font-medium text-[14px] text-gray-800">Summarise the passage in your own words</p>
+                <TextareaAutosize
                   value={summary}
                   onChange={handleSummaryChange}
-                  className="w-full p-4 border-1 border-gray-200 rounded-md bg-white text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={5}
+                  minRows={4}
+                  className="my-4 w-full px-4 rounded-md bg-white text-sm text-gray-800 focus:outline-none font-light"
                   placeholder="Example: Paul encourages the church to value unity within diversity. He explains that spiritual gifts come from the same Spirit and are given to help the whole church. Using the metaphor of the human body, he teaches that each member is essential, no matter their role..."
                   disabled={submitted}
                 />
+                {gradingResult && (
+                  <div className="p-4 bg-gray-50 rounded-md">
+                    <p className="text-sm font-medium text-gray-800">Grading Feedback</p>
+                    <p className="text-sm text-gray-600">{gradingResult.message}</p>
+                    <p className="text-sm text-gray-600">Score: {Math.round(gradingResult.score * 100)}%</p>
+                  </div>
+                )}
               </div>
               {
                 !stars ? <Button onPress={handleSubmit} className="rounded mb-[8rem] mt-2 bg-gradient-to-tr from-blue-700 to-blue-800 text-white"
