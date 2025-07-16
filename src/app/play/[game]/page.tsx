@@ -7,9 +7,10 @@ import { Toaster } from "react-hot-toast";
 import React from "react";
 import Game from "@/app/play/[game]/game";
 import { headers } from "next/headers";
+import { UserAuthService } from "@/core/service/user-auth-service";
 
-async function get(path: string): Promise<any> {
-    const response = await fetch(`${process.env.SVC_PASSAGE}/${path}`, {method: "GET"});
+async function get(url: string): Promise<any> {
+    const response = await fetch(url, {method: "GET"});
     return await response.json();
 }
 
@@ -30,11 +31,13 @@ export default async function Play({params}: { params: Promise<{ game: string }>
     const headersList = await headers();
     const device = headersList.get('x-device-type');
 
-    const {game} = await params;
-    const bible = await get(`config/bible`);
+    const { game } = await params;
+    const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
 
     const divisions = flat(bible.testaments, 'divisions');
     const books = flat(divisions, 'books');
+
+    await UserAuthService.loadState();
 
     if (!game || !bible) return <div>Loading...</div>
     else return (
