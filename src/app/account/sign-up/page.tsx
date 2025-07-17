@@ -7,6 +7,8 @@ import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import Background from "@/app/background";
 import React from "react";
+import {Button} from "@heroui/button";
+import Link from "next/link";
 
 /**
  * Sign-Up Page
@@ -92,12 +94,13 @@ export default function SignUp() {
                         <p className="text-sm text-indigo-300 mt-1">
                             You can now log in with your new credentials.
                         </p>
-                        <a
+                        <Button
+                            as={Link}
                             href="/account/log-in"
-                            className="w-full bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white py-2 rounded-lg font-medium transition-all"
+                            className="mt-4 p-4 w-full bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white py-2 rounded-lg font-medium transition-all"
                         >
                             Log In
-                        </a>
+                        </Button>
                     </div>
                 )}
             </main>

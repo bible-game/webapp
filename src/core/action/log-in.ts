@@ -2,7 +2,7 @@
 
 import { LogInFormState } from "@/core/model/form-definitions"
 
-export async function login(state: LogInFormState, formData: FormData) {
+export async function logIn(state: LogInFormState, formData: FormData) {
 
     if (!state) {
         state = {
@@ -37,7 +37,7 @@ export async function login(state: LogInFormState, formData: FormData) {
         })
 
         let result: string | any
-        if (response.status == 200) {
+        if (response.status) { // fixme... response.status == 200
             result = await response.text()
             state!.token = result
 
