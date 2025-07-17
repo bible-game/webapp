@@ -3,13 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 
-export default function LoginPrompt() {
+export default function LoginPrompt(props: any) {
 
     const [dismissed, setDismissed] = useState(false);
 
-    const authenticated = false;
-
-    if (!authenticated && !dismissed)
+    if (!props.authenticated && !dismissed)
         return <div className="w-[80vw] sm:w-[46rem] mt-4">
             <div
                 className="relative border border-purple-500/50 bg-purple-900/30 backdrop-blur-md rounded-md p-4 sm:p-5 shadow-lg text-white">
