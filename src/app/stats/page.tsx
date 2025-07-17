@@ -10,6 +10,7 @@ import Completion from "@/app/stats/completion";
 import LoginPrompt from "@/app/stats/login-prompt";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
+import LogoutButton from "@/app/stats/logout-button";
 
 /**
  * Statistics Page
@@ -41,11 +42,12 @@ export default async function Stats() {
                             <h1 className="text-[1.5rem] mx-0">Statistics</h1>
                             {firstname && <h1 className="text-[1.5rem] mx-0">{`for ${firstname}`}</h1>}
                         </div>
+                        {firstname && <LogoutButton/>}
                         <a href="https://discord.gg/6ZJYbQcph5" target="_blank" className="flex gap-2 items-center translate-y-2.5">
                             <Image src="/discord.png" alt="discord" width={100} height={0}/>
                         </a>
                     </div>
-                    <LoginPrompt authenticated={!!cookieStore.get('token')}/>
+                    {!firstname && <LoginPrompt/>}
                     <Metrics/>
                     <Completion/>
                 </section>
