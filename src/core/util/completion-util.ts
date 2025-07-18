@@ -2,8 +2,8 @@
 
 import { StateUtil } from "@/core/util/state-util";
 import { StorageUtil } from "@/core/util/storage-util";
-import {GameState} from "@/core/model/state/game-state";
-import {ReadState} from "@/core/model/state/read-state";
+import { ReadState } from "@/core/model/state/read-state";
+import { GameState } from "@/core/model/state/game-state";
 
 /**
  * Completion-related Utilities
@@ -57,17 +57,36 @@ export class CompletionUtil {
     static build(config: any): any {
         const completion = this.initialise(config);
 
-        // StateUtil.getAllGames().forEach((game: GameState) => {
-        //     if (!game.playing) {
-        //         completion.get()
-        //     }
-        // });
+        StateUtil.getAllGames().forEach((game: GameState) => {
+            const book = completion[game.passageBook.toLowerCase().replace(/ /g, "")];
+            const chapter = book.chapters[parseInt(game.passageChapter) - 1];
+            chapter.verses.forEach((verse: number, index: number, arr: any) => {
+                arr[index] = 0;
+            })
+        });
 
         StateUtil.getAllReads().forEach((read: ReadState) => {
-            console.log(completion);
-            // const book = completion.get(read.book.toLowerCase().replace(/ /g, ""));
-            // console.log(read);
-            // console.log(book);
+            const book = completion[read.book.toLowerCase().replace(/ /g, "")];
+            const chapter = book.chapters[parseInt(read.chapter) - 1];
+            if (read.verseEnd) { // range
+                chapter.verses.forEach((verse: number, index: number, arr: any) => {
+                    if (parseInt(read.verseStart) - 1 <= index && parseInt(read.verseEnd) - 1 >= index)
+                        arr[index] = !verse ? 1 : verse++
+                })
+            } else if (read.verseStart) { // bottom only; // fixme :: faulty logic?
+                chapter.verses.forEach((verse: number, index: number, arr: any) => {
+                    if (parseInt(read.verseStart) - 1 <= index)
+                        arr[index] = !verse ? 1 : verse++
+                })
+            } else { // full
+                chapter.verses.forEach((verse: number, index: number, arr: any) => {
+                    arr[index] = !verse ? 1 : verse++
+                })
+            }
+
+            console.log(chapter);
+            book.chapters[parseInt(read.chapter) - 1] = chapter;
+            completion[read.book.toLowerCase().replace(/ /g, "")] = book;
         })
 
         return StorageUtil.save('completion', completion);
@@ -85,6 +104,7 @@ export class CompletionUtil {
                     const bk = {} as any;
                     const bookName = book.name.toLowerCase().replace(/ /g, "");
                     bk['book'] = bookName
+                    bk['pretty'] = book.name
                     bk['chapters'] = [];
                     for (let i = 0; i < book.chapters; i++) {
                         bk['chapters'].push({
@@ -106,43 +126,3 @@ export class CompletionUtil {
     }
 
 }
-
-/**
- *
- *   static updateCompletion(
- *         read: boolean,
- *         book: string,
- *         chapter: number,
- *         verseStart: number | undefined = undefined,
- *         verseEnd: number | undefined = undefined) {
- *         const completion = this.getCompletion();
- *
- *         completion.forEach(c =>  {
- *             if (c.book != book &&
- *                 c.book.replace(/\s/g, "") != book &&
- *                 c.book != book.replace(/\s/g, "") &&
- *                 c.book != book.toLowerCase().replace(/\s/g, "")) return;
- *
- *             const ch = c.chapters[chapter - 1];
- *             for (let i = 0; i < ch.verses.length; i++) {
- *                 if (!read) {
- *                     ch.verses[i] = 0;
- *                 } else {
- *                     if (!verseStart) {
- *                         ch.verses[i] = 1;
- *                     } else if (verseStart) {
- *                         if (verseEnd) {
- *                             if (i - 1 >= verseStart && i < verseEnd) ch.verses[i - 1] = 1;
- *                         } else {
- *                             ch.verses[verseStart - 1] = 1;
- *                         }
- *                     }
- *                 }
- *
- *                 c.chapters[chapter - 1] = ch;
- *             }
- *         });
- *
- *         localStorage.setItem('completion', JSON.stringify(completion));
- *     }
-*/

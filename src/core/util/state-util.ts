@@ -16,7 +16,7 @@ export class StateUtil {
         const allGames = this.getAllGames();
 
         return allGames.get(passageId)
-            ?? { stars: 0, guesses: [], playing: true, passageId }
+            ?? { stars: 0, guesses: [], book: '', chapter: '', playing: true, passageId }
     }
 
     /** Gets the review-state for a given passage */
@@ -44,6 +44,8 @@ export class StateUtil {
         thisGame.playing = state.playing;
         thisGame.guesses = state.guesses;
         thisGame.passageId = state.passageId;
+        thisGame.book = state.book;
+        thisGame.chapter = state.chapter;
         allGames.set(state.passageId, thisGame);
 
         StorageUtil.save('games', Array.from(allGames.entries()));

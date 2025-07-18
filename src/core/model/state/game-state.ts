@@ -6,5 +6,7 @@ export type GameState = {
     stars: number
     guesses: any[]
     playing: boolean
-    passageId: number
+    passageId: number,
+    passageBook: string,
+    passageChapter: string
 }

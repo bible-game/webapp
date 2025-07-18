@@ -2,8 +2,9 @@
 
 import isLoggedIn from "@/core/util/auth-util";
 import { post } from "@/core/action/http/post";
+import { Passage}  from "@/core/model/passage";
 
-export async function guess(date: string, book: string, chapter: string, passageId: string) {
+export async function guess(date: string, book: string, chapter: string, passage: Passage) {
     const response = await fetch(`${process.env.SVC_PASSAGE}/guess/${date}/${book}/${chapter}`, {
         method: "GET"
     });
@@ -15,11 +16,13 @@ export async function guess(date: string, book: string, chapter: string, passage
         chapter,
         distance: closeness.distance,
         percentage: closeness.percentage,
-        closeness
+        closeness,
+        passageBook: passage.book,
+        passageChapter: passage.chapter
     }
 
     if (await isLoggedIn()) {
-        await post(`${process.env.SVC_USER}/state/guess/${passageId}`, updatedGuess)
+        await post(`${process.env.SVC_USER}/state/guess/${passage.id}`, updatedGuess)
     }
 
     return updatedGuess;
