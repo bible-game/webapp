@@ -6,10 +6,19 @@ export type ReadState = {
     book: string,
     chapter: string,
     verseStart: string
-    verseEnd: string
+    verseEnd: string,
+    passageKey: string
 }
 
 export default function getReadKey(state: ReadState) {
-    return `${state.book}${state.chapter}:${state.verseStart}-${state.verseEnd}`;
+    if (!state.verseStart && !state.verseEnd) {
+        return `${state.book}${state.chapter}`;
+
+    } else if (!state.verseEnd) {
+        return `${state.book}${state.chapter}:${state.verseStart}`;
+
+    } else {
+        return `${state.book}${state.chapter}`;
+    }
 }
 

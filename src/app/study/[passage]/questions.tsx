@@ -9,7 +9,9 @@ import TextareaAutosize from 'react-textarea-autosize';
 import {gradeSummary} from '@/core/action/study/grade-summary';
 import {useDebouncedCallback} from 'use-debounce';
 import {StateUtil} from "@/core/util/state-util";
-import {ReviewState} from "@/core/model/state/review-state";
+import {GradingResult, ReviewState} from "@/core/model/state/review-state";
+import {post} from "@/core/action/http/post";
+import getReadKey from "@/core/model/state/read-state";
 
 interface QuestionsProps {
   passage: string;
@@ -76,13 +78,21 @@ export default function Questions(props: any) {
       }
       return acc;
     }, 0);
-    if (gradingResult && gradingResult.score > 0.7) {
+    if (gradingResult && gradingResult.score > 60) {
       finalStars += 1;
     }
 
-    const state: ReviewState = {stars: finalStars, answers: selectedAnswers, passageKey: props.passage, date: moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary, gradingResult}
-    StateUtil.setReview(state);
-    loadState();
+    const state: ReviewState = {stars: finalStars, answers: selectedAnswers, passageKey: props.passage, date: moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary, gradingResult: gradingResult as GradingResult}
+    if (props.state) {
+      post(`${process.env.SVC_USER}/state/review`, state).then(() => {
+        StateUtil.setReview(state);
+        loadState();
+      })
+    } else {
+      StateUtil.setReview(state);
+      loadState();
+    }
+
   };
 
   const getScoreColor = (score: number) => {

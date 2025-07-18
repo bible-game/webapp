@@ -4,16 +4,19 @@ import { Button } from "@nextui-org/react";
 import React from "react";
 import { toast, Toaster } from "react-hot-toast";
 import { StateUtil } from "@/core/util/state-util";
+import { post } from "@/core/action/http/post";
+import getReadKey from "@/core/model/state/read-state";
 
 const ReadAction = (props: any) => {
 
     function tickRead() {
         const chapter = props.chapter || 1;
-        const state = {book: props.book, chapter, verseStart: props.verseStart, verseEnd: props.verseEnd}
+        const state = {book: props.book, chapter, verseStart: props.verseStart, verseEnd: props.verseEnd, passageKey: ''};
+        state.passageKey = getReadKey(state);
         StateUtil.setRead(state);
 
         if (props.state) {
-            // todo :: trigger backend read update
+            post(`${process.env.SVC_USER}/state/read`, {passageKey: state.passageKey}).then()
         }
 
         if (props.verseStart) {

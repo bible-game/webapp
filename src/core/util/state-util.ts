@@ -91,6 +91,11 @@ export class StateUtil {
         const allReads = this.getAllReads();
 
         const thisRead = this.getRead(key);
+        thisRead.book = state.book;
+        thisRead.chapter = state.chapter;
+        thisRead.verseStart = state.verseStart;
+        thisRead.verseEnd = state.verseEnd;
+        thisRead.passageKey = state.passageKey;
         allReads.set(key, thisRead);
 
         StorageUtil.save('reads', Array.from(allReads.entries()));
@@ -101,9 +106,14 @@ export class StateUtil {
         const allReviews = this.getAllReviews();
 
         const thisReview = this.getReview(state.passageKey);
+        thisReview.stars = state.stars;
+        thisReview.summary = state.summary;
+        thisReview.gradingResult = state.gradingResult;
+        thisReview.answers = state.answers;
+        thisReview.date = state.date;
         allReviews.set(state.passageKey, thisReview);
 
-        StorageUtil.save('reads', Array.from(allReviews.entries()));
+        StorageUtil.save('reviews', Array.from(allReviews.entries()));
     }
 
 }
