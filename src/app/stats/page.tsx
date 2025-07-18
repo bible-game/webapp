@@ -11,6 +11,16 @@ import LoginPrompt from "@/app/stats/login-prompt";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 import LogoutButton from "@/app/stats/logout-button";
+import { getReadState } from "@/core/action/state/get-state-read";
+import { ReadState } from "@/core/model/state/read-state";
+import { GameState } from "@/core/model/state/game-state";
+import { getGameState } from "@/core/action/state/get-state-game";
+import isLoggedIn from "@/core/util/auth-util";
+
+async function get(url: string): Promise<any> {
+    const response = await fetch(url, {method: "GET"});
+    return await response.json();
+}
 
 /**
  * Statistics Page
@@ -20,6 +30,15 @@ export default async function Stats() {
 
     let firstname: string | undefined = undefined;
     const cookieStore = await cookies();
+
+    const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
+
+    let gameState: Map<number,GameState> | undefined;
+    let readState: Map<string,ReadState> | undefined;
+    if (await isLoggedIn()) {
+        gameState = await getGameState();
+        readState = await getReadState();
+    }
 
     try {
         const token = cookieStore.get('token');
@@ -48,8 +67,8 @@ export default async function Stats() {
                         </a>
                     </div>
                     {!firstname && <LoginPrompt/>}
-                    <Metrics/>
-                    <Completion/>
+                    <Metrics gameState={gameState} readState={readState}/>
+                    {/*<Completion gameState={gameState} readState={readState} bible={bible}/>*/}
                 </section>
             </main>
             <Navigation play={true} read={true}/>

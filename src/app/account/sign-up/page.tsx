@@ -1,21 +1,21 @@
 'use client'
 
-import { signup } from "@/core/action/sign-up";
+import { signup } from "@/core/action/auth/sign-up";
 import { SignUpFormSchema } from "@/core/model/form-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import Background from "@/app/background";
 import React from "react";
-import {Button} from "@heroui/button";
+import { Button } from "@heroui/button";
 import Link from "next/link";
+import { StateUtil } from "@/core/util/state-util";
 
 /**
  * Sign-Up Page
  * @since 6th June 2025
  */
 export default function SignUp() {
-
     const [state, dispatch] = useFormState(signup, undefined)
     const { register, formState: { errors } } = useForm({
         resolver: zodResolver(SignUpFormSchema)

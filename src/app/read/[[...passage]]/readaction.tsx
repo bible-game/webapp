@@ -2,14 +2,19 @@
 
 import { Button } from "@nextui-org/react";
 import React from "react";
-import { GameStatesService } from "@/core/service/state/game-states-service";
 import { toast, Toaster } from "react-hot-toast";
+import { StateUtil } from "@/core/util/state-util";
 
 const ReadAction = (props: any) => {
 
     function tickRead() {
         const chapter = props.chapter || 1;
-        GameStatesService.updateCompletion(true, props.book, chapter, props.verseStart, props.verseEnd);
+        const state = {book: props.book, chapter, verseStart: props.verseStart, verseEnd: props.verseEnd}
+        StateUtil.setRead(state);
+
+        if (props.state) {
+            // todo :: trigger backend read update
+        }
 
         if (props.verseStart) {
             if (props.verseEnd) {

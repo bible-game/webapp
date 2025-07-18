@@ -1,6 +1,6 @@
 'use client'
 
-import { logOut } from "@/core/action/log-out";
+import { logOut } from "@/core/action/auth/log-out";
 
 export default function LogoutButton() {
     return (

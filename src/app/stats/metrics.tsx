@@ -1,20 +1,24 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import { CompletionService } from "@/core/service/state/completion-service";
+import {StateUtil} from "@/core/util/state-util";
+import {CompletionUtil} from "@/core/util/completion-util";
 
-const Metrics = () => {
+const Metrics = (props: any) => {
 
     const [stars, setStars] = useState(0);
     const [games, setGames] = useState(0);
     const [streak, setStreak] = useState(0);
-    const [complete, setComplete] = useState("");
+    const [complete, setComplete] = useState(0);
 
     useEffect(() => {
-        setStars(CompletionService.calcStars);
-        setGames(CompletionService.calcGames);
-        setStreak(CompletionService.calcStreak);
-        setComplete(CompletionService.calcCompletion);
+        if (props.gameState) StateUtil.setAllGame(props.gameState);
+        if (props.readState) StateUtil.setAllGame(props.readState);
+
+        setStars(CompletionUtil.calcStars);
+        setGames(CompletionUtil.calcGames);
+        setStreak(CompletionUtil.calcStreak);
+        setComplete(CompletionUtil.calcPercentageCompletion);
     }, []);
 
     return <section className="sm:w-[46rem] w-[80vw]">

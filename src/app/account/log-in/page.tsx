@@ -9,7 +9,7 @@ import { Alert } from "@heroui/alert"
 import Background from "@/app/background"
 import Link from "next/link"
 
-import { logIn } from "@/core/action/log-in"
+import { logIn } from "@/core/action/auth/log-in"
 import { LogInFormState } from "@/core/model/form-definitions"
 
 /**
@@ -17,6 +17,7 @@ import { LogInFormState } from "@/core/model/form-definitions"
  * @since 6th June 2025
  */
 export default function LogIn() {
+    //@ts-ignore
     const [state, action, pending] = useActionState<LogInFormState, FormData>(logIn, undefined)
     
     const inputClassNames = {

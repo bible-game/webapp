@@ -3,15 +3,19 @@
 import React, { useEffect, useState } from "react";
 import { Spinner } from "@heroui/react";
 import Heatmap from "@/app/stats/heatmap";
-import { GameStatesService } from "@/core/service/state/game-states-service";
+import { StateUtil } from "@/core/util/state-util";
+import { CompletionUtil } from "@/core/util/completion-util";
 
-const Completion = () => {
+const Completion = (props: any) => {
 
     const [completion, setCompletion] = useState([] as any[]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setCompletion(GameStatesService.getCompletion);
+        if (props.gameState) StateUtil.setAllGame(props.gameState);
+        if (props.readState) StateUtil.setAllGame(props.readState);
+
+        setCompletion(CompletionUtil.build(props.bible));
     }, []);
 
     useEffect(() => {

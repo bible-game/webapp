@@ -1,6 +1,7 @@
 "use server"
 
 import { SignUpFormState } from "@/core/model/form-definitions"
+import { State } from "@/core/model/state/state";
 
 export async function signup(state: SignUpFormState, formData: FormData) {
 
@@ -33,7 +34,11 @@ export async function signup(state: SignUpFormState, formData: FormData) {
         password: formData.get("password"),
         firstname: formData.get("firstname"),
         lastname: formData.get("lastname"),
-        church: formData.get("church")
+        church: formData.get("church"),
+
+        games: overall.games,
+        reviews: overall.reviews,
+        reads: overall.reads
     }
 
     try {

@@ -1,14 +1,15 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
-import { getStudy, Question } from '@/core/action/get-study';
-import { GameStatesService } from "@/core/service/game-states-service";
+import React, {useEffect, useState} from 'react';
+import {getStudy, Question} from '@/core/action/study/get-study';
 import moment from "moment";
-import { Spinner } from "@heroui/react";
-import { Button } from "@nextui-org/react";
+import {Spinner} from "@heroui/react";
+import {Button} from "@nextui-org/react";
 import TextareaAutosize from 'react-textarea-autosize';
-import { gradeSummary } from '@/core/action/grade-summary';
-import { useDebouncedCallback } from 'use-debounce';
+import {gradeSummary} from '@/core/action/study/grade-summary';
+import {useDebouncedCallback} from 'use-debounce';
+import {StateUtil} from "@/core/util/state-util";
+import {ReviewState} from "@/core/model/state/review-state";
 
 interface QuestionsProps {
   passage: string;
@@ -37,7 +38,10 @@ export default function Questions(props: any) {
   };
 
   const loadState = React.useCallback(() => {
-    const state = GameStatesService.getStudy(props.passage)
+    if (props.state) StateUtil.setAllReview(props.state);
+
+    const state = StateUtil.getReview(props.passage);
+
     setSelectedAnswers(state.answers || []);
     setStars(state.stars || 0);
     setDate(state.date || "");
@@ -47,6 +51,7 @@ export default function Questions(props: any) {
       setSubmitted(true);
     }
   }, [props.passage]);
+
 
   useEffect(() => {
     loadState();
@@ -65,19 +70,18 @@ export default function Questions(props: any) {
   const handleSubmit = () => {
     setSubmitted(true);
 
-    const correctAnswers = questions.reduce((acc: number, q: any, index: number) => {
+    let finalStars = questions.reduce((acc: number, q: any, index: number) => {
       if (selectedAnswers[index] === q.correct) {
         return acc + 1;
       }
       return acc;
     }, 0);
-
-    let finalStars = correctAnswers;
     if (gradingResult && gradingResult.score > 0.7) {
       finalStars += 1;
     }
 
-    GameStatesService.setStudy(finalStars, selectedAnswers, props.passage, moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary, gradingResult);
+    const state: ReviewState = {stars: finalStars, answers: selectedAnswers, passageKey: props.passage, date: moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary, gradingResult}
+    StateUtil.setReview(state);
     loadState();
   };
 
