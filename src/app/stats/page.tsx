@@ -68,7 +68,7 @@ export default async function Stats() {
                     </div>
                     {!firstname && <LoginPrompt/>}
                     <Metrics gameState={gameState} readState={readState}/>
-                    {/*<Completion gameState={gameState} readState={readState} bible={bible}/>*/}
+                    <Completion gameState={gameState} readState={readState} bible={bible}/>
                 </section>
             </main>
             <Navigation play={true} read={true}/>

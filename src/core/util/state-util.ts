@@ -32,7 +32,7 @@ export class StateUtil {
         const allReads = this.getAllReads();
 
         return allReads.get(passageKey)
-            ?? { book: '', chapter: '', verseStart: '', verseEnd: '' }
+            ?? { book: '', chapter: '', verseStart: '', verseEnd: '', passageKey: '' }
     }
 
     /** Sets the game-state for a given passage */

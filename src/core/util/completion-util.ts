@@ -1,7 +1,9 @@
 "use client"
 
 import { StateUtil } from "@/core/util/state-util";
-import {StorageUtil} from "@/core/util/storage-util";
+import { StorageUtil } from "@/core/util/storage-util";
+import {GameState} from "@/core/model/state/game-state";
+import {ReadState} from "@/core/model/state/read-state";
 
 /**
  * Completion-related Utilities
@@ -55,24 +57,34 @@ export class CompletionUtil {
     static build(config: any): any {
         const completion = this.initialise(config);
 
-        // todo
-        // StateUtil.getAllGames().forEach()
-        // StateUtil.getAllReads().forEach()
+        // StateUtil.getAllGames().forEach((game: GameState) => {
+        //     if (!game.playing) {
+        //         completion.get()
+        //     }
+        // });
+
+        StateUtil.getAllReads().forEach((read: ReadState) => {
+            console.log(completion);
+            // const book = completion.get(read.book.toLowerCase().replace(/ /g, ""));
+            // console.log(read);
+            // console.log(book);
+        })
 
         return StorageUtil.save('completion', completion);
     }
 
     /** Initialises an empty completion if it doesn't exist */
     static initialise(config: any): any {
-        let completion: any = StorageUtil.retrieve('completion') ?? [];
-        if (completion) return completion;
+        let completion: any = StorageUtil.retrieve('completion');
+        if (completion) return JSON.parse(completion);
+        else completion = {};
 
-        for (const testament of config) {
+        for (const testament of config.testaments) {
             for (const division of testament.divisions) {
                 for (const book of division.books) {
                     const bk = {} as any;
-
-                    bk['book'] = book.name;
+                    const bookName = book.name.toLowerCase().replace(/ /g, "");
+                    bk['book'] = bookName
                     bk['chapters'] = [];
                     for (let i = 0; i < book.chapters; i++) {
                         bk['chapters'].push({
@@ -85,10 +97,12 @@ export class CompletionUtil {
                         }
                     }
 
-                    completion.push(bk);
+                    completion[bookName] = bk;
                 }
             }
         }
+
+        return completion;
     }
 
 }
