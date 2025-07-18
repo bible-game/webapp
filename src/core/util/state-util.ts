@@ -52,7 +52,6 @@ export class StateUtil {
     /** Returns all games mapped to their passage */
     static getAllGames(): Map<number, GameState> {
         const json = StorageUtil.retrieve('games') ?? '[]';
-        console.log(json);
         return new Map(JSON.parse(json));
     }
 

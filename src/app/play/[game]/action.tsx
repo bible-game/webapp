@@ -5,7 +5,7 @@ import { NumberInput } from "@heroui/number-input";
 import { Button } from "@nextui-org/react";
 import { toast } from "react-hot-toast";
 import { guess } from "@/core/action/play/guess";
-import {redirect} from "next/navigation";
+import { redirect } from "next/navigation";
 import moment from "moment";
 import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
@@ -97,7 +97,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         // else if (props.isInvalidGuess(props.selected.icon)) toast.error(`Today's chapter is of theme ${props.passage.icon}!`)
                         else {
                             guess(props.date, props.selected.book, props.selected.chapter).then((closeness: any) => {
-                                props.addGuess(closeness)
+                                props.addGuess(closeness);
                             })
                         }
                     }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>

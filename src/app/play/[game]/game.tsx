@@ -14,8 +14,9 @@ import moment from "moment/moment";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
 import { Spinner } from "@heroui/react";
-import {StateUtil} from "@/core/util/state-util";
-import {GameState} from "@/core/model/state/game-state";
+import { StateUtil } from "@/core/util/state-util";
+import { GameState } from "@/core/model/state/game-state";
+import {post} from "@/core/action/http/post";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -144,17 +145,39 @@ export default function Game(props: any) {
     }
 
     function addGuess(closeness: any) {
+        const newGuess = {
+            book: selected.book,
+            bookKey: allBooks.find((bk: any) => bk.name == selected.book).key,
+            chapter: selected.chapter,
+            distance: closeness.distance,
+            percentage: closeness.percentage,
+            closeness
+        }
         const updatedGuesses = [
             ...guesses,
-            {
-                book: selected.book,
-                bookKey: allBooks.find((bk: any) => bk.name == selected.book).key,
-                chapter: selected.chapter,
-                closeness
-            }
-        ]
+            newGuess
+        ];
 
-        setGuesses(updatedGuesses);
+        if (props.state) {
+            post(`${process.env.SVC_USER}/state/guess/${passage.id}`, newGuess).then(
+            () => {
+                setGuesses(updatedGuesses);
+
+                const won = (closeness.distance == 0);
+                const limitReached = (updatedGuesses.length >= 5);
+                if (won) {
+                    if (props.state) return;
+                    setConfetti(true);
+                }
+                if (won || limitReached) {
+                    setPlaying(false);
+                    setStars(won ? 5 + 1 - updatedGuesses.length : 0);
+                }
+            });
+        } else {
+            setGuesses(updatedGuesses);
+        }
+
 
         if (selected.book == passage.book) {
             setBook(passage.book);
@@ -182,7 +205,8 @@ export default function Game(props: any) {
             setPlaying(false);
             starResult = won ? 5 + 1 - updatedGuesses.length : 0;
         }
-        setStars(starResult)
+
+        setStars(starResult);
         const state: GameState = {
             stars: starResult,
             guesses: updatedGuesses,
@@ -190,10 +214,6 @@ export default function Game(props: any) {
             passageId: passage.id
         }
         StateUtil.setGame(state);
-
-        if (props.state) {
-            // todo :: trigger update backend state
-        }
     }
 
     // fixme :: behaviour not correct
@@ -245,6 +265,7 @@ export default function Game(props: any) {
                                 isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
                                 addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
                                 selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
+                                state={props.state}
                                 selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                         <Guesses guesses={guesses} bookFound={bookFound}/>
                     </section>

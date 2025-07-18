@@ -47,7 +47,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
             <Background/>
             <main className="w-full">
                 <Toaster position="bottom-right"/>
-                <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} />
+                <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state}/>
             </main>
             <Navigation stats={true} read={true}/>
         </>

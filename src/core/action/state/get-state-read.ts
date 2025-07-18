@@ -1,7 +1,7 @@
 "use server"
 
 import getReadKey, { ReadState } from "@/core/model/state/read-state";
-import {getToken} from "@/core/util/auth-util";
+import { getToken } from "@/core/util/auth-util";
 
 export async function getReadState(): Promise<Map<string,ReadState>> {
     const url = `${process.env.SVC_USER}/state/read`;

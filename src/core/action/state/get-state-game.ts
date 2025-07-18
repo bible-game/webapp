@@ -10,5 +10,10 @@ export async function getGameState(): Promise<Map<number,GameState>> {
     const response = await fetch(url, { method: "GET", headers });
     const states: GameState[] = await response.json();
 
-    return new Map(states.map(state => [state.passageId, state]));
+    return new Map(states.map((state: GameState)=> {
+        state.guesses.forEach((guess: any) => {
+            guess.closeness = {distance: guess.distance, percentage: guess.percentage}
+        })
+        return [state.passageId, state]
+    }));
 }
