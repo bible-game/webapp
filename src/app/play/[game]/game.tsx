@@ -186,8 +186,8 @@ export default function Game(props: any) {
             guesses: updatedGuesses,
             playing: !(won || limitReached),
             passageId: passage.id,
-            book: passage.book,
-            chapter: passage.chapter
+            passageBook: passage.book,
+            passageChapter: passage.chapter
         }
         StateUtil.setGame(state);
     }
