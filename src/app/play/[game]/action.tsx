@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import moment from "moment";
 import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
+import {post} from "@/core/action/http/post";
 
 const Action = (props: any) => {
 
@@ -96,8 +97,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
                         // else if (props.isInvalidGuess(props.selected.icon)) toast.error(`Today's chapter is of theme ${props.passage.icon}!`)
                         else {
-                            guess(props.date, props.selected.book, props.selected.chapter).then((closeness: any) => {
-                                props.addGuess(closeness);
+                            guess(props.date, props.selected.book, props.selected.chapter, props.passageId).then((guess: any) => {
+                                props.addGuess(guess)
                             })
                         }
                     }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>

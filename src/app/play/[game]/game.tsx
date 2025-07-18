@@ -81,7 +81,7 @@ export default function Game(props: any) {
 
             if (passage) loadState();
         }
-    }, [passage, stars]);
+    }, [passage]);
 
     function loadState() {
         if (props.state)
@@ -144,40 +144,14 @@ export default function Game(props: any) {
 
     }
 
-    function addGuess(closeness: any) {
-        const newGuess = {
-            book: selected.book,
-            bookKey: allBooks.find((bk: any) => bk.name == selected.book).key,
-            chapter: selected.chapter,
-            distance: closeness.distance,
-            percentage: closeness.percentage,
-            closeness
-        }
+    function addGuess(newGuess: any) {
+        newGuess.bookKey = allBooks.find((bk: any) => bk.name == selected.book).key;
         const updatedGuesses = [
             ...guesses,
             newGuess
         ];
 
-        if (props.state) {
-            post(`${process.env.SVC_USER}/state/guess/${passage.id}`, newGuess).then(
-            () => {
-                setGuesses(updatedGuesses);
-
-                const won = (closeness.distance == 0);
-                const limitReached = (updatedGuesses.length >= 5);
-                if (won) {
-                    if (props.state) return;
-                    setConfetti(true);
-                }
-                if (won || limitReached) {
-                    setPlaying(false);
-                    setStars(won ? 5 + 1 - updatedGuesses.length : 0);
-                }
-            });
-        } else {
-            setGuesses(updatedGuesses);
-        }
-
+        setGuesses(updatedGuesses);
 
         if (selected.book == passage.book) {
             setBook(passage.book);
@@ -196,7 +170,7 @@ export default function Game(props: any) {
         }
 
         let starResult = 0
-        const won = (closeness.distance == 0);
+        const won = (newGuess.distance == 0);
         const limitReached = (updatedGuesses.length >= 5);
         if (won) {
             setConfetti(true);
@@ -265,7 +239,7 @@ export default function Game(props: any) {
                                 isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
                                 addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
                                 selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
-                                state={props.state}
+                                state={props.state} passageId={passage.id}
                                 selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                         <Guesses guesses={guesses} bookFound={bookFound}/>
                     </section>
