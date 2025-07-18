@@ -11,12 +11,12 @@ const ReadAction = (props: any) => {
 
     function tickRead() {
         const chapter = props.chapter || 1;
-        const state = {book: props.book, chapter, verseStart: props.verseStart, verseEnd: props.verseEnd, passageKey: ''};
+        const state = {book: props.book, chapter, verseStart: props.verseStart || '', verseEnd: props.verseEnd || '', passageKey: ''};
         state.passageKey = getReadKey(state);
         StateUtil.setRead(state);
 
         if (props.state) {
-            post(`${process.env.SVC_USER}/state/read`, {passageKey: state.passageKey}).then()
+            post(`${process.env.SVC_USER}/state/read`, state).then()
         }
 
         if (props.verseStart) {

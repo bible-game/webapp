@@ -11,7 +11,6 @@ import {useDebouncedCallback} from 'use-debounce';
 import {StateUtil} from "@/core/util/state-util";
 import {GradingResult, ReviewState} from "@/core/model/state/review-state";
 import {post} from "@/core/action/http/post";
-import getReadKey from "@/core/model/state/read-state";
 
 interface QuestionsProps {
   passage: string;
