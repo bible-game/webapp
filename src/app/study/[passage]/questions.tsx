@@ -82,17 +82,12 @@ export default function Questions(props: any) {
       finalStars += 1;
     }
 
-    const state: ReviewState = {stars: finalStars, answers: selectedAnswers, passageKey: props.passage, date: moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString(), summary, gradingResult: gradingResult as GradingResult}
-    if (props.state) {
-      post(`${process.env.SVC_USER}/state/review`, state).then(() => {
-        StateUtil.setReview(state);
-        loadState();
-      })
-    } else {
-      StateUtil.setReview(state);
-      loadState();
-    }
-
+    const date = moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString();
+    setStars(finalStars);
+    setDate(date);
+    const state: ReviewState = {stars: finalStars, answers: selectedAnswers, passageKey: props.passage, date, summary, gradingResult: gradingResult as GradingResult}
+    if (props.state) post(`${process.env.SVC_USER}/state/review`, state)
+    StateUtil.setReview(state);
   };
 
   const getScoreColor = (score: number) => {
