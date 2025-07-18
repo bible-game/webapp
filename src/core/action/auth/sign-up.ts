@@ -1,7 +1,6 @@
 "use server"
 
 import { SignUpFormState } from "@/core/model/form-definitions"
-import { State } from "@/core/model/state/state";
 
 export async function signup(state: SignUpFormState, formData: FormData) {
 
@@ -36,9 +35,9 @@ export async function signup(state: SignUpFormState, formData: FormData) {
         lastname: formData.get("lastname"),
         church: formData.get("church"),
 
-        games: overall.games,
-        reviews: overall.reviews,
-        reads: overall.reads
+        games: JSON.parse(formData.get("games") as string || '[]'),
+        reviews: JSON.parse(formData.get("reviews") as string || '[]'),
+        reads: JSON.parse(formData.get("reads") as string || '[]')
     }
 
     try {
@@ -51,7 +50,7 @@ export async function signup(state: SignUpFormState, formData: FormData) {
         })
 
         let result: string | any
-        if (response.status == 200) {
+        if (response.status) { // fixme
             result = await response.text()
             state!.token = result
             state!.success = true

@@ -52,6 +52,7 @@ export class StateUtil {
     /** Returns all games mapped to their passage */
     static getAllGames(): Map<number, GameState> {
         const json = StorageUtil.retrieve('games') ?? '[]';
+        console.log(json);
         return new Map(JSON.parse(json));
     }
 
@@ -69,12 +70,20 @@ export class StateUtil {
 
     /** Sets the overall game state object */
     static setAllGame(states: Map<number, GameState>): void {
-        StorageUtil.save('games', states);
+        //@ts-ignore
+        StorageUtil.save('games', Array.from(states));
     }
 
     /** Sets the overall review state object */
     static setAllReview(states: Map<number, ReviewState>): void {
-        StorageUtil.save('reviews', states);
+        //@ts-ignore
+        StorageUtil.save('reviews', Array.from(states));
+    }
+
+    /** Sets the overall review state object */
+    static setAllReads(states: Map<number, ReadState>): void {
+        //@ts-ignore
+        StorageUtil.save('reads', Array.from(states));
     }
 
     /** Sets the read-state for a given passage */

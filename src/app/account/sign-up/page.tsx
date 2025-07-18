@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import Background from "@/app/background";
-import React from "react";
+import React, {useEffect} from "react";
 import { Button } from "@heroui/button";
 import Link from "next/link";
 import { StateUtil } from "@/core/util/state-util";
@@ -20,6 +20,26 @@ export default function SignUp() {
     const { register, formState: { errors } } = useForm({
         resolver: zodResolver(SignUpFormSchema)
     })
+
+    useEffect(() => {
+        const games = Array.from(StateUtil.getAllGames().values());
+        if (games) {
+            const hidden = document.getElementById("games") as HTMLInputElement;
+            if (hidden) hidden.value = JSON.stringify(games);
+        }
+
+        const reviews = Array.from(StateUtil.getAllReviews().values());
+        if (reviews) {
+            const hidden = document.getElementById("reviews") as HTMLInputElement;
+            if (hidden) hidden.value = JSON.stringify(reviews);
+        }
+
+        const reads = Array.from(StateUtil.getAllReads().values());
+        if (reads) {
+            const hidden = document.getElementById("reads") as HTMLInputElement;
+            if (hidden) hidden.value = JSON.stringify(reads);
+        }
+    }, []);
 
     return (
         <>
@@ -55,17 +75,21 @@ export default function SignUp() {
                                 />
                                 {//@ts-ignore
                                     errors[name] && (
-                                    <p className="text-sm text-red-400">
-                                        {//@ts-ignore
-                                            errors[name]?.message?.toString()}
-                                    </p>
-                                )}
+                                        <p className="text-sm text-red-400">
+                                            {//@ts-ignore
+                                                errors[name]?.message?.toString()}
+                                        </p>
+                                    )}
                                 {//@ts-ignore
                                     state?.errors?.[name]?.map((err: string) => (
-                                    <p key={err} className="text-sm text-red-400">{err}</p>
-                                ))}
+                                        <p key={err} className="text-sm text-red-400">{err}</p>
+                                    ))}
                             </div>
                         ))}
+
+                        <input type="hidden" name="games" id="games"/>
+                        <input type="hidden" name="reviews" id="reviews"/>
+                        <input type="hidden" name="reads" id="reads"/>
 
                         {/* General Form Errors */}
                         {state?.errors?.form?.map((error: string) => (
@@ -89,7 +113,8 @@ export default function SignUp() {
                         </p>
                     </form>
                 ) : (
-                    <div className="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white space-y-5 text-center">
+                    <div
+                        className="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white space-y-5 text-center">
                         <h1 className="text-2xl font-semibold">Account Created!</h1>
                         <p className="text-sm text-indigo-300 mt-1">
                             You can now log in with your new credentials.

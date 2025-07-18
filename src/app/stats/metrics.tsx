@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import {StateUtil} from "@/core/util/state-util";
-import {CompletionUtil} from "@/core/util/completion-util";
+import { StateUtil } from "@/core/util/state-util";
+import { CompletionUtil } from "@/core/util/completion-util";
 
 const Metrics = (props: any) => {
 
@@ -13,7 +13,7 @@ const Metrics = (props: any) => {
 
     useEffect(() => {
         if (props.gameState) StateUtil.setAllGame(props.gameState);
-        if (props.readState) StateUtil.setAllGame(props.readState);
+        if (props.readState) StateUtil.setAllReads(props.readState);
 
         setStars(CompletionUtil.calcStars);
         setGames(CompletionUtil.calcGames);
