@@ -3,6 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import Questions from "@/app/study/[passage]/questions";
+import isLoggedIn from "@/core/util/auth-util";
+import { ReviewState } from "@/core/model/state/review-state";
+import { getReviewState } from "@/core/action/state/get-state-review";
 
 /**
  * Study Page
@@ -11,6 +14,9 @@ import Questions from "@/app/study/[passage]/questions";
 export default async function Study({params}: { params: Promise<{ passage: string }>}) {
 
     const { passage } = await params;
+
+    let state: Map<string,ReviewState> | undefined;
+    if (await isLoggedIn()) state = await getReviewState();
 
     return (
         <div className="bg-white absolute top-0 left-0 w-full h-full">
@@ -26,7 +32,7 @@ export default async function Study({params}: { params: Promise<{ passage: strin
                     className="bg-white flex justify-center sm:w-[46rem] w-full text-black relative top-10 sm:top-0 pb-[2rem] h-fit">
                     <div className="w-full p-4 min-h-full">
                         <h1 className="text-3xl mb-4">{passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, '$& ')}</h1>
-                        <Questions passage={passage} />
+                        <Questions passage={passage} state={state}/>
                     </div>
                 </main>
             </div>

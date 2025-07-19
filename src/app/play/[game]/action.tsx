@@ -4,14 +4,13 @@ import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
 import { NumberInput } from "@heroui/number-input";
 import { Button } from "@nextui-org/react";
 import { toast } from "react-hot-toast";
-import { guess } from "@/core/action/guess";
-import {redirect} from "next/navigation";
+import { guess } from "@/core/action/play/guess";
+import { redirect } from "next/navigation";
 import moment from "moment";
-import {CalendarDate} from "@internationalized/date";
-import {CompletionService} from "@/core/service/completion-service";
+import { CalendarDate } from "@internationalized/date";
+import { CompletionUtil } from "@/core/util/completion-util";
 
 const Action = (props: any) => {
-
 
     function calcGuessBlocks() {
         let guessBlocks = '';
@@ -38,7 +37,7 @@ const Action = (props: any) => {
         return `https://bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
-⭐ ${CompletionService.calcStars()} 📖 ${CompletionService.calcCompletion()}%`;
+⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion()}%`;
     }
 
     return                 <>{
@@ -96,8 +95,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
                         // else if (props.isInvalidGuess(props.selected.icon)) toast.error(`Today's chapter is of theme ${props.passage.icon}!`)
                         else {
-                            guess(props.date, props.selected.book, props.selected.chapter).then((closeness: any) => {
-                                props.addGuess(closeness)
+                            guess(props.date, props.selected.book, props.selected.chapter, props.passage).then((guess: any) => {
+                                props.addGuess(guess)
                             })
                         }
                     }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>

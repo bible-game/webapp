@@ -159,6 +159,9 @@ const Treemap = (props: any) => {
                     //     this.open(event.group.id);
                     // }
                 },
+                onViewResetting: function(e: any) {
+                    e.preventDefault();
+                },
                 onGroupMouseWheel: function (event: any) {
                     if (event.delta < 0) {
                         //@ts-ignore
