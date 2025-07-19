@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { Accordion, AccordionItem, Spinner } from "@heroui/react";
-import { getPostContext } from "@/core/action/get-postcontext";
-import { getPreContext } from "@/core/action/get-precontext";
+import { getPostContext } from "@/core/action/read/get-postcontext";
+import { getPreContext } from "@/core/action/read/get-precontext";
 
 const Context = (props: any) => {
 

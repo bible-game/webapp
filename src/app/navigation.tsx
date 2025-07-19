@@ -1,5 +1,12 @@
 import React from "react";
 import Link from "next/link";
+import LogIn from '@/app/account/log-in/page'
+import SignUp from '@/app/account/sign-up/page'
+
+// TODO:
+// 1. Create form on LogIn/SignUp components
+// 2. Implement useContext to retain session
+// 3. In Navigation, conditionally display LogIn/SignUp link
 
 /**
  * Navigation Component
@@ -11,11 +18,11 @@ export const Navigation = (props: any) => {
     const textStyle = `${props.dark ? "text-black" : "text-white"} font-light text-sm`
 
     if (props.play) links.push(
-        <Link href='/' key='play'>
+        <Link href="/" key="play">
             <div className="flex gap-1 items-center w-[4rem]">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
-                     stroke={props.dark ? "black" : "currentColor"} className="size-4">
-                    <path strokeLinecap="round" strokeLinejoin="round"
+                     stroke={props.dark ? 'black' : 'currentColor'} className="size-4">
+                <path strokeLinecap="round" strokeLinejoin="round"
                           d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"/>
                 </svg>
                 <p className={textStyle}>Play</p>
@@ -58,6 +65,18 @@ export const Navigation = (props: any) => {
             </div>
         </Link>
 );
+    if (props.account) links.push(
+        <Link href='/account' key='account'>
+            <div className="flex gap-1 items-center w-[4rem]">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
+                     stroke={props.dark ? "black" : "currentColor"} className="size-4">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                          d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
+                </svg>
+                <p className={textStyle}>Account</p>
+            </div>
+        </Link>
+    );
 
     return (
         <section className="flex absolute justify-end w-full sm:right-[inherit] sm:w-[46rem] top-[1rem] right-[1rem]">

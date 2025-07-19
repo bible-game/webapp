@@ -7,7 +7,6 @@ import { Passage } from "@/core/model/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
-import { GameStatesService } from "@/core/service/game-states-service";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
 import Treemap from "@/app/play/[game]/treemap";
@@ -15,6 +14,9 @@ import moment from "moment/moment";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
 import { Spinner } from "@heroui/react";
+import { StateUtil } from "@/core/util/state-util";
+import { GameState } from "@/core/model/state/game-state";
+import {post} from "@/core/action/http/post";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -65,29 +67,33 @@ export default function Game(props: any) {
 
         if (typeof window !== "undefined") {
             (window as any).Hammer = Hammer.default;
-                //// global.d.ts
-                // import type * as HammerType from 'hammerjs';
-                //
-                // declare global {
-                //   interface Window {
-                //     Hammer: typeof HammerType;
-                //   }
-                // }
-                /**
-                 * You can tell TypeScript about window.Hammer by augmenting the global Window type. Create a global.d.ts file in your project root (or anywhere under /types, as long as it's included in your tsconfig.json), and add this:
-                 */
+            //// global.d.ts
+            // import type * as HammerType from 'hammerjs';
+            //
+            // declare global {
+            //   interface Window {
+            //     Hammer: typeof HammerType;
+            //   }
+            // }
+            /**
+             * You can tell TypeScript about window.Hammer by augmenting the global Window type. Create a global.d.ts file in your project root (or anywhere under /types, as long as it's included in your tsconfig.json), and add this:
+             */
 
-            loadState();
+            if (passage) loadState();
         }
-    }, [stars]);
+    }, [passage]);
 
     function loadState() {
-        const state = GameStatesService.getStateForDate(props.game)
-        setGuesses(state.guesses)
-        setStars(state.stars || 0)
-        setPlaying(state.playing)
-        GameStatesService.initCompletion(props.bible.testaments);
-        setState(state);
+        if (props.state)
+            StateUtil.setAllGame(props.state);
+
+        if (passage) {
+            const state = StateUtil.getGame(passage.id);
+            setGuesses(state.guesses)
+            setStars(state.stars || 0)
+            setPlaying(state.playing)
+            setState(state);
+        }
     }
 
     function selectBook(item: string, disabled?: boolean): void {
@@ -97,7 +103,7 @@ export default function Game(props: any) {
 
         const chapters = [];
         const numChapters = allBooks!!.find((book: any) => book.name === item).chapters;
-        for (let i = 1; i <= numChapters; i++) chapters.push({ name: i.toString() });
+        for (let i = 1; i <= numChapters; i++) chapters.push({name: i.toString()});
 
         setMaxChapter(numChapters);
         setHasBook(true);
@@ -138,48 +144,52 @@ export default function Game(props: any) {
 
     }
 
-    function addGuess(closeness: any) {
+    function addGuess(newGuess: any) {
+        newGuess.bookKey = allBooks.find((bk: any) => bk.name == selected.book).key;
         const updatedGuesses = [
             ...guesses,
-            {
-                book: selected.book,
-                bookKey: allBooks.find((bk: any) => bk.name == selected.book).key,
-                chapter: selected.chapter,
-                closeness
-            }
-        ]
+            newGuess
+        ];
 
         setGuesses(updatedGuesses);
 
         if (selected.book == passage.book) {
             setBook(passage.book);
-            setBookFound(<CheckIcon className="text-lg text-green-200" />);
+            setBookFound(<CheckIcon className="text-lg text-green-200"/>);
         }
         if (selected.chapter == passage.chapter) {
             setChapter(passage.chapter);
-            setChapterFound(<CheckIcon className="text-lg text-green-200" />);
+            setChapterFound(<CheckIcon className="text-lg text-green-200"/>);
         }
 
         if (selected.testament == passage.testament) {
-            setTestamentFound(<CheckIcon className="text-lg text-green-200" />);
+            setTestamentFound(<CheckIcon className="text-lg text-green-200"/>);
         }
         if (selected.division == passage.division) {
-            setDivisionFound(<CheckIcon className="text-lg text-green-200" />);
+            setDivisionFound(<CheckIcon className="text-lg text-green-200"/>);
         }
 
         let starResult = 0
-        const won = (closeness.distance == 0);
+        const won = (newGuess.distance == 0);
         const limitReached = (updatedGuesses.length >= 5);
         if (won) {
-            GameStatesService.updateCompletion(false, selected.book, parseInt(selected.chapter));
             setConfetti(true);
         }
         if (won || limitReached) {
             setPlaying(false);
             starResult = won ? 5 + 1 - updatedGuesses.length : 0;
         }
-        setStars(starResult)
-        GameStatesService.setStateForDate(starResult, updatedGuesses, !(won || limitReached), props.game)
+
+        setStars(starResult);
+        const state: GameState = {
+            stars: starResult,
+            guesses: updatedGuesses,
+            playing: !(won || limitReached),
+            passageId: passage.id,
+            passageBook: passage.book,
+            passageChapter: passage.chapter
+        }
+        StateUtil.setGame(state);
     }
 
     // fixme :: behaviour not correct
@@ -191,8 +201,8 @@ export default function Game(props: any) {
     }
 
     function isExistingGuess() {
-        return guesses.map(guess => guess.book+guess.chapter)
-            .includes(selected.book+selected.chapter);
+        return guesses.map(guess => guess.book + guess.chapter)
+            .includes(selected.book + selected.chapter);
     }
 
     function isInvalidGuess(icon: string) {
@@ -219,13 +229,20 @@ export default function Game(props: any) {
 
         return (
             <>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device} playing={playing}/>
+                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
+                         testFound={testamentFound} data={testaments} book={book} device={props.device}
+                         playing={playing}/>
                 <section className="relative z-1 h-full pointer-events-none">
                     <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
                         <Menu passage={passage} playing={playing} date={props.game} device={props.device}/>
                     </section>
                     <section className="pointer-events-auto absolute bottom-2 sm:bottom-[4.25rem]">
-                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
+                                isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
+                                addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
+                                selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
+                                state={props.state} passageId={passage.id}
+                                selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                         <Guesses guesses={guesses} bookFound={bookFound}/>
                     </section>
                     <Confetti fire={confetti}/>
@@ -234,3 +251,4 @@ export default function Game(props: any) {
         );
     }
 }
+

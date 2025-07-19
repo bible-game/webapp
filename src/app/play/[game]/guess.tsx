@@ -58,7 +58,7 @@ const Guess = (props: any) => {
                 // case '2 Corinthians':
                 //     return `2 Corinth. ${chapter}`;
                 default:
-                    return `${book} ${chapter}`
+                    return `${book.substring(0, book.split(" ").length > 1 ? 4 : 3).toUpperCase()} ${chapter}`
             }
         }
 

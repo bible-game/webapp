@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
 import { Input } from "@heroui/input";
-import { getPassage } from "@/core/action/get-passage";
+import { getPassage } from "@/core/action/read/get-passage";
 import { Spinner } from "@heroui/react";
 import { Card, CardBody } from "@heroui/card";
 import Context from "@/app/read/[[...passage]]/context";
@@ -11,7 +11,7 @@ import ReadAction from "@/app/read/[[...passage]]/readaction";
 import { bcv_parser } from "bible-passage-reference-parser/esm/bcv_parser";
 import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
 import { Button } from "@nextui-org/react";
-import { getAudio } from "@/core/action/get-audio";
+import { getAudio } from "@/core/action/read/get-audio";
 import Link from "next/link";
 
 export default function Content(props: any) {
@@ -150,6 +150,7 @@ export default function Content(props: any) {
                     <Context passageKey={key} context='after'/>
                     <div>
                         <ReadAction
+                            state={props.state}
                             book={split(key).book}
                             chapter={split(key).chapter}
                             verseStart={split(key).verseStart}
