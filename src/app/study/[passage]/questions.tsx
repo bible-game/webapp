@@ -84,8 +84,7 @@ export default function Questions(props: any) {
     const date = moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString();
     setStars(finalStars);
     setDate(date);
-    if (!gradingResult) setGradingResult({score: 0, message: ''});
-    const state: ReviewState = {stars: finalStars, answers: selectedAnswers, passageKey: props.passage, date, summary, gradingResult: gradingResult as GradingResult}
+    const state: ReviewState = {stars: finalStars, answers: selectedAnswers, passageKey: props.passage, date, summary, gradingResult: gradingResult || {score: 0, message: ''}};
     if (props.state) post(`${process.env.SVC_USER}/state/review`, state)
     StateUtil.setReview(state);
   };
