@@ -15,7 +15,7 @@ export default function Leaderboard(props: Readonly<Props>) {
                 <div className="text-yellow-200">
                     <h2 className="text-lg font-medium text-yellow-300">Leaderboard</h2>
                     <ol className="list-decimal list-inside mt-2">
-                        {props.leaders.map((entry, index) => (
+                        {props.leaders.toSorted(leader => leader.reviewStars + leader.gameStars).map((entry, index) => (
                             <li key={index} className="text-sm text-yellow-400 leading-tight font-light">
                                 {entry.firstname} {entry.lastname}, {entry.gameStars + entry.reviewStars} ⭐
                             </li>
