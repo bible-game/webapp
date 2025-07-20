@@ -39,7 +39,7 @@ export default function Questions(props: any) {
   };
 
   const loadState = React.useCallback(() => {
-    if (props.state) StateUtil.setAllReview(props.state);
+    if (props.state) StateUtil.setAllReviews(props.state);
 
     const state = StateUtil.getReview(props.passage);
 

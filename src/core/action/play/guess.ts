@@ -2,7 +2,7 @@
 
 import isLoggedIn from "@/core/util/auth-util";
 import { post } from "@/core/action/http/post";
-import { Passage}  from "@/core/model/passage";
+import { Passage}  from "@/core/model/play/passage";
 
 export async function guess(date: string, book: string, chapter: string, passage: Passage) {
     const response = await fetch(`${process.env.SVC_PASSAGE}/guess/${date}/${book}/${chapter}`, {
