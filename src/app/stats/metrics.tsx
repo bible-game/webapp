@@ -14,6 +14,7 @@ const Metrics = (props: any) => {
     useEffect(() => {
         if (props.gameState) StateUtil.setAllGame(props.gameState);
         if (props.readState) StateUtil.setAllReads(props.readState);
+        if (props.reviewState) StateUtil.setAllReviews(props.reviewState);
 
         setStars(CompletionUtil.calcStars);
         setGames(CompletionUtil.calcGames);
