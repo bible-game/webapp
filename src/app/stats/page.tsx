@@ -17,7 +17,7 @@ import { GameState } from "@/core/model/state/game-state";
 import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn from "@/core/util/auth-util";
 import getUserInfo, { UserInfo } from "@/core/action/user/get-user-info";
-import getLeaderboard from "@/core/action/user/get-leaderboard";
+import getLeaders from "@/core/action/user/get-leaders";
 import { getReviewState } from "@/core/action/state/get-state-review";
 import {ReviewState} from "@/core/model/state/review-state";
 
@@ -34,7 +34,7 @@ export default async function Stats() {
 
     let displayName: string | undefined;
     const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
-    const leaderboard = await getLeaderboard();
+    const leaders = await getLeaders();
 
     let gameState: Map<number,GameState> | undefined;
     let readState: Map<string,ReadState> | undefined;
@@ -66,7 +66,7 @@ export default async function Stats() {
                         </a>
                     </div>
                     {!info && <LoginPrompt/>}
-                    <Leaderboard leaderboard={leaderboard}/>
+                    <Leaderboard leaders={leaders}/>
                     <Metrics gameState={gameState} readState={readState} reviewState={reviewState} />
                     <Completion bible={bible}/>
                 </section>

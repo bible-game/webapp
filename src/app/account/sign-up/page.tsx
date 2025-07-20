@@ -1,7 +1,7 @@
 'use client'
 
 import { signup } from "@/core/action/auth/sign-up";
-import { SignUpFormSchema } from "@/core/model/form-definitions";
+import { SignUpFormSchema } from "@/core/model/form/form-definitions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";

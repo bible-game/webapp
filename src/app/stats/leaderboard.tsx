@@ -1,13 +1,13 @@
 "use client"
 
 import React from "react";
-import { LeaderboardEntry } from "@/core/action/user/get-leaderboard";
+import { Leader } from "@/core/model/user/leader";
 
 interface Props {
-    leaderboard: LeaderboardEntry[];
+    leaders: Leader[]
 }
 
-export default function Leaderboard(props: Props) {
+export default function Leaderboard(props: Readonly<Props>) {
     return <div className="w-[80vw] sm:w-[46rem] mt-4">
         <div
             className="relative border border-yellow-500/50 bg-yellow-900/30 backdrop-blur-md rounded-md p-4 sm:p-5 shadow-lg text-white">
@@ -15,9 +15,9 @@ export default function Leaderboard(props: Props) {
                 <div className="text-yellow-200">
                     <h2 className="text-lg font-medium text-yellow-300">Leaderboard</h2>
                     <ol className="list-decimal list-inside mt-2">
-                        {props.leaderboard.map((entry, index) => (
+                        {props.leaders.map((entry, index) => (
                             <li key={index} className="text-sm text-yellow-400 leading-tight font-light">
-                                {entry.firstname} {entry.lastname} - {entry.stars} stars
+                                {entry.firstname} {entry.lastname}, {entry.gameStars + entry.reviewStars} ⭐
                             </li>
                         ))}
                     </ol>

@@ -3,7 +3,7 @@
 import Menu from "@/app/play/[game]/menu";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
-import { Passage } from "@/core/model/passage";
+import { Passage } from "@/core/model/play/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
@@ -16,7 +16,6 @@ import * as Hammer from 'hammerjs';
 import { Spinner } from "@heroui/react";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
-import {post} from "@/core/action/http/post";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
