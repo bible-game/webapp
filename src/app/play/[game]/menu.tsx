@@ -12,6 +12,7 @@ import { I18nProvider } from "@react-aria/i18n";
 import { Code, Spinner, useDisclosure } from "@heroui/react";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
 import Image from "next/image";
+import getVersion from "@/core/action/version/get-version";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -19,6 +20,8 @@ const Menu = (props: any) => {
     const date = parseDate(props.date);
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    let version: string;
+    getVersion().then((appVersion) => version = appVersion);
 
     // const tooltip = <div className="px-1 py-2">
     //     <div className="text-small font-bold">{props.passage.icon} {themeMap[props.passage.icon].name}</div>
@@ -121,6 +124,9 @@ const Menu = (props: any) => {
                                     <p className="p-1 font-extralight">Use the number of verses to narrow your guess</p>
                                     <div className="flex mb-6 justify-center">
                                         <Image src="/guesses.png" alt="guesses" width={40 * 16} height={0}/>
+                                    </div>
+                                    <div className="mx-auto">
+                                        <p>App version: { version }</p>
                                     </div>
                                 </ModalBody>
                             </>
