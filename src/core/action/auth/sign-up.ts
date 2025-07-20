@@ -1,6 +1,6 @@
 "use server"
 
-import { SignUpFormState } from "@/core/model/form-definitions"
+import { SignUpFormState } from "@/core/model/form/form-definitions"
 
 export async function signup(state: SignUpFormState, formData: FormData) {
 

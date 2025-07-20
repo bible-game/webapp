@@ -38,3 +38,14 @@ export async function getToken(): Promise<string | null> {
 
     return cookie ? cookie.value : null;
 }
+
+/** Returns the id of a logged-in user */
+export async function getUserId(): Promise<string | undefined> {
+    const token = await getToken();
+    if (token) {
+        const {payload} = await jwtVerify(token, await getSecret());
+        return payload.sub;
+    } else {
+        return undefined;
+    }
+}

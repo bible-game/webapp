@@ -76,7 +76,7 @@ export class StateUtil {
     }
 
     /** Sets the overall review state object */
-    static setAllReview(states: Map<number, ReviewState>): void {
+    static setAllReviews(states: Map<number, ReviewState>): void {
         //@ts-ignore
         StorageUtil.save('reviews', Array.from(states));
     }

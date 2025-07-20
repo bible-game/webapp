@@ -1,7 +1,7 @@
 "use server"
 
 import { cookies } from "next/headers"
-import { LogInFormState } from "@/core/model/form-definitions"
+import { LogInFormState } from "@/core/model/form/form-definitions"
 import {redirect} from "next/navigation";
 
 export async function logIn(state: LogInFormState, formData: FormData) {

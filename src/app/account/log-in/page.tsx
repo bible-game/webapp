@@ -10,7 +10,7 @@ import Background from "@/app/background"
 import Link from "next/link"
 
 import { logIn } from "@/core/action/auth/log-in"
-import { LogInFormState } from "@/core/model/form-definitions"
+import { LogInFormState } from "@/core/model/form/form-definitions"
 
 /**
  * Log-In Page
