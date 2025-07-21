@@ -1,12 +1,15 @@
-@import 'colour'
-@import 'font'
-@import 'spacing'
+@forward 'colour'
+@forward 'font'
+@forward 'spacing'
+
+@use 'font'
+@use 'colour'
 
 @mixin panel
-  border: 1.25px solid $white25
+  border: 1.25px solid colour.$white25
   border-radius: 2rem
-  background: linear-gradient(45deg, $violet 0%, $cove 100%)
+  background: linear-gradient(45deg, colour.$violet 0%, colour.$cove 100%)
 
 .book
   font-family: Roboto, serif
-  font-weight: $medium
+  font-weight: font.$medium

@@ -9,8 +9,7 @@ import _ from "lodash";
 import { redirect } from "next/navigation";
 import useSWR from "swr";
 import { I18nProvider } from "@react-aria/i18n";
-import { Code, useDisclosure } from "@heroui/react";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
+import { Code, useDisclosure, Modal, ModalBody, ModalContent, ModalHeader} from "@heroui/react";
 import Image from "next/image";
 import getVersion from "@/core/action/version/get-version";
 

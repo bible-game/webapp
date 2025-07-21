@@ -1,17 +1,25 @@
-@tailwind base
-@tailwind components
-@tailwind utilities
+@use '@/styles/base.sass'
 
-@import '@/styles/base.sass'
+/** Tailwind Config */
+@import "tailwindcss"
+//noinspection CssInvalidAtRule
+@plugin './hero.ts';
+//noinspection CssInvalidAtRule
+@source './../../node_modules/@heroui/theme/dist'
+//noinspection CssInvalidAtRule
+@source './../../node_modules/@nextui-org/theme/dist'
+//noinspection CssInvalidAtRule
+@custom-variant dark (&:where(.dark, .dark *)); // fixme
 
+/** Global Styling */
 *
   font-family: Inter, serif
   letter-spacing: .25px
   margin: 0
 
 html
-  color: $white !important
-  background: linear-gradient(45deg, $violet 0%, $cove 100%)
+  color: base.$white !important
+  background: linear-gradient(45deg, base.$violet 0%, base.$cove 100%)
   height: 100%
   overflow-x: hidden
 
@@ -26,7 +34,7 @@ main
   height: 100vh
 
   section
-    width: $panel-width
+    width: base.$panel-width
 
     #selection
       position: absolute
@@ -37,7 +45,7 @@ main
 
   @responsive
     .panel
-      @include panel
+      @include base.panel
       line-height: 2rem
 
 /** Mobile Styling */
@@ -48,7 +56,7 @@ main
     position: relative
 
     section
-      width: $panel-width-mobile
+      width: base.$panel-width-mobile
 
   .menu-wrapper
     --safe-area-inset-top: env(safe-area-inset-top)
@@ -61,17 +69,17 @@ input:-webkit-autofill:focus
   transition: background-color 0s 600000s, color 0s 600000s !important
 
 .hero-card
-  background: rgba($violet, 0.2)
+  background: rgba(base.$violet, 0.2)
   border-radius: 0.75rem
   padding: 1rem
   margin-bottom: 1.5rem
   text-align: center
-  color: $white
+  color: base.$white
 
   h2
     font-size: 1.4rem
     margin-bottom: 0.4rem
-    color: $white
+    color: base.$white
 
   p
     font-size: 0.9rem
@@ -86,7 +94,7 @@ input:-webkit-autofill:focus
     right: 0.5rem
     background: none
     border: none
-    color: $white
+    color: base.$white
     font-size: 1rem
     cursor: pointer
     padding: 0.25rem
@@ -108,16 +116,16 @@ input:-webkit-autofill:focus
       transition: background-color 0.3s ease
 
       &.primary
-        background-color: $white
-        color: $violet
+        background-color: base.$white
+        color: base.$violet
 
         &:hover
-          background-color: darken($white, 10%)
+          background-color: darken(base.$white, 10%)
 
       &.secondary
         background-color: transparent
-        border: 1px solid $white
-        color: $white
+        border: 1px solid base.$white
+        color: base.$white
 
         &:hover
-          background-color: rgba($white, 0.1)
+          background-color: rgba(base.$white, 0.1)
