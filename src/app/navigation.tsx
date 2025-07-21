@@ -1,12 +1,5 @@
 import React from "react";
 import Link from "next/link";
-import LogIn from '@/app/account/log-in/page'
-import SignUp from '@/app/account/sign-up/page'
-
-// TODO:
-// 1. Create form on LogIn/SignUp components
-// 2. Implement useContext to retain session
-// 3. In Navigation, conditionally display LogIn/SignUp link
 
 /**
  * Navigation Component
