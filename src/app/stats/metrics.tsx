@@ -19,7 +19,7 @@ const Metrics = (props: any) => {
         setStars(CompletionUtil.calcStars);
         setGames(CompletionUtil.calcGames);
         setStreak(CompletionUtil.calcStreak);
-        setComplete(CompletionUtil.calcPercentageCompletion);
+        setComplete(CompletionUtil.calcPercentageCompletion(props.bible));
     }, []);
 
     return <section className="sm:w-[46rem] w-[80vw]">

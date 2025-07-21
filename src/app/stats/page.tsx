@@ -77,7 +77,7 @@ export default async function Stats() {
                     </div>
                     {!info && <LoginPrompt/>}
                     <Leaderboard leaders={leaders}/>
-                    <Metrics gameState={gameState} readState={readState} reviewState={reviewState} />
+                    <Metrics gameState={gameState} readState={readState} reviewState={reviewState} bible={bible}/>
                     <Completion bible={bible}/>
                 </section>
             </main>

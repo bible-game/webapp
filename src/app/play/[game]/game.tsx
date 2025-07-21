@@ -240,7 +240,7 @@ export default function Game(props: any) {
                                 isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
                                 addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
                                 selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
-                                state={props.state} passageId={passage.id}
+                                state={props.state} passageId={passage.id} bible={props.bible}
                                 selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                         <Guesses guesses={guesses} bookFound={bookFound}/>
                     </section>

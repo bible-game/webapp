@@ -36,15 +36,19 @@ export class CompletionUtil {
     }
 
     /** Calculates the % Bible that the user has seen */
-    static calcPercentageCompletion(): string {
-        let completedChapters = 0;
+    static calcPercentageCompletion(config: any): string {
+        const completion = CompletionUtil.build(config);
+        let completedVerses = 0;
 
-        StateUtil.getAllGames().forEach((game: GameState) => {
-            completedChapters++
-        });
+        for (const book of Object.values(completion)) {
+            for (const chapter of (book as any).chapters) {
+                for (const verse of chapter.verses) {
+                    if (verse !== '') completedVerses++
+                }
+            }
+        }
 
-        // FixMe :: inc prevent duplicates... inc read verses...
-        return (100 * completedChapters / 1_189).toFixed(2); // 31_102
+        return (100 * completedVerses / 31_102).toFixed(2);
     }
 
     /** Builds, saves and returns Bible completion */
