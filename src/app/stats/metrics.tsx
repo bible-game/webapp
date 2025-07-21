@@ -9,7 +9,7 @@ const Metrics = (props: any) => {
     const [stars, setStars] = useState(0);
     const [games, setGames] = useState(0);
     const [streak, setStreak] = useState(0);
-    const [complete, setComplete] = useState(0);
+    const [complete, setComplete] = useState('');
 
     useEffect(() => {
         if (props.gameState) StateUtil.setAllGame(props.gameState);
