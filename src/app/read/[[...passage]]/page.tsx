@@ -26,9 +26,9 @@ export default async function Read({params}: { params: Promise<{ passage: string
     return (
             <div className="bg-white absolute top-0 left-0 w-full h-full">
                 <div className="flex justify-center">
-                    <Navigation stats={true} play={true} dark={true} authenticated={!!state}/>
+                    <Navigation stats={true} play={true} dark={true} authenticated={!!state} displayName={info?.firstname}/>
                     <main className="bg-white h-min w-full text-black relative top-[6rem] overflow-auto pb-[12rem] flex justify-center">
-                        <Content passageKey={passage} state={state} displayName={info?.firstname}/>
+                        <Content passageKey={passage} state={state}/>
                     </main>
                 </div>
             </div>
