@@ -9,7 +9,7 @@ const Metrics = (props: any) => {
     const [stars, setStars] = useState(0);
     const [games, setGames] = useState(0);
     const [streak, setStreak] = useState(0);
-    const [complete, setComplete] = useState(0);
+    const [complete, setComplete] = useState('');
 
     useEffect(() => {
         if (props.gameState) StateUtil.setAllGame(props.gameState);
@@ -19,7 +19,7 @@ const Metrics = (props: any) => {
         setStars(CompletionUtil.calcStars);
         setGames(CompletionUtil.calcGames);
         setStreak(CompletionUtil.calcStreak);
-        setComplete(CompletionUtil.calcPercentageCompletion);
+        setComplete(CompletionUtil.calcPercentageCompletion(props.bible));
     }, []);
 
     return <section className="sm:w-[46rem] w-[80vw]">

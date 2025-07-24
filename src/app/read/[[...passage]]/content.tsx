@@ -5,7 +5,6 @@ import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
 import { Input } from "@heroui/input";
 import { getPassage } from "@/core/action/read/get-passage";
 import { Spinner } from "@heroui/react";
-import { Card, CardBody } from "@heroui/card";
 import Context from "@/app/read/[[...passage]]/context";
 import ReadAction from "@/app/read/[[...passage]]/readaction";
 import { bcv_parser } from "bible-passage-reference-parser/esm/bcv_parser";
@@ -113,7 +112,7 @@ export default function Content(props: any) {
     }
 
     return (
-        <section className="w-[75vw] sm:w-[40rem]">
+        <section className="w-[75vw] sm:w-[46rem]">
             <div className="mb-10">
                 <Input label="" variant="underlined" value={key}
                        classNames={{
@@ -181,7 +180,7 @@ const osisToName = (osis: any) => {
         Num: "Numbers",
         Lam: "Lamentations",
         Rev: "Revelation",
-        Duet: "Deuteronomy",
+        Deut: "Deuteronomy",
         Josh: "Joshua",
         Judg: "Judges",
         Ruth: "Ruth",

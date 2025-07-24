@@ -19,7 +19,7 @@ export default function LoginPrompt(props: any) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="text-purple-200">
                         <p className="text-sm text-purple-400 leading-tight font-light">
-                            <Link href="/account/log-in" className="underline font-medium">Log in</Link> to save your data and compete on the leaderboard!
+                            <Link href="/account/log-in" className="underline font-medium">Log in</Link> to keep your data safe and compete on the leaderboard!
                         </p>
                     </div>
                 </div>

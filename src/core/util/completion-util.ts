@@ -35,22 +35,20 @@ export class CompletionUtil {
         return 0;
     }
 
-    /** Calculates the % Bible the user has 'seen' */
-    static calcPercentageCompletion(){
-        // let completed = 0;
-        //
-        // for (const book of StateService.getCompletion()) {
-        //     for (const chapter of book.chapters) {
-        //         for (const verse of chapter.verses) {
-        //             if (verse != '') completed++
-        //         }
-        //     }
-        // }
-        //
-        // return (100 * completed / 31_102).toFixed(2);
+    /** Calculates the % Bible that the user has seen */
+    static calcPercentageCompletion(config: any): string {
+        const completion = CompletionUtil.build(config);
+        let completedVerses = 0;
 
-        // todo
-        return 0;
+        for (const book of Object.values(completion)) {
+            for (const chapter of (book as any).chapters) {
+                for (const verse of chapter.verses) {
+                    if (verse !== '') completedVerses++
+                }
+            }
+        }
+
+        return (100 * completedVerses / 31_102).toFixed(2);
     }
 
     /** Builds, saves and returns Bible completion */
@@ -84,7 +82,6 @@ export class CompletionUtil {
                 })
             }
 
-            console.log(chapter);
             book.chapters[parseInt(read.chapter) - 1] = chapter;
             completion[read.book.toLowerCase().replace(/ /g, "")] = book;
         })
