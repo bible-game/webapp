@@ -10,6 +10,7 @@ import { headers } from "next/headers";
 import { GameState } from "@/core/model/state/game-state";
 import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn from "@/core/util/auth-util";
+import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
 
 async function get(url: string): Promise<any> {
     const response = await fetch(url, {method: "GET"});
@@ -39,8 +40,12 @@ export default async function Play({params}: { params: Promise<{ game: string }>
     const divisions = flatten(bible.testaments, 'divisions');
     const books = flatten(divisions, 'books');
 
+    let info: UserInfo | undefined;
     let state: Map<number,GameState> | undefined;
-    if (await isLoggedIn()) state = await getGameState();
+    if (await isLoggedIn()) {
+        state = await getGameState();
+        info = await getUserInfo();
+    }
 
     return (
         <>
@@ -49,7 +54,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
                 <Toaster position="bottom-right"/>
                 <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state}/>
             </main>
-            <Navigation stats={true} read={true}/>
+            <Navigation stats={true} read={true} authenticated={!!info} displayName={info?.firstname}/>
         </>
     );
 

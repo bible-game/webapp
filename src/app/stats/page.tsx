@@ -47,8 +47,8 @@ export default async function Stats() {
         readState = await getReadState();
         reviewState = await getReviewState();
 
-        info = await getUserInfo()
-        displayName = `${info?.firstname} ${info?.lastname}`
+        info = await getUserInfo();
+        displayName = `${info?.firstname} ${info?.lastname}`;
         rank = await getRank(await getUserId() ?? '1'); // fixme
     }
 
@@ -81,7 +81,7 @@ export default async function Stats() {
                     <Completion bible={bible}/>
                 </section>
             </main>
-            <Navigation play={true} read={true}/>
+            <Navigation play={true} read={true} authenticated={!!info} displayName={info?.firstname}/>
         </>
     );
 }

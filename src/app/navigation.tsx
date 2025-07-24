@@ -1,12 +1,8 @@
+"use client"
+
 import React from "react";
 import Link from "next/link";
-import LogIn from '@/app/account/log-in/page'
-import SignUp from '@/app/account/sign-up/page'
-
-// TODO:
-// 1. Create form on LogIn/SignUp components
-// 2. Implement useContext to retain session
-// 3. In Navigation, conditionally display LogIn/SignUp link
+import { logOut } from "@/core/action/auth/log-out";
 
 /**
  * Navigation Component
@@ -18,7 +14,7 @@ export const Navigation = (props: any) => {
     const textStyle = `${props.dark ? "text-black" : "text-white"} font-light text-sm`
 
     if (props.play) links.push(
-        <Link href="/" key="play">
+        <Link href="/play/today" key="play">
             <div className="flex gap-1 items-center w-[4rem]">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
                      stroke={props.dark ? 'black' : 'currentColor'} className="size-4">
@@ -29,6 +25,7 @@ export const Navigation = (props: any) => {
             </div>
         </Link>
     );
+
     if (props.read) links.push(
         <Link href='/read' key='read'>
             <div className="flex gap-1 items-center w-[4rem]">
@@ -41,6 +38,7 @@ export const Navigation = (props: any) => {
             </div>
         </Link>
     );
+
     if (props.stats) links.push(
         <Link href='/stats' key='stats'>
             <div className="flex gap-1 items-center w-[4rem]">
@@ -53,6 +51,7 @@ export const Navigation = (props: any) => {
             </div>
         </Link>
     );
+
     if (props.study) links.push(
         <Link href='/study' key='stats'>
             <div className="flex gap-1 items-center w-[4rem]">
@@ -64,16 +63,30 @@ export const Navigation = (props: any) => {
                 <p className={textStyle}>Study</p>
             </div>
         </Link>
-);
-    if (props.account) links.push(
-        <Link href='/account' key='account'>
+    );
+
+    if (props.authenticated) links.push(
+        <form action={logOut} className="cursor-pointer" key="logout">
+            <button type="submit" className="flex gap-1 items-center w-[4rem]">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
+                     stroke={props.dark ? 'black' : 'currentColor'} className="size-4">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                          d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                </svg>
+                <p className={textStyle}>{props.displayName}</p>
+            </button>
+        </form>
+    );
+
+    if (!props.authenticated) links.push(
+        <Link href="/account/log-in" key="login">
             <div className="flex gap-1 items-center w-[4rem]">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.25"
-                     stroke={props.dark ? "black" : "currentColor"} className="size-4">
+                     stroke={props.dark ? 'black' : 'currentColor'} className="size-4">
                     <path strokeLinecap="round" strokeLinejoin="round"
-                          d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V6A2.25 2.25 0 0 0 18 3.75H6A2.25 2.25 0 0 0 3.75 6v12A2.25 2.25 0 0 0 6 20.25Z"/>
+                          d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
                 </svg>
-                <p className={textStyle}>Account</p>
+                <p className={textStyle}>Login</p>
             </div>
         </Link>
     );
