@@ -16,6 +16,9 @@ import * as Hammer from 'hammerjs';
 import { Spinner } from "@heroui/react";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
+import { toast } from "react-hot-toast";
+import {Button} from "@heroui/button";
+import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -59,7 +62,47 @@ export default function Game(props: any) {
     const [maxChapter, setMaxChapter] = useState(0);
     const [stars, setStars] = useState(0);
     const [state, setState] = useState({} as any);
-    const [confetti, setConfetti] = useState(false)
+    const [confetti, setConfetti] = useState(false);
+
+    // FixMe :: double-render, just a dev issue like the treemap?
+    useEffect(() => {
+        if (!props.state) {
+            toast.custom((t) => (
+                <div
+                    className={`${
+                        t.visible ? 'animate-enter' : 'animate-leave'
+                    } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
+                >
+                    <div className="flex-1 w-0 p-4">
+                        <div className="flex items-start">
+                            <div className="flex-shrink-0 pt-0.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     strokeWidth="1.25"
+                                     stroke={'black'} className="size-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round"
+                                          d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                                </svg>
+                            </div>
+                            <div className="ml-3 flex-1">
+                                <p className="text-sm font-medium text-gray-900">
+                                    Log-in to keep your data safe
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="flex border-l border-gray-200">
+                        <Button
+                            as={Link}
+                            onPress={() => toast.dismiss()}
+                            href="/account/log-in"
+                            className="bg-white h-full w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            Log In
+                        </Button>
+                    </div>
+                </div>
+            ))
+        }
+    }, [props.state]);
 
     useEffect(() => {
         if (confetti) setConfetti(false);
