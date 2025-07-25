@@ -241,7 +241,7 @@ const Treemap = (props: any) => {
                 //@ts-ignore
                 foamtreeInstance.dispose();
                 //@ts-ignore
-                setFoamTreeInstance(null);
+                setFoamtreeInstance(null);
             }
         }
     }, [ FoamTreeClass, foamtreeInstance ]);
