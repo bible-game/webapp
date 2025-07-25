@@ -57,39 +57,46 @@ const Treemap = (props: any) => {
                 // descriptionGroupType: "floating",
                 descriptionGroupMinHeight: 64,
                 descriptionGroupMaxHeight: 0.125,
-                groupBorderWidth: 4,
-                groupBorderRadius: 0.55,
-                groupInsetWidth: 2,
+                groupBorderWidth: 0,
+                groupBorderRadius: 0,
+                groupInsetWidth: 4,
                 groupMinDiameter: 0,
-                groupStrokeWidth: 0,
+                groupStrokeWidth: 4,
+                groupStrokeType: 'gradient',
+                groupFillType: 'gradient',
                 groupLabelMinFontSize: 0,
                 groupLabelMaxFontSize: 16,
+                groupSelectionOutlineWidth: 0,
                 rectangleAspectRatioPreference: 0,
-                groupLabelDarkColor: "#98a7d8",
+                groupLabelDarkColor: "#ffffff",
                 groupLabelLightColor: "#060842",
-                groupLabelColorThreshold: 1,
-                parentFillOpacity: 0.65,
+                groupLabelColorThreshold: 0,
+                parentFillOpacity: 0.75,
                 groupColorDecorator: function (opts: any, params: any, vars: any) {
                     vars.labelColor = "auto";
 
-                    if (params.group.level == "chapter" && !!params.group.color) {
-                        const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                    if (params.group.level == "book" || params.group.level == "chapter" && !!params.group.color) {
+                        const rgba = hexToRgba(params.group.color).substring(5, 18);
                         const parts = rgba.split(', ');
 
                         vars.groupColor.r = parts[0];
                         vars.groupColor.g = parts[1];
                         vars.groupColor.b = parts[2];
-                        // vars.groupColor.a = 0.95;
-                        vars.groupColor.a = 0.99;
+                        vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
 
-                        // if (params.group.level == "chapter" && (params.group.icon == props.passage.icon)) {
-                        //     vars.groupColor.a = 1;
-                        // }
                     } else {
                         vars.groupColor = params.group.color;
                     }
+
+                    if (params.group.level === "book") {
+                        vars.labelColor = params.group.color;
+                        vars.strokeColour = params.group.color;
+                    }
+                    if (params.group.level === "chapter") {
+                        vars.labelColor = params.group.color + '80';
+                        vars.strokeColour = params.group.color + '80';
+                    }
                 },
-                groupFillType: "plain",
                 groupLabelFontFamily: "inter",
 
                 ...(props.device == 'mobile' ? mobileOptimisations : {}),
@@ -173,7 +180,7 @@ const Treemap = (props: any) => {
                         });
                     }
                     if (event.delta > 0) {
-                        this.open(event.group.id);
+                        // this.open(event.group.id);
                     }
                 },
                 onKeyUp: (e: any) => {
@@ -208,7 +215,15 @@ const Treemap = (props: any) => {
                     if (props.bookFound) {
                         if (params.group.level == "chapter" && !!params.group.color ) {
                             if (params.group.book == props.passage.book) {
-                                vars.groupColor = params.group.color;
+                                // vars.groupColor = params.group.color;
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.55;
+
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -216,11 +231,19 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.5;
+                                vars.groupColor.a = 0.25;
+                                vars.labelColor = params.group.color + '40';
                             }
                         } else if (params.group.level == "book" && !!params.group.color ) {
                             if (params.group.label == props.passage.book) {
-                                vars.groupColor = params.group.color;
+                                // vars.groupColor = params.group.color;
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.75;
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -228,7 +251,8 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.5;
+                                vars.groupColor.a = 0.25;
+                                vars.labelColor = params.group.color + '40';
                             }
                         } else {
                             vars.groupColor = params.group.color;
@@ -236,7 +260,14 @@ const Treemap = (props: any) => {
                     } else if (props.divFound) {
                         if (params.group.level == "chapter" && !!params.group.color) {
                             if (params.group.division == props.passage.division) {
-                                vars.groupColor = params.group.color;
+                                // vars.groupColor = params.group.color;
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.55;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -245,11 +276,20 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.5;
+                                vars.groupColor.a = 0.25;
+                                vars.labelColor = params.group.color + '40';
                             }
                         } else if (params.group.level == "book" && !!params.group.color ) {
                             if (params.group.division == props.passage.division) {
-                                vars.groupColor = params.group.color;
+                                // vars.groupColor = params.group.color;
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.75;
+
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -257,7 +297,8 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.5;
+                                vars.groupColor.a = 0.25;
+                                vars.labelColor = params.group.color + '40';
                             }
                         } else {
                             vars.groupColor = params.group.color;
@@ -265,7 +306,14 @@ const Treemap = (props: any) => {
                     } else if (props.testFound) {
                         if (params.group.level == "chapter" && !!params.group.color) {
                             if (params.group.testament == props.passage.testament) {
-                                vars.groupColor = params.group.color;
+                                // vars.groupColor = params.group.color;
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.55;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -274,11 +322,19 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.5;
+                                vars.groupColor.a = 0.25;
+                                vars.labelColor = params.group.color + '40';
                             }
                         } else if (params.group.level == "book" && !!params.group.color ) {
                             if (params.group.testament == props.passage.testament) {
-                                vars.groupColor = params.group.color;
+                                // vars.groupColor = params.group.color;
+                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const parts = rgba.split(', ');
+
+                                vars.groupColor.r = parts[0];
+                                vars.groupColor.g = parts[1];
+                                vars.groupColor.b = parts[2];
+                                vars.groupColor.a = 0.75;
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -286,7 +342,8 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.5;
+                                vars.groupColor.a = 0.25;
+                                vars.labelColor = params.group.color + '40';
                             }
                         } else {
                             vars.groupColor = params.group.color;
@@ -467,81 +524,81 @@ const Treemap = (props: any) => {
             "OLD": "#ffa700",
             "NEW": "#ffd500",
 
-            "GEN": "#36ABFF",
-            "EXO": "#36ABFF",
-            "LEV": "#36ABFF",
-            "NUM": "#36ABFF",
-            "DEU": "#36ABFF",
+            "GEN": "#6cbdfa",
+            "EXO": "#6cbdfa",
+            "LEV": "#6cbdfa",
+            "NUM": "#6cbdfa",
+            "DEU": "#6cbdfa",
 
-            "JOS": "#8967F6",
-            "JDG": "#8967F6",
-            "RUT": "#8967F6",
-            "1SA": "#8967F6",
-            "2SA": "#8967F6",
-            "1KI": "#8967F6",
-            "2KI": "#8967F6",
-            "1CH": "#8967F6",
-            "2CH": "#8967F6",
-            "EZR": "#8967F6",
-            "NEH": "#8967F6",
-            "EST": "#8967F6",
+            "JOS": "#a588fd",
+            "JDG": "#a588fd",
+            "RUT": "#a588fd",
+            "1SA": "#a588fd",
+            "2SA": "#a588fd",
+            "1KI": "#a588fd",
+            "2KI": "#a588fd",
+            "1CH": "#a588fd",
+            "2CH": "#a588fd",
+            "EZR": "#a588fd",
+            "NEH": "#a588fd",
+            "EST": "#a588fd",
 
-            "JOB": "#C54A84",
-            "PSA": "#C54A84",
-            "PRO": "#C54A84",
-            "ECC": "#C54A84",
-            "SNG": "#C54A84",
+            "JOB": "#ff70b3",
+            "PSA": "#ff70b3",
+            "PRO": "#ff70b3",
+            "ECC": "#ff70b3",
+            "SNG": "#ff70b3",
 
-            "ISA": "#58da93",
-            "JER": "#58da93",
-            "LAM": "#58da93",
-            "EZK": "#58da93",
-            "DAN": "#58da93",
+            "ISA": "#71f3ab",
+            "JER": "#71f3ab",
+            "LAM": "#71f3ab",
+            "EZK": "#71f3ab",
+            "DAN": "#71f3ab",
 
-            "HOS": "#D0B42B",
-            "JOL": "#D0B42B",
-            "AMO": "#D0B42B",
-            "OBA": "#D0B42B",
-            "JON": "#D0B42B",
-            "MIC": "#D0B42B",
-            "NAM": "#D0B42B",
-            "HAB": "#D0B42B",
-            "ZEP": "#D0B42B",
-            "HAG": "#D0B42B",
-            "ZEC": "#D0B42B",
-            "MAL": "#D0B42B",
+            "HOS": "#ffe254",
+            "JOL": "#ffe254",
+            "AMO": "#ffe254",
+            "OBA": "#ffe254",
+            "JON": "#ffe254",
+            "MIC": "#ffe254",
+            "NAM": "#ffe254",
+            "HAB": "#ffe254",
+            "ZEP": "#ffe254",
+            "HAG": "#ffe254",
+            "ZEC": "#ffe254",
+            "MAL": "#ffe254",
 
-            "MAT": "#D0B42B",
-            "MRK": "#D0B42B",
-            "LUK": "#D0B42B",
-            "JHN": "#D0B42B",
+            "MAT": "#ffe254",
+            "MRK": "#ffe254",
+            "LUK": "#ffe254",
+            "JHN": "#ffe254",
 
-            "ACT": "#4DBA7E",
+            "ACT": "#71f3ab",
 
-            "ROM": "#36ABFF",
-            "1CO": "#36ABFF",
-            "2CO": "#36ABFF",
-            "GAL": "#36ABFF",
-            "EPH": "#36ABFF",
-            "PHP": "#36ABFF",
-            "COL": "#36ABFF",
-            "1TH": "#36ABFF",
-            "2TH": "#36ABFF",
-            "1TI": "#36ABFF",
-            "2TI": "#36ABFF",
-            "TIT": "#36ABFF",
-            "PHM": "#36ABFF",
-            "HEB": "#36ABFF",
+            "ROM": "#6cbdfa",
+            "1CO": "#6cbdfa",
+            "2CO": "#6cbdfa",
+            "GAL": "#6cbdfa",
+            "EPH": "#6cbdfa",
+            "PHP": "#6cbdfa",
+            "COL": "#6cbdfa",
+            "1TH": "#6cbdfa",
+            "2TH": "#6cbdfa",
+            "1TI": "#6cbdfa",
+            "2TI": "#6cbdfa",
+            "TIT": "#6cbdfa",
+            "PHM": "#6cbdfa",
+            "HEB": "#6cbdfa",
 
-            "JAS": "#C54A84",
-            "1PE": "#C54A84",
-            "2PE": "#C54A84",
-            "1JN": "#C54A84",
-            "2JN": "#C54A84",
-            "3JN": "#C54A84",
-            "JUD": "#C54A84",
+            "JAS": "#ff70b3",
+            "1PE": "#ff70b3",
+            "2PE": "#ff70b3",
+            "1JN": "#ff70b3",
+            "2JN": "#ff70b3",
+            "3JN": "#ff70b3",
+            "JUD": "#ff70b3",
 
-            "REV": "#8967F6"
+            "REV": "#a588fd"
         }
 
         return colour[book];
