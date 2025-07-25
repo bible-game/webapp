@@ -589,7 +589,7 @@ const Treemap = (props: any) => {
 
     function getPaddingGroups(div: string, before: boolean): any[] {
         const fillers = [] as any[];
-        if (props.device == 'mobile') return fillers;
+        if (props.device == 'mobile' || true) return fillers;
 
         const sides = ['top', 'bottom', 'left', 'right'];
         let count: number;
