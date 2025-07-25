@@ -204,6 +204,35 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
+                // The decorator that draws our images
+                // groupContentDecorator: function (opts: any, params: any, vars: any) {
+                //     if (params.group.level != 'book') return;
+                //
+                //     const group = params.group;
+                //     vars.groupLabelDrawn = false; // fixme
+                //
+                //     // Draw image once loaded
+                //     if (params.group.image) {
+                //         // If polygon changed, recompute the inscribed rectangle
+                //         if (params.shapeDirty) {
+                //             // Compute the rectangle into which we'll render the image
+                //             group.box = FoamTreeClass.geometry.rectangleInPolygon(
+                //                 params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.65);
+                //         }
+                //
+                //         // Draw the image
+                //         let imageSize = group.box.w;
+                //
+                //         const img = new Image();
+                //         img.src = params.group.image;
+                //         img.onload = function() {
+                //             // Once the image has been loaded,
+                //             // put it in the group's data object
+                //             console.log(img.src)
+                //             params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
+                //         };
+                //     }
+                // },
             }));
         }
 
@@ -459,7 +488,9 @@ const Treemap = (props: any) => {
                 level: 'book',
                 testament: test,
                 division: div,
-                book: b.name
+                book: b.name,
+                image: '/genesis.png'
+                // image: b.name.toLowerCase()+'.png'
             })
         }
 
@@ -563,25 +594,25 @@ const Treemap = (props: any) => {
 
         switch (div) {
             case 'the-law':
-                count = 10; break;
+                count = before ? 20 : 10; break;
             case 'history':
-                count = 5; break;
+                count = before ? 10 : 5; break;
             case 'wisdom':
-                count = 2; break;
-            case 'major-prophets':
                 count = 10; break;
+            case 'major-prophets':
+                count = 15; break;
             case 'minor-prophets':
                 count = 30; break;
             case 'gospels':
-                count = before ? 15 : 5; break;
+                count = before ? 15 : 15; break;
             case 'early-church':
-                count = before ? 10 : 5; break;
+                count = before ? 10 : 10; break;
             case 'paul\'s-letters':
                 count = 15; break;
             case 'general-letters':
-                count = before ? 5 : 10; break;
+                count = before ? 10 : 10; break;
             case 'prophecy':
-                count = before ? 10 : 15; break;
+                count = before ? 20 : 15; break;
             default:
                 count = 20;
         }
@@ -591,7 +622,7 @@ const Treemap = (props: any) => {
                 fillers.push({
                     id: `filler-${side}-${i}`,
                     label: '',
-                    weight: 1,
+                    weight: 0.1,
                     unselectable: true,
                     dim: true,
                     color: '#ffffff00', // fully transparent
