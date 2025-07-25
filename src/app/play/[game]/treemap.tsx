@@ -738,7 +738,7 @@ const Treemap = (props: any) => {
     // if (!foamtreeInstance) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
     return (
             //@ts-ignore
-            <div ref={element} className="absolute w-full h-[calc(100%-12.5rem)] sm:h-[calc(100%-17rem)] left-0 top-[10rem] sm:top-[8rem]" id="treemap"></div>
+            <div ref={element} className="absolute w-full h-[calc(100%-14rem)] sm:h-[calc(100%-17rem)] left-0 top-[10rem] sm:top-[8rem]" id="treemap"></div>
     );
 };
 
