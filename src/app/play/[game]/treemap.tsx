@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import hexToRgba from 'hex-to-rgba';
 import { toast } from "react-hot-toast";
-import {Spinner} from "@heroui/react";
 
 const mobileOptimisations = {
     pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
@@ -378,8 +377,8 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = 255;
                                 vars.groupColor.g = 255;
                                 vars.groupColor.b = 255;
-                                vars.groupColor.a = 0.05;
-                                vars.strokeColour = params.group.color + '40';
+                                vars.groupColor.a = 0;
+                                vars.strokeColour = params.group.color + '00';
                             } else {
                                 vars.groupColor = params.group.color;
                             }
@@ -426,7 +425,7 @@ const Treemap = (props: any) => {
         const divisions: any[] = [];
 
         for (const d of div) {
-            divisions.push(...getPaddingGroups())
+            divisions.push(...getPaddingGroups(d.name.toLowerCase().replace(/\s/g, '-'), true))
             divisions.push({
                 id: d.name.toLowerCase().replace(/\s/g, '-'),
                 groups: getBooks(test, d.name, d.books),
@@ -438,7 +437,7 @@ const Treemap = (props: any) => {
                 dim: isDim(d.name, 'division', props.divFound) || isDim(test, 'testament', props.testFound),
                 level: 'division'
             })
-            divisions.push(...getPaddingGroups())
+            divisions.push(...getPaddingGroups(d.name.toLowerCase().replace(/\s/g, '-'), false))
         }
 
         return divisions
@@ -557,10 +556,35 @@ const Treemap = (props: any) => {
         }
     }
 
-    function getPaddingGroups(): any[] {
+    function getPaddingGroups(div: string, before: boolean): any[] {
         const fillers = [];
         const sides = ['top', 'bottom', 'left', 'right'];
-        let count = 10;
+        let count: number;
+
+        switch (div) {
+            case 'the-law':
+                count = 10; break;
+            case 'history':
+                count = 5; break;
+            case 'wisdom':
+                count = 2; break;
+            case 'major-prophets':
+                count = 10; break;
+            case 'minor-prophets':
+                count = 30; break;
+            case 'gospels':
+                count = before ? 15 : 5; break;
+            case 'early-church':
+                count = before ? 10 : 5; break;
+            case 'paul\'s-letters':
+                count = 15; break;
+            case 'general-letters':
+                count = before ? 5 : 10; break;
+            case 'prophecy':
+                count = before ? 10 : 15; break;
+            default:
+                count = 20;
+        }
 
         for (const side of sides) {
             for (let i = 0; i < count; i++) {
