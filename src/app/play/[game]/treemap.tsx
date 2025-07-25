@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import hexToRgba from 'hex-to-rgba';
 import { toast } from "react-hot-toast";
+import {Spinner} from "@heroui/react";
 
 const mobileOptimisations = {
     pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
@@ -24,10 +25,10 @@ const Treemap = (props: any) => {
     //@ts-ignore
     const element = useRef();
     const [ FoamTreeClass, setFoamTreeClass ] = useState();
-    const [ foamtreeInstance, setFoamTreeInstance ] = useState();
+    const [foamtreeInstance, setFoamtreeInstance] = useState();
 
-    const [ divisions, setDivisions ] = useState(getDivKeys());
-    const [ books, setBooks ] = useState(getBookKeys());
+    const [ divisions, setDivisions ] = useState([] as any[]);
+    const [ books, setBooks ] = useState([] as any[]);
 
     useEffect(() => {
         let disposed = false;
@@ -41,6 +42,9 @@ const Treemap = (props: any) => {
             }
         });
 
+        setDivisions(getDivKeys());
+        setBooks(getBookKeys());
+
         return () => {
             disposed = true;
         }
@@ -49,7 +53,7 @@ const Treemap = (props: any) => {
     useEffect(() => {
         if (FoamTreeClass && !foamtreeInstance) {
             //@ts-ignore
-            setFoamTreeInstance(new FoamTreeClass({
+            setFoamtreeInstance(new FoamTreeClass({
                 element: element.current,
                 dataObject: configure(props.data),
                 layoutByWeightOrder: false,
@@ -85,7 +89,15 @@ const Treemap = (props: any) => {
                         vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
 
                     } else {
-                        vars.groupColor = params.group.color;
+                        if (params.group.level == 'filler') {
+                            vars.groupColor.r = 255;
+                            vars.groupColor.g = 255;
+                            vars.groupColor.b = 255;
+                            vars.groupColor.a = 0.05;
+                            vars.strokeColour = params.group.color + '40';
+                        } else {
+                            vars.groupColor = params.group.color;
+                        }
                     }
 
                     if (params.group.level === "book") {
@@ -255,7 +267,15 @@ const Treemap = (props: any) => {
                                 vars.labelColor = params.group.color + '40';
                             }
                         } else {
-                            vars.groupColor = params.group.color;
+                            if (params.group.level == 'filler') {
+                                vars.groupColor.r = 255;
+                                vars.groupColor.g = 255;
+                                vars.groupColor.b = 255;
+                                vars.groupColor.a = 0.05;
+                                vars.strokeColour = params.group.color + '40';
+                            } else {
+                                vars.groupColor = params.group.color;
+                            }
                         }
                     } else if (props.divFound) {
                         if (params.group.level == "chapter" && !!params.group.color) {
@@ -301,7 +321,15 @@ const Treemap = (props: any) => {
                                 vars.labelColor = params.group.color + '40';
                             }
                         } else {
-                            vars.groupColor = params.group.color;
+                            if (params.group.level == 'filler') {
+                                vars.groupColor.r = 255;
+                                vars.groupColor.g = 255;
+                                vars.groupColor.b = 255;
+                                vars.groupColor.a = 0.05;
+                                vars.strokeColour = params.group.color + '40';
+                            } else {
+                                vars.groupColor = params.group.color;
+                            }
                         }
                     } else if (props.testFound) {
                         if (params.group.level == "chapter" && !!params.group.color) {
@@ -346,7 +374,15 @@ const Treemap = (props: any) => {
                                 vars.labelColor = params.group.color + '40';
                             }
                         } else {
-                            vars.groupColor = params.group.color;
+                            if (params.group.level == 'filler') {
+                                vars.groupColor.r = 255;
+                                vars.groupColor.g = 255;
+                                vars.groupColor.b = 255;
+                                vars.groupColor.a = 0.05;
+                                vars.strokeColour = params.group.color + '40';
+                            } else {
+                                vars.groupColor = params.group.color;
+                            }
                         }
                     }
                 }
@@ -390,6 +426,7 @@ const Treemap = (props: any) => {
         const divisions: any[] = [];
 
         for (const d of div) {
+            divisions.push(...getPaddingGroups())
             divisions.push({
                 id: d.name.toLowerCase().replace(/\s/g, '-'),
                 groups: getBooks(test, d.name, d.books),
@@ -401,6 +438,7 @@ const Treemap = (props: any) => {
                 dim: isDim(d.name, 'division', props.divFound) || isDim(test, 'testament', props.testFound),
                 level: 'division'
             })
+            divisions.push(...getPaddingGroups())
         }
 
         return divisions
@@ -519,6 +557,28 @@ const Treemap = (props: any) => {
         }
     }
 
+    function getPaddingGroups(): any[] {
+        const fillers = [];
+        const sides = ['top', 'bottom', 'left', 'right'];
+        let count = 10;
+
+        for (const side of sides) {
+            for (let i = 0; i < count; i++) {
+                fillers.push({
+                    id: `filler-${side}-${i}`,
+                    label: '',
+                    weight: 1,
+                    unselectable: true,
+                    dim: true,
+                    color: '#ffffff00', // fully transparent
+                    level: 'filler'
+                });
+            }
+        }
+
+        return fillers;
+    }
+
     const getColour = (book: string): any => {
         const colour: any = {
             "OLD": "#ffa700",
@@ -619,9 +679,11 @@ const Treemap = (props: any) => {
             + hex(avg(b(hex1), b(hex2)));
     }
 
+    // FixMe :: how to determine when foamtreeInstance is ready to display? hooks error at present
+    // if (!foamtreeInstance) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
     return (
-        //@ts-ignore
-        <div ref={element} className="absolute w-full h-[calc(100%-17.5rem)] sm:h-[calc(100%-17rem)] left-0 top-[10rem] sm:top-[8rem]" id="treemap"></div>
+            //@ts-ignore
+            <div ref={element} className="absolute w-full h-[calc(100%-17.5rem)] sm:h-[calc(100%-17rem)] left-0 top-[10rem] sm:top-[8rem]" id="treemap"></div>
     );
 };
 
