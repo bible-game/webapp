@@ -74,7 +74,7 @@ const Treemap = (props: any) => {
                 groupLabelDarkColor: "#ffffff",
                 groupLabelLightColor: "#060842",
                 groupLabelColorThreshold: 0,
-                parentFillOpacity: 0.75,
+                parentFillOpacity: 0.65,
                 groupColorDecorator: function (opts: any, params: any, vars: any) {
                     vars.labelColor = "auto";
 
@@ -85,7 +85,7 @@ const Treemap = (props: any) => {
                         vars.groupColor.r = parts[0];
                         vars.groupColor.g = parts[1];
                         vars.groupColor.b = parts[2];
-                        vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
+                        vars.groupColor.a = (params.group.level == "book" ? 0.65 : 0.45);
 
                     } else {
                         if (params.group.level == 'filler') {
@@ -262,7 +262,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.55;
+                                vars.groupColor.a = 0.45;
 
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -283,7 +283,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.75;
+                                vars.groupColor.a = 0.65;
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -315,7 +315,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.55;
+                                vars.groupColor.a = 0.45;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -336,7 +336,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.75;
+                                vars.groupColor.a = 0.65;
 
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -369,7 +369,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.55;
+                                vars.groupColor.a = 0.45;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -390,7 +390,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.75;
+                                vars.groupColor.a = 0.65;
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -738,6 +738,7 @@ const Treemap = (props: any) => {
 
     // FixMe :: how to determine when foamtreeInstance is ready to display? hooks error at present
     // if (!foamtreeInstance) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
+    // else
     return (
             //@ts-ignore
             <div ref={element} className="absolute w-full h-[calc(100%-15rem)] sm:h-[calc(100%-17rem)] left-0 top-[10rem] sm:top-[8rem]" id="treemap"></div>
