@@ -205,34 +205,34 @@ const Treemap = (props: any) => {
                     }
                 },
                 // The decorator that draws our images
-                // groupContentDecorator: function (opts: any, params: any, vars: any) {
-                //     if (params.group.level != 'book') return;
-                //
-                //     const group = params.group;
-                //     vars.groupLabelDrawn = false; // fixme
-                //
-                //     // Draw image once loaded
-                //     if (params.group.image) {
-                //         // If polygon changed, recompute the inscribed rectangle
-                //         if (params.shapeDirty) {
-                //             // Compute the rectangle into which we'll render the image
-                //             group.box = FoamTreeClass.geometry.rectangleInPolygon(
-                //                 params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.65);
-                //         }
-                //
-                //         // Draw the image
-                //         let imageSize = group.box.w;
-                //
-                //         const img = new Image();
-                //         img.src = params.group.image;
-                //         img.onload = function() {
-                //             // Once the image has been loaded,
-                //             // put it in the group's data object
-                //             console.log(img.src)
-                //             params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
-                //         };
-                //     }
-                // },
+                groupContentDecorator: function (opts: any, params: any, vars: any) {
+                    if (!(params.group.level == 'chapter' && !!params.group.image)) return;
+
+                    const group = params.group;
+                    vars.groupLabelDrawn = false; // fixme
+
+                    // Draw image once loaded
+                    if (params.group.image) {
+                        // If polygon changed, recompute the inscribed rectangle
+                        if (params.shapeDirty) {
+                            // Compute the rectangle into which we'll render the image
+                            group.box = FoamTreeClass.geometry.rectangleInPolygon(
+                                params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.65);
+                        }
+
+                        // Draw the image
+                        let imageSize = group.box.w;
+
+                        const img = new Image();
+                        img.src = params.group.image;
+                        img.onload = function() {
+                            // Once the image has been loaded,
+                            // put it in the group's data object
+                            console.log(img.src)
+                            params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
+                        };
+                    }
+                },
             }));
         }
 
@@ -489,8 +489,6 @@ const Treemap = (props: any) => {
                 testament: test,
                 division: div,
                 book: b.name,
-                image: '/genesis.png'
-                // image: b.name.toLowerCase()+'.png'
             })
         }
 
@@ -515,6 +513,23 @@ const Treemap = (props: any) => {
                 division: div,
                 book: book.name
             })
+
+            if (book.name.toLowerCase() == 'genesis' && c == 3) {
+                chapters.push({
+                    id: 'apple',
+                    label: '',
+                    weight: parseFloat(book.verses[c-1]),
+                    color: getColour(book.key),
+                    dim: isDim(book.name, 'book', props.bookFound),
+                    level: 'chapter',
+                    chapter: c,
+                    unselectable: false,
+                    testament: test,
+                    division: div,
+                    book: book.name,
+                    image: '/apple.png'
+                })
+            }
         }
 
         return chapters
