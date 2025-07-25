@@ -60,13 +60,6 @@ const Treemap = (props: any) => {
                 // descriptionGroupType: "floating",
                 descriptionGroupMinHeight: 64,
                 descriptionGroupMaxHeight: 0.125,
-                groupBorderWidth: 0,
-                groupBorderRadius: 0,
-                groupInsetWidth: 4,
-                groupMinDiameter: 0,
-                groupStrokeWidth: 4,
-                groupStrokeType: 'gradient',
-                groupFillType: 'gradient',
                 groupLabelMinFontSize: 0,
                 groupLabelMaxFontSize: 16,
                 groupSelectionOutlineWidth: 0,
@@ -204,35 +197,42 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
-                // The decorator that draws our images
                 groupContentDecorator: function (opts: any, params: any, vars: any) {
-                    if (!(params.group.level == 'chapter' && !!params.group.image)) return;
+                    if (params.group.level == 'chapter' && !!params.group.image) {
 
-                    const group = params.group;
-                    vars.groupLabelDrawn = false; // fixme
+                        const group = params.group;
+                        vars.groupLabelDrawn = true; // fixme
+                        // Draw image once loaded
+                        if (params.group.image) {
+                            // If polygon changed, recompute the inscribed rectangle
+                            if (params.shapeDirty) {
+                                // Compute the rectangle into which we'll render the image
+                                //@ts-ignore
+                                group.box = FoamTreeClass.geometry.rectangleInPolygon(
+                                    params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.65);
+                            }
 
-                    // Draw image once loaded
-                    if (params.group.image) {
-                        // If polygon changed, recompute the inscribed rectangle
-                        if (params.shapeDirty) {
-                            // Compute the rectangle into which we'll render the image
-                            group.box = FoamTreeClass.geometry.rectangleInPolygon(
-                                params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.65);
+                            // Draw the image
+                            let imageSize = group.box.w;
+
+                            const img = new Image();
+                            img.src = params.group.image;
+                            img.onload = function () {
+                                // Once the image has been loaded,
+                                // put it in the group's data object
+                                params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
+                            };
                         }
-
-                        // Draw the image
-                        let imageSize = group.box.w;
-
-                        const img = new Image();
-                        img.src = params.group.image;
-                        img.onload = function() {
-                            // Once the image has been loaded,
-                            // put it in the group's data object
-                            console.log(img.src)
-                            params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
-                        };
                     }
                 },
+
+                groupBorderWidth: 0,
+                groupBorderRadius: 0,
+                groupInsetWidth: 4,
+                groupMinDiameter: 0,
+                groupStrokeWidth: 4, // fixme :: why did the stroke disappear, msg Stanislaw??
+                groupStrokeType: 'gradient',
+                groupFillType: 'gradient',
             }));
         }
 
@@ -656,11 +656,11 @@ const Treemap = (props: any) => {
             "OLD": "#ffa700",
             "NEW": "#ffd500",
 
-            "GEN": "#6cbdfa",
-            "EXO": "#6cbdfa",
-            "LEV": "#6cbdfa",
-            "NUM": "#6cbdfa",
-            "DEU": "#6cbdfa",
+            "GEN": "#2de8fd",
+            "EXO": "#2de8fd",
+            "LEV": "#2de8fd",
+            "NUM": "#2de8fd",
+            "DEU": "#2de8fd",
 
             "JOS": "#a588fd",
             "JDG": "#a588fd",
@@ -707,20 +707,20 @@ const Treemap = (props: any) => {
 
             "ACT": "#71f3ab",
 
-            "ROM": "#6cbdfa",
-            "1CO": "#6cbdfa",
-            "2CO": "#6cbdfa",
-            "GAL": "#6cbdfa",
-            "EPH": "#6cbdfa",
-            "PHP": "#6cbdfa",
-            "COL": "#6cbdfa",
-            "1TH": "#6cbdfa",
-            "2TH": "#6cbdfa",
-            "1TI": "#6cbdfa",
-            "2TI": "#6cbdfa",
-            "TIT": "#6cbdfa",
-            "PHM": "#6cbdfa",
-            "HEB": "#6cbdfa",
+            "ROM": "#2de8fd",
+            "1CO": "#2de8fd",
+            "2CO": "#2de8fd",
+            "GAL": "#2de8fd",
+            "EPH": "#2de8fd",
+            "PHP": "#2de8fd",
+            "COL": "#2de8fd",
+            "1TH": "#2de8fd",
+            "2TH": "#2de8fd",
+            "1TI": "#2de8fd",
+            "2TI": "#2de8fd",
+            "TIT": "#2de8fd",
+            "PHM": "#2de8fd",
+            "HEB": "#2de8fd",
 
             "JAS": "#ff70b3",
             "1PE": "#ff70b3",
