@@ -588,48 +588,50 @@ const Treemap = (props: any) => {
     }
 
     function getPaddingGroups(div: string, before: boolean): any[] {
-        const fillers = [];
-        // const sides = ['top', 'bottom', 'left', 'right'];
-        // let count: number;
-        //
-        // switch (div) {
-        //     case 'the-law':
-        //         count = before ? 20 : 10; break;
-        //     case 'history':
-        //         count = before ? 10 : 5; break;
-        //     case 'wisdom':
-        //         count = 10; break;
-        //     case 'major-prophets':
-        //         count = 15; break;
-        //     case 'minor-prophets':
-        //         count = 30; break;
-        //     case 'gospels':
-        //         count = before ? 15 : 15; break;
-        //     case 'early-church':
-        //         count = before ? 10 : 10; break;
-        //     case 'paul\'s-letters':
-        //         count = 15; break;
-        //     case 'general-letters':
-        //         count = before ? 10 : 10; break;
-        //     case 'prophecy':
-        //         count = before ? 20 : 15; break;
-        //     default:
-        //         count = 20;
-        // }
-        //
-        // for (const side of sides) {
-        //     for (let i = 0; i < count; i++) {
-        //         fillers.push({
-        //             id: `filler-${side}-${i}`,
-        //             label: '',
-        //             weight: 0.1,
-        //             unselectable: true,
-        //             dim: true,
-        //             color: '#ffffff00', // fully transparent
-        //             level: 'filler'
-        //         });
-        //     }
-        // }
+        const fillers = [] as any[];
+        if (props.device == 'mobile') return fillers;
+
+        const sides = ['top', 'bottom', 'left', 'right'];
+        let count: number;
+
+        switch (div) {
+            case 'the-law':
+                count = before ? 20 : 10; break;
+            case 'history':
+                count = before ? 10 : 5; break;
+            case 'wisdom':
+                count = 10; break;
+            case 'major-prophets':
+                count = 15; break;
+            case 'minor-prophets':
+                count = 30; break;
+            case 'gospels':
+                count = before ? 15 : 15; break;
+            case 'early-church':
+                count = before ? 10 : 10; break;
+            case 'paul\'s-letters':
+                count = 15; break;
+            case 'general-letters':
+                count = before ? 10 : 10; break;
+            case 'prophecy':
+                count = before ? 20 : 15; break;
+            default:
+                count = 20;
+        }
+
+        for (const side of sides) {
+            for (let i = 0; i < count; i++) {
+                fillers.push({
+                    id: `filler-${side}-${i}`,
+                    label: '',
+                    weight: 0.1,
+                    unselectable: true,
+                    dim: true,
+                    color: '#ffffff00', // fully transparent
+                    level: 'filler'
+                });
+            }
+        }
 
         return fillers;
     }
