@@ -197,40 +197,41 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
-                groupContentDecorator: function (opts: any, params: any, vars: any) {
-                    if (params.group.level == 'chapter' && !!params.group.image) {
-
-                        const group = params.group;
-                        vars.groupLabelDrawn = true; // fixme
-                        // Draw image once loaded
-                        if (params.group.image) {
-                            // If polygon changed, recompute the inscribed rectangle
-                            if (params.shapeDirty) {
-                                // Compute the rectangle into which we'll render the image
-                                //@ts-ignore
-                                group.box = FoamTreeClass.geometry.rectangleInPolygon(
-                                    params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.65);
-                            }
-
-                            // Draw the image
-                            let imageSize = group.box.w;
-
-                            const img = new Image();
-                            img.src = params.group.image;
-                            img.onload = function () {
-                                // Once the image has been loaded,
-                                // put it in the group's data object
-                                params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
-                            };
-                        }
-                    }
-                },
+                // fixme :: why did the stroke disappear, msg Stanislaw??
+                // groupContentDecorator: function (opts: any, params: any, vars: any) {
+                //     if (params.group.level == 'chapter' && !!params.group.image) {
+                //
+                //         const group = params.group;
+                //         vars.groupLabelDrawn = true; // fixme
+                //         // Draw image once loaded
+                //         if (params.group.image) {
+                //             // If polygon changed, recompute the inscribed rectangle
+                //             if (params.shapeDirty) {
+                //                 // Compute the rectangle into which we'll render the image
+                //                 //@ts-ignore
+                //                 group.box = FoamTreeClass.geometry.rectangleInPolygon(
+                //                     params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.65);
+                //             }
+                //
+                //             // Draw the image
+                //             let imageSize = group.box.w;
+                //
+                //             const img = new Image();
+                //             img.src = params.group.image;
+                //             img.onload = function () {
+                //                 // Once the image has been loaded,
+                //                 // put it in the group's data object
+                //                 params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
+                //             };
+                //         }
+                //     }
+                // },
 
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
                 groupInsetWidth: 4,
                 groupMinDiameter: 0,
-                groupStrokeWidth: 4, // fixme :: why did the stroke disappear, msg Stanislaw??
+                groupStrokeWidth: 4,
                 groupStrokeType: 'gradient',
                 groupFillType: 'gradient',
             }));
