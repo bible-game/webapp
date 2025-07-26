@@ -41,6 +41,15 @@ export default function PopUp() {
                     <li>
                         •	You are to use the clues in the description to find where the Bible chapter is located.
                     </li>
+                    <li>
+                        •	You try to find the verse by selecting the possible Book and Chapter you think/know the clues are pointing to.
+                    </li>
+                    <li>
+                        	You have five guesses per session and with every guess, your feedback will have a number and pointer next to it. 
+                    </li>
+                    <li>
+                        •	The numbers indicate how many words you are away from the correct answer and the pointer indicates what direction the correct might be - either above or below your current guess.
+                    </li>
                 </ul>
               </ModalBody>
               <ModalFooter>
