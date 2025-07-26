@@ -7,13 +7,22 @@ import {
   Button,
   useDisclosure,
 } from "@heroui/react";
+import {useState} from "react";
 
 export default function PopUp() {
-  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const consent = false; // GameStatesService.getConsentState();
+    if (!isOpen && !consent) {
+        onOpen()
+    }
 
-  return (
+    const [ visible, setVisible ] = useState(true);
+    function close(): void {
+        setVisible(false)
+    }
+
+    if (visible) return (
     <>
-      <Button onPress={onOpen}>Open Modal</Button>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}
       backdrop="opaque"
                     classNames={{
@@ -53,10 +62,10 @@ export default function PopUp() {
                 </ul>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="danger" variant="light" onPress={close}>
                   Close
                 </Button>
-                <Button color="primary" onPress={onClose}>
+                <Button color="primary" onPress={close}>
                   Action
                 </Button>
               </ModalFooter>
