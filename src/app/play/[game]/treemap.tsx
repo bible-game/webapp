@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import hexToRgba from 'hex-to-rgba';
 import { toast } from "react-hot-toast";
+import { darkenHexColor } from "@/core/util/colour-util";
 
 const mobileOptimisations = {
     pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
@@ -61,24 +62,38 @@ const Treemap = (props: any) => {
                 descriptionGroupMinHeight: 64,
                 descriptionGroupMaxHeight: 0.125,
                 groupLabelMinFontSize: 0,
-                groupLabelMaxFontSize: 16,
+                groupLabelMaxFontSize: 18,
                 groupSelectionOutlineWidth: 0,
                 rectangleAspectRatioPreference: 0,
                 groupLabelDarkColor: "#ffffff",
                 groupLabelLightColor: "#060842",
                 groupLabelColorThreshold: 0,
-                parentFillOpacity: 0.65,
+                parentFillOpacity: 0.25,
                 groupColorDecorator: function (opts: any, params: any, vars: any) {
                     vars.labelColor = "auto";
 
-                    if (params.group.level == "book" || params.group.level == "chapter" && !!params.group.color) {
+                    if (params.group.level === "book" && !!params.group.color) {
+                        const darkened = darkenHexColor(params.group.color, 10);
+                        const rgba = hexToRgba(darkened).substring(5, 18);
+                        const parts = rgba.split(', ');
+                        console.log(darkened);
+                        console.log(parts);
+
+                        vars.groupColor.r = parts[0];
+                        vars.groupColor.g = parts[1];
+                        vars.groupColor.b = parts[2];
+                        vars.groupColor.a = 0.90;
+
+                        vars.labelColor = params.group.color;
+                        vars.strokeColour = params.group.color;
+                    } else if (params.group.level == "chapter" && !!params.group.color) {
                         const rgba = hexToRgba(params.group.color).substring(5, 18);
                         const parts = rgba.split(', ');
 
                         vars.groupColor.r = parts[0];
                         vars.groupColor.g = parts[1];
                         vars.groupColor.b = parts[2];
-                        vars.groupColor.a = (params.group.level == "book" ? 0.65 : 0.45);
+                        vars.groupColor.a = 0.55;
 
                     } else {
                         if (params.group.level == 'filler') {
@@ -108,7 +123,15 @@ const Treemap = (props: any) => {
                 // Roll out in groups
                 rolloutMethod: "groups",
                 // rolloutDuration: 0,
-
+                groupLabelDecorator: function (opts: any, params: any, vars: any) {
+                    // todo :: msg Stanislaw, could we support?
+                    vars.labelTextShadow = {
+                        color: params.group.color + "AA", // glow matches group color
+                        blur: 10,
+                        offsetX: 0,
+                        offsetY: 0
+                    };
+                },
                 onRolloutComplete: function () {
                     // this.set("open", { open: false, groups: [...divisions, ...books] });
                     this.set("open", { open: false, groups: [...books] });
@@ -210,7 +233,7 @@ const Treemap = (props: any) => {
                 //                 // Compute the rectangle into which we'll render the image
                 //                 //@ts-ignore
                 //                 group.box = FoamTreeClass.geometry.rectangleInPolygon(
-                //                     params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.65);
+                //                     params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.55);
                 //             }
                 //
                 //             // Draw the image
@@ -263,7 +286,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.45;
+                                vars.groupColor.a = 0.55;
 
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -277,14 +300,14 @@ const Treemap = (props: any) => {
                             }
                         } else if (params.group.level == "book" && !!params.group.color ) {
                             if (params.group.label == props.passage.book) {
-                                // vars.groupColor = params.group.color;
-                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const darkened = darkenHexColor(params.group.color, 90); // 20% darker
+                                const rgba = hexToRgba(darkened).substring(5, 18);
                                 const parts = rgba.split(', ');
 
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.65;
+                                vars.groupColor.a = (params.group.level == "book" ? 0.90 : 0.55);
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -316,7 +339,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.45;
+                                vars.groupColor.a = 0.55;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -330,14 +353,14 @@ const Treemap = (props: any) => {
                             }
                         } else if (params.group.level == "book" && !!params.group.color ) {
                             if (params.group.division == props.passage.division) {
-                                // vars.groupColor = params.group.color;
-                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const darkened = darkenHexColor(params.group.color, 90); // 20% darker
+                                const rgba = hexToRgba(darkened).substring(5, 18);
                                 const parts = rgba.split(', ');
 
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.65;
+                                vars.groupColor.a = (params.group.level == "book" ? 0.90 : 0.55);
 
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -370,7 +393,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.45;
+                                vars.groupColor.a = 0.55;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -384,14 +407,14 @@ const Treemap = (props: any) => {
                             }
                         } else if (params.group.level == "book" && !!params.group.color ) {
                             if (params.group.testament == props.passage.testament) {
-                                // vars.groupColor = params.group.color;
-                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                const darkened = darkenHexColor(params.group.color, 90); // 20% darker
+                                const rgba = hexToRgba(darkened).substring(5, 18);
                                 const parts = rgba.split(', ');
 
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.65;
+                                vars.groupColor.a = (params.group.level == "book" ? 0.90 : 0.55);
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
