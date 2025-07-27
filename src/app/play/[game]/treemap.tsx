@@ -76,13 +76,11 @@ const Treemap = (props: any) => {
                         const darkened = darkenHexColor(params.group.color, 10);
                         const rgba = hexToRgba(darkened).substring(5, 18);
                         const parts = rgba.split(', ');
-                        console.log(darkened);
-                        console.log(parts);
 
                         vars.groupColor.r = parts[0];
                         vars.groupColor.g = parts[1];
                         vars.groupColor.b = parts[2];
-                        vars.groupColor.a = 0.90;
+                        vars.groupColor.a = 0.75;
 
                         vars.labelColor = params.group.color;
                         vars.strokeColour = params.group.color;
@@ -220,35 +218,63 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
-                // fixme :: why did the stroke disappear, msg Stanislaw??
-                // groupContentDecorator: function (opts: any, params: any, vars: any) {
-                //     if (params.group.level == 'chapter' && !!params.group.image) {
-                //
-                //         const group = params.group;
-                //         vars.groupLabelDrawn = true; // fixme
-                //         // Draw image once loaded
-                //         if (params.group.image) {
-                //             // If polygon changed, recompute the inscribed rectangle
-                //             if (params.shapeDirty) {
-                //                 // Compute the rectangle into which we'll render the image
-                //                 //@ts-ignore
-                //                 group.box = FoamTreeClass.geometry.rectangleInPolygon(
-                //                     params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.55);
-                //             }
-                //
-                //             // Draw the image
-                //             let imageSize = group.box.w;
-                //
-                //             const img = new Image();
-                //             img.src = params.group.image;
-                //             img.onload = function () {
-                //                 // Once the image has been loaded,
-                //                 // put it in the group's data object
-                //                 params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
-                //             };
-                //         }
-                //     }
-                // },
+                // fixme :: why did the stroke disappear, msg Stanislaw?? or leave it...
+                groupContentDecorator: function (opts: any, params: any, vars: any) {
+                    if (params.group.level == 'chapter' && !!params.group.image) {
+
+                        const group = params.group;
+                        vars.groupLabelDrawn = false;
+                        // Draw image once loaded
+                        if (params.group.image) {
+                            // If polygon changed, recompute the inscribed rectangle
+                            if (params.shapeDirty) {
+                                // Compute the rectangle into which we'll render the image
+                                //@ts-ignore
+                                group.box = FoamTreeClass.geometry.rectangleInPolygon(
+                                    params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.55);
+                            }
+
+                            // Draw the image
+                            let imageSize = group.box.w;
+
+                            const img = new Image();
+                            img.src = params.group.image;
+                            img.onload = function () {
+                                // Once the image has been loaded,
+                                // put it in the group's data object
+                                params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
+                            };
+                        }
+                    }
+
+                    if (params.group.level == 'book' && !!params.group.image) {
+                        const group = params.group;
+                        vars.groupLabelDrawn = true; // fixme
+                        // Draw image once loaded
+                        if (params.group.image) {
+                            // If polygon changed, recompute the inscribed rectangle
+                            if (params.shapeDirty) {
+                                // Compute the rectangle into which we'll render the image
+                                if (params.group.label == 'Genesis') console.log(params.group.weight);
+                                const big = params.group.weight > 750;
+                                //@ts-ignore
+                                group.box = FoamTreeClass.geometry.rectangleInPolygon(
+                                    params.polygon, params.polygonCenterX, params.polygonCenterY, big ? 0.35 : 0.50, 0.75);
+                            }
+
+                            // Draw the image
+                            let imageSize = group.box.w;
+
+                            const img = new Image();
+                            img.src = '/deuteronomy.png'// params.group.image;
+                            img.onload = function () {
+                                // Once the image has been loaded,
+                                // put it in the group's data object
+                                params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
+                            };
+                        }
+                    }
+                },
 
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
@@ -307,7 +333,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = (params.group.level == "book" ? 0.90 : 0.55);
+                                vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -360,7 +386,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = (params.group.level == "book" ? 0.90 : 0.55);
+                                vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
 
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -414,7 +440,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = (params.group.level == "book" ? 0.90 : 0.55);
+                                vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
                                 const parts = rgba.split(', ');
@@ -513,6 +539,7 @@ const Treemap = (props: any) => {
                 testament: test,
                 division: div,
                 book: b.name,
+                // image: '/'+b.name.toLowerCase()+'.png'
             })
         }
 
@@ -540,7 +567,7 @@ const Treemap = (props: any) => {
 
             if (book.name.toLowerCase() == 'genesis' && c == 3) {
                 chapters.push({
-                    id: 'apple',
+                    id: 'serpent',
                     label: '',
                     weight: parseFloat(book.verses[c-1]),
                     color: getColour(book.key),
@@ -551,9 +578,78 @@ const Treemap = (props: any) => {
                     testament: test,
                     division: div,
                     book: book.name,
-                    image: '/apple.png'
+                    image: '/serpent.png'
                 })
             }
+            if (book.name.toLowerCase() == 'genesis' && c == 1) {
+                chapters.push({
+                    id: 'creation',
+                    label: '',
+                    weight: parseFloat(book.verses[c-1]),
+                    color: getColour(book.key),
+                    dim: isDim(book.name, 'book', props.bookFound),
+                    level: 'chapter',
+                    chapter: c,
+                    unselectable: false,
+                    testament: test,
+                    division: div,
+                    book: book.name,
+                    image: '/creation.png'
+                })
+            }
+            if (book.name.toLowerCase() == 'genesis' && c == 7) {
+                chapters.push({
+                    id: 'noah',
+                    label: '',
+                    weight: parseFloat(book.verses[c-1]),
+                    color: getColour(book.key),
+                    dim: isDim(book.name, 'book', props.bookFound),
+                    level: 'chapter',
+                    chapter: c,
+                    unselectable: false,
+                    testament: test,
+                    division: div,
+                    book: book.name,
+                    image: '/noah.png'
+                })
+            }
+            if (book.name.toLowerCase() == 'genesis' && c == 22) {
+                chapters.push({
+                    id: 'isaac',
+                    label: '',
+                    weight: parseFloat(book.verses[c-1]),
+                    color: getColour(book.key),
+                    dim: isDim(book.name, 'book', props.bookFound),
+                    level: 'chapter',
+                    chapter: c,
+                    unselectable: false,
+                    testament: test,
+                    division: div,
+                    book: book.name,
+                    image: '/isaac.png'
+                })
+            }
+            if (book.name.toLowerCase() == 'genesis' && c == 37) {
+                chapters.push({
+                    id: 'slavery',
+                    label: '',
+                    weight: parseFloat(book.verses[c-1]),
+                    color: getColour(book.key),
+                    dim: isDim(book.name, 'book', props.bookFound),
+                    level: 'chapter',
+                    chapter: c,
+                    unselectable: false,
+                    testament: test,
+                    division: div,
+                    book: book.name,
+                    image: '/slavery.png'
+                })
+            }
+            if (book.name.toLowerCase() == 'exodus' && c == 3) chapters.push({id: 'bush', image: '/bush.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'exodus' && c == 7) chapters.push({id: 'plague', image: '/plague.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'exodus' && c == 13) chapters.push({id: 'redsea', image: '/redsea.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'exodus' && c == 16) chapters.push({id: 'manna', image: '/manna.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'exodus' && c == 32) chapters.push({id: 'goldcalf', image: '/goldcalf.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
         }
 
         return chapters
