@@ -231,7 +231,7 @@ const Treemap = (props: any) => {
                                 // Compute the rectangle into which we'll render the image
                                 //@ts-ignore
                                 group.box = FoamTreeClass.geometry.rectangleInPolygon(
-                                    params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 0.55);
+                                    params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 1.0);
                             }
 
                             // Draw the image
