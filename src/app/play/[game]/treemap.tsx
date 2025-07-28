@@ -244,6 +244,30 @@ const Treemap = (props: any) => {
                                 // put it in the group's data object
                                 params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
                             };
+
+                            // if not last, draw line from this to next (stop short...)
+                            const ctx = params.context;
+                            console.log(params);
+                            params.neighbors.forEach(function (neighbor: any) {
+                                console.log(neighbor);
+                                // Make sure we draw each line only once. Additionally,
+                                // polygons on the side of the visualization area will have
+                                // some of their neighbors null (because the neighbor is the
+                                // edge of the visualization area).
+                                if (neighbor && foamtreeInstance) {
+                                    //@ts-ignore
+                                    // fixme :: msg Stanislaw... how to draw lines? come back when events done...
+                                    const geom = foamtreeInstance.get("geometry", neighbor);
+                                    // The geometry may be null if the polygon is not visible
+                                    console.log(geom)
+                                    if (geom) {
+                                        ctx.beginPath();
+                                        ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
+                                        ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
+                                        ctx.stroke();
+                                    }
+                                }
+                            });
                         }
                     }
 
@@ -650,6 +674,23 @@ const Treemap = (props: any) => {
             if (book.name.toLowerCase() == 'exodus' && c == 13) chapters.push({id: 'redsea', image: '/redsea.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'exodus' && c == 16) chapters.push({id: 'manna', image: '/manna.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'exodus' && c == 32) chapters.push({id: 'goldcalf', image: '/goldcalf.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'exodus' && c == 36) chapters.push({id: 'tabernacle', image: '/tabernacle.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'numbers' && c == 13) chapters.push({id: 'spies', image: '/spies.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'numbers' && c == 17) chapters.push({id: 'aarons-rod', image: '/aarons-rod.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'numbers' && c == 20) chapters.push({id: 'moses-rock', image: '/moses-rock.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'deuteronomy' && c == 29) chapters.push({id: 'moab', image: '/moab.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+
+            if (book.name.toLowerCase() == 'luke' && c == 3) chapters.push({id: 'baptism', image: '/baptism.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'luke' && c == 6) chapters.push({id: 'sermon', image: '/sermon.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'mathew' && c == 5) chapters.push({id: 'sermon', image: '/sermon.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'john' && c == 2) chapters.push({id: 'wedding', image: '/wedding.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'mathew' && c == 16) chapters.push({id: 'keys', image: '/keys.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'luke' && c == 9) chapters.push({id: 'transfiguration', image: '/transfiguration.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'luke' && c == 22) chapters.push({id: 'last-supper', image: '/last-supper.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+
+            if (book.name.toLowerCase() == 'acts' && c == 2) chapters.push({id: 'pentecost', image: '/pentecost.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'acts' && c == 9) chapters.push({id: 'saul', image: '/saul.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'acts' && c == 15) chapters.push({id: 'council', image: '/council.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
         }
 
         return chapters
