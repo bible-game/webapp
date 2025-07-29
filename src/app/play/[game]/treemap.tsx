@@ -276,7 +276,7 @@ const Treemap = (props: any) => {
                                         ctx.lineWidth = 1;
                                         // ctx.setLineDash([5, 5]);
                                         // ctx.globalAlpha = 0.25;
-                                        ctx.stroke();
+                                        if (props.device != 'mobile') ctx.stroke();
                                     }
 
                                     found = true;
