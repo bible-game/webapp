@@ -364,7 +364,7 @@ const Treemap = (props: any) => {
                                                 ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                                 ctx.lineWidth = 1;
                                                 ctx.setLineDash([5, 5]);
-                                                // ctx.globalAlpha = 0.25;
+                                                ctx.globalAlpha = 0.25;
                                                 ctx.stroke();
                                             }
                                         }
@@ -419,7 +419,7 @@ const Treemap = (props: any) => {
                                                 ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                                 ctx.lineWidth = 1;
                                                 ctx.setLineDash([5, 5]);
-                                                // ctx.globalAlpha = 0.25;
+                                                ctx.globalAlpha = 0.25;
                                                 ctx.stroke();
                                             }
                                         }
