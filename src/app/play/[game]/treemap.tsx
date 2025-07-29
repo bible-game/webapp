@@ -274,9 +274,10 @@ const Treemap = (props: any) => {
                                         ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
                                         ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                         ctx.lineWidth = 1;
-                                        // ctx.setLineDash([5, 5]);
+                                        ctx.setLineDash([1, 1]);
                                         // ctx.globalAlpha = 0.25;
-                                        if (props.device != 'mobile') ctx.stroke();
+                                        ctx.stroke();
+                                        // if (props.device != 'mobile') ctx.stroke();
                                     }
 
                                     found = true;
@@ -365,7 +366,7 @@ const Treemap = (props: any) => {
                                                 ctx.lineWidth = 1;
                                                 // ctx.setLineDash([5, 5]);
                                                 // ctx.globalAlpha = 0.25;
-                                                if (props.device != 'mobile') ctx.stroke();
+                                                // if (props.device != 'mobile') ctx.stroke();
                                             }
                                         }
                                     }
@@ -420,7 +421,7 @@ const Treemap = (props: any) => {
                                                 ctx.lineWidth = 1;
                                                 // ctx.setLineDash([5, 5]);
                                                 // ctx.globalAlpha = 0.25;
-                                                if (props.device != 'mobile') ctx.stroke();
+                                                // if (props.device != 'mobile') ctx.stroke();
                                             }
                                         }
                                     }
@@ -860,11 +861,10 @@ const Treemap = (props: any) => {
 
             if (book.name.toLowerCase() == 'luke' && c == 3) chapters.push({id: 'baptism', image: '/baptism.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'luke' && c == 6) chapters.push({id: 'sermon', image: '/sermon.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
+            if (book.name.toLowerCase() == 'luke' && c == 22) chapters.push({id: 'last-supper', image: '/last-supper.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'mathew' && c == 5) chapters.push({id: 'sermon', image: '/sermon.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'john' && c == 2) chapters.push({id: 'wedding', image: '/wedding.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'mathew' && c == 16) chapters.push({id: 'keys', image: '/keys.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
-            if (book.name.toLowerCase() == 'luke' && c == 9) chapters.push({id: 'transfiguration', image: '/transfiguration.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
-            if (book.name.toLowerCase() == 'luke' && c == 22) chapters.push({id: 'last-supper', image: '/last-supper.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
 
             if (book.name.toLowerCase() == 'acts' && c == 2) chapters.push({id: 'pentecost', image: '/pentecost.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'acts' && c == 9) chapters.push({id: 'saul', image: '/saul.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
