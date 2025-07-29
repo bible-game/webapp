@@ -218,6 +218,20 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
+
+                groupBorderWidth: 0,
+                groupBorderRadius: 0,
+                groupInsetWidth: 4,
+                groupMinDiameter: 0,
+                groupStrokeWidth: 4,
+                groupStrokeType: 'gradient',
+                groupFillType: 'gradient',
+            }));
+        }
+
+        if (foamtreeInstance) {
+            //@ts-ignore
+            foamtreeInstance.set({
                 // fixme :: why did the stroke disappear, msg Stanislaw?? or leave it...
                 groupContentDecorator: function (opts: any, params: any, vars: any) {
                     if (params.group.level == 'chapter' && !!params.group.image) {
@@ -248,26 +262,27 @@ const Treemap = (props: any) => {
                             // if not last, draw line from this to next (stop short...)
                             const ctx = params.context;
                             console.log(params);
-                            params.neighbors.forEach(function (neighbor: any) {
-                                console.log(neighbor);
-                                // Make sure we draw each line only once. Additionally,
-                                // polygons on the side of the visualization area will have
-                                // some of their neighbors null (because the neighbor is the
-                                // edge of the visualization area).
-                                if (neighbor && foamtreeInstance) {
+                            // parent.groups.filter('').sliceAfterThis[0]
+                            let found = false;
+                            params.parent.groups.forEach(function (group: any) {
+                                if (!found && group && group.label == '' && group.chapter > params.group.chapter) {
                                     //@ts-ignore
                                     // fixme :: msg Stanislaw... how to draw lines? come back when events done...
-                                    const geom = foamtreeInstance.get("geometry", neighbor);
+                                    const geom = foamtreeInstance.get("geometry", group);
                                     // The geometry may be null if the polygon is not visible
                                     console.log(geom)
                                     if (geom) {
                                         ctx.beginPath();
                                         ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
                                         ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
+                                        ctx.lineWidth = 1;
+                                        ctx.setLineDash([5, 5]);
                                         ctx.stroke();
                                     }
+
+                                    found = true;
                                 }
-                            });
+                            })
                         }
                     }
 
@@ -299,15 +314,7 @@ const Treemap = (props: any) => {
                         }
                     }
                 },
-
-                groupBorderWidth: 0,
-                groupBorderRadius: 0,
-                groupInsetWidth: 4,
-                groupMinDiameter: 0,
-                groupStrokeWidth: 4,
-                groupStrokeType: 'gradient',
-                groupFillType: 'gradient',
-            }));
+            })
         }
 
         return () => {
