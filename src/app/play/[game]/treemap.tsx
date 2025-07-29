@@ -62,7 +62,7 @@ const Treemap = (props: any) => {
                 descriptionGroupMinHeight: 64,
                 descriptionGroupMaxHeight: 0.125,
                 groupLabelMinFontSize: 0,
-                groupLabelMaxFontSize: 18,
+                groupLabelMaxFontSize: 16,
                 groupSelectionOutlineWidth: 0,
                 rectangleAspectRatioPreference: 0,
                 groupLabelDarkColor: "#ffffff",
