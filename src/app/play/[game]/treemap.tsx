@@ -275,7 +275,7 @@ const Treemap = (props: any) => {
                                         ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                         ctx.lineWidth = 1;
                                         ctx.setLineDash([5, 5]);
-                                        ctx.globalAlpha = 0.5;
+                                        // ctx.globalAlpha = 0.25;
                                         ctx.stroke();
                                     }
 
@@ -312,8 +312,8 @@ const Treemap = (props: any) => {
                                         ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                         ctx.lineWidth = 1;
                                         ctx.setLineDash([5, 5]);
-                                        ctx.globalAlpha = 0.5;
-                                        ctx.stroke();
+                                        // ctx.globalAlpha = 0.25;
+                                        // ctx.stroke();
                                     }
                                 }
 
@@ -342,8 +342,8 @@ const Treemap = (props: any) => {
                                             gradient.addColorStop(1, firstEventInNextDiv.color);
                                             ctx.strokeStyle = gradient;
                                             ctx.setLineDash([5, 5]);
-                                            ctx.globalAlpha = 0.5;
-                                            ctx.stroke();
+                                            // ctx.globalAlpha = 0.25;
+                                            // ctx.stroke();
                                         }
                                     }
 
@@ -364,7 +364,7 @@ const Treemap = (props: any) => {
                                                 ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                                 ctx.lineWidth = 1;
                                                 ctx.setLineDash([5, 5]);
-                                                ctx.globalAlpha = 0.5;
+                                                // ctx.globalAlpha = 0.25;
                                                 ctx.stroke();
                                             }
                                         }
@@ -396,9 +396,9 @@ const Treemap = (props: any) => {
                                             gradient.addColorStop(0, group.color);
                                             gradient.addColorStop(1, firstEventInNextDiv.color);
                                             ctx.strokeStyle = gradient;
-                                            ctx.globalAlpha = 0.5;
-                                            ctx.setLineDash([5, 5]);
-                                            ctx.stroke();
+                                            // ctx.globalAlpha = 0.25;
+                                            // ctx.setLineDash([5, 5]);
+                                            // ctx.stroke();
                                         }
                                     }
 
@@ -419,7 +419,7 @@ const Treemap = (props: any) => {
                                                 ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                                 ctx.lineWidth = 1;
                                                 ctx.setLineDash([5, 5]);
-                                                ctx.globalAlpha = 0.5;
+                                                // ctx.globalAlpha = 0.25;
                                                 ctx.stroke();
                                             }
                                         }
