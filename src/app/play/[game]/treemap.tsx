@@ -261,7 +261,6 @@ const Treemap = (props: any) => {
 
                             // if not last, draw line from this to next (stop short...)
                             const ctx = params.context;
-                            console.log(params);
                             // parent.groups.filter('').sliceAfterThis[0]
                             let found = false;
                             params.parent.groups.forEach(function (group: any) {
@@ -270,7 +269,6 @@ const Treemap = (props: any) => {
                                     // fixme :: msg Stanislaw... how to draw lines? come back when events done...
                                     const geom = foamtreeInstance.get("geometry", group);
                                     // The geometry may be null if the polygon is not visible
-                                    console.log(geom)
                                     if (geom) {
                                         ctx.beginPath();
                                         ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
@@ -283,6 +281,135 @@ const Treemap = (props: any) => {
                                     found = true;
                                 }
                             })
+
+                            // Inter-Section Lines
+                            //@ts-ignore
+                            const thisTestament = foamtreeInstance.get("dataObject").groups.filter((group: any) => group.label == params.group.testament)[0]
+                            const thisDivision = thisTestament.groups.filter((group: any) => group.label == params.group.division)[0];
+                            const thisBook = thisDivision.groups.filter((group: any) => group.label == params.group.book)[0];
+                            const bookEvents = thisBook.groups.filter((group: any) => group.label == '');
+                            const lastEvent = bookEvents[bookEvents.length - 1];
+
+                            let firstEvent = undefined;
+                            //@ts-ignore
+                            const testIndex = foamtreeInstance.get("dataObject").groups.findIndex((group: any) => group.label == params.group.testament)
+                            //@ts-ignore
+                            const nextTestament = foamtreeInstance.get("dataObject").groups[testIndex + 1];
+                            if (nextTestament) {
+                                // Draw line if this is last event in this testament, to first event in next?
+                                const allEventsInThisTest = getAllEventsInTest(thisTestament);
+                                const allEventsInNextTest = getAllEventsInTest(nextTestament);
+                                const lastEventInThisTest = allEventsInThisTest[allEventsInThisTest.length - 1];
+                                const firstEventInNextTest = allEventsInNextTest[0];
+                                if (group.label == '' && group.id == lastEventInThisTest.id && !!firstEventInNextTest) {
+                                    //@ts-ignore
+                                    const geom = foamtreeInstance.get("geometry", firstEventInNextTest);
+                                    // The geometry may be null if the polygon is not visible
+                                    if (geom) {
+                                        ctx.beginPath();
+                                        ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
+                                        ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
+                                        ctx.lineWidth = 1;
+                                        ctx.setLineDash([5, 5]);
+                                        ctx.stroke();
+                                    }
+                                }
+
+                                const divIndex = thisTestament.groups.findIndex((group: any) => group.label == params.group.division);
+                                const nextDivision = thisTestament.groups[divIndex + 1];
+                                if (nextDivision) {
+                                    const allEventsInThisDiv = getAllEventsInDiv(thisDivision);
+                                    const allEventsInNextDiv = getAllEventsInDiv(nextDivision);
+                                    const lastEventInThisDiv = allEventsInThisDiv[allEventsInThisDiv.length - 1];
+                                    const firstEventInNextDiv = allEventsInNextDiv[0];
+                                    if (group.label == '' && group.id == lastEventInThisDiv.id && !!firstEventInNextDiv) {
+                                        //@ts-ignore
+                                        const geom = foamtreeInstance.get("geometry", firstEventInNextDiv);
+                                        // The geometry may be null if the polygon is not visible
+                                        if (geom) {
+                                            ctx.beginPath();
+                                            ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
+                                            ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
+                                            ctx.lineWidth = 1;
+                                            ctx.setLineDash([5, 5]);
+                                            ctx.stroke();
+                                        }
+                                    }
+
+                                    console.log(thisDivision)
+                                    const bkIndex = thisDivision.groups.findIndex((group: any) => group.label == params.group.book);
+                                    const nextBook = thisDivision.groups[bkIndex + 1];
+                                    if (nextBook) {
+                                        console.log('hit 1')
+                                        const allEventsInThisBook = getAllEventsInBook(thisBook);
+                                        const allEventsInNextBook = getAllEventsInBook(nextBook);
+                                        const lastEventInThisBook = allEventsInThisBook[allEventsInThisBook.length - 1];
+                                        const firstEventInNextBook = allEventsInNextBook[0];
+                                        if (group.label == '' && group.id == lastEventInThisBook.id && !!firstEventInNextBook) {
+                                            //@ts-ignore
+                                            console.log('hit 2')
+                                            const geom = foamtreeInstance.get("geometry", firstEventInNextBook);
+                                            // The geometry may be null if the polygon is not visible
+                                            if (geom) {
+                                                ctx.beginPath();
+                                                ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
+                                                ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
+                                                ctx.lineWidth = 1;
+                                                ctx.setLineDash([5, 5]);
+                                                ctx.stroke();
+                                            }
+                                        }
+                                    }
+                                }
+
+                            } else {
+                                const divIndex = thisTestament.groups.findIndex((group: any) => group.label == params.group.division);
+                                const nextDivision = thisTestament.groups[divIndex + 1];
+                                if (nextDivision) {
+                                    const allEventsInThisDiv = getAllEventsInDiv(thisDivision);
+                                    const allEventsInNextDiv = getAllEventsInDiv(nextDivision);
+                                    const lastEventInThisDiv = allEventsInThisDiv[allEventsInThisDiv.length - 1];
+                                    const firstEventInNextDiv = allEventsInNextDiv[0];
+                                    if (group.label == '' && group.id == lastEventInThisDiv.id && !!firstEventInNextDiv) {
+                                        //@ts-ignore
+                                        const geom = foamtreeInstance.get("geometry", firstEventInNextDiv);
+                                        // The geometry may be null if the polygon is not visible
+                                        if (geom) {
+                                            ctx.beginPath();
+                                            ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
+                                            ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
+                                            ctx.lineWidth = 1;
+                                            ctx.setLineDash([5, 5]);
+                                            ctx.stroke();
+                                        }
+                                    }
+
+                                    console.log(thisDivision)
+                                    const bkIndex = thisDivision.groups.findIndex((group: any) => group.label == params.group.book);
+                                    const nextBook = thisDivision.groups[bkIndex + 1];
+                                    if (nextBook) {
+                                        console.log('hit 1')
+                                        const allEventsInThisBook = getAllEventsInBook(thisBook);
+                                        const allEventsInNextBook = getAllEventsInBook(nextBook);
+                                        const lastEventInThisBook = allEventsInThisBook[allEventsInThisBook.length - 1];
+                                        const firstEventInNextBook = allEventsInNextBook[0];
+                                        if (group.label == '' && group.id == lastEventInThisBook.id && !!firstEventInNextBook) {
+                                            //@ts-ignore
+                                            console.log('hit 2')
+                                            const geom = foamtreeInstance.get("geometry", firstEventInNextBook);
+                                            // The geometry may be null if the polygon is not visible
+                                            if (geom) {
+                                                ctx.beginPath();
+                                                ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
+                                                ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
+                                                ctx.lineWidth = 1;
+                                                ctx.setLineDash([5, 5]);
+                                                ctx.stroke();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -545,7 +672,8 @@ const Treemap = (props: any) => {
                 color: getColour(d.books[0].key),
                 unselectable: true,
                 dim: isDim(d.name, 'division', props.divFound) || isDim(test, 'testament', props.testFound),
-                level: 'division'
+                level: 'division',
+                testament: test
             })
             divisions.push(...getPaddingGroups(d.name.toLowerCase().replace(/\s/g, '-'), false))
         }
@@ -687,6 +815,7 @@ const Treemap = (props: any) => {
             if (book.name.toLowerCase() == 'numbers' && c == 20) chapters.push({id: 'moses-rock', image: '/moses-rock.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'deuteronomy' && c == 29) chapters.push({id: 'moab', image: '/moab.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
 
+            if (book.name.toLowerCase() == 'joshua' && c == 3) chapters.push({id: 'jordan', image: '/jordan.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == 'judges' && c == 2) chapters.push({id: 'judges-angel', image: '/judges-angel.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == '1 samuel' && c == 16) chapters.push({id: 'david-anointed', image: '/david-anointed.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
             if (book.name.toLowerCase() == '1 samuel' && c == 17) chapters.push({id: 'david-goliath', image: '/david-goliath.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
@@ -783,6 +912,42 @@ const Treemap = (props: any) => {
         if (found) {
             return name != props.passage[level];
         }
+    }
+
+    function getAllEventsInTest(testament: any) {
+        const events: any[] = [];
+
+        testament.groups.forEach((div: any) => {
+            div.groups.forEach((book: any) => {
+                book.groups.forEach((ch: any) => {
+                    if (ch.label == '') events.push(ch)
+                })
+            })
+        })
+
+        return events;
+    }
+
+    function getAllEventsInDiv(div: any) {
+        const events: any[] = [];
+
+        div.groups.forEach((book: any) => {
+            book.groups.forEach((ch: any) => {
+                if (ch.label == '') events.push(ch)
+            })
+        })
+
+        return events;
+    }
+
+    function getAllEventsInBook(book: any) {
+        const events: any[] = [];
+
+        book.groups.forEach((ch: any) => {
+            if (ch.label == '') events.push(ch)
+        })
+
+        return events;
     }
 
     function getPaddingGroups(div: string, before: boolean): any[] {
