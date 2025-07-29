@@ -274,7 +274,7 @@ const Treemap = (props: any) => {
                                         ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
                                         ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                         ctx.lineWidth = 1;
-                                        ctx.setLineDash([5, 5]);
+                                        // ctx.setLineDash([5, 5]);
                                         // ctx.globalAlpha = 0.25;
                                         ctx.stroke();
                                     }
@@ -363,8 +363,8 @@ const Treemap = (props: any) => {
                                                 ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
                                                 ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                                 ctx.lineWidth = 1;
-                                                ctx.setLineDash([5, 5]);
-                                                ctx.globalAlpha = 0.25;
+                                                // ctx.setLineDash([5, 5]);
+                                                // ctx.globalAlpha = 0.25;
                                                 ctx.stroke();
                                             }
                                         }
@@ -418,8 +418,8 @@ const Treemap = (props: any) => {
                                                 ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
                                                 ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
                                                 ctx.lineWidth = 1;
-                                                ctx.setLineDash([5, 5]);
-                                                ctx.globalAlpha = 0.25;
+                                                // ctx.setLineDash([5, 5]);
+                                                // ctx.globalAlpha = 0.25;
                                                 ctx.stroke();
                                             }
                                         }
