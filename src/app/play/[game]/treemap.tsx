@@ -87,18 +87,17 @@ const Treemap = (props: any) => {
                         vars.labelColor = params.group.color;
                         // vars.strokeColour = params.group.color;
                     } else if (params.group.level == "chapter" && !!params.group.color) {
-                        const rgba = hexToRgba(params.group.color).substring(5, 18);
-                        const parts = rgba.split(', ');
+                        const darkened = darkenHexColor(params.group.color, 0);
+                        const rgba = hexToRgba(darkened).substring(5, 18);
+                        const parts = rgba.split(', '); // fixme...
 
                         vars.groupColor.r = parts[0];
                         vars.groupColor.g = parts[1];
                         vars.groupColor.b = parts[2];
-                        vars.groupColor.a = 0; // 0.55;
+                        vars.groupColor.a = 0.2; // 0.55;
 
                     } else {
-                        console.log('hit Y')
                         if (params.group.level == 'filler') {
-                            console.log('hit Z')
                             vars.groupColor.r = 255;
                             vars.groupColor.g = 255;
                             vars.groupColor.b = 255;
@@ -242,6 +241,9 @@ const Treemap = (props: any) => {
             foamtreeInstance.set({
                 // fixme :: why did the stroke disappear, msg Stanislaw?? or leave it...
                 groupContentDecorator: function (opts: any, params: any, vars: any) {
+                    const x = params.polygonCenterX + Math.random() * 20;
+                    const y = params.polygonCenterY + Math.random() * 20;
+
                     if (params.group.level == 'chapter' && !!params.group.image && false) {
 
                         const group = params.group;
@@ -441,8 +443,6 @@ const Treemap = (props: any) => {
                         vars.groupLabelDrawn = false;
 
                         const ctx = params.context;
-                        const x = params.polygonCenterX + Math.random()*20;
-                        const y = params.polygonCenterY + Math.random()*20;
                         let size = group.weight / 50;
                         if (size > 3) size = 3;
 
@@ -463,10 +463,11 @@ const Treemap = (props: any) => {
                                         ctx.beginPath();
                                         ctx.moveTo(lastX, lastY);
                                         ctx.lineTo(x, y);
-                                        ctx.strokeStyle = "ffffff80";
-                                        ctx.lineWidth = 0.5;
+                                        ctx.shadowBlur = 0;
+                                        ctx.strokeStyle = '#4f4b6e';
                                         ctx.setLineDash([1, 1]);
-                                        // ctx.stroke();
+                                        ctx.lineWidth = 0.1;
+                                        ctx.stroke();
                                     }
                                 }
                             });
@@ -474,35 +475,54 @@ const Treemap = (props: any) => {
 
                         lastX = x;
                         lastY = y;
-                    }
 
-                    if (params.group.level == 'book' && !!params.group.image) {
-                        const group = params.group;
-                        vars.groupLabelDrawn = true; // fixme
-                        // Draw image once loaded
-                        if (params.group.image) {
-                            // If polygon changed, recompute the inscribed rectangle
-                            if (params.shapeDirty) {
-                                // Compute the rectangle into which we'll render the image
-                                if (params.group.label == 'Genesis') console.log(params.group.weight);
-                                const big = params.group.weight > 750;
-                                //@ts-ignore
-                                group.box = FoamTreeClass.geometry.rectangleInPolygon(
-                                    params.polygon, params.polygonCenterX, params.polygonCenterY, big ? 0.35 : 0.50, 0.75);
+                        if (params.index && params.group.level == 'chapter') {
+                            const ctx = params.context;
+                            ctx.shadowBlur = 10;
+                            ctx.shadowColor = 'white';
+                            ctx.fillStyle = 'white';
+
+                            ctx.font = "1.5px Arial";
+                            ctx.fillStyle = '#3d3953';
+                            ctx.shadowBlur = 0;
+                            ctx.fillText(params.parent.label + group.label,x-9,y-4);
+
+                            if (params.index == 1) {
+                                ctx.font = "4px Arial";
+                                ctx.fillStyle = params.group.color+"20";
+                                ctx.shadowBlur = 0;
+                                ctx.fillText(params.parent.label,params.polygonCenterX,params.polygonCenterY);
                             }
-
-                            // Draw the image
-                            let imageSize = group.box.w;
-
-                            const img = new Image();
-                            img.src = '/deuteronomy.png'// params.group.image;
-                            img.onload = function () {
-                                // Once the image has been loaded,
-                                // put it in the group's data object
-                                params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
-                            };
                         }
                     }
+
+                    // if (params.group.level == 'book' && !!params.group.image) {
+                    //     const group = params.group;
+                    //     vars.groupLabelDrawn = true; // fixme
+                    //     // Draw image once loaded
+                    //     if (params.group.image) {
+                    //         // If polygon changed, recompute the inscribed rectangle
+                    //         if (params.shapeDirty) {
+                    //             // Compute the rectangle into which we'll render the image
+                    //             if (params.group.label == 'Genesis') console.log(params.group.weight);
+                    //             const big = params.group.weight > 750;
+                    //             //@ts-ignore
+                    //             group.box = FoamTreeClass.geometry.rectangleInPolygon(
+                    //                 params.polygon, params.polygonCenterX, params.polygonCenterY, big ? 0.35 : 0.50, 0.75);
+                    //         }
+                    //
+                    //         // Draw the image
+                    //         let imageSize = group.box.w;
+                    //
+                    //         const img = new Image();
+                    //         img.src = '/deuteronomy.png'// params.group.image;
+                    //         img.onload = function () {
+                    //             // Once the image has been loaded,
+                    //             // put it in the group's data object
+                    //             params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
+                    //         };
+                    //     }
+                    // }
                 },
             })
         }
@@ -1194,7 +1214,7 @@ const Treemap = (props: any) => {
     // else
     return (
             //@ts-ignore
-            <div ref={element} className="absolute w-full sm:w-[46rem] h-[calc(100%-15rem)] sm:h-[calc(100%-17rem)] left-0 sm:left-[calc(50%-23rem)] top-[10rem] sm:top-[8rem]" id="treemap"></div>
+            <div ref={element} className="absolute w-full sm:w-[44rem] h-[calc(100%-15rem)] sm:h-[calc(100%-17rem)] left-0 sm:left-[calc(50%-22rem)] top-[10rem] sm:top-[8rem]" id="treemap"></div>
     );
 };
 
