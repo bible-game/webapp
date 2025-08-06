@@ -101,7 +101,7 @@ const Treemap = (props: any) => {
                             vars.groupColor.r = 255;
                             vars.groupColor.g = 255;
                             vars.groupColor.b = 255;
-                            vars.groupColor.a = 1;
+                            vars.groupColor.a = 0.2; // 0.2
                             vars.strokeColour = params.group.color + '40';
                         } else {
                             vars.groupColor = params.group.color;
@@ -239,7 +239,7 @@ const Treemap = (props: any) => {
                 groupFillType: 'gradient',
                 // stacking: "flattened",
                 // descriptionGroupType: "floating",
-                layout: "ordered"
+                // layout: "ordered"
             }));
         }
 
@@ -250,9 +250,9 @@ const Treemap = (props: any) => {
                 groupContentDecorator: function (opts: any, params: any, vars: any) {
                     let sign = Math.random() < 0.5 ? -1 : 1;
                     console.log(params)
-                    const x = params.polygonCenterX + sign * (Math.random() * params.boxWidth / 2.25);
+                    const x = params.polygonCenterX + sign * (Math.random() * params.boxWidth / 3);
                     sign = Math.random() < 0.5 ? -1 : 1;
-                    const y = params.polygonCenterY + sign * (Math.random() * params.boxHeight / 2.25);
+                    const y = params.polygonCenterY + sign * (Math.random() * params.boxHeight / 3);
 
                     if (params.group.level == 'chapter' && !!params.group.image && false) {
 
@@ -453,20 +453,11 @@ const Treemap = (props: any) => {
                         vars.groupLabelDrawn = false;
 
                         const ctx = params.context;
-                        let size = group.weight / 50;
-                        if (size > 3) size = 3;
 
-                        ctx.shadowBlur = 10;
-                        ctx.shadowColor = 'white';
-                        ctx.fillStyle = 'white';
-
-                        ctx.beginPath();
-                        ctx.arc(x, y, size, 0, 2 * Math.PI);
-                        ctx.fill();
-
-                        if (params.index) {
+                        if (params.index && params.group.level != 'filler') {
                             params.parent.groups.forEach(function (group: any) {
-                                if (parseInt(params.group.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1])) {
+                                const lastNode = parseInt(params.group.id.split('/')[1]) == params.parent.groups.length;
+                                if (parseInt(params.group.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1]) || lastNode) {
                                     //@ts-ignore
                                     const geom = foamtreeInstance.get("geometry", group);
                                     if (geom && lastX && lastY) {
@@ -482,6 +473,17 @@ const Treemap = (props: any) => {
                                 }
                             });
                         }
+
+                        let size = group.weight / 50;
+                        if (size > 3) size = 3;
+
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = 'white';
+                        ctx.fillStyle = 'white';
+
+                        ctx.beginPath();
+                        ctx.arc(x, y, size, 0, 2 * Math.PI);
+                        ctx.fill();
 
                         lastX = x;
                         lastY = y;
@@ -608,7 +610,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = 255;
                                 vars.groupColor.g = 255;
                                 vars.groupColor.b = 255;
-                                vars.groupColor.a = 0.05;
+                                vars.groupColor.a = 0;
                                 vars.strokeColour = params.group.color + '40';
                             } else {
                                 vars.groupColor = params.group.color;
@@ -662,7 +664,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = 255;
                                 vars.groupColor.g = 255;
                                 vars.groupColor.b = 255;
-                                vars.groupColor.a = 0.05;
+                                vars.groupColor.a = 0;
                                 vars.strokeColour = params.group.color + '40';
                             } else {
                                 vars.groupColor = params.group.color;
@@ -787,6 +789,7 @@ const Treemap = (props: any) => {
         const books: any[] = [];
 
         for (const b of bk) {
+            books.push(...getPaddingGroups(b.name, true))
             books.push({
                 id: b.name,
                 label: b.name,
@@ -801,7 +804,8 @@ const Treemap = (props: any) => {
                 division: div,
                 book: b.name,
                 // image: '/'+b.name.toLowerCase()+'.png'
-            })
+            });
+            books.push(...getPaddingGroups(b.name, false))
         }
 
         return books
@@ -1077,45 +1081,28 @@ const Treemap = (props: any) => {
         return events;
     }
 
-    function getPaddingGroups(div: string = '', before: boolean = false): any[] {
+    function getPaddingGroups(book: string = '', before: boolean = false): any[] {
         const fillers = [] as any[];
         // if (props.device == 'mobile' || true) return fillers;
         if (props.device == 'mobile') return fillers;
 
-        const sides = ['top', 'bottom', 'left', 'right'];
+        // const sides = ['top', 'bottom', 'left', 'right'];
+        const sides = ['top', 'bottom'];
         let count: number;
 
-        switch (div) {
-            case 'the-law':
-                count = before ? 20 : 10; break;
-            case 'history':
-                count = before ? 10 : 5; break;
-            case 'wisdom':
-                count = 10; break;
-            case 'major-prophets':
-                count = 15; break;
-            case 'minor-prophets':
-                count = 30; break;
-            case 'gospels':
-                count = before ? 15 : 15; break;
-            case 'early-church':
-                count = before ? 10 : 10; break;
-            case 'paul\'s-letters':
-                count = 15; break;
-            case 'general-letters':
-                count = before ? 10 : 10; break;
-            case 'prophecy':
-                count = before ? 20 : 15; break;
+        switch (book) {
+            case '!genesis':
+                count = before ? 20 : 20; break;
             default:
-                count = 20;
+                count = 1;
         }
 
         for (const side of sides) {
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < count; i++) {
                 fillers.push({
                     id: `filler-${side}-${i}`,
                     label: '',
-                    weight: 0.1,
+                    weight: 0.001,
                     unselectable: true,
                     dim: true,
                     color: '#ffffff00', // fully transparent
