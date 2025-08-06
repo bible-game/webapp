@@ -149,6 +149,7 @@ const Treemap = (props: any) => {
                 //     variables.titleBarText = parameters.group.book + ' ' + (parameters.index+1);
                 // },
                 maxLabelSizeForTitleBar: 0,
+                // groupContentDecoratorTriggering: "onShapeDirty",
                 onGroupClick: function (event: any) {
                     if (event.group.id.includes('/')) {
                         const selection = event.group.id.split('/');
@@ -1084,7 +1085,7 @@ const Treemap = (props: any) => {
     function getPaddingGroups(book: string = '', before: boolean = false): any[] {
         const fillers = [] as any[];
         // if (props.device == 'mobile' || true) return fillers;
-        if (props.device == 'mobile') return fillers;
+        // if (props.device == 'mobile') return fillers;
 
         // const sides = ['top', 'bottom', 'left', 'right'];
         const sides = ['top', 'bottom'];
