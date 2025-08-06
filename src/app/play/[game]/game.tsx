@@ -278,7 +278,7 @@ export default function Game(props: any) {
                     <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
                         <Menu passage={passage} playing={playing} date={props.game} device={props.device}/>
                     </section>
-                    <section className="pointer-events-auto absolute bottom-[-2.5rem] sm:bottom-[4.25rem]">
+                    <section className="pointer-events-auto absolute bottom-[-1.5rem] sm:bottom-[4.25rem]">
                         <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
                                 isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
                                 addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}

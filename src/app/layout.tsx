@@ -24,8 +24,8 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
               <script src="./hammer.min.js" async />
           </Head>
           <body>
-            <Providers>
-                {children}
+          <Providers>
+              {children}
             </Providers>
           </body>
       </html>
