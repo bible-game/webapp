@@ -539,7 +539,7 @@ const Treemap = (props: any) => {
                             ctx.fillStyle = group.color;
 
                             ctx.beginPath();
-                            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                            ctx.arc(x, y, props.device == 'mobile' ? 3 : 5, 0, 2 * Math.PI);
                             ctx.fill();
 
                             // draw connector
