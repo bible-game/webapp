@@ -18,6 +18,16 @@ const mobileOptimisations = {
 
 const narrative: any = {
     'GEN/3': 'People rejected from Eden',
+    'GEN/17': 'God\'s promises to Abraham',
+    'EXO/2': 'Israel leaves Egypt',
+    '1KI/11': 'Israel is divided',
+    'EZR/1': 'The people return from exile',
+    'JER/36': 'God\'s people are punished',
+    'HAG/2': 'God promises something better',
+    'MAT/1': 'Jesus is born',
+    'MRK/15': 'The death of Jesus',
+    'JHN/20': 'Jesus\'s resurrection',
+    'ACT/21': 'Pentecost, the church begins to grow',
     'REV/21': 'Jesus returns, New Heaven & Earth'
 }
 
@@ -37,6 +47,8 @@ const Treemap = (props: any) => {
 
     let lastX = 0;
     let lastY = 0;
+    let lastNarrativeX = 0;
+    let lastNarrativeY = 0;
 
     useEffect(() => {
         let disposed = false;
@@ -530,9 +542,25 @@ const Treemap = (props: any) => {
                             ctx.arc(x, y, 5, 0, 2 * Math.PI);
                             ctx.fill();
 
-                            lastX = x;
-                            lastY = y;
+                            // draw connector
+                            if (lastNarrativeX && lastNarrativeY) {
+                                ctx.beginPath();
+                                ctx.moveTo(lastNarrativeX, lastNarrativeY);
+                                ctx.lineTo(x, y);
+                                ctx.shadowBlur = 0;
+                                ctx.strokeStyle = params.group.color+"40"; // todo :: gradient fill
+                                ctx.setLineDash([1, 1]);
+                                ctx.lineWidth = 1;
+                                ctx.stroke();
+                            }
+
+
+                            lastNarrativeX = x
+                            lastNarrativeY = y
                         }
+
+                        lastX = x;
+                        lastY = y;
                     }
 
                     // if (params.group.level == 'book' && !!params.group.image) {
