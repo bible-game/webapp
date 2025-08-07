@@ -573,7 +573,7 @@ const Treemap = (props: any) => {
                             }
 
                             ctx.font = "8px Arial";
-                            ctx.fillStyle = params.group.color+"bf";
+                            ctx.fillStyle = params.group.color+"80";
                             ctx.shadowBlur = 0;
                             const lineHeight = 15;
                             const lines = narrative[group.id].split('\n');
