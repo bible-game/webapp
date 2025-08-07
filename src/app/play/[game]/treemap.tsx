@@ -32,9 +32,72 @@ const narrative: any = {
 
 const getEventIcon = (book: string, chapter: number): any => {
     const events: any = {
+        'genesis1': '/creation.png',
+        'genesis3': '/serpent.png',
+        'genesis7': '/noah.png',
+        'genesis22': '/isaac.png',
+        'genesis37': '/slavery.png',
+        'exodus7': '/plague.png',
+        'exodus13': '/redsea.png',
+        'exodus16': '/manna.png',
+        'exodus32': '/goldcalf.png',
+        'exodus36': '/tabernacle.png',
+        'leviticus16': '/atonement.png',
+        'numbers13': '/spies.png',
+        'numbers17': '/aarons-rod.png',
+        'numbers20': '/moses-rock.png',
+        'deuteronomy29': '/moab.png',
+
+        'joshua3': '/jordan.png',
+        'judges2': '/judges-angel.png',
+        '1 samuel16': '/david-anointed.png',
+        '1 samuel17': '/david-goliath.png',
+        '2 samuel5': '/david.png',
+        '1 kings2': '/solomon-king.png',
+        '1 kings6': '/temple-one.png',
+        '1 kings12': '/divided.png',
+        '2 kings17': '/assyria.png',
+        '2 kings25': '/babylon-exile.png',
+        'ezra6': '/new-temple.png',
+        'esther2': '/queen.png',
+
+        'job2': '/friends.png',
+        'psalms2': '/coronation.png',
+        'ecclesiastes9': '/tuxedo.png',
+        'song of songs2': '/lovers.png',
+
+        'isaiah11': '/wolf.png',
+        'daniel6': '/lion.png',
+
+        'hosea3': '/abstain.png',
+        'joel1': '/famine.png',
+        'amos3': '/enemy.png',
+        'nahum2': '/downfall.png',
+
+        'luke3': '/baptism.png',
+        'luke6': '/sermon.png',
+        'luke22': '/last-supper.png',
+        'mathew5': '/sermon.png',
+        'john2': '/wedding.png',
+        'mathew16': '/keys.png',
+
+        'acts2': '/pentecost.png',
+        'acts9': '/saul.png',
+        'acts15': '/council.png',
+
+        'romans3': '/justice.png',
+        '1 corinthians13': '/love.png',
+        '2 corinthians5': '/ambassadors.png',
+        'galatians5': '/spirit.png',
         'ephesians6': '/armour.png',
         'philippians2': '/humility.png',
-        'hebrews6': '/anchor.png'
+        'hebrews6': '/anchor.png',
+
+        'jude1': '/false-teachers.png',
+
+        'revelation5': '/scroll.png',
+        'revelation19': '/second-coming.png',
+        'revelation21': '/new-creation.png'
     }
     return events[book+chapter];
 }
@@ -519,9 +582,11 @@ const Treemap = (props: any) => {
                             ctx.fillStyle = "#040127";
                             ctx.globalCompositeOperation = "destination-in"; // fixme?
                             img.onload = function () {
-                                params.context.drawImage(img, x + 2 * size, y + 2 * size, 3 * size, 3 * size);
+                                ctx.globalAlpha = 0.25;
+                                params.context.drawImage(img, x + 2 * size, y + 2 * size, 6 * size, 6 * size);
                             };
                             ctx.globalCompositeOperation = "source-over";
+                            ctx.globalAlpha = 1;
                         }
 
                         if (params.index && params.group.level == 'chapter') {
