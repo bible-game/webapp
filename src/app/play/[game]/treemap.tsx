@@ -17,18 +17,17 @@ const mobileOptimisations = {
 }
 
 const narrative: any = {
-    'GEN/3': 'People rejected from Eden',
-    'GEN/17': 'God\'s promises to Abraham',
+    'GEN/3': 'People rejected\nfrom Eden',
     'EXO/2': 'Israel leaves Egypt',
     '1KI/11': 'Israel is divided',
-    'EZR/1': 'The people return from exile',
-    'JER/36': 'God\'s people are punished',
-    'HAG/2': 'God promises something better',
+    'EZR/1': 'The people return\nfrom exile',
+    'JER/36': 'God\'s people\nare punished',
+    'HAG/2': 'God promises\nsomething better',
     'MAT/1': 'Jesus is born',
     'MRK/15': 'The death of Jesus',
-    'JHN/20': 'Jesus\'s resurrection',
-    'ACT/21': 'Pentecost, the church begins to grow',
-    'REV/21': 'Jesus returns, New Heaven & Earth'
+    'JHN/20': 'Jesus\'\nresurrection',
+    'ACT/21': 'The church\nbegins to grow',
+    'REV/21': 'A New Heaven\n& Earth'
 }
 
 const getEventIcon = (book: string, chapter: number): any => {
@@ -276,7 +275,6 @@ const Treemap = (props: any) => {
                 // fixme :: why did the stroke disappear, msg Stanislaw?? or leave it...
                 groupContentDecorator: function (opts: any, params: any, vars: any) {
                     let sign = Math.random() < 0.5 ? -1 : 1;
-                    console.log(params)
                     const x = params.polygonCenterX + sign * (Math.random() * params.boxWidth / 3);
                     sign = Math.random() < 0.5 ? -1 : 1;
                     const y = params.polygonCenterY + sign * (Math.random() * params.boxHeight / 3);
@@ -574,6 +572,14 @@ const Treemap = (props: any) => {
                                 ctx.stroke();
                             }
 
+                            ctx.font = "8px Arial";
+                            ctx.fillStyle = params.group.color+"bf";
+                            ctx.shadowBlur = 0;
+                            const lineHeight = 15;
+                            const lines = narrative[group.id].split('\n');
+
+                            for (let i = 0; i<lines.length; i++)
+                                ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 20 : -85), y - (lines.length > 1 ? 10 : 0) + (i*lineHeight));
 
                             lastNarrativeX = x
                             lastNarrativeY = y
