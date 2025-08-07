@@ -16,6 +16,11 @@ const mobileOptimisations = {
     interactionHandler: "hammerjs"
 }
 
+const narrative: any = {
+    'GEN/3': 'People rejected from Eden',
+    'REV/21': 'Jesus returns, New Heaven & Earth'
+}
+
 /**
  * Voronoi Treemap Component for displaying the Bible
  * @since 1st June 2025
@@ -514,6 +519,19 @@ const Treemap = (props: any) => {
                             //     ctx.shadowBlur = 0;
                             //     ctx.fillText(params.group.division,params.polygonCenterX-10,params.polygonCenterY+10);
                             // }
+                        }
+
+                        if (narrative[group.id]) {
+                            ctx.shadowBlur = 10;
+                            ctx.shadowColor = group.color;
+                            ctx.fillStyle = group.color;
+
+                            ctx.beginPath();
+                            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                            ctx.fill();
+
+                            lastX = x;
+                            lastY = y;
                         }
                     }
 
