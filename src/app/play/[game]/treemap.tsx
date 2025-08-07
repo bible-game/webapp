@@ -31,6 +31,15 @@ const narrative: any = {
     'REV/21': 'Jesus returns, New Heaven & Earth'
 }
 
+const getEventIcon = (book: string, chapter: number): any => {
+    const events: any = {
+        'ephesians6': '/armour.png',
+        'philippians2': '/humility.png',
+        'hebrews6': '/anchor.png'
+    }
+    return events[book+chapter];
+}
+
 /**
  * Voronoi Treemap Component for displaying the Bible
  * @since 1st June 2025
@@ -506,6 +515,17 @@ const Treemap = (props: any) => {
                         lastX = x;
                         lastY = y;
 
+                        if (params.group.event) {
+                            const img = new Image;
+                            img.src = params.group.event;
+                            ctx.fillStyle = "#040127";
+                            ctx.globalCompositeOperation = "destination-in"; // fixme?
+                            img.onload = function () {
+                                params.context.drawImage(img, x + 2 * size, y + 2 * size, 3 * size, 3 * size);
+                            };
+                            ctx.globalCompositeOperation = "source-over";
+                        }
+
                         if (params.index && params.group.level == 'chapter') {
                             const ctx = params.context;
                             ctx.shadowBlur = 10;
@@ -590,7 +610,7 @@ const Treemap = (props: any) => {
                     //         };
                     //     }
                     // }
-                },
+                }
             })
         }
 
@@ -874,7 +894,8 @@ const Treemap = (props: any) => {
                 // icon: book.icons[c-1],
                 testament: test,
                 division: div,
-                book: book.name
+                book: book.name,
+                event: getEventIcon(book.name.toLowerCase(), c) || ''
             })
 
             // if (book.name.toLowerCase() == 'genesis' && c == 3) {
