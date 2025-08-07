@@ -22,9 +22,9 @@ const narrative: any = {
     '1KI/11': 'Israel is divided',
     'EZR/1': 'The people return\nfrom exile',
     'JER/36': 'God\'s people\nare punished',
-    'HAG/2': 'God promises\nsomething better',
+    'HAG/2': 'God promises\nsomething\nbetter',
     'MAT/1': 'Jesus is born',
-    'MRK/15': 'The death of Jesus',
+    'MRK/15': 'The death\nof Jesus',
     'JHN/20': 'Jesus\'\nresurrection',
     'ACT/21': 'The church\nbegins to grow',
     'REV/21': 'A New Heaven\n& Earth'
@@ -579,7 +579,7 @@ const Treemap = (props: any) => {
                             const lines = narrative[group.id].split('\n');
 
                             for (let i = 0; i<lines.length; i++)
-                                ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 20 : -85), y - (lines.length > 1 ? 10 : 0) + (i*lineHeight));
+                                ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 15 : -70), y - (lines.length > 1 ? 10 : 0) - (y < document.getElementsByTagName('canvas')[3].height / 2 ? -10 : 20) + (i*lineHeight));
 
                             lastNarrativeX = x
                             lastNarrativeY = y
