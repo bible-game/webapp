@@ -237,7 +237,7 @@ const Treemap = (props: any) => {
                 // groupStrokeWidth: 4,
                 groupStrokeWidth: 0,
                 groupStrokeType: 'gradient',
-                groupFillType: 'gradient',
+                groupFillType: 'plain',
                 // stacking: "flattened",
                 // descriptionGroupType: "floating",
                 // layout: "ordered"
@@ -611,7 +611,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = 255;
                                 vars.groupColor.g = 255;
                                 vars.groupColor.b = 255;
-                                vars.groupColor.a = 0;
+                                vars.groupColor.a = params.group.book == props.passage.book ? 0 : 0;
                                 vars.strokeColour = params.group.color + '40';
                             } else {
                                 vars.groupColor = params.group.color;
@@ -665,7 +665,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = 255;
                                 vars.groupColor.g = 255;
                                 vars.groupColor.b = 255;
-                                vars.groupColor.a = 0;
+                                vars.groupColor.a = params.group.division == props.passage.division ? 0.3 : 0;
                                 vars.strokeColour = params.group.color + '40';
                             } else {
                                 vars.groupColor = params.group.color;
@@ -718,7 +718,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = 255;
                                 vars.groupColor.g = 255;
                                 vars.groupColor.b = 255;
-                                vars.groupColor.a = 0;
+                                vars.groupColor.a = params.group.testament == props.passage.testament ? 0.3 : 0;
                                 vars.strokeColour = params.group.color + '00';
                             } else {
                                 vars.groupColor = params.group.color;
@@ -790,7 +790,7 @@ const Treemap = (props: any) => {
         const books: any[] = [];
 
         for (const b of bk) {
-            books.push(...getPaddingGroups(b.name, true))
+            books.push(...getPaddingGroups(test, div, b.name))
             books.push({
                 id: b.name,
                 label: b.name,
@@ -806,7 +806,7 @@ const Treemap = (props: any) => {
                 book: b.name,
                 // image: '/'+b.name.toLowerCase()+'.png'
             });
-            books.push(...getPaddingGroups(b.name, false))
+            books.push(...getPaddingGroups(test, div, b.name))
         }
 
         return books
@@ -1082,21 +1082,22 @@ const Treemap = (props: any) => {
         return events;
     }
 
-    function getPaddingGroups(book: string = '', before: boolean = false): any[] {
+    // function getPaddingGroups(book: string = '', before: boolean = false): any[] {
+    function getPaddingGroups(test: string, div: string, bk: string): any[] {
         const fillers = [] as any[];
         // if (props.device == 'mobile' || true) return fillers;
         // if (props.device == 'mobile') return fillers;
 
         // const sides = ['top', 'bottom', 'left', 'right'];
         const sides = ['top', 'bottom'];
-        let count: number;
+        let count: number = 1;
 
-        switch (book) {
-            case '!genesis':
-                count = before ? 20 : 20; break;
-            default:
-                count = 1;
-        }
+        // switch (book) {
+        //     case '!genesis':
+        //         count = before ? 20 : 20; break;
+        //     default:
+        //         count = 1;
+        // }
 
         for (const side of sides) {
             for (let i = 0; i < count; i++) {
@@ -1107,7 +1108,10 @@ const Treemap = (props: any) => {
                     unselectable: true,
                     dim: true,
                     color: '#ffffff00', // fully transparent
-                    level: 'filler'
+                    level: 'filler',
+                    division: div,
+                    testament: test,
+                    book: bk
                 });
             }
         }
