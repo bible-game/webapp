@@ -7,12 +7,12 @@ import { darkenHexColor } from "@/core/util/colour-util";
 
 const mobileOptimisations = {
     pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
-    relaxationVisible: false,
-    relaxationQualityThreshold: 5,
-    rolloutDuration: 0,
-    pullbackDuration: 0,
-    finalCompleteDrawMaxDuration: 50,
-    finalIncrementalDrawMaxDuration: 20,
+    // relaxationVisible: false,
+    // relaxationQualityThreshold: 5,
+    // rolloutDuration: 0,
+    // pullbackDuration: 0,
+    // finalCompleteDrawMaxDuration: 50,
+    // finalIncrementalDrawMaxDuration: 20,
     interactionHandler: "hammerjs"
 }
 
