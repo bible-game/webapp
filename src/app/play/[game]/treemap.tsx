@@ -545,7 +545,7 @@ const Treemap = (props: any) => {
                         if (params.index && params.group.level != 'filler') {
                             params.parent.groups.forEach(function (group: any) {
                                 const lastNode = parseInt(params.group.id.split('/')[1]) == params.parent.groups.length;
-                                if (parseInt(params.group.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1]) || lastNode) {
+                                if (parseInt(params.group.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1])) {
                                     //@ts-ignore
                                     const geom = foamtreeInstance.get("geometry", group);
                                     if (geom && lastX && lastY) {
@@ -557,6 +557,20 @@ const Treemap = (props: any) => {
                                         ctx.setLineDash([1, 1]);
                                         ctx.lineWidth = 0.1;
                                         ctx.stroke();
+                                    }
+                                } else if (lastNode) {
+                                    //@ts-ignore
+                                    const geom = foamtreeInstance.get("geometry", group);
+                                    if (geom && lastX && lastY) {
+                                        ctx.globalAlpha = 0.1; // fixme...
+                                        ctx.beginPath();
+                                        ctx.moveTo(lastX, lastY);
+                                        ctx.lineTo(x, y);
+                                        ctx.shadowBlur = 0;
+                                        ctx.setLineDash([1, 1]);
+                                        ctx.lineWidth = 0.1;
+                                        ctx.stroke();
+                                        ctx.globalAlpha = 1;
                                     }
                                 }
                             });
@@ -589,7 +603,7 @@ const Treemap = (props: any) => {
                             ctx.globalAlpha = 1;
                         }
 
-                        if (params.index && params.group.level == 'chapter') {
+                        if (params.index >= 0 && params.group.level == 'chapter') {
                             const ctx = params.context;
                             ctx.shadowBlur = 10;
                             ctx.shadowColor = 'white';
@@ -640,10 +654,10 @@ const Treemap = (props: any) => {
                             ctx.font = "8px Arial";
                             ctx.fillStyle = params.group.color+"80";
                             ctx.shadowBlur = 0;
-                            const lineHeight = 15;
+                            const lineHeight = 10;
                             const lines = narrative[group.id].split('\n');
 
-                            for (let i = 0; i<lines.length; i++)
+                            for (let i = 0; i < lines.length; i++)
                                 ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 15 : -70), y - (lines.length > 1 ? 10 : 0) - (y < document.getElementsByTagName('canvas')[3].height / 2 ? -10 : 20) + (i*lineHeight));
 
                             lastNarrativeX = x
