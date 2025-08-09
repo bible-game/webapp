@@ -324,7 +324,7 @@ const Treemap = (props: any) => {
                 groupMinDiameter: 0,
                 // groupStrokeWidth: 4,
                 groupStrokeWidth: 0,
-                groupStrokeType: 'gradient',
+                groupStrokeType: 'none',
                 groupFillType: 'plain',
                 // stacking: "flattened",
                 // descriptionGroupType: "floating",
@@ -568,7 +568,7 @@ const Treemap = (props: any) => {
                                         ctx.lineTo(x, y);
                                         ctx.shadowBlur = 0;
                                         ctx.setLineDash([1, 1]);
-                                        ctx.lineWidth = 0.1;
+                                        ctx.lineWidth = 0.05;
                                         ctx.stroke();
                                         ctx.globalAlpha = 1;
                                     }
@@ -576,8 +576,12 @@ const Treemap = (props: any) => {
                             });
                         }
 
-                        let size = group.weight / 50;
-                        if (size > 3) size = 3;
+                        // let size = group.weight / 50;
+                        // if (size > 3) size = 3;
+                        let size = group.weight / 75;
+                        if (size > 2) size = 2;
+                        // let size = group.weight / 100;
+                        // if (size > 1) size = 1;
 
                         ctx.shadowBlur = 10;
                         ctx.shadowColor = 'white';
@@ -1241,7 +1245,7 @@ const Treemap = (props: any) => {
         // if (props.device == 'mobile') return fillers;
 
         // const sides = ['top', 'bottom', 'left', 'right'];
-        const sides = ['top', 'bottom'];
+        const sides = ['top', 'bottom', 'left', 'right'];
         let count: number = 1;
 
         // switch (book) {
