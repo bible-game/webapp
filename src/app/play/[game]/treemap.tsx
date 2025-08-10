@@ -672,7 +672,7 @@ const Treemap = (props: any) => {
                             const ctx = params.context;
 
                             if (params.index == 1) {
-                                ctx.font = "8px Arial";
+                                ctx.font = props.mobile ? "4px Arial" : "8px Arial";
                                 ctx.fillStyle = params.group.color+"60";
                                 ctx.shadowBlur = 0;
                                 ctx.fillText(params.parent.label,params.polygonCenterX-15,params.polygonCenterY-5);
