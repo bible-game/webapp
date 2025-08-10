@@ -26,7 +26,7 @@ const narrative: any = {
     'MAT/1': 'Jesus is born',
     'MRK/15': 'The death\nof Jesus',
     'JHN/20': 'Jesus\'\nresurrection',
-    'ACT/21': 'The church\nbegins to grow',
+    'ACT/2': 'The church\nbegins to grow',
     'REV/21': 'A New Heaven\n& Earth'
 }
 
@@ -620,12 +620,12 @@ const Treemap = (props: any) => {
                             ctx.fillText(group.label,x-1,y-2);
 
                             // if (params.index == Math.floor(params.parent.groups.length / 4)) {
-                            if (params.index == 1) {
-                                ctx.font = "4px Arial";
-                                ctx.fillStyle = params.group.color+"20";
-                                ctx.shadowBlur = 0;
-                                ctx.fillText(params.parent.label,params.polygonCenterX,params.polygonCenterY);
-                            }
+                            // if (params.index == 1) {
+                            //     ctx.font = "4px Arial";
+                            //     ctx.fillStyle = params.group.color+"20";
+                            //     ctx.shadowBlur = 0;
+                            //     ctx.fillText(params.parent.label,params.polygonCenterX,params.polygonCenterY);
+                            // }
                             // if (params.index == 1) {
                             //     ctx.font = "8px Arial";
                             //     ctx.fillStyle = params.group.color+"40";
@@ -640,7 +640,7 @@ const Treemap = (props: any) => {
                             ctx.fillStyle = group.color;
 
                             ctx.beginPath();
-                            ctx.arc(x, y, props.device == 'mobile' ? 3 : 5, 0, 2 * Math.PI);
+                            ctx.arc(x, y, props.device == 'mobile' ? 2 : 4, 0, 2 * Math.PI);
                             ctx.fill();
 
                             // draw connector
@@ -661,12 +661,24 @@ const Treemap = (props: any) => {
                             const lineHeight = 10;
                             const lines = narrative[group.id].split('\n');
 
-                            for (let i = 0; i < lines.length; i++)
-                                ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 15 : -70), y - (lines.length > 1 ? 10 : 0) - (y < document.getElementsByTagName('canvas')[3].height / 2 ? -10 : 20) + (i*lineHeight));
+                            // for (let i = 0; i < lines.length; i++)
+                            //     ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 15 : -70), y - (lines.length > 1 ? 10 : 0) - (y < document.getElementsByTagName('canvas')[3].height / 2 ? -10 : 20) + (i*lineHeight));
 
                             lastNarrativeX = x
                             lastNarrativeY = y
                         }
+
+                        if (params.index >= 0 && params.group.level == 'chapter') {
+                            const ctx = params.context;
+
+                            if (params.index == 1) {
+                                ctx.font = "8px Arial";
+                                ctx.fillStyle = params.group.color+"60";
+                                ctx.shadowBlur = 0;
+                                ctx.fillText(params.parent.label,params.polygonCenterX-15,params.polygonCenterY-5);
+                            }
+                        }
+
 
                         lastX = x;
                         lastY = y;
