@@ -555,7 +555,7 @@ const Treemap = (props: any) => {
                                         ctx.shadowBlur = 0;
                                         ctx.strokeStyle = params.group.color+"40";
                                         ctx.setLineDash([1, 1]);
-                                        ctx.lineWidth = 0.1;
+                                        ctx.lineWidth = 0.05;
                                         ctx.stroke();
                                     }
                                 } else if (lastNode) {
