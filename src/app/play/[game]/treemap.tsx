@@ -583,8 +583,8 @@ const Treemap = (props: any) => {
                             });
                         }
 
-                        let size = props.device == 'mobile' ? group.verses / 100 : group.verses / 50;
-                        if (group.verses > 100) size = props.device == 'mobile' ? 2 : 3;
+                        let size = props.device == 'mobile' ? group.verses / 150 : group.verses / 50;
+                        if (group.verses > 100) size = props.device == 'mobile' ? 0.75 : 3;
 
                         // let size = group.weight / 75;
                         // if (size > 2) size = 2;
