@@ -583,8 +583,8 @@ const Treemap = (props: any) => {
                             });
                         }
 
-                        let size = props.device == 'mobile' ? group.verses / 100 : group.verses / 75;
-                        if (group.verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
+                        let size = props.device == 'mobile' ? group.verses / 75 : group.verses / 50;
+                        if (group.verses > 100) size = props.device == 'mobile' ? 2 : 3;
 
                         // let size = group.weight / 75;
                         // if (size > 2) size = 2;
@@ -664,28 +664,28 @@ const Treemap = (props: any) => {
                             }
 
                             ctx.font = "8px Arial";
-                            ctx.fillStyle = params.group.color+"80";
+                            ctx.fillStyle = params.group.color+"40";
                             ctx.shadowBlur = 0;
                             const lineHeight = 10;
                             const lines = narrative[group.id].split('\n');
 
-                            // for (let i = 0; i < lines.length; i++)
-                            //     ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 15 : -70), y - (lines.length > 1 ? 10 : 0) - (y < document.getElementsByTagName('canvas')[3].height / 2 ? -10 : 20) + (i*lineHeight));
+                            for (let i = 0; i < lines.length; i++)
+                                ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 15 : -30), y - (lines.length > 1 ? 10 : 0) - (y < document.getElementsByTagName('canvas')[3].height / 2 ? -10 : 10) + (i*lineHeight));
 
                             lastNarrativeX = x
                             lastNarrativeY = y
                         }
 
-                        // if (params.index >= 0 && params.group.level == 'chapter') {
-                        //     const ctx = params.context;
-                        //
-                        //     if (params.index == 1) {
-                        //         ctx.font = props.mobile ? "4px Arial" : "8px Arial";
-                        //         ctx.fillStyle = params.group.color+"60";
-                        //         ctx.shadowBlur = 0;
-                        //         ctx.fillText(params.parent.label,params.polygonCenterX-15,params.polygonCenterY-5);
-                        //     }
-                        // }
+                        if (params.index >= 0 && params.group.level == 'chapter') {
+                            const ctx = params.context;
+
+                            if (params.index == 1) {
+                                ctx.font = props.mobile ? "6px Arial" : "12px Arial";
+                                ctx.fillStyle = params.group.color+"10";
+                                ctx.shadowBlur = 0;
+                                ctx.fillText(params.parent.label,params.polygonCenterX-15,params.polygonCenterY+(10 * Math.random()));
+                            }
+                        }
 
                         lastX = x;
                         lastY = y;
