@@ -158,7 +158,7 @@ const Treemap = (props: any) => {
                 groupLabelDarkColor: "#ffffff",
                 groupLabelLightColor: "#060842",
                 groupLabelColorThreshold: 0,
-                parentFillOpacity: 0.25,
+                parentFillOpacity: 0,
                 groupColorDecorator: function (opts: any, params: any, vars: any) {
                     vars.labelColor = "auto";
 
@@ -182,14 +182,14 @@ const Treemap = (props: any) => {
                         vars.groupColor.r = parts[0];
                         vars.groupColor.g = parts[1];
                         vars.groupColor.b = parts[2];
-                        vars.groupColor.a = 0.2; // 0.55;
+                        vars.groupColor.a = 0.1; // 0.55;
 
                     } else {
                         if (params.group.level == 'filler') {
                             vars.groupColor.r = 255;
                             vars.groupColor.g = 255;
                             vars.groupColor.b = 255;
-                            vars.groupColor.a = 0.2; // 0.2
+                            vars.groupColor.a = 0.1; // 0.2
                             vars.strokeColour = params.group.color + '40';
                         } else {
                             vars.groupColor = params.group.color;
@@ -287,6 +287,7 @@ const Treemap = (props: any) => {
                     //     //@ts-ignore
                     //     this.open(event.group.id);
                     // }
+                    // todo :: tooltip!
                 },
                 onViewResetting: function(e: any) {
                     console.log(e);
@@ -324,11 +325,11 @@ const Treemap = (props: any) => {
                 groupMinDiameter: 0,
                 // groupStrokeWidth: 4,
                 groupStrokeWidth: 0,
-                groupStrokeType: 'none',
-                groupFillType: 'plain',
+                groupStrokeType: 'plain',
+                groupFillType: 'gradient',
                 // stacking: "flattened",
                 // descriptionGroupType: "floating",
-                // layout: "ordered"
+                layout: "ordered",
             }));
         }
 
@@ -341,6 +342,9 @@ const Treemap = (props: any) => {
                     const x = params.polygonCenterX + sign * (Math.random() * params.boxWidth / 3);
                     sign = Math.random() < 0.5 ? -1 : 1;
                     const y = params.polygonCenterY + sign * (Math.random() * params.boxHeight / 3);
+
+                    // const x = params.polygonCenterX;
+                    // const y = params.polygonCenterY;
 
                     if (params.group.level == 'chapter' && !!params.group.image && false) {
 
@@ -543,6 +547,7 @@ const Treemap = (props: any) => {
                         const ctx = params.context;
 
                         if (params.index && params.group.level != 'filler') {
+                            let drawn = false;
                             params.parent.groups.forEach(function (group: any) {
                                 const lastNode = parseInt(params.group.id.split('/')[1]) == params.parent.groups.length;
                                 if (parseInt(params.group.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1])) {
@@ -553,35 +558,37 @@ const Treemap = (props: any) => {
                                         ctx.moveTo(lastX, lastY);
                                         ctx.lineTo(x, y);
                                         ctx.shadowBlur = 0;
-                                        ctx.strokeStyle = params.group.color+"40";
-                                        ctx.setLineDash([1, 1]);
+                                        ctx.strokeStyle = params.group.color+"20";
+                                        // ctx.setLineDash([1, 1]);
                                         ctx.lineWidth = 0.05;
                                         ctx.stroke();
                                     }
                                 } else if (lastNode) {
                                     //@ts-ignore
                                     const geom = foamtreeInstance.get("geometry", group);
-                                    if (geom && lastX && lastY) {
-                                        ctx.globalAlpha = 0.1; // fixme...
+                                    if (!drawn && geom && lastX && lastY) {
+                                        // ctx.globalAlpha = 0.1; // fixme...
                                         ctx.beginPath();
                                         ctx.moveTo(lastX, lastY);
                                         ctx.lineTo(x, y);
                                         ctx.shadowBlur = 0;
-                                        ctx.setLineDash([1, 1]);
+                                        ctx.strokeStyle = params.group.color+"20";
+                                        // ctx.setLineDash([1, 1]);
                                         ctx.lineWidth = 0.05;
                                         ctx.stroke();
                                         ctx.globalAlpha = 1;
+                                        drawn = true;
                                     }
                                 }
                             });
                         }
 
-                        // let size = group.weight / 50;
-                        // if (size > 3) size = 3;
-                        let size = group.weight / 75;
-                        if (size > 2) size = 2;
-                        // let size = group.weight / 100;
-                        // if (size > 1) size = 1;
+                        let size = props.device == 'mobile' ? group.verses / 100 : group.verses / 75;
+                        if (group.verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
+
+                        // let size = group.weight / 75;
+                        // if (size > 2) size = 2;
+
 
                         ctx.shadowBlur = 10;
                         ctx.shadowColor = 'white';
@@ -594,7 +601,7 @@ const Treemap = (props: any) => {
                         lastX = x;
                         lastY = y;
 
-                        if (params.group.event) {
+                        if (params.group.event) { // todo :: move to inside star!?
                             const img = new Image;
                             img.src = params.group.event;
                             ctx.fillStyle = "#040127";
@@ -613,10 +620,10 @@ const Treemap = (props: any) => {
                             ctx.shadowColor = 'white';
                             ctx.fillStyle = 'white';
 
-                            ctx.font = "1.5px Arial";
+                            ctx.font = "1px Arial";
                             ctx.fillStyle = params.group.color+"40";
                             ctx.shadowBlur = 0;
-                            // ctx.fillText(params.parent.label + group.label,x-9,y-4);
+                            // ctx.fillText(params.parent.label + group.label,x-3,y-2);
                             ctx.fillText(group.label,x-1,y-2);
 
                             // if (params.index == Math.floor(params.parent.groups.length / 4)) {
@@ -647,10 +654,11 @@ const Treemap = (props: any) => {
                             if (lastNarrativeX && lastNarrativeY) {
                                 ctx.beginPath();
                                 ctx.moveTo(lastNarrativeX, lastNarrativeY);
+                                // ctx.quadraticCurveTo((lastNarrativeX + x)/2, (lastY + y)/2, x, y);
                                 ctx.lineTo(x, y);
                                 ctx.shadowBlur = 0;
                                 ctx.strokeStyle = params.group.color+"40"; // todo :: gradient fill
-                                ctx.setLineDash([1, 1]);
+                                // ctx.setLineDash([1, 1]);
                                 ctx.lineWidth = 1;
                                 ctx.stroke();
                             }
@@ -668,17 +676,16 @@ const Treemap = (props: any) => {
                             lastNarrativeY = y
                         }
 
-                        if (params.index >= 0 && params.group.level == 'chapter') {
-                            const ctx = params.context;
-
-                            if (params.index == 1) {
-                                ctx.font = props.mobile ? "4px Arial" : "8px Arial";
-                                ctx.fillStyle = params.group.color+"60";
-                                ctx.shadowBlur = 0;
-                                ctx.fillText(params.parent.label,params.polygonCenterX-15,params.polygonCenterY-5);
-                            }
-                        }
-
+                        // if (params.index >= 0 && params.group.level == 'chapter') {
+                        //     const ctx = params.context;
+                        //
+                        //     if (params.index == 1) {
+                        //         ctx.font = props.mobile ? "4px Arial" : "8px Arial";
+                        //         ctx.fillStyle = params.group.color+"60";
+                        //         ctx.shadowBlur = 0;
+                        //         ctx.fillText(params.parent.label,params.polygonCenterX-15,params.polygonCenterY-5);
+                        //     }
+                        // }
 
                         lastX = x;
                         lastY = y;
@@ -741,7 +748,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.3;
+                                vars.groupColor.a = 0.1;
 
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -794,7 +801,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.3;
+                                vars.groupColor.a = 0.1;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -848,7 +855,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.3;
+                                vars.groupColor.a = 0.1;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -909,7 +916,7 @@ const Treemap = (props: any) => {
         }
     }, [props.bookFound, props.divFound, props.testFound]);
 
-    function configure(data: any) {
+        function configure(data: any) {
         const testaments: any[] = [];
 
         for (const test of data) {
@@ -934,10 +941,10 @@ const Treemap = (props: any) => {
         const divisions: any[] = [];
 
         for (const d of div) {
-            // divisions.push(...getPaddingGroups(d.name.toLowerCase().replace(/\s/g, '-'), true))
+            // divisions.push(...getPaddingGroups('', '', ''))
             divisions.push({
                 id: d.name.toLowerCase().replace(/\s/g, '-'),
-                groups: getBooks(test, d.name, d.books),
+                groups: getBooks(test, d.name, getDivisionWeight(d), d.books),
                 label: d.name,
                 open: true,
                 weight: getDivisionWeight(d),
@@ -947,14 +954,15 @@ const Treemap = (props: any) => {
                 level: 'division',
                 testament: test
             })
-            // divisions.push(...getPaddingGroups(d.name.toLowerCase().replace(/\s/g, '-'), false))
+            // divisions.push(...getPaddingGroups('', '', ''))
         }
 
-        return divisions
+        return [...getPaddingGroups('', '', ''), ...divisions, ...getPaddingGroups('', '', '')]
     }
 
-    function getBooks(test: string, div: string, bk: any) {
+    function getBooks(test: string, div: string, divWeight: number, bk: any) {
         const books: any[] = [];
+        // let sum = 0;
 
         for (const b of bk) {
             books.push(...getPaddingGroups(test, div, b.name))
@@ -963,6 +971,7 @@ const Treemap = (props: any) => {
                 label: b.name,
                 open: true,
                 groups: getChapters(test, div, b, b.chapters),
+                // weight: 20 * b.chapters,
                 weight: getBookWeight(b),
                 color: getColour(b.key),
                 unselectable: true,
@@ -974,20 +983,49 @@ const Treemap = (props: any) => {
                 // image: '/'+b.name.toLowerCase()+'.png'
             });
             books.push(...getPaddingGroups(test, div, b.name))
+
+            // sum += (20 * b.chapters)
         }
 
-        return books
+        // for (let i = 0; i < divWeight - sum; i++) {
+        //     const filler = {
+        //         id: div+'/filler'+i,
+        //         label: '',
+        //         // label: props.passage.icon == book.icons[c-1] ? c : '',
+        //         // weight: parseFloat(book.verses[c-1]),
+        //         weight: 1,
+        //         color: getColour(bk.key),
+        //         level: 'filler',
+        //         chapter: 0,
+        //         // icon: book.icons[c-1],
+        //         testament: test,
+        //         division: div,
+        //         book: bk.name,
+        //         event: ''
+        //     }
+        //     if (i % 2 == 0) {
+        //         books.unshift(filler)
+        //     } else {
+        //         books.push(filler)
+        //     }
+        // }
+
+
+        return [...getPaddingGroups('', '', ''), ...books, ...getPaddingGroups('', '', '')]
     }
 
     function getChapters(test: string, div: string, book: any, ch: number) {
         const chapters: any[] = [];
+        // let sum = 0;
 
         for (let c = 1; c <= ch; c++) {
+            // sum += book.verses[c-1]
             chapters.push({
                 id: book.key+'/'+c.toString(),
                 label: c,
                 // label: props.passage.icon == book.icons[c-1] ? c : '',
-                weight: parseFloat(book.verses[c-1]),
+                // weight: parseFloat(book.verses[c-1]),
+                weight: 20,
                 color: getColour(book.key),
                 dim: isDim(book.name, 'book', props.bookFound),
                 level: 'chapter',
@@ -996,6 +1034,7 @@ const Treemap = (props: any) => {
                 testament: test,
                 division: div,
                 book: book.name,
+                verses: parseFloat(book.verses[c-1]),
                 event: getEventIcon(book.name.toLowerCase(), c) || ''
             })
 
@@ -1144,6 +1183,29 @@ const Treemap = (props: any) => {
             // if (book.name.toLowerCase() == 'revelation' && c == 21) chapters.push({id: 'new-creation', image: '/new-creation.png', label: '', weight: parseFloat(book.verses[c-1]), color: getColour(book.key), dim: isDim(book.name, 'book', props.bookFound), level: 'chapter', chapter: c, unselectable: false, testament: test, division: div, book: book.name,})
         }
 
+        // for (let i = 0; i < sum - (20 * ch); i++) {
+        //     const filler = {
+        //         id: book.key+'/filler'+i,
+        //         label: '',
+        //         // label: props.passage.icon == book.icons[c-1] ? c : '',
+        //         // weight: parseFloat(book.verses[c-1]),
+        //         weight: 1,
+        //         color: getColour(book.key),
+        //         level: 'filler',
+        //         chapter: 0,
+        //         // icon: book.icons[c-1],
+        //         testament: test,
+        //         division: div,
+        //         book: book.name,
+        //         event: ''
+        //     }
+        //     if (i % 2 == 0) {
+        //         chapters.unshift(filler)
+        //     } else {
+        //         chapters.push(filler)
+        //     }
+        // }
+
         return chapters
     }
 
@@ -1151,7 +1213,8 @@ const Treemap = (props: any) => {
         let weight = 0.0;
 
         for (const verse of book.verses) {
-            weight += verse;
+            // weight += verse;
+            weight += 20;
         }
 
         return weight;
@@ -1258,7 +1321,7 @@ const Treemap = (props: any) => {
 
         // const sides = ['top', 'bottom', 'left', 'right'];
         const sides = ['top', 'bottom', 'left', 'right'];
-        let count: number = 1;
+        let count: number = 0; //1;
 
         // switch (book) {
         //     case '!genesis':
@@ -1272,7 +1335,7 @@ const Treemap = (props: any) => {
                 fillers.push({
                     id: `filler-${side}-${i}`,
                     label: '',
-                    weight: 0.001,
+                    weight: 1,
                     unselectable: true,
                     dim: true,
                     color: '#ffffff00', // fully transparent
