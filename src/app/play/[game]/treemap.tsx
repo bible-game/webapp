@@ -182,14 +182,14 @@ const Treemap = (props: any) => {
                         vars.groupColor.r = parts[0];
                         vars.groupColor.g = parts[1];
                         vars.groupColor.b = parts[2];
-                        vars.groupColor.a = 0.1; // 0.55;
+                        vars.groupColor.a = 0; // 0.1; // 0.55;
 
                     } else {
                         if (params.group.level == 'filler') {
                             vars.groupColor.r = 255;
                             vars.groupColor.g = 255;
                             vars.groupColor.b = 255;
-                            vars.groupColor.a = 0.1; // 0.2
+                            vars.groupColor.a = 0; // 0.1; // 0.2
                             vars.strokeColour = params.group.color + '40';
                         } else {
                             vars.groupColor = params.group.color;
@@ -319,9 +319,9 @@ const Treemap = (props: any) => {
                     }
                 },
 
-                groupBorderWidth: 0,
+                groupBorderWidth: 10,
                 groupBorderRadius: 0,
-                groupInsetWidth: 0,
+                groupInsetWidth: 4,
                 groupMinDiameter: 0,
                 // groupStrokeWidth: 4,
                 groupStrokeWidth: 0,
@@ -329,7 +329,7 @@ const Treemap = (props: any) => {
                 groupFillType: 'gradient',
                 // stacking: "flattened",
                 // descriptionGroupType: "floating",
-                layout: "ordered",
+                // layout: "ordered",
             }));
         }
 
@@ -583,16 +583,41 @@ const Treemap = (props: any) => {
                             });
                         }
 
-                        let size = props.device == 'mobile' ? group.verses / 150 : group.verses / 50;
-                        if (group.verses > 100) size = props.device == 'mobile' ? 0.75 : 3;
+                        if (params.index >= 0 && params.group.level == 'chapter') {
+                            const ctx = params.context;
+
+                            // if (params.index == 1) {
+                            //     ctx.font = props.mobile ? "6px Arial" : "12px Arial";
+                            //     ctx.fillStyle = params.group.color+"10";
+                            //     ctx.shadowBlur = 0;
+                            //     ctx.fillText(params.parent.label,params.polygonCenterX-15,params.polygonCenterY+(10 * Math.random()));
+                            // }
+
+                            //@ts-ignore
+                            const geom = foamtreeInstance.get("geometry", params.parent.id);
+                            if (params.index == 1 && geom) {
+                                // ctx.font = props.mobile ? "6px Arial" : "12px Arial";
+                                ctx.fillStyle = params.group.color + (props.device == 'mobile' ? "40" : "30");
+                                ctx.shadowBlur = 0;
+
+                                const txt = params.parent.label
+                                ctx.font = Math.floor(geom.boxWidth / txt.split().length) / 8 + "px Verdana"
+                                const xOffset = 0.5 * ctx.measureText(txt).width;
+                                const yOffset = 0; // 0.5 * ctx.measureText(txt).height;
+                                ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
+                            }
+                        }
+
+                        let size = props.device == 'mobile' ? group.verses / 100 : group.verses / 50;
+                        if (group.verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
 
                         // let size = group.weight / 75;
                         // if (size > 2) size = 2;
 
 
                         ctx.shadowBlur = 10;
-                        ctx.shadowColor = 'white';
-                        ctx.fillStyle = 'white';
+                        ctx.shadowColor = params.group.color; // white
+                        ctx.fillStyle = params.group.color; // white
 
                         ctx.beginPath();
                         ctx.arc(x, y, size, 0, 2 * Math.PI);
@@ -641,7 +666,7 @@ const Treemap = (props: any) => {
                             // }
                         }
 
-                        if (narrative[group.id]) {
+                        if (false && narrative[group.id]) {
                             ctx.shadowBlur = 10;
                             ctx.shadowColor = group.color;
                             ctx.fillStyle = group.color;
@@ -674,17 +699,6 @@ const Treemap = (props: any) => {
 
                             lastNarrativeX = x
                             lastNarrativeY = y
-                        }
-
-                        if (params.index >= 0 && params.group.level == 'chapter') {
-                            const ctx = params.context;
-
-                            if (params.index == 1) {
-                                ctx.font = props.mobile ? "6px Arial" : "12px Arial";
-                                ctx.fillStyle = params.group.color+"10";
-                                ctx.shadowBlur = 0;
-                                ctx.fillText(params.parent.label,params.polygonCenterX-15,params.polygonCenterY+(10 * Math.random()));
-                            }
                         }
 
                         lastX = x;
@@ -748,7 +762,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.1;
+                                vars.groupColor.a = 0.05; //0.1;
 
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -801,7 +815,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.1;
+                                vars.groupColor.a = 0.05; // 0.1;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -855,7 +869,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.1;
+                                vars.groupColor.a = 0.05; // 0.1;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
