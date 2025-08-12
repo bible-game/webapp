@@ -22,7 +22,7 @@ const narrative: any = {
     '1KI/11': 'Israel is divided',
     'EZR/1': 'The people return\nfrom exile',
     'JER/36': 'God\'s people\nare punished',
-    'HAG/2': 'God promises\nsomething\nbetter',
+    // 'HAG/2': 'God promises\nsomething\nbetter',
     'MAT/1': 'Jesus is born',
     'MRK/15': 'The death\nof Jesus',
     'JHN/20': 'Jesus\'\nresurrection',
