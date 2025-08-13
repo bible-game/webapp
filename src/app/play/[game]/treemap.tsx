@@ -597,7 +597,8 @@ const Treemap = (props: any) => {
                             const geom = foamtreeInstance.get("geometry", params.parent.id);
                             if (params.index == 1 && geom) {
                                 // ctx.font = props.mobile ? "6px Arial" : "12px Arial";
-                                ctx.fillStyle = params.group.color + (props.device == 'mobile' ? "40" : "30");
+                                // todo :: increase brightness!
+                                ctx.fillStyle = params.group.color + (props.device == 'mobile' ? "60" : "40");
                                 ctx.shadowBlur = 0;
 
                                 const txt = params.parent.label
