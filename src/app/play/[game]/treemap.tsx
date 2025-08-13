@@ -149,20 +149,34 @@ const Treemap = (props: any) => {
                 dataObject: configure(props.data),
                 layoutByWeightOrder: false,
                 relaxationInitializer: "treemap",
-                descriptionGroupMinHeight: 64,
-                descriptionGroupMaxHeight: 0.125,
+                descriptionGroupMinHeight: 0,
+                descriptionGroupMaxHeight: 0.1,
                 groupLabelMinFontSize: 0,
-                groupLabelMaxFontSize: 16,
+                groupLabelMaxFontSize: 0,
                 groupSelectionOutlineWidth: 0,
                 rectangleAspectRatioPreference: 0,
                 groupLabelDarkColor: "#ffffff",
                 groupLabelLightColor: "#060842",
                 groupLabelColorThreshold: 0,
-                parentFillOpacity: 0,
+                parentFillOpacity: 1,
                 groupColorDecorator: function (opts: any, params: any, vars: any) {
                     vars.labelColor = "auto";
 
-                    if (params.group.level === "book" && !!params.group.color) {
+                    if (params.group.level === "testament" && !!params.group.color) {
+                        const hlsa = hexToHSLA(params.group.color, 0);
+                        vars.groupColor.h = hlsa.h
+                        vars.groupColor.l = hlsa.l
+                        vars.groupColor.s = hlsa.s
+                        vars.groupColor.a = hlsa.a
+
+                    } else if (params.group.level === "division" && !!params.group.color) {
+                        const hlsa = hexToHSLA(params.group.color, 0.1);
+                        vars.groupColor.h = hlsa.h
+                        vars.groupColor.l = hlsa.l
+                        vars.groupColor.s = hlsa.s
+                        vars.groupColor.a = hlsa.a
+
+                    } else if (params.group.level === "book" && !!params.group.color) {
                         const darkened = darkenHexColor(params.group.color, 10);
                         const rgba = hexToRgba(darkened).substring(5, 18);
                         const parts = rgba.split(', ');
@@ -182,17 +196,17 @@ const Treemap = (props: any) => {
                         vars.groupColor.r = parts[0];
                         vars.groupColor.g = parts[1];
                         vars.groupColor.b = parts[2];
-                        vars.groupColor.a = 0; // 0.1; // 0.55;
+                        vars.groupColor.a = 0; // 0.05; // 0.1;
 
                     } else {
                         if (params.group.level == 'filler') {
                             vars.groupColor.r = 255;
                             vars.groupColor.g = 255;
                             vars.groupColor.b = 255;
-                            vars.groupColor.a = 0; // 0.1; // 0.2
+                            vars.groupColor.a = 0; // 0.05; // 0.1;
                             vars.strokeColour = params.group.color + '40';
                         } else {
-                            vars.groupColor = params.group.color;
+                            // vars.groupColor = params.group.color;
                         }
                     }
 
@@ -205,6 +219,7 @@ const Treemap = (props: any) => {
                         vars.strokeColour = params.group.color + '80';
                     }
                 },
+                descriptionGroupSize: 0,
                 groupLabelFontFamily: "inter",
 
                 ...(props.device == 'mobile' ? mobileOptimisations : {}),
@@ -318,17 +333,21 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
+                groupLabelLayoutDecorator: function (opts: any, props: any, vars: any) {
+                    vars.verticalPadding = 0;
+                    vars.maxTotalTextHeight = 0.1;
+                },
 
-                groupBorderWidth: 10,
+                groupBorderWidth: 0,
                 groupBorderRadius: 0,
-                groupInsetWidth: 4,
+                groupInsetWidth: 12, // note :: looks good but prevents small groups from drawing
                 groupMinDiameter: 0,
                 // groupStrokeWidth: 4,
                 groupStrokeWidth: 0,
                 groupStrokeType: 'plain',
                 groupFillType: 'gradient',
-                // stacking: "flattened",
-                // descriptionGroupType: "floating",
+                stacking: "flattened",
+                descriptionGroupType: "stab",
                 // layout: "ordered",
             }));
         }
@@ -598,7 +617,7 @@ const Treemap = (props: any) => {
                             if (params.index == 1 && geom) {
                                 // ctx.font = props.mobile ? "6px Arial" : "12px Arial";
                                 // todo :: increase brightness!
-                                ctx.fillStyle = params.group.color + (props.device == 'mobile' ? "60" : "40");
+                                ctx.fillStyle = params.group.color + (props.device == 'mobile' ? "50" : "30");
                                 ctx.shadowBlur = 0;
 
                                 const txt = params.parent.label
@@ -754,16 +773,36 @@ const Treemap = (props: any) => {
                 groupColorDecorator: function(opts: any, params: any, vars: any) {
 
                     if (props.bookFound) {
-                        if (params.group.level == "chapter" && !!params.group.color ) {
+                        if (params.group.level === "testament" && !!params.group.color) {
+                            const hlsa = hexToHSLA(params.group.color, 0);
+                            vars.groupColor.h = hlsa.h
+                            vars.groupColor.l = hlsa.l
+                            vars.groupColor.s = hlsa.s
+                            vars.groupColor.a = hlsa.a
+
+                        } else if (params.group.level === "division" && !!params.group.color) {
+                            const hlsa = hexToHSLA(params.group.color, 0.1);
+                            vars.groupColor.h = hlsa.h
+                            vars.groupColor.l = hlsa.l
+                            vars.groupColor.s = hlsa.s
+                            vars.groupColor.a = 0;
+
+                        } else if (params.group.level == "chapter" && !!params.group.color ) {
                             if (params.group.book == props.passage.book) {
                                 // vars.groupColor = params.group.color;
-                                const rgba =  hexToRgba(params.group.color).substring(5, 18);
-                                const parts = rgba.split(', ');
+                                // const rgba =  hexToRgba(params.group.color).substring(5, 18);
+                                // const parts = rgba.split(', ');
+                                //
+                                // vars.groupColor.r = parts[0];
+                                // vars.groupColor.g = parts[1];
+                                // vars.groupColor.b = parts[2];
+                                // vars.groupColor.a = 1; // 0.05; // 0.1;
 
-                                vars.groupColor.r = parts[0];
-                                vars.groupColor.g = parts[1];
-                                vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.05; //0.1;
+                                const hlsa = hexToHSLA(params.group.color, 0.1);
+                                vars.groupColor.h = hlsa.h
+                                vars.groupColor.l = hlsa.l
+                                vars.groupColor.s = hlsa.s
+                                vars.groupColor.a = 0.3;
 
                             } else {
                                 const rgba = hexToRgba(params.group.color).substring(5, 18);
@@ -807,7 +846,20 @@ const Treemap = (props: any) => {
                             }
                         }
                     } else if (props.divFound) {
-                        if (params.group.level == "chapter" && !!params.group.color) {
+                        if (params.group.level === "testament" && !!params.group.color) {
+                            const hlsa = hexToHSLA(params.group.color, 0);
+                            vars.groupColor.h = hlsa.h
+                            vars.groupColor.l = hlsa.l
+                            vars.groupColor.s = hlsa.s
+                            vars.groupColor.a = hlsa.a
+                        } else if (params.group.level === "division" && !!params.group.color) {
+                            const hlsa = hexToHSLA(params.group.color, 0.1);
+                            vars.groupColor.h = hlsa.h
+                            vars.groupColor.l = hlsa.l
+                            vars.groupColor.s = hlsa.s
+                            vars.groupColor.a = params.group.label == props.passage.division ? hlsa.a : 0;
+
+                        } else if (params.group.level == "chapter" && !!params.group.color) {
                             if (params.group.division == props.passage.division) {
                                 // vars.groupColor = params.group.color;
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -816,7 +868,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.05; // 0.1;
+                                vars.groupColor.a = 0; // 0.05; // 0.1;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -861,7 +913,20 @@ const Treemap = (props: any) => {
                             }
                         }
                     } else if (props.testFound) {
-                        if (params.group.level == "chapter" && !!params.group.color) {
+                        if (params.group.level === "testament" && !!params.group.color) {
+                            const hlsa = hexToHSLA(params.group.color, 0);
+                            vars.groupColor.h = hlsa.h
+                            vars.groupColor.l = hlsa.l
+                            vars.groupColor.s = hlsa.s
+                            vars.groupColor.a = hlsa.a
+                        } else if (params.group.level === "division" && !!params.group.color) {
+                            const hlsa = hexToHSLA(params.group.color, 0.1);
+                            vars.groupColor.h = hlsa.h
+                            vars.groupColor.l = hlsa.l
+                            vars.groupColor.s = hlsa.s
+                            vars.groupColor.a = params.group.testament == props.passage.testament ? hlsa.a : 0;
+
+                        } else if (params.group.level == "chapter" && !!params.group.color) {
                             if (params.group.testament == props.passage.testament) {
                                 // vars.groupColor = params.group.color;
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -870,7 +935,7 @@ const Treemap = (props: any) => {
                                 vars.groupColor.r = parts[0];
                                 vars.groupColor.g = parts[1];
                                 vars.groupColor.b = parts[2];
-                                vars.groupColor.a = 0.05; // 0.1;
+                                vars.groupColor.a = 0; // 0.05; // 0.1;
 
                             } else {
                                 const rgba =  hexToRgba(params.group.color).substring(5, 18);
@@ -914,6 +979,13 @@ const Treemap = (props: any) => {
                             }
                         }
                     }
+
+                    // Fixme...
+                    // if (params.group.level === "testament") {
+                    //     vars.groupColor.a = 0;
+                    // } else if (params.group.level === "division") {
+                    //     vars.groupColor.a = 0.1; // 0.75;
+                    // }
                 }
         });
         }
@@ -940,7 +1012,7 @@ const Treemap = (props: any) => {
                 groups: getDivisions(test.name, test.divisions),
                 label: test.name,
                 open: true,
-                colour: getColour(test.name.toUpperCase()),
+                color: getColour(test.name.toUpperCase()),
                 weight: getTestamentWeight(test),
                 unselectable: true,
                 dim: isDim(test.name, 'testament', props.testFound),
@@ -1465,12 +1537,54 @@ const Treemap = (props: any) => {
             + hex(avg(b(hex1), b(hex2)));
     }
 
+    function hexToHSLA(H: any, a = 1.0) {
+        // Convert hex to RGB first
+        let r: any = 0,
+            g: any = 0,
+            b: any = 0;
+        if (H.length === 4) {
+            r = "0x" + H[1] + H[1];
+            g = "0x" + H[2] + H[2];
+            b = "0x" + H[3] + H[3];
+        } else if (H.length === 7) {
+            r = "0x" + H[1] + H[2];
+            g = "0x" + H[3] + H[4];
+            b = "0x" + H[5] + H[6];
+        }
+        // Then to HSL
+        r /= 255;
+        g /= 255;
+        b /= 255;
+        let cmin = Math.min(r, g, b),
+            cmax = Math.max(r, g, b),
+            delta = cmax - cmin,
+            h = 0,
+            s = 0,
+            l = 0;
+
+        if (delta === 0) h = 0;
+        else if (cmax === r) h = ((g - b) / delta) % 6;
+        else if (cmax === g) h = (b - r) / delta + 2;
+        else h = (r - g) / delta + 4;
+
+        h = Math.round(h * 60);
+
+        if (h < 0) h += 360;
+
+        l = (cmax + cmin) / 2;
+        s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+        s = +(s * 100).toFixed(1);
+        l = +(l * 100).toFixed(1);
+
+        return {h, l, s, a}
+    }
+
     // FixMe :: how to determine when foamtreeInstance is ready to display? hooks error at present
     // if (!foamtreeInstance) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
     // else
     return (
             //@ts-ignore
-            <div ref={element} className="absolute w-full sm:w-[44rem] h-[calc(100%-26rem)] sm:h-[calc(100%-17rem)] left-0 sm:left-[calc(50%-22rem)] top-[10.5rem] sm:top-[8rem]" id="treemap"></div>
+            <div ref={element} className="absolute w-full sm:w-[44rem] h-[calc(100%-26rem)] sm:h-[calc(100%-17rem)] left-0 sm:left-[calc(50%-22rem)] top-[10.25rem] sm:top-[7.75rem]" id="treemap"></div>
     );
 };
 
