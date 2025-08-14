@@ -252,6 +252,8 @@ const Treemap = (props: any) => {
             weight += 20;
         }
 
+        if (weight < 100) weight = 100;
+
         return weight;
     }
 
@@ -313,6 +315,8 @@ const Treemap = (props: any) => {
             if (params.index) {
                 let drawn = false;
                 params.parent.groups.forEach(function (group: any) {
+                    if (params.parent.groups.length == 1) return;
+
                     const firstNode = parseInt(params.group.id.split('/')[1]) == 1;
                     const lastNode = parseInt(params.group.id.split('/')[1]) == params.parent.groups.length;
                     if (!firstNode && parseInt(params.group.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1])) {
@@ -351,13 +355,13 @@ const Treemap = (props: any) => {
                 //@ts-ignore
                 const geom = foamtreeInstance.get("geometry", params.parent.id);
                 if (params.index == 1 && geom) {
-                    // ctx.font = props.mobile ? "6px Arial" : "12px Arial";
-                    // todo :: increase brightness!
                     ctx.fillStyle = params.group.color + (props.device == 'mobile' ? "50" : "30");
                     ctx.shadowBlur = 0;
 
                     const txt = params.parent.label
                     ctx.font = Math.floor(geom.boxWidth / txt.split().length) / 8 + "px Verdana"
+                    console.log(params.parent.label);
+                    console.log(ctx.font);
                     const xOffset = 0.5 * ctx.measureText(txt).width;
                     const yOffset = 0; // 0.5 * ctx.measureText(txt).height;
                     ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
