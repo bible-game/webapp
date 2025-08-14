@@ -9,7 +9,7 @@ import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
-import Treemap from "@/app/play/[game]/treemap";
+import Treemap from "@/app/play/[game]/map/treemap";
 import moment from "moment/moment";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
