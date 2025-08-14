@@ -1,9 +1,8 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react';
-import hexToRgba from 'hex-to-rgba';
 import { toast } from "react-hot-toast";
-import { darkenHexColor, hexToHSLA } from "@/core/util/colour-util";
+import { hexToHSLA } from "@/core/util/colour-util";
 import narrative from './config/narrative.json';
 import events from './config/events.json';
 import colours from './config/colours.json';
@@ -17,6 +16,8 @@ const Treemap = (props: any) => {
     const element = useRef();
     const [ FoamTreeClass, setFoamTreeClass ] = useState();
     const [ foamtreeInstance, setFoamtreeInstance ] = useState();
+
+    const SECTION_ALPHA = 0.1;
 
     useEffect(() => {
         let disposed = false;
@@ -303,61 +304,18 @@ const Treemap = (props: any) => {
     function setupColours(opts: any, params: any, vars: any): void {
         vars.labelColor = "auto";
 
-        if (params.group.level === "testament" && !!params.group.color) {
-            const hlsa = hexToHSLA(params.group.color, 0);
-            vars.groupColor.h = hlsa.h
-            vars.groupColor.l = hlsa.l
-            vars.groupColor.s = hlsa.s
-            vars.groupColor.a = hlsa.a
+        if (params.group.color) {
+            const colour = hexToHSLA(params.group.color);
 
-        } else if (params.group.level === "division" && !!params.group.color) {
-            const hlsa = hexToHSLA(params.group.color, 0.1);
-            vars.groupColor.h = hlsa.h
-            vars.groupColor.l = hlsa.l
-            vars.groupColor.s = hlsa.s
-            vars.groupColor.a = hlsa.a
+            vars.groupColor.h = colour.h
+            vars.groupColor.l = colour.l
+            vars.groupColor.s = colour.s
 
-        } else if (params.group.level === "book" && !!params.group.color) {
-            const darkened = darkenHexColor(params.group.color, 10);
-            const rgba = hexToRgba(darkened).substring(5, 18);
-            const parts = rgba.split(', ');
-
-            vars.groupColor.r = parts[0];
-            vars.groupColor.g = parts[1];
-            vars.groupColor.b = parts[2];
-            vars.groupColor.a = 0; // 0.75;
-
-            vars.labelColor = params.group.color;
-            // vars.strokeColour = params.group.color;
-        } else if (params.group.level == "chapter" && !!params.group.color) {
-            const darkened = darkenHexColor(params.group.color, 0);
-            const rgba = hexToRgba(darkened).substring(5, 18);
-            const parts = rgba.split(', '); // fixme...
-
-            vars.groupColor.r = parts[0];
-            vars.groupColor.g = parts[1];
-            vars.groupColor.b = parts[2];
-            vars.groupColor.a = 0; // 0.05; // 0.1;
-
-        } else {
-            if (params.group.level == 'filler') {
-                vars.groupColor.r = 255;
-                vars.groupColor.g = 255;
-                vars.groupColor.b = 255;
-                vars.groupColor.a = 0; // 0.05; // 0.1;
-                vars.strokeColour = params.group.color + '40';
+            if (params.group.level === "division") {
+                vars.groupColor.a = SECTION_ALPHA;
             } else {
-                // vars.groupColor = params.group.color;
+                vars.groupColor.a = 0;
             }
-        }
-
-        if (params.group.level === "book") {
-            vars.labelColor = params.group.color;
-            vars.strokeColour = params.group.color;
-        }
-        if (params.group.level === "chapter") {
-            vars.labelColor = params.group.color + '80';
-            vars.strokeColour = params.group.color + '80';
         }
     }
 
@@ -367,183 +325,12 @@ const Treemap = (props: any) => {
         let lastNarrativeX = 0;
         let lastNarrativeY = 0;
 
-        let sign = Math.random() < 0.5 ? -1 : 1;
-        const x = params.polygonCenterX + sign * (Math.random() * params.boxWidth / 3);
-        sign = Math.random() < 0.5 ? -1 : 1;
-        const y = params.polygonCenterY + sign * (Math.random() * params.boxHeight / 3);
+        const sign = () => Math.random() < 0.5 ? -1 : 1;
+        const x = params.polygonCenterX + sign() * (Math.random() * params.boxWidth / 3);
+        const y = params.polygonCenterY + sign() * (Math.random() * params.boxHeight / 3);
 
-        if (params.group.level == 'chapter' && !!params.group.image && false) {
-
-            const group = params.group;
-            vars.groupLabelDrawn = false;
-            // Draw image once loaded
-            if (params.group.image) {
-                // If polygon changed, recompute the inscribed rectangle
-                if (params.shapeDirty) {
-                    // Compute the rectangle into which we'll render the image
-                    //@ts-ignore
-                    group.box = FoamTreeClass.geometry.rectangleInPolygon(
-                        params.polygon, params.polygonCenterX, params.polygonCenterY, 1.0, 1.0);
-                }
-
-                // Draw the image
-                let imageSize = group.box.w;
-
-                const img = new Image();
-                img.src = params.group.image;
-                img.onload = function () {
-                    // Once the image has been loaded,
-                    // put it in the group's data object
-                    params.context.drawImage(img, group.box.x, group.box.y, imageSize, imageSize);
-                };
-
-                // if not last, draw line from this to next (stop short...)
-                const ctx = params.context;
-                let found = false;
-                params.parent.groups.forEach(function (group: any) {
-                    if (!found && group && group.label == '' && group.chapter > params.group.chapter) {
-                        //@ts-ignore
-                        // fixme :: msg Stanislaw... how to draw lines? come back when events done...
-                        const geom = foamtreeInstance.get("geometry", group);
-                        if (geom) {
-                            ctx.beginPath();
-                            ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
-                            ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
-                            ctx.lineWidth = 1;
-                            ctx.setLineDash([1, 1]);
-                            ctx.stroke();
-                        }
-
-                        found = true;
-                    }
-                })
-
-                // Inter-Section Lines
-                //@ts-ignore
-                const thisTestament = foamtreeInstance.get("dataObject").groups.filter((group: any) => group.label == params.group.testament)[0]
-                const thisDivision = thisTestament.groups.filter((group: any) => group.label == params.group.division)[0];
-                const thisBook = thisDivision.groups.filter((group: any) => group.label == params.group.book)[0];
-                const bookEvents = thisBook.groups.filter((group: any) => group.label == '');
-                const lastEvent = bookEvents[bookEvents.length - 1];
-
-                let firstEvent = undefined;
-                //@ts-ignore
-                const testIndex = foamtreeInstance.get("dataObject").groups.findIndex((group: any) => group.label == params.group.testament)
-                //@ts-ignore
-                const nextTestament = foamtreeInstance.get("dataObject").groups[testIndex + 1];
-                if (nextTestament) {
-                    const allEventsInThisTest = getAllEventsInTest(thisTestament);
-                    const allEventsInNextTest = getAllEventsInTest(nextTestament);
-                    const lastEventInThisTest = allEventsInThisTest[allEventsInThisTest.length - 1];
-                    const firstEventInNextTest = allEventsInNextTest[0];
-                    if (group.label == '' && group.id == lastEventInThisTest.id && !!firstEventInNextTest) {
-                        //@ts-ignore
-                        const geom = foamtreeInstance.get("geometry", firstEventInNextTest);
-                        if (geom) {
-                            ctx.beginPath();
-                            ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
-                            ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
-                            ctx.lineWidth = 1;
-                            ctx.setLineDash([5, 5]);
-                        }
-                    }
-
-                    const divIndex = thisTestament.groups.findIndex((group: any) => group.label == params.group.division);
-                    const nextDivision = thisTestament.groups[divIndex + 1];
-                    if (nextDivision) {
-                        const allEventsInThisDiv = getAllEventsInDiv(thisDivision);
-                        const allEventsInNextDiv = getAllEventsInDiv(nextDivision);
-                        const lastEventInThisDiv = allEventsInThisDiv[allEventsInThisDiv.length - 1];
-                        const firstEventInNextDiv = allEventsInNextDiv[0];
-                        if (group.label == '' && group.id == lastEventInThisDiv.id && !!firstEventInNextDiv) {
-                            //@ts-ignore
-                            const geom = foamtreeInstance.get("geometry", firstEventInNextDiv);
-                            if (geom) {
-                                ctx.beginPath();
-                                ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
-                                ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
-                                ctx.lineWidth = 1;
-                                const gradient = ctx.createLinearGradient(
-                                    params.polygonCenterX * 0.5,
-                                    params.polygonCenterY * 0.5,
-                                    geom.polygonCenterX * 0.5,
-                                    geom.polygonCenterY * 0.5);
-                                gradient.addColorStop(0, group.color);
-                                gradient.addColorStop(1, firstEventInNextDiv.color);
-                                ctx.strokeStyle = gradient;
-                                ctx.setLineDash([5, 5]);
-                            }
-                        }
-
-                        const bkIndex = thisDivision.groups.findIndex((group: any) => group.label == params.group.book);
-                        const nextBook = thisDivision.groups[bkIndex + 1];
-                        if (nextBook) {
-                            const allEventsInThisBook = getAllEventsInBook(thisBook);
-                            const allEventsInNextBook = getAllEventsInBook(nextBook);
-                            const lastEventInThisBook = allEventsInThisBook[allEventsInThisBook.length - 1];
-                            const firstEventInNextBook = allEventsInNextBook[0];
-                            if (group.label == '' && group.id == lastEventInThisBook.id && !!firstEventInNextBook) {
-                                //@ts-ignore
-                                const geom = foamtreeInstance.get("geometry", firstEventInNextBook);
-                                if (geom) {
-                                    ctx.beginPath();
-                                    ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
-                                    ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
-                                    ctx.lineWidth = 1;
-                                }
-                            }
-                        }
-                    }
-
-                } else {
-                    const divIndex = thisTestament.groups.findIndex((group: any) => group.label == params.group.division);
-                    const nextDivision = thisTestament.groups[divIndex + 1];
-                    if (nextDivision) {
-                        const allEventsInThisDiv = getAllEventsInDiv(thisDivision);
-                        const allEventsInNextDiv = getAllEventsInDiv(nextDivision);
-                        const lastEventInThisDiv = allEventsInThisDiv[allEventsInThisDiv.length - 1];
-                        const firstEventInNextDiv = allEventsInNextDiv[0];
-                        if (group.label == '' && group.id == lastEventInThisDiv.id && !!firstEventInNextDiv) {
-                            //@ts-ignore
-                            const geom = foamtreeInstance.get("geometry", firstEventInNextDiv);
-                            if (geom) {
-                                ctx.beginPath();
-                                ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
-                                ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
-                                ctx.lineWidth = 1;
-                                const gradient = ctx.createLinearGradient(
-                                    params.polygonCenterX * 0.95,
-                                    params.polygonCenterY * 0.95,
-                                    geom.polygonCenterX * 0.95,
-                                    geom.polygonCenterY * 0.95);
-                                gradient.addColorStop(0, group.color);
-                                gradient.addColorStop(1, firstEventInNextDiv.color);
-                                ctx.strokeStyle = gradient;
-                            }
-                        }
-
-                        const bkIndex = thisDivision.groups.findIndex((group: any) => group.label == params.group.book);
-                        const nextBook = thisDivision.groups[bkIndex + 1];
-                        if (nextBook) {
-                            const allEventsInThisBook = getAllEventsInBook(thisBook);
-                            const allEventsInNextBook = getAllEventsInBook(nextBook);
-                            const lastEventInThisBook = allEventsInThisBook[allEventsInThisBook.length - 1];
-                            const firstEventInNextBook = allEventsInNextBook[0];
-                            if (group.label == '' && group.id == lastEventInThisBook.id && !!firstEventInNextBook) {
-                                //@ts-ignore
-                                const geom = foamtreeInstance.get("geometry", firstEventInNextBook);
-                                if (geom) {
-                                    ctx.beginPath();
-                                    ctx.moveTo(params.polygonCenterX, params.polygonCenterY);
-                                    ctx.lineTo(geom.polygonCenterX, geom.polygonCenterY);
-                                    ctx.lineWidth = 1;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else if (params.group.level == 'chapter' && params.group.label != '') {
+        // Chapter Constellations
+        if (params.group.level == 'chapter' && params.group.label != '') {
             const group = params.group;
             vars.groupLabelDrawn = false;
 
@@ -582,6 +369,7 @@ const Treemap = (props: any) => {
                 });
             }
 
+            // Book Name
             if (params.index >= 0 && params.group.level == 'chapter') {
                 const ctx = params.context;
 
@@ -601,6 +389,7 @@ const Treemap = (props: any) => {
                 }
             }
 
+            // Stars
             let size = props.device == 'mobile' ? group.verses / 100 : group.verses / 50;
             if (group.verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
 
@@ -620,6 +409,7 @@ const Treemap = (props: any) => {
             lastX = x;
             lastY = y;
 
+            // Events
             if (params.group.event) { // todo :: move to inside star!?
                 const img = new Image;
                 img.src = params.group.event;
@@ -633,6 +423,7 @@ const Treemap = (props: any) => {
                 ctx.globalAlpha = 1;
             }
 
+            // Chapter Label
             if (params.index >= 0 && params.group.level == 'chapter') {
                 const ctx = params.context;
                 ctx.shadowBlur = 10;
@@ -645,6 +436,7 @@ const Treemap = (props: any) => {
                 ctx.fillText(group.label,x-1,y-2);
             }
 
+            // Narrative
             if (false && (narrative as any)[group.id]) {
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = group.color;
@@ -686,213 +478,37 @@ const Treemap = (props: any) => {
     }
 
     function updateColours (opts: any, params: any, vars: any): void {
+        if (!params.group.color) return;
+
+        const colour = hexToHSLA(params.group.color);
+        vars.groupColor.h = colour.h
+        vars.groupColor.l = colour.l
+        vars.groupColor.s = colour.s
+        let alpha = 0;
+
         if (props.bookFound) {
-            if (params.group.level === "testament" && !!params.group.color) {
-                const hlsa = hexToHSLA(params.group.color, 0);
-                vars.groupColor.h = hlsa.h
-                vars.groupColor.l = hlsa.l
-                vars.groupColor.s = hlsa.s
-                vars.groupColor.a = hlsa.a
+            const isBook: boolean =
+                (params.group.book == props.passage.book);
 
-            } else if (params.group.level === "division" && !!params.group.color) {
-                const hlsa = hexToHSLA(params.group.color, 0.1);
-                vars.groupColor.h = hlsa.h
-                vars.groupColor.l = hlsa.l
-                vars.groupColor.s = hlsa.s
-                vars.groupColor.a = 0;
+            if (isBook && params.group.level == "chapter")
+                alpha = SECTION_ALPHA;
 
-            } else if (params.group.level == "chapter" && !!params.group.color ) {
-                if (params.group.book == props.passage.book) {
-                    // vars.groupColor = params.group.color;
-                    // const rgba =  hexToRgba(params.group.color).substring(5, 18);
-                    // const parts = rgba.split(', ');
-                    //
-                    // vars.groupColor.r = parts[0];
-                    // vars.groupColor.g = parts[1];
-                    // vars.groupColor.b = parts[2];
-                    // vars.groupColor.a = 1; // 0.05; // 0.1;
-
-                    const hlsa = hexToHSLA(params.group.color, 0.1);
-                    vars.groupColor.h = hlsa.h
-                    vars.groupColor.l = hlsa.l
-                    vars.groupColor.s = hlsa.s
-                    vars.groupColor.a = 0.3;
-
-                } else {
-                    const rgba = hexToRgba(params.group.color).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = 0;
-                    vars.labelColor = params.group.color + '40';
-                }
-            } else if (params.group.level == "book" && !!params.group.color ) {
-                if (params.group.label == props.passage.book) {
-                    const darkened = darkenHexColor(params.group.color, 90); // 20% darker
-                    const rgba = hexToRgba(darkened).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
-                } else {
-                    const rgba = hexToRgba(params.group.color).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = 0;
-                    vars.labelColor = params.group.color + '40';
-                }
-            } else {
-                if (params.group.level == 'filler') {
-                    vars.groupColor.r = 255;
-                    vars.groupColor.g = 255;
-                    vars.groupColor.b = 255;
-                    vars.groupColor.a = params.group.book == props.passage.book ? 0 : 0;
-                    vars.strokeColour = params.group.color + '40';
-                } else {
-                    vars.groupColor = params.group.color;
-                }
-            }
         } else if (props.divFound) {
-            if (params.group.level === "testament" && !!params.group.color) {
-                const hlsa = hexToHSLA(params.group.color, 0);
-                vars.groupColor.h = hlsa.h
-                vars.groupColor.l = hlsa.l
-                vars.groupColor.s = hlsa.s
-                vars.groupColor.a = hlsa.a
-            } else if (params.group.level === "division" && !!params.group.color) {
-                const hlsa = hexToHSLA(params.group.color, 0.1);
-                vars.groupColor.h = hlsa.h
-                vars.groupColor.l = hlsa.l
-                vars.groupColor.s = hlsa.s
-                vars.groupColor.a = params.group.label == props.passage.division ? hlsa.a : 0;
+            const isDivision: boolean =
+                (params.group.label == props.passage.division);
 
-            } else if (params.group.level == "chapter" && !!params.group.color) {
-                if (params.group.division == props.passage.division) {
-                    // vars.groupColor = params.group.color;
-                    const rgba =  hexToRgba(params.group.color).substring(5, 18);
-                    const parts = rgba.split(', ');
+            if (isDivision)
+                alpha = SECTION_ALPHA;
 
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = 0; // 0.05; // 0.1;
-
-                } else {
-                    const rgba =  hexToRgba(params.group.color).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = 0;
-                    vars.labelColor = params.group.color + '40';
-                }
-            } else if (params.group.level == "book" && !!params.group.color ) {
-                if (params.group.division == props.passage.division) {
-                    const darkened = darkenHexColor(params.group.color, 90); // 20% darker
-                    const rgba = hexToRgba(darkened).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
-
-                } else {
-                    const rgba = hexToRgba(params.group.color).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = 0;
-                    vars.labelColor = params.group.color + '40';
-                }
-            } else {
-                if (params.group.level == 'filler') {
-                    vars.groupColor.r = 255;
-                    vars.groupColor.g = 255;
-                    vars.groupColor.b = 255;
-                    vars.groupColor.a = params.group.division == props.passage.division ? 0.3 : 0;
-                    vars.strokeColour = params.group.color + '40';
-                } else {
-                    vars.groupColor = params.group.color;
-                }
-            }
         } else if (props.testFound) {
-            if (params.group.level === "testament" && !!params.group.color) {
-                const hlsa = hexToHSLA(params.group.color, 0);
-                vars.groupColor.h = hlsa.h
-                vars.groupColor.l = hlsa.l
-                vars.groupColor.s = hlsa.s
-                vars.groupColor.a = hlsa.a
-            } else if (params.group.level === "division" && !!params.group.color) {
-                const hlsa = hexToHSLA(params.group.color, 0.1);
-                vars.groupColor.h = hlsa.h
-                vars.groupColor.l = hlsa.l
-                vars.groupColor.s = hlsa.s
-                vars.groupColor.a = params.group.testament == props.passage.testament ? hlsa.a : 0;
+            const isTestament: boolean =
+                (params.group.testament == props.passage.testament);
 
-            } else if (params.group.level == "chapter" && !!params.group.color) {
-                if (params.group.testament == props.passage.testament) {
-                    // vars.groupColor = params.group.color;
-                    const rgba =  hexToRgba(params.group.color).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = 0; // 0.05; // 0.1;
-
-                } else {
-                    const rgba =  hexToRgba(params.group.color).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = 0;
-                    vars.labelColor = params.group.color + '40';
-                }
-            } else if (params.group.level == "book" && !!params.group.color ) {
-                if (params.group.testament == props.passage.testament) {
-                    const darkened = darkenHexColor(params.group.color, 90); // 20% darker
-                    const rgba = hexToRgba(darkened).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = (params.group.level == "book" ? 0.75 : 0.55);
-                } else {
-                    const rgba = hexToRgba(params.group.color).substring(5, 18);
-                    const parts = rgba.split(', ');
-
-                    vars.groupColor.r = parts[0];
-                    vars.groupColor.g = parts[1];
-                    vars.groupColor.b = parts[2];
-                    vars.groupColor.a = 0;
-                    vars.labelColor = params.group.color + '40';
-                }
-            } else {
-                if (params.group.level == 'filler') {
-                    vars.groupColor.r = 255;
-                    vars.groupColor.g = 255;
-                    vars.groupColor.b = 255;
-                    vars.groupColor.a = params.group.testament == props.passage.testament ? 0.3 : 0;
-                    vars.strokeColour = params.group.color + '00';
-                } else {
-                    vars.groupColor = params.group.color;
-                }
-            }
+            if (isTestament && params.group.level == "division")
+                alpha = SECTION_ALPHA;
         }
+
+        vars.groupColor.a = alpha
     }
 
     // FixMe :: how to determine when foamtreeInstance is ready to display? hooks error at present
