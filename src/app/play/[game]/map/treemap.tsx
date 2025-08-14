@@ -6,6 +6,7 @@ import { hexToHSLA } from "@/core/util/colour-util";
 import narrative from './config/narrative.json';
 import events from './config/events.json';
 import colours from './config/colours.json';
+import { renderStar } from "./star-renderer";
 
 /**
  * Voronoi Treemap Component for displaying the Bible
@@ -18,6 +19,10 @@ const Treemap = (props: any) => {
     const [ foamtreeInstance, setFoamtreeInstance ] = useState();
 
     const SECTION_ALPHA = 0.1;
+    let lastX = 0;
+    let lastY = 0;
+    let lastNarrativeX = 0;
+    let lastNarrativeY = 0;
 
     useEffect(() => {
         let disposed = false;
@@ -320,11 +325,6 @@ const Treemap = (props: any) => {
     }
 
     function setupContent(opts: any, params: any, vars: any) {
-        let lastX = 0;
-        let lastY = 0;
-        let lastNarrativeX = 0;
-        let lastNarrativeY = 0;
-
         const sign = () => Math.random() < 0.5 ? -1 : 1;
         const x = params.polygonCenterX + sign() * (Math.random() * params.boxWidth / 3);
         const y = params.polygonCenterY + sign() * (Math.random() * params.boxHeight / 3);
@@ -336,11 +336,12 @@ const Treemap = (props: any) => {
 
             const ctx = params.context;
 
-            if (params.index && params.group.level != 'filler') {
+            if (params.index) {
                 let drawn = false;
                 params.parent.groups.forEach(function (group: any) {
+                    const firstNode = parseInt(params.group.id.split('/')[1]) == 1;
                     const lastNode = parseInt(params.group.id.split('/')[1]) == params.parent.groups.length;
-                    if (parseInt(params.group.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1])) {
+                    if (!firstNode && parseInt(params.group.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1])) {
                         //@ts-ignore
                         const geom = foamtreeInstance.get("geometry", group);
                         if (geom && lastX && lastY) {
@@ -393,18 +394,11 @@ const Treemap = (props: any) => {
             let size = props.device == 'mobile' ? group.verses / 100 : group.verses / 50;
             if (group.verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
 
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = params.group.color; // white
-            ctx.fillStyle = params.group.color; // white
-
-            // const gradient = ctx.createRadialGradient(x, y, size/2, x, y, size);
-            // gradient.addColorStop(0, 'white');
-            // gradient.addColorStop(1, params.group.color);
-            // ctx.fillStyle = gradient;
-
-            ctx.beginPath();
-            ctx.arc(x, y, size, 0, 2 * Math.PI);
-            ctx.fill();
+            renderStar(ctx, {
+                x, y,
+                radius: size,
+                tint: params.group.color,
+            });
 
             lastX = x;
             lastY = y;
