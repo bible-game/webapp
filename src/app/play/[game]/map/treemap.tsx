@@ -85,7 +85,6 @@ const Treemap = (props: any) => {
                     },
                 openCloseDuration: 1000,
                 onViewResetting: function(e: any) {
-                    console.log(e);
                     e.preventDefault();
                 },
                 onKeyUp: (e: any) => {
@@ -360,8 +359,6 @@ const Treemap = (props: any) => {
 
                     const txt = params.parent.label
                     ctx.font = Math.floor(geom.boxWidth / txt.split().length) / 8 + "px Verdana"
-                    console.log(params.parent.label);
-                    console.log(ctx.font);
                     const xOffset = 0.5 * ctx.measureText(txt).width;
                     const yOffset = 0; // 0.5 * ctx.measureText(txt).height;
                     ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
