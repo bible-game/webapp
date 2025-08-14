@@ -63,6 +63,7 @@ export default function Game(props: any) {
     const [stars, setStars] = useState(0);
     const [state, setState] = useState({} as any);
     const [confetti, setConfetti] = useState(false);
+    const [narrativeHidden, setNarrativeHidden] = useState(true);
 
     // FixMe :: double-render, just a dev issue like the treemap?
     useEffect(() => {
@@ -264,6 +265,10 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
+    function toggleNarrative() {
+        setNarrativeHidden(!narrativeHidden);
+    }
+
     if (isLoading) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
@@ -273,10 +278,11 @@ export default function Game(props: any) {
             <>
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}
+                         narrativeHidden={narrativeHidden}
                          playing={playing}/>
                 <section className="relative z-1 h-full pointer-events-none">
                     <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
-                        <Menu passage={passage} playing={playing} date={props.game} device={props.device}/>
+                        <Menu passage={passage} playing={playing} date={props.game} device={props.device} toggleNarrative={toggleNarrative}/>
                     </section>
                     <section className="pointer-events-auto absolute bottom-[8.25rem] sm:bottom-[4.25rem]">
                         <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}

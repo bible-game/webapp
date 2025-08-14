@@ -152,6 +152,16 @@ const Treemap = (props: any) => {
         }
     }, [props.bookFound, props.divFound, props.testFound]);
 
+    useEffect(() => {
+        if (foamtreeInstance) {
+            //@ts-ignore
+            foamtreeInstance.redraw(); // fixme... msg Stanislaw?
+        }
+        return () => {
+
+        }
+    }, [props.narrativeHidden]);
+
     function configure(data: any) {
         const testaments: any[] = [];
 
@@ -263,42 +273,6 @@ const Treemap = (props: any) => {
         }
 
         return weight;
-    }
-
-    function getAllEventsInTest(testament: any) {
-        const events: any[] = [];
-
-        testament.groups.forEach((div: any) => {
-            div.groups.forEach((book: any) => {
-                book.groups.forEach((ch: any) => {
-                    if (ch.label == '') events.push(ch)
-                })
-            })
-        })
-
-        return events;
-    }
-
-    function getAllEventsInDiv(div: any) {
-        const events: any[] = [];
-
-        div.groups.forEach((book: any) => {
-            book.groups.forEach((ch: any) => {
-                if (ch.label == '') events.push(ch)
-            })
-        })
-
-        return events;
-    }
-
-    function getAllEventsInBook(book: any) {
-        const events: any[] = [];
-
-        book.groups.forEach((ch: any) => {
-            if (ch.label == '') events.push(ch)
-        })
-
-        return events;
     }
 
     const mobileOptimisations = {
@@ -431,7 +405,7 @@ const Treemap = (props: any) => {
             }
 
             // Narrative
-            if (false && (narrative as any)[group.id]) {
+            if (!props.narrativeHidden && (narrative as any)[group.id]) {
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = group.color;
                 ctx.fillStyle = group.color;
