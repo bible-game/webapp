@@ -7,9 +7,6 @@ import {
     Navbar,
     NavbarContent,
     NavbarItem,
-    NavbarMenu,
-    NavbarMenuItem,
-    Link,
     Avatar,
     Dropdown,
     DropdownTrigger, DropdownMenu, DropdownItem, useDisclosure,
@@ -20,8 +17,8 @@ import {
 import { Button} from "@heroui/button";
 import {
     BarChart, CircleQuestionMark,
-    HouseIcon,
-    LightbulbIcon,
+    ArrowLeftIcon,
+    LightbulbIcon, LogInIcon,
     MapIcon,
     MenuIcon,
     NotebookIcon,
@@ -34,28 +31,23 @@ import useSWR from "swr";
 import { getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import { Code } from "@heroui/code";
 import { ModalHeader } from "@heroui/modal";
+import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function Menu(props: any) {
-    const menuItems = [
-        "Home",
-        "Play",
-        "Read",
-        "Study",
-        "Leaderboard",
-        "Account",
-    ];
+
+    const text = props.dark ? "text-black" : "text-white";
 
     const icons = {
-        home: <HouseIcon fill="currentColor" size={24} />,
+        home: <ArrowLeftIcon fill="currentColor" size={24} />,
         play: <PlayIcon fill="currentColor" size={24} />,
         read: <NotebookIcon fill="currentColor" size={24} />,
         study: <LightbulbIcon fill="currentColor" size={24} />,
         statistics: <BarChart fill="currentColor" size={24} />,
         account: <UserIcon fill="currentColor" size={24} />
     };
-    const date = parseDate(props.date);
+
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     let version: string;
@@ -63,7 +55,7 @@ export default function Menu(props: any) {
 
     const stylesDateInput = {
         base: ["w-min", "mb-2", props.device == 'mobile' ? "mt-2" : "mt-1.5"],
-        selectorButton: ["opacity-85", "text-white", "p-[1.5rem]", "sm:p-[1.0625rem]", "hover:!bg-[#ffffff14]"],
+        selectorButton: ["opacity-85", text, "p-[1.5rem]", "sm:p-[1.0625rem]", "hover:!bg-[#ffffff14]"],
         inputWrapper: ["dark", "!bg-transparent"],
         input: ["opacity-85", "ml-2", "text-xs", props.device == 'mobile' ? "hidden" : ""]
     };
@@ -80,7 +72,7 @@ export default function Menu(props: any) {
                         <DropdownTrigger>
                             <Button
                                 disableRipple
-                                className="p-0 bg-transparent data-[hover=true]:bg-transparent text-white/80"
+                                className={"p-0 bg-transparent data-[hover=true]:bg-transparent "+text+"/80"}
                                 radius="sm"
                                 isIconOnly
                                 variant="light">
@@ -93,7 +85,7 @@ export default function Menu(props: any) {
                         itemClasses={{
                             base: "gap-4 !text-back",
                         }}>
-                        <DropdownItem key="home" startContent={icons.home} className="text-gray-900" href="/home">Home</DropdownItem>
+                        <DropdownItem key="home" startContent={icons.home} className="text-gray-900" href="/">Back</DropdownItem>
                         <DropdownItem key="play" startContent={icons.play} className="text-gray-900" href="/play">Play</DropdownItem>
                         <DropdownItem key="read" startContent={icons.read} className="text-gray-900" href="/read">Read</DropdownItem>
                         <DropdownItem key="study" startContent={icons.study} className="text-gray-900" href="/study">Study</DropdownItem>
@@ -139,9 +131,9 @@ export default function Menu(props: any) {
                     <I18nProvider locale="en-GB">
                         <DatePicker
                             classNames={stylesDateInput}
-                            defaultValue={date as any}
+                            defaultValue={props.date as any}
                             maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
-                            value={date as any}
+                            value={props.date as any}
                             onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
                             selectorButtonPlacement="start"/>
                     </I18nProvider>
@@ -171,11 +163,11 @@ export default function Menu(props: any) {
                                     </div>
                                     <p className="p-1 font-extralight">Click the map to select a chapter</p>
                                     <div className="flex mb-6 justify-center">
-                                        <Image src="/mark-1.png" alt="mark1" width={30 * 16} height={0} className="rounded"/>
+                                        {/*<Image src="/mark-1.png" alt="mark1" width={30 * 16} height={0} className="rounded"/>*/}
                                     </div>
                                     <p className="p-1 font-extralight">Use the number of verses to narrow your guess</p>
                                     <div className="flex mb-6 justify-center">
-                                        <Image src="/guesses.png" alt="guesses" width={40 * 16} height={0}/>
+                                        {/*<Image src="/guesses.png" alt="guesses" width={40 * 16} height={0}/>*/}
                                     </div>
                                     <div className="mx-auto">
                                         <p>App version: { version }</p>
@@ -188,22 +180,16 @@ export default function Menu(props: any) {
             </NavbarContent> : <></>}
             <NavbarContent justify="end">
                 <NavbarItem>
-                    <Avatar
-                        isBordered
-                        as="button"
-                        name="JS"
-                        size="sm"
-                    />
+                    {props.info ?
+                        <Link href="/account">
+                            <Avatar isBordered as="button" name={props.info.firstname[0].toUpperCase()+props.info.lastname[0].toUpperCase()} size="sm"/>
+                        </Link> :
+                        <Link href="/account/log-in" className="flex gap-2">
+                            <LogInIcon className="h-4 w-4"/>
+                            <p className={"font-light text-xs " + text}>Login</p>
+                        </Link>
+                    }
                 </NavbarItem>
             </NavbarContent>
-            <NavbarMenu className="top-[3rem] w-[48rem] left-[calc(50%-24rem)] bg-transparent">
-                {menuItems.map((item, index) => (
-                    <NavbarMenuItem key={`${item}-${index}`}>
-                        <Link className="text-white w-full cursor-pointer">
-                            {item}
-                        </Link>
-                    </NavbarMenuItem>
-                ))}
-            </NavbarMenu>
         </Navbar>
 }

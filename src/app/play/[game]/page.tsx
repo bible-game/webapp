@@ -51,7 +51,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
         <>
             <Background/>
             <main className="w-full relative z-1">
-                <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state}/>
+                <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
             </main>
             <Toaster position="bottom-right"/>
         </>

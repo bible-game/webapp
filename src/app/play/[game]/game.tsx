@@ -281,7 +281,7 @@ export default function Game(props: any) {
 
         return (
             <>
-                <Menu isPlay={true} date={props.game}/>
+                <Menu isPlay={true} info={props.info} date={parseDate(props.game)} />
                 <Summary passage={passage} playing={playing}/>
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}
