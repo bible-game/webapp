@@ -8,7 +8,7 @@ export default function LoginPrompt(props: any) {
     const [dismissed, setDismissed] = useState(false);
 
     if (!props.authenticated && !dismissed)
-        return <div className="w-[80vw] sm:w-[46rem] mt-4">
+        return <div className="w-[80vw] sm:w-[48rem] mt-4">
             <div
                 className="relative border border-purple-500/50 bg-purple-900/30 backdrop-blur-md rounded-md p-4 sm:p-5 shadow-lg text-white">
                 <button

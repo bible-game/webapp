@@ -1,0 +1,209 @@
+"use client"
+
+import React from "react";
+import { I18nProvider } from "@react-aria/i18n";
+import _ from "lodash";
+import {
+    Navbar,
+    NavbarContent,
+    NavbarItem,
+    NavbarMenu,
+    NavbarMenuItem,
+    Link,
+    Avatar,
+    Dropdown,
+    DropdownTrigger, DropdownMenu, DropdownItem, useDisclosure,
+    Modal,
+    ModalContent,
+    ModalBody, DatePicker
+} from "@heroui/react";
+import { Button} from "@heroui/button";
+import {
+    BarChart, CircleQuestionMark,
+    HouseIcon,
+    LightbulbIcon,
+    MapIcon,
+    MenuIcon,
+    NotebookIcon,
+    PlayIcon, RefreshCwIcon,
+    UserIcon
+} from "lucide-react";
+import {redirect} from "next/navigation";
+import getVersion from "@/core/action/version/get-version";
+import useSWR from "swr";
+import { getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
+import { Code } from "@heroui/code";
+import { ModalHeader } from "@heroui/modal";
+
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+export default function Menu(props: any) {
+    const menuItems = [
+        "Home",
+        "Play",
+        "Read",
+        "Study",
+        "Leaderboard",
+        "Account",
+    ];
+
+    const icons = {
+        home: <HouseIcon fill="currentColor" size={24} />,
+        play: <PlayIcon fill="currentColor" size={24} />,
+        read: <NotebookIcon fill="currentColor" size={24} />,
+        study: <LightbulbIcon fill="currentColor" size={24} />,
+        statistics: <BarChart fill="currentColor" size={24} />,
+        account: <UserIcon fill="currentColor" size={24} />
+    };
+    const date = parseDate(props.date);
+    const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher);
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    let version: string;
+    getVersion().then((appVersion) => version = appVersion);
+
+    const stylesDateInput = {
+        base: ["w-min", "mb-2", props.device == 'mobile' ? "mt-2" : "mt-1.5"],
+        selectorButton: ["opacity-85", "text-white", "p-[1.5rem]", "sm:p-[1.0625rem]", "hover:!bg-[#ffffff14]"],
+        inputWrapper: ["dark", "!bg-transparent"],
+        input: ["opacity-85", "ml-2", "text-xs", props.device == 'mobile' ? "hidden" : ""]
+    };
+
+    function changeDate(date: string = _.sample(data)): void {
+        redirect(`/play/${date.split("T")[0]}`);
+    }
+
+    if (isLoading) return <></>
+    else return <Navbar className="w-[48rem] bg-transparent backdrop-saturate-100 h-12">
+            <NavbarContent justify="start">
+                <Dropdown>
+                    <NavbarItem>
+                        <DropdownTrigger>
+                            <Button
+                                disableRipple
+                                className="p-0 bg-transparent data-[hover=true]:bg-transparent text-white/80"
+                                radius="sm"
+                                isIconOnly
+                                variant="light">
+                                <MenuIcon className="h-5 w-5"/>
+                            </Button>
+                        </DropdownTrigger>
+                    </NavbarItem>
+                    <DropdownMenu
+                        aria-label="features"
+                        itemClasses={{
+                            base: "gap-4 !text-back",
+                        }}>
+                        <DropdownItem key="home" startContent={icons.home} className="text-gray-900" href="/home">Home</DropdownItem>
+                        <DropdownItem key="play" startContent={icons.play} className="text-gray-900" href="/play">Play</DropdownItem>
+                        <DropdownItem key="read" startContent={icons.read} className="text-gray-900" href="/read">Read</DropdownItem>
+                        <DropdownItem key="study" startContent={icons.study} className="text-gray-900" href="/study">Study</DropdownItem>
+                        <DropdownItem key="statistics" startContent={icons.statistics} className="text-gray-900" href="/stats">Statistics</DropdownItem>
+                        <DropdownItem key="account" startContent={icons.account} className="text-gray-900" href="/account">Account</DropdownItem>
+                    </DropdownMenu>
+                </Dropdown>
+            </NavbarContent>
+            {props.isPlay ? <NavbarContent justify="center">
+                <NavbarItem>
+                    <Button variant="light"
+                        radius="full"
+                        size={props.device == 'mobile' ? 'lg' : 'sm'}
+                        isIconOnly
+                        onPress={onOpen}
+                        className="-mt-0.5 text-white hover:!bg-[#ffffff14] opacity-75 text-sm mr-1">
+                        <CircleQuestionMark className="h-4 w-4"/>
+                    </Button>
+                </NavbarItem>
+                <NavbarItem className="flex items-center">
+                    { props.device == "mobile" ? <></> :
+                        <Button variant="light"
+                                radius="full"
+                                size={props.device == 'mobile' ? 'lg' : 'sm'}
+                                isIconOnly
+                                onPress={() => props.toggleNarrative()}
+                                className="-mt-0.5 text-white hover:!bg-[#ffffff14] opacity-85">
+                            <MapIcon className="h-4 w-4"/>
+                        </Button>
+                    }
+                </NavbarItem>
+                <NavbarItem>
+                    <Button variant="light"
+                            radius="full"
+                            size={props.device == 'mobile' ? 'lg' : 'sm'}
+                            isIconOnly
+                            onPress={() => changeDate()}
+                            className="-mt-0.5 text-white hover:!bg-[#ffffff14] opacity-85">
+                        <RefreshCwIcon className="h-4 w-4"/>
+                    </Button>
+                </NavbarItem>
+                <NavbarItem>
+                    <I18nProvider locale="en-GB">
+                        <DatePicker
+                            classNames={stylesDateInput}
+                            defaultValue={date as any}
+                            maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
+                            value={date as any}
+                            onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
+                            selectorButtonPlacement="start"/>
+                    </I18nProvider>
+                </NavbarItem>
+                <Modal
+                    backdrop="opaque"
+                    classNames={{
+                        body: "p-8 text-center",
+                        backdrop: "bg-[#060842]/75",
+                        base: "max-w-[40rem] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border-[1px] border-[#ffffff]/25",
+                        header: "pt-8 w-full text-center",
+                        closeButton: "hover:bg-white/5 active:bg-white/10 absolute right-6 top-6",
+                    }}
+                    isOpen={isOpen}
+                    radius="lg"
+                    placement="center"
+                    onOpenChange={onOpenChange}>
+                    <ModalContent>
+                        {(onClose) => (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">How to Play</ModalHeader>
+                                <ModalBody>
+                                    <p className="p-1 font-extralight">A chapter is randomly selected and summarised</p>
+                                    <div className="mb-6">
+                                        <Code color="success" size="sm" radius="lg">Acts 3</Code> &#8594; <Code
+                                        color="success" size="sm" radius="lg">Peter heals a lame man in faith</Code>
+                                    </div>
+                                    <p className="p-1 font-extralight">Click the map to select a chapter</p>
+                                    <div className="flex mb-6 justify-center">
+                                        <Image src="/mark-1.png" alt="mark1" width={30 * 16} height={0} className="rounded"/>
+                                    </div>
+                                    <p className="p-1 font-extralight">Use the number of verses to narrow your guess</p>
+                                    <div className="flex mb-6 justify-center">
+                                        <Image src="/guesses.png" alt="guesses" width={40 * 16} height={0}/>
+                                    </div>
+                                    <div className="mx-auto">
+                                        <p>App version: { version }</p>
+                                    </div>
+                                </ModalBody>
+                            </>
+                        )}
+                    </ModalContent>
+                </Modal>
+            </NavbarContent> : <></>}
+            <NavbarContent justify="end">
+                <NavbarItem>
+                    <Avatar
+                        isBordered
+                        as="button"
+                        name="JS"
+                        size="sm"
+                    />
+                </NavbarItem>
+            </NavbarContent>
+            <NavbarMenu className="top-[3rem] w-[48rem] left-[calc(50%-24rem)] bg-transparent">
+                {menuItems.map((item, index) => (
+                    <NavbarMenuItem key={`${item}-${index}`}>
+                        <Link className="text-white w-full cursor-pointer">
+                            {item}
+                        </Link>
+                    </NavbarMenuItem>
+                ))}
+            </NavbarMenu>
+        </Navbar>
+}

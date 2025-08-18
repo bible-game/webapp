@@ -6,7 +6,7 @@ import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
 import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
-import Background from "@/app/background"
+import Background from "@/app/background";
 import Link from "next/link"
 
 import { logIn } from "@/core/action/auth/log-in"

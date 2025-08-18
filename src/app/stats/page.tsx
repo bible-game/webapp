@@ -2,7 +2,7 @@
 
 import { Toaster } from "react-hot-toast";
 import React from "react";
-import Navigation from "@/app/navigation";
+import Menu from "@/app/menu";
 import Background from "@/app/background";
 import Image from 'next/image'
 import Metrics from "@/app/stats/metrics";
@@ -81,7 +81,7 @@ export default async function Stats() {
                     <Completion bible={bible}/>
                 </section>
             </main>
-            <Navigation play={true} read={true} authenticated={!!info} displayName={info?.firstname}/>
+            <Menu play={true} read={true} authenticated={!!info} displayName={info?.firstname}/>
         </>
     );
 }
