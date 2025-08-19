@@ -28,8 +28,7 @@ export default function Landing(props: any) {
                         className="mt-4 text-lg md:text-xl text-[#adb3d6] max-w-2xl"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4, duration: 0.8 }}
-                    >
+                        transition={{ delay: 0.4, duration: 0.8 }}>
                         Explore the Bible with a daily passage guessing game 📖✨
                     </motion.p>
 
@@ -40,8 +39,7 @@ export default function Landing(props: any) {
                     >
                         <Link
                             href="/play/today"
-                            className="mt-8 px-6 py-3 rounded-full bg-white/10 border border-white/20 font-semibold hover:bg-white/20 transition-colors inline-flex items-center gap-2"
-                        >
+                            className="mt-8 px-6 py-3 rounded-full bg-white/10 border border-white/20 font-semibold hover:bg-white/20 transition-colors inline-flex items-center gap-2">
                             <Play size={18} /> Play Today’s Game
                         </Link>
                     </motion.div>
@@ -60,7 +58,7 @@ export default function Landing(props: any) {
                                 <Play size={20} /> Daily Challenge
                             </h3>
                             <p className="text-sm text-white/80 mt-2">
-                                Guess today’s chapter in five tries.
+                                Build a mental map of Scripture.
                             </p>
                         </motion.div>
                     </Link>
@@ -76,7 +74,7 @@ export default function Landing(props: any) {
                                 <BookOpen size={20} /> Daily Reading
                             </h3>
                             <p className="text-sm text-white/80 mt-2">
-                                Track your Bible reading alongside the game.
+                                Track your Bible reading.
                             </p>
                         </motion.div>
                     </Link>
@@ -92,7 +90,7 @@ export default function Landing(props: any) {
                                 <GraduationCap size={20} /> Learn & Explore
                             </h3>
                             <p className="text-sm text-white/80 mt-2">
-                                Dive deeper into passages and cross-references.
+                                Dive deeper into passages.
                             </p>
                         </motion.div>
                     </Link>
@@ -108,7 +106,7 @@ export default function Landing(props: any) {
                                 <BarChart3 size={20} /> Statistics
                             </h3>
                             <p className="text-sm text-white/80 mt-2">
-                                Track your accuracy and streaks over time.
+                                Track your scores over time.
                             </p>
                         </motion.div>
                     </Link>
