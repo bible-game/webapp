@@ -55,8 +55,8 @@ export default async function Stats() {
     return (
         <>
             <Background/>
-            <main className="flex top-12 sm:mt-8 m-0">
-                <Toaster position="bottom-right"/>
+            <main>
+                <Menu isStats={true} info={info} />
                 <section>
                     <div className="flex gap-12 items-center">
                         <div className="flex flex-col">
@@ -70,10 +70,6 @@ export default async function Stats() {
                                 </p>
                             )}
                         </div>
-                        {info && <LogoutButton/>}
-                        <a href="https://discord.gg/6ZJYbQcph5" target="_blank" className="flex gap-2 items-center translate-y-2.5">
-                            <Image src="/discord.png" alt="discord" width={100} height={0}/>
-                        </a>
                     </div>
                     {!info && <LoginPrompt/>}
                     <Leaderboard leaders={leaders}/>
@@ -81,7 +77,7 @@ export default async function Stats() {
                     <Completion bible={bible}/>
                 </section>
             </main>
-            <Menu play={true} read={true} authenticated={!!info} displayName={info?.firstname}/>
+            <Toaster position="bottom-right"/>
         </>
     );
 }

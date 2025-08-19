@@ -25,6 +25,7 @@ import {
     PlayIcon, RefreshCwIcon,
     UserIcon
 } from "lucide-react";
+import { SiGithub, SiDiscord } from '@icons-pack/react-simple-icons';
 import {redirect} from "next/navigation";
 import getVersion from "@/core/action/version/get-version";
 import useSWR from "swr";
@@ -32,6 +33,7 @@ import { getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/
 import { Code } from "@heroui/code";
 import { ModalHeader } from "@heroui/modal";
 import Link from "next/link";
+import Image from "next/image";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -81,12 +83,12 @@ export default function Menu(props: any) {
                         </DropdownTrigger>
                     </NavbarItem>
                     <DropdownMenu
-                        aria-label="features"
+                        aria-label="menu"
                         itemClasses={{
                             base: "gap-4 !text-back",
                         }}>
-                        <DropdownItem key="home" startContent={icons.home} className="text-gray-900" href="/">Back</DropdownItem>
-                        <DropdownItem key="play" startContent={icons.play} className="text-gray-900" href="/play">Play</DropdownItem>
+                        {props.isLanding ? <></> : <DropdownItem key="home" startContent={icons.home} className="text-gray-900" href="/">Back</DropdownItem>}
+                        <DropdownItem key="play" startContent={icons.play} className="text-gray-900" href="/play/today">Play</DropdownItem>
                         <DropdownItem key="read" startContent={icons.read} className="text-gray-900" href="/read">Read</DropdownItem>
                         <DropdownItem key="study" startContent={icons.study} className="text-gray-900" href="/study">Study</DropdownItem>
                         <DropdownItem key="statistics" startContent={icons.statistics} className="text-gray-900" href="/stats">Statistics</DropdownItem>
@@ -94,6 +96,38 @@ export default function Menu(props: any) {
                     </DropdownMenu>
                 </Dropdown>
             </NavbarContent>
+            { props.isLanding ? <NavbarContent justify="center">
+                <NavbarItem>
+                    <Image src="/icon-nobg.png" alt="logo" width={36} height={36} />
+                </NavbarItem>
+            </NavbarContent> : <></> }
+            {props.isStats ? <NavbarContent justify="center">
+                <NavbarItem>
+                    <Button variant="light"
+                            radius="full"
+                            size={props.device == 'mobile' ? 'lg' : 'sm'}
+                            isIconOnly
+                            as={Link}
+                            href="https://discord.gg/6ZJYbQcph5"
+                            target="_blank"
+                            onPress={onOpen}
+                            className="-mt-0.5 text-white hover:!bg-[#ffffff14] opacity-75 text-sm mr-1">
+                        <SiDiscord className="h-4 w-4"/>
+                    </Button>
+                </NavbarItem>
+                <NavbarItem>
+                    <Button variant="light"
+                            radius="full"
+                            size={props.device == 'mobile' ? 'lg' : 'sm'}
+                            isIconOnly
+                            as={Link}
+                            href="https://github.com/bible-game"
+                            onPress={onOpen}
+                            className="-mt-0.5 text-white hover:!bg-[#ffffff14] opacity-75 text-sm mr-1">
+                        <SiGithub className="h-4 w-4"/>
+                    </Button>
+                </NavbarItem>
+            </NavbarContent> : <></>}
             {props.isPlay ? <NavbarContent justify="center">
                 <NavbarItem>
                     <Button variant="light"
