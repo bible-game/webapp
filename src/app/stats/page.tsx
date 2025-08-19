@@ -1,83 +1,132 @@
-"use server"
+"use client";
 
-import { Toaster } from "react-hot-toast";
-import React from "react";
-import Menu from "@/app/menu";
+import Link from "next/link";
+import { Play, BookOpen, BarChart3, GraduationCap } from "lucide-react";
 import Background from "@/app/background";
-import Image from 'next/image'
-import Metrics from "@/app/stats/metrics";
-import Completion from "@/app/stats/completion";
-import LoginPrompt from "@/app/stats/login-prompt";
-import Leaderboard from "@/app/stats/leaderboard";
+import Menu from "@/app/menu";
+import { motion } from "framer-motion";
 
-import LogoutButton from "@/app/stats/logout-button";
-import { getReadState } from "@/core/action/state/get-state-read";
-import { ReadState } from "@/core/model/state/read-state";
-import { GameState } from "@/core/model/state/game-state";
-import { getGameState } from "@/core/action/state/get-state-game";
-import isLoggedIn, { getUserId } from "@/core/util/auth-util";
-import getUserInfo, { UserInfo } from "@/core/action/user/get-user-info";
-import getLeaders from "@/core/action/user/get-leaders";
-import { getReviewState } from "@/core/action/state/get-state-review";
-import {ReviewState} from "@/core/model/state/review-state";
-import getRank from "@/core/action/user/get-rank";
-
-async function get(url: string): Promise<any> {
-    const response = await fetch(url, {method: "GET"});
-    return await response.json();
-}
-
-/**
- * Statistics Page
- * @since 12th April 2025
- */
-export default async function Stats() {
-
-    let displayName: string | undefined;
-    const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
-    const leaders = await getLeaders();
-
-    let gameState: Map<number,GameState> | undefined;
-    let readState: Map<string,ReadState> | undefined;
-    let reviewState: Map<string,ReviewState> | undefined;
-    let info: UserInfo | undefined;
-    let rank: { rank?: number, totalPlayers?: number } = {};
-    if (await isLoggedIn()) {
-        gameState = await getGameState();
-        readState = await getReadState();
-        reviewState = await getReviewState();
-
-        info = await getUserInfo();
-        displayName = `${info?.firstname} ${info?.lastname}`;
-        rank = await getRank(await getUserId() ?? '1'); // fixme
-    }
-
+export default function Landing(props: any) {
     return (
         <>
-            <Background/>
-            <main>
-                <Menu isStats={true} info={info} />
-                <section>
-                    <div className="flex gap-12 items-center">
-                        <div className="flex flex-col">
-                            <div className="flex gap-2">
-                                {displayName && <h1 className="text-[1.5rem] mx-0">{`${displayName}'s`}</h1>}
-                                <h1 className="text-[1.5rem] mx-0">Statistics</h1>
-                            </div>
-                            {rank.rank && rank.totalPlayers && (
-                                <p className="text-xs text-white-500 opacity-60 font-extralight -translate-y-3">
-                                    {`${rank.rank} of ${rank.totalPlayers}`}
+            <Background />
+            <main className="min-h-screen text-[#e8ecff] flex flex-col z-10 relative items-center">
+                <Menu isLanding={true} info={props.info} />
+
+                {/* Wrapper ensures hero + cards balance vertically */}
+                <div className="flex-1 flex flex-col justify-center w-full max-w-5xl">
+                    {/* Hero */}
+                    <section className="flex flex-col items-center text-center px-4 sm:px-6 mb-12">
+                        <motion.h1
+                            className="text-3xl sm:text-4xl md:text-5xl font-extrabold m-0"
+                            initial={{ opacity: 0, y: -20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8 }}
+                        >
+                            Bible Game
+                        </motion.h1>
+
+                        <motion.p
+                            className="mt-4 text-base sm:text-lg md:text-xl text-[#adb3d6] max-w-2xl"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4, duration: 0.8 }}
+                        >
+                            Explore the Bible with a daily passage guessing game 📖✨
+                        </motion.p>
+
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.8, duration: 0.6 }}
+                            className="w-full sm:w-auto"
+                        >
+                            <Link
+                                href="/play/today"
+                                className="mt-8 w-full sm:w-auto px-6 py-3 rounded-full bg-white/10 border border-white/20 font-semibold hover:bg-white/20 transition-colors inline-flex items-center justify-center gap-2"
+                            >
+                                <Play size={18} /> Play Today’s Game
+                            </Link>
+                        </motion.div>
+                    </section>
+
+                    {/* Game Modes */}
+                    <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full px-4 sm:px-6 pb-12">
+                        <Link href="/play/today" className="block">
+                            <motion.div
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                                className="bg-gradient-to-r from-green-600/70 to-green-400/60 rounded-2xl shadow-lg p-4 sm:p-6 flex flex-col"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                                    <Play size={20} />
+                                </div>
+                                <p className="text-sm uppercase text-white/70 font-bold">Play</p>
+                                <h3 className="text-lg sm:text-xl font-semibold mt-1">Daily Challenge</h3>
+                                <p className="text-sm text-white/80 mt-2">
+                                    Build a mental map of Scripture.
                                 </p>
-                            )}
-                        </div>
-                    </div>
-                    {!info && <LoginPrompt/>}
-                    <Leaderboard leaders={leaders}/>
-                    <Metrics gameState={gameState} readState={readState} reviewState={reviewState} bible={bible}/>
-                    <Completion bible={bible}/>
-                </section>
+                            </motion.div>
+                        </Link>
+
+                        <Link href="/read" className="block">
+                            <motion.div
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                                className="bg-gradient-to-r from-blue-600/70 to-blue-400/60 rounded-2xl shadow-lg p-4 sm:p-6 flex flex-col"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                                    <BookOpen size={20} />
+                                </div>
+                                <p className="text-sm uppercase text-white/70 font-bold">Read</p>
+                                <h3 className="text-lg sm:text-xl font-semibold mt-1">Daily Reading</h3>
+                                <p className="text-sm text-white/80 mt-2">
+                                    Track your Bible reading.
+                                </p>
+                            </motion.div>
+                        </Link>
+
+                        <Link href="/study" className="block">
+                            <motion.div
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                                className="bg-gradient-to-r from-purple-600/70 to-purple-400/60 rounded-2xl shadow-lg p-4 sm:p-6 flex flex-col"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                                    <GraduationCap size={20} />
+                                </div>
+                                <p className="text-sm uppercase text-white/70 font-bold">Study</p>
+                                <h3 className="text-lg sm:text-xl font-semibold mt-1">Learn & Explore</h3>
+                                <p className="text-sm text-white/80 mt-2">
+                                    Dive deeper into passages.
+                                </p>
+                            </motion.div>
+                        </Link>
+
+                        <Link href="/stats" className="block">
+                            <motion.div
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                transition={{ type: "spring", stiffness: 200 }}
+                                className="bg-gradient-to-r from-yellow-600/70 to-yellow-400/60 rounded-2xl shadow-lg p-4 sm:p-6 flex flex-col"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-3">
+                                    <BarChart3 size={20} />
+                                </div>
+                                <p className="text-sm uppercase text-white/70 font-bold">Stats</p>
+                                <h3 className="text-lg sm:text-xl font-semibold mt-1">Statistics</h3>
+                                <p className="text-sm text-white/80 mt-2">
+                                    Track your scores over time.
+                                </p>
+                            </motion.div>
+                        </Link>
+                    </section>
+                </div>
+
+                {/* Footer */}
+                <footer className="mt-auto py-6 border-t border-white/10 text-center text-sm text-[#adb3d6] px-4">
+                    © {new Date().getFullYear()} Bible Game — Made for curious readers and visual learners.
+                </footer>
             </main>
-            <Toaster position="bottom-right"/>
         </>
     );
 }

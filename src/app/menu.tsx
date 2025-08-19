@@ -67,7 +67,7 @@ export default function Menu(props: any) {
     }
 
     if (isLoading) return <></>
-    else return <Navbar className="w-[48rem] bg-transparent backdrop-saturate-100 h-12">
+    else return <Navbar className="w-[100vw] sm:w-[48rem] bg-transparent backdrop-saturate-100 h-12">
             <NavbarContent justify="start">
                 <Dropdown>
                     <NavbarItem>
