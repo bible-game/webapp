@@ -73,7 +73,7 @@ const Guess = (props: any) => {
         } else return '';
     }
 
-    return <div className="sm:panel p-1 justify-between text-white">
+    return <div className="p-1 justify-between text-white">
         <div className="flex items-center">
             {closeness == '🎉' ? '' : arrow}
             <p className={"text-[12px] " + (closeness == '🎉' ? 'ml-3' : '')}>{passage}</p>
