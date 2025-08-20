@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers"
 import { LogInFormState } from "@/core/model/form/form-definitions"
-import {redirect} from "next/navigation";
+import { redirect } from "next/navigation";
 
 export async function logIn(state: LogInFormState, formData: FormData) {
 
@@ -61,7 +61,7 @@ export async function logIn(state: LogInFormState, formData: FormData) {
         console.error(`Error when logging in with [Email: ${body.email}, Password: ${body.password}]: ${error.message}`)
         state!.errors.form.push('An error occurred on our end. Please try again later or reach out for support if this persists.')
     }
-    // return state
 
-    redirect('/stats');
+    // return state
+    redirect('/');
 }

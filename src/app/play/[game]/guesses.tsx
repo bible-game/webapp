@@ -2,6 +2,7 @@
 
 import React from "react";
 import Guess from "@/app/play/[game]/guess";
+import { StarIcon } from "lucide-react";
 
 const Guesses = (props: any) => {
 
@@ -10,6 +11,7 @@ const Guesses = (props: any) => {
                                             chapter={guess.chapter}
                                             bookFound={props.bookFound}
                                             closeness={guess.closeness}/>)}
+        { props.device == "mobile" ? <StarIcon /> : <></> }
     </section>
 }
 

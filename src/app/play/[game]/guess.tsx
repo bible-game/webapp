@@ -65,10 +65,12 @@ const Guess = (props: any) => {
     }
 
     return <div className="p-1 justify-between text-white">
-        <div className="flex items-center">
-            {closeness == '🎉' ? '' : props.closeness.distance.toString().includes('-') ? <ChevronDown size={16}/> : <ChevronUp size={16}/> }
-            <p className={"text-[12px] " + (closeness == '🎉' ? 'ml-3' : 'ml-1')}>{passage}</p>
-            <p className={"ml-2 mr-3 text-[12px] " + colour}>{closeness}</p>
+        <div className="sm:flex items-center gap-2">
+            <p className="text-[11px] sm:text-[12px]">{passage}</p>
+            <p className={"text-[11px] sm:text-[12px] sm:flex gap-1 " + colour}>
+                <span>{closeness == '🎉' ? '' : props.closeness.distance.toString().includes('-') ? <>&#9650;</> : <>&#9660;</> }</span>
+                <span>{closeness}</span>
+            </p>
         </div>
     </div>
 }

@@ -112,8 +112,7 @@ export default function LogIn() {
                             Don&apos;t have an account?{" "}
                             <Link
                                 href="/account/sign-up"
-                                className="underline hover:text-indigo-300 font-medium"
-                            >
+                                className="underline hover:text-indigo-300 font-medium">
                                 Sign Up
                             </Link>
                         </p>

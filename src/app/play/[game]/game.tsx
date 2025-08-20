@@ -19,8 +19,6 @@ import { GameState } from "@/core/model/state/game-state";
 import { toast } from "react-hot-toast";
 import { Button } from "@heroui/button";
 import Link from "next/link";
-import Menu from "@/app/menu";
-import getVersion from "@/core/action/version/get-version";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -39,9 +37,6 @@ export default function Game(props: any) {
     // if (!consent) {
     //     modal.open()
     // }
-
-    let version: string;
-    getVersion().then((appVersion) => version = appVersion);
 
     const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
     const passage = data as Passage;
@@ -292,7 +287,7 @@ export default function Game(props: any) {
                         selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
                         state={props.state} passageId={passage.id} bible={props.bible}
                         selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                <Guesses guesses={guesses} bookFound={bookFound}/>
+                <Guesses guesses={guesses} bookFound={bookFound} device={props.device}/>
                 <Confetti fire={confetti}/>
             </>
         );

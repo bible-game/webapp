@@ -23,7 +23,6 @@ import {
     MenuIcon,
     NotebookIcon,
     PlayIcon, RefreshCwIcon,
-    UserIcon
 } from "lucide-react";
 import { SiGithub, SiDiscord } from '@icons-pack/react-simple-icons';
 import {redirect} from "next/navigation";
@@ -34,6 +33,7 @@ import { Code } from "@heroui/code";
 import { ModalHeader } from "@heroui/modal";
 import Link from "next/link";
 import Image from "next/image";
+import { logOut } from "@/core/action/auth/log-out";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -46,14 +46,13 @@ export default function Menu(props: any) {
         play: <PlayIcon fill="currentColor" size={24} />,
         read: <NotebookIcon fill="currentColor" size={24} />,
         study: <LightbulbIcon fill="currentColor" size={24} />,
-        statistics: <BarChart fill="currentColor" size={24} />,
-        account: <UserIcon fill="currentColor" size={24} />
+        statistics: <BarChart fill="currentColor" size={24} />
     };
 
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     let version: string;
-    getVersion().then((appVersion) => version = appVersion);
+    // getVersion().then((appVersion) => version = appVersion); // fixme :: login redirect err
 
     const stylesDateInput = {
         base: ["w-min", "mb-2", props.device == 'mobile' ? "mt-2" : "mt-1.5"],
@@ -69,7 +68,7 @@ export default function Menu(props: any) {
     if (isLoading) return <></>
     else return <Navbar className="w-full sm:w-[48rem] bg-transparent backdrop-saturate-100 h-12">
             <NavbarContent justify="start">
-                <Dropdown>
+                <Dropdown placement="bottom-start">
                     <NavbarItem>
                         <DropdownTrigger>
                             <Button
@@ -92,7 +91,6 @@ export default function Menu(props: any) {
                         <DropdownItem key="read" startContent={icons.read} className="text-gray-900" href="/read">Read</DropdownItem>
                         <DropdownItem key="study" startContent={icons.study} className="text-gray-900" href="/study">Study</DropdownItem>
                         <DropdownItem key="statistics" startContent={icons.statistics} className="text-gray-900" href="/stats">Statistics</DropdownItem>
-                        <DropdownItem key="account" startContent={icons.account} className="text-gray-900" href="/account">Account</DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
             </NavbarContent>
@@ -159,17 +157,20 @@ export default function Menu(props: any) {
                         <RefreshCwIcon className="h-4 w-4"/>
                     </Button>
                 </NavbarItem>
-                <NavbarItem>
-                    <I18nProvider locale="en-GB">
-                        <DatePicker
-                            classNames={stylesDateInput}
-                            defaultValue={parseDate(props.date) as any}
-                            maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
-                            value={parseDate(props.date) as any}
-                            onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
-                            selectorButtonPlacement="start"/>
-                    </I18nProvider>
-                </NavbarItem>
+                {
+                    props.date == "today" ? <></> :
+                    <NavbarItem>
+                        <I18nProvider locale="en-GB">
+                            <DatePicker
+                                classNames={stylesDateInput}
+                                defaultValue={parseDate(props.date) as any}
+                                maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
+                                value={parseDate(props.date) as any}
+                                onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
+                                selectorButtonPlacement="start"/>
+                        </I18nProvider>
+                    </NavbarItem>
+                }
                 <Modal
                     backdrop="opaque"
                     classNames={{
@@ -213,9 +214,14 @@ export default function Menu(props: any) {
             <NavbarContent justify="end">
                 <NavbarItem>
                     {props.info ?
-                        <Link href="/account">
-                            <Avatar isBordered as="button" name={props.info.firstname[0].toUpperCase()+props.info.lastname[0].toUpperCase()} size="sm"/>
-                        </Link> :
+                        <Dropdown placement="bottom-end">
+                            <DropdownTrigger>
+                                <Avatar isBordered as="button" name={props.info.firstname[0].toUpperCase()+props.info.lastname[0].toUpperCase()} size="sm"/>
+                            </DropdownTrigger>
+                            <DropdownMenu aria-label="Profile Actions" variant="flat">
+                                <DropdownItem key="logout" color="danger" className="text-black" onPress={() => {logOut().then(() => window.location.reload())}}>Log Out</DropdownItem>
+                            </DropdownMenu>
+                        </Dropdown> :
                         <Link href="/account/log-in" className="flex gap-2">
                             <LogInIcon className="h-4 w-4"/>
                             <p className={"font-light text-xs " + text}>Login</p>
