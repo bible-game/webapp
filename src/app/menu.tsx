@@ -14,7 +14,7 @@ import {
     ModalContent,
     ModalBody, DatePicker
 } from "@heroui/react";
-import { Button} from "@heroui/button";
+import { Button } from "@heroui/button";
 import {
     BarChart, CircleQuestionMark,
     ArrowLeftIcon,
@@ -67,7 +67,7 @@ export default function Menu(props: any) {
     }
 
     if (isLoading) return <></>
-    else return <Navbar className="w-[100vw] sm:w-[48rem] bg-transparent backdrop-saturate-100 h-12">
+    else return <Navbar className="w-full sm:w-[48rem] bg-transparent backdrop-saturate-100 h-12">
             <NavbarContent justify="start">
                 <Dropdown>
                     <NavbarItem>
@@ -140,16 +140,14 @@ export default function Menu(props: any) {
                     </Button>
                 </NavbarItem>
                 <NavbarItem className="flex items-center">
-                    { props.device == "mobile" ? <></> :
-                        <Button variant="light"
-                                radius="full"
-                                size={props.device == 'mobile' ? 'lg' : 'sm'}
-                                isIconOnly
-                                onPress={() => props.toggleNarrative()}
-                                className="-mt-0.5 text-white hover:!bg-[#ffffff14] opacity-85">
-                            <MapIcon className="h-4 w-4"/>
-                        </Button>
-                    }
+                    <Button variant="light"
+                            radius="full"
+                            size={props.device == 'mobile' ? 'lg' : 'sm'}
+                            isIconOnly
+                            onPress={() => props.toggleNarrative()}
+                            className="-mt-0.5 text-white hover:!bg-[#ffffff14] opacity-85">
+                        <MapIcon className="h-4 w-4"/>
+                    </Button>
                 </NavbarItem>
                 <NavbarItem>
                     <Button variant="light"
@@ -165,9 +163,9 @@ export default function Menu(props: any) {
                     <I18nProvider locale="en-GB">
                         <DatePicker
                             classNames={stylesDateInput}
-                            defaultValue={props.date as any}
+                            defaultValue={parseDate(props.date) as any}
                             maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
-                            value={props.date as any}
+                            value={parseDate(props.date) as any}
                             onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}
                             selectorButtonPlacement="start"/>
                     </I18nProvider>

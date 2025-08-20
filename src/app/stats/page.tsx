@@ -53,27 +53,29 @@ export default async function Stats() {
     return (
         <>
             <Background/>
-            <main>
-                <Menu isStats={true} info={info} />
-                <section>
-                    <div className="flex gap-12 items-center">
-                        <div className="flex flex-col">
-                            <div className="flex gap-2">
-                                {displayName && <h1 className="text-[1.5rem] mx-0">{`${displayName}'s`}</h1>}
-                                <h1 className="text-[1.5rem] mx-0">Statistics</h1>
+            <main className="w-full flex justify-center">
+                <div>
+                    <Menu isStats={true} info={info} />
+                    <section className="mx-4 sm:mx-0 w-full">
+                        <div className="flex gap-12 items-center">
+                            <div className="flex flex-col">
+                                <div className="flex gap-2">
+                                    {displayName && <h1 className="text-[1.5rem] mx-0">{`${displayName}'s`}</h1>}
+                                    <h1 className="text-[1.5rem] mx-0">Statistics</h1>
+                                </div>
+                                {rank.rank && rank.totalPlayers && (
+                                    <p className="text-xs text-white-500 opacity-60 font-extralight -translate-y-3">
+                                        {`${rank.rank} of ${rank.totalPlayers}`}
+                                    </p>
+                                )}
                             </div>
-                            {rank.rank && rank.totalPlayers && (
-                                <p className="text-xs text-white-500 opacity-60 font-extralight -translate-y-3">
-                                    {`${rank.rank} of ${rank.totalPlayers}`}
-                                </p>
-                            )}
                         </div>
-                    </div>
-                    {!info && <LoginPrompt/>}
-                    <Leaderboard leaders={leaders}/>
-                    <Metrics gameState={gameState} readState={readState} reviewState={reviewState} bible={bible}/>
-                    <Completion bible={bible}/>
-                </section>
+                        {!info && <LoginPrompt/>}
+                        <Leaderboard leaders={leaders}/>
+                        <Metrics gameState={gameState} readState={readState} reviewState={reviewState} bible={bible}/>
+                        <Completion bible={bible}/>
+                    </section>
+                </div>
             </main>
             <Toaster position="bottom-right"/>
         </>

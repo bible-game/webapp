@@ -11,6 +11,7 @@ import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn from "@/core/util/auth-util";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
 import Menu from "@/app/menu";
+import {parseDate} from "@internationalized/date";
 
 async function get(url: string): Promise<any> {
     const response = await fetch(url, {method: "GET"});
@@ -51,6 +52,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
         <>
             <Background/>
             <main className="w-full relative z-1">
+                <Menu isPlay={true} info={info} date={game} device={device} />
                 <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
             </main>
             <Toaster position="bottom-right"/>
