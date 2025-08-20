@@ -11,7 +11,6 @@ import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
 import React, { useEffect, useRef, useState } from "react";
 
-/** Juicy gold star (filled or outline) with subtle glow; supports one-shot 'pop' */
 const StarBadge = ({
                        filled = true,
                        popping = false,
@@ -37,7 +36,7 @@ const StarBadge = ({
         viewBox="0 0 24 24"
         fill={filled ? "currentColor" : "gray"}
         strokeWidth={1.5}
-        stroke={filled ? "#d39e00" : "gray"}
+        stroke={filled ? "#ffdc44" : "gray"}
         aria-hidden="true"
     >
         <path
