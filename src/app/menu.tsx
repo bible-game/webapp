@@ -203,7 +203,7 @@ export default function Menu(props: any) {
                                         {/*<Image src="/guesses.png" alt="guesses" width={40 * 16} height={0}/>*/}
                                     </div>
                                     <div className="mx-auto">
-                                        <p>App version: { version }</p>
+                                        {/*<p>App version: { version }</p>*/}
                                     </div>
                                 </ModalBody>
                             </>
