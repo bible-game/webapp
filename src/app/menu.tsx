@@ -65,8 +65,13 @@ export default function Menu(props: any) {
         redirect(`/play/${date.split("T")[0]}`);
     }
 
+    const stylesNavbar = {
+        base: ["w-full", "sm:w-[48rem]", "bg-transparent", "backdrop-saturate-100", "h-12"],
+        wrapper: ["px-2"]
+    }
+
     if (isLoading) return <></>
-    else return <Navbar className="w-full sm:w-[48rem] bg-transparent backdrop-saturate-100 h-12">
+    else return <Navbar classNames={stylesNavbar}>
             <NavbarContent justify="start">
                 <Dropdown placement="bottom-start">
                     <NavbarItem>

@@ -10,7 +10,7 @@ export default function Landing(props: any) {
     return (
         <>
             <Background />
-            <main className="min-h-screen text-[#e8ecff] flex flex-col z-10 relative items-center">
+            <main className="min-h-screen text-[#e8ecff] flex flex-col z-10 relative items-center w-full">
                 <Menu isLanding={true} info={props.info} />
 
                 {/* Hero */}
@@ -44,7 +44,7 @@ export default function Landing(props: any) {
                 </section>
 
                 {/* Game Modes */}
-                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 w-full max-w-4xl mx-auto sm:px-6 pb-10 sm:pb-20">
+                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 w-full max-w-4xl mx-auto px-8 sm:px-6 pb-10 sm:pb-20">
                     <Link href="/play/today" className="block">
                         <motion.div
                             whileHover={{ scale: 1.05, y: -2 }}
@@ -70,7 +70,7 @@ export default function Landing(props: any) {
                                 <BookOpen size={20} /> Daily Reading
                             </h3>
                             <p className="text-sm text-white/80 mt-2">
-                                Track your Bible reading.
+                                Record your Bible reading.
                             </p>
                         </motion.div>
                     </Link>
@@ -95,7 +95,7 @@ export default function Landing(props: any) {
                             whileHover={{ scale: 1.05, y: -2 }}
                             transition={{ type: "spring", stiffness: 200 }}
                             className="bg-gradient-to-r from-yellow-600/70 to-yellow-400/60 rounded-2xl shadow-lg p-4 sm:p-6">
-                            { props.device != "mobile" ? <p className="text-sm uppercase text-white/70 font-bold">Study</p> : <></> }
+                            { props.device != "mobile" ? <p className="text-sm uppercase text-white/70 font-bold">Stats</p> : <></> }
                             <h3 className="text-lg sm:text-xl font-semibold mt-1 flex items-center gap-2">
                                 <BarChart3 size={20} /> Statistics
                             </h3>
