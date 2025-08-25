@@ -102,9 +102,9 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     }
 
     return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)]">{
-        props.playing ? <section className="sm:panel flex justify-between mt-4 flex-wrap">
+        props.playing ? <section className="sm:panel flex justify-between mt-0 sm:mt-4 flex-wrap">
                 <Autocomplete
-                    className="sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] sm:rounded-l-full pl-4 pr-2 py-1 sm:w-[13.33rem] w-[50%]"
+                    className="sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] sm:rounded-l-full pl-4 pr-2 py-1 sm:w-[13.33rem] w-[33%]"
                     inputProps={{
                         classNames: {
                             inputWrapper: "border-0",
@@ -143,14 +143,13 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     isDisabled={!props.hasBook}
                     hideStepper={!props.hasBook}
                     variant="bordered"
-                    className="w-[50%] sm:w-[13.33rem]"
+                    className="w-[33%] sm:w-[13.33rem]"
                     endContent={!props.hasBook ? undefined :
-                        <div
-                            className={"w-full text-left opacity-50 relative right-[3rem]"}>/ {props.maxChapter} </div>
+                        <div className={"w-full text-left opacity-50 relative right-[0rem]"}>/ {props.maxChapter} </div>
                     }
                 />
                 <Button
-                    className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-sm rounded-l-none sm:rounded-r-full sm:w-[13.33rem] w-[100%] sm:-ml-[14px]"
+                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-l-none sm:rounded-r-full sm:w-[13.33rem] w-[33%] sm:-ml-[14px]"
                     variant="bordered"
                     onPress={() => {
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
@@ -163,7 +162,6 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>
             </section> :
             <section className="sm:panel flex justify-between mt-4 items-center flex-wrap">
-                {/* ⭐ Enhanced star row with one-shot pop on newest star */}
                 <div className="group w-[100%] sm:w-[13.33rem] flex justify-center gap-1 mr-[3px]">
                     {[...Array(props.stars)].map((_, index: number) => (
                         <StarBadge key={`star-${index}`} filled popping={popping.has(index)} />
