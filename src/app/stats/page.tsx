@@ -54,9 +54,9 @@ export default async function Stats() {
         <>
             <Background/>
             <main className="w-full flex justify-center">
-                <div>
+                <div className="w-[100vw] sm:w-min">
                     <Menu isStats={true} info={info} />
-                    <section className="mx-4 sm:mx-0 w-full">
+                    <section className="mx-4 sm:mx-0 w-[80vw] sm:w-full left-[5%] sm:left-0 relative">
                         <div className="flex gap-12 items-center">
                             <div className="flex flex-col">
                                 <div className="flex gap-2">
