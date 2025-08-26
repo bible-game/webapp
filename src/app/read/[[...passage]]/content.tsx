@@ -112,7 +112,7 @@ export default function Content(props: any) {
     }
 
     return (
-        <section className="w-[75vw] sm:w-[46rem]">
+        <section className="left-[12.5%] sm:left-0 relative w-[75vw] sm:w-[46rem] mt-6">
             <div className="mb-10">
                 <Input label="" variant="underlined" value={key}
                        classNames={{
