@@ -10,42 +10,7 @@ import moment from "moment";
 import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
 import React, { useEffect, useRef, useState } from "react";
-
-const StarBadge = ({
-                       filled = true,
-                       popping = false,
-                       className = "",
-                   }: { filled?: boolean; popping?: boolean; className?: string }) => (
-    <svg
-        className={[
-            // base sizing + smooth transforms
-            "size-6 transition-transform duration-300",
-            // hover “pop” on the whole row
-            "group-hover:scale-110",
-            // glow & color
-            filled
-                ? "text-yellow-300 [filter:drop-shadow(0_0_6px_rgba(245,197,66,.6))_drop-shadow(0_0_18px_rgba(245,197,66,.30))]"
-                : "text-[#D9D9D9]",
-            // one-shot pop (applied only to the newest earned star)
-            popping
-                ? "scale-125 rotate-6 [filter:drop-shadow(0_0_12px_rgba(245,197,66,1))_drop-shadow(0_0_28px_rgba(245,197,66,.6))]"
-                : "",
-            className,
-        ].join(" ")}
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill={filled ? "currentColor" : "gray"}
-        strokeWidth={1.5}
-        stroke={filled ? "#ffdc44" : "gray"}
-        aria-hidden="true"
-    >
-        <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"
-        />
-    </svg>
-);
+import { Star } from "@/app/play/[game]/star";
 
 const Action = (props: any) => {
     // Track the newest star to trigger a temporary “pop” animation
@@ -161,13 +126,13 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         }
                     }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>
             </section> :
-            <section className="sm:panel flex justify-between mt-4 items-center flex-wrap">
-                <div className="group w-[100%] sm:w-[13.33rem] flex justify-center gap-1 mr-[3px]">
+            <section className="sm:panel flex justify-between sm:mt-4 items-center flex-wrap">
+                <div className="group w-[100%] sm:w-[13.33rem] hidden sm:flex justify-center gap-1 mr-[3px]">
                     {[...Array(props.stars)].map((_, index: number) => (
-                        <StarBadge key={`star-${index}`} filled popping={popping.has(index)} />
+                        <Star key={`star-${index}`} filled popping={popping.has(index)} />
                     ))}
                     {[...Array(5 - props.stars)].map((_, index: number) => (
-                        <StarBadge
+                        <Star
                             key={`blank-${index}`}
                             filled={false}
                             className="opacity-30"
@@ -176,7 +141,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 </div>
 
                 <Button
-                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
+                    className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-[12px] sm:text-sm  rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
                     onPress={() => {
                         navigator.clipboard.writeText(results())
@@ -190,7 +155,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     Share Result
                 </Button>
                 <Button
-                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-l-none rounded-r-full w-[50%] sm:w-[13.33rem]"
+                    className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-[12px] sm:text-sm rounded-l-none rounded-r-full w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
                     onPress={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

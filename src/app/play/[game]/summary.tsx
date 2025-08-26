@@ -6,8 +6,8 @@ import { Chip } from "@nextui-org/chip";
 const Summary = (props: any) => {
     if (props.passage) return (
         <section
-            className={"sm:panel p-1 sm:p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-2 px-6" : "text-center")}>
-            <div className={"opacity-80 " + (!props.playing ? "ml-2" : "")}>️️️
+            className={"sm:panel p-1 sm:p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-6 sm:gap-2 px-6" : "text-center")}>
+            <div className={"text-[14px] sm:text-[16px] opacity-80 " + (!props.playing ? "ml-2" : "")}>️️️
                 {props.passage.summary}
             </div>
             <Chip size="sm"

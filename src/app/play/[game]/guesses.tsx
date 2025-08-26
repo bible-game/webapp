@@ -2,7 +2,7 @@
 
 import React from "react";
 import Guess from "@/app/play/[game]/guess";
-import { StarIcon } from "lucide-react";
+import { Star } from "@/app/play/[game]/star";
 
 const Guesses = (props: any) => {
 
@@ -11,7 +11,7 @@ const Guesses = (props: any) => {
                                             chapter={guess.chapter}
                                             bookFound={props.bookFound}
                                             closeness={guess.closeness}/>)}
-        { props.device == "mobile" ? <StarIcon /> : <></> }
+        {props.device != 'mobile' ? <></> : [...Array(props.stars)].map((_, index: number) => (<Star key={`star-${index}`} className="pt-1" filled />))}
     </section>
 }
 

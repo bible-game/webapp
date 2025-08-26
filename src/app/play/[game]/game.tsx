@@ -287,7 +287,7 @@ export default function Game(props: any) {
                         selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
                         state={props.state} passageId={passage.id} bible={props.bible}
                         selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                <Guesses guesses={guesses} bookFound={bookFound} device={props.device}/>
+                <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
                 <Confetti fire={confetti}/>
             </>
         );
