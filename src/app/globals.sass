@@ -50,12 +50,11 @@ main
     width: 75vw
     position: relative
 
-    section
-      width: $panel-width-mobile
-
-  .menu-wrapper // todo :: remove?
     --safe-area-inset-top: env(safe-area-inset-top)
     top: calc(2.75rem + var(--safe-area-inset-top))
+
+    section
+      width: $panel-width-mobile
 
 // Required to override text styling when using browser's autofill. Source: https://stackoverflow.com/a/68240841
 // Question: is there a better way?
