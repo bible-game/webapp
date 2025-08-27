@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import { hexToHSLA } from "@/core/util/colour-util";
 import narrative from './config/narrative.json';
 import events from './config/events.json';
+import chapterGroups from './config/groups.json';
 import colours from './config/colours.json';
 import { renderStar } from "./star-renderer";
 
@@ -55,6 +56,8 @@ const Treemap = (props: any) => {
                 groupLabelMaxFontSize: 0,
                 groupSelectionOutlineWidth: 0,
                 rectangleAspectRatioPreference: 0,
+                maxGroupLevelsDrawn: 5,
+                maxGroupLevelsAttached: 5,
                 groupLabelDarkColor: "#ffffff",
                 groupLabelLightColor: "#060842",
                 groupLabelColorThreshold: 0,
@@ -106,7 +109,7 @@ const Treemap = (props: any) => {
                 groupBorderRadius: 0,
                 groupInsetWidth: 12,
                 groupMinDiameter: 0,
-                groupStrokeWidth: 0,
+                groupStrokeWidth: 2,
                 groupStrokeType: 'plain',
                 groupFillType: 'gradient',
                 stacking: "flattened",
@@ -208,7 +211,7 @@ const Treemap = (props: any) => {
                 id: b.name,
                 label: b.name,
                 open: true,
-                groups: getChapters(test, div, b, b.chapters),
+                groups: getGroups(test, div, b, b.chapters),
                 weight: getBookWeight(b),
                 color: (colours as any)[b.key],
                 unselectable: true,
@@ -222,10 +225,34 @@ const Treemap = (props: any) => {
         return books;
     }
 
-    function getChapters(test: string, div: string, book: any, ch: number) {
+    function getGroups(test: string, div: string, book: any, ch: number) {
+        const groups: any[] = [];
+        const name = book.name.toLowerCase();
+        const groupings = (chapterGroups as any)[name]
+
+        for (const group of groupings) {
+            groups.push({
+                id: book.key + '/' + group.name,
+                label: group.name,
+                open: true,
+                weight: getGroupWeight(group.start, group.end || ch),
+                groups: getChapters(test, div, book, group.start, group.end || ch),
+                color: (colours as any)[book.key],
+                unselectable: true,
+                level: 'group',
+                testament: test,
+                division: div,
+                book: book.name
+            })
+        }
+
+        return groups;
+    }
+
+    function getChapters(test: string, div: string, book: any, chStart: number, chEnd: number) {
         const chapters: any[] = [];
 
-        for (let c = 1; c <= ch; c++) {
+        for (let c = chStart; c <= chEnd; c++) {
             chapters.push({
                 id: book.key + '/' + c.toString(),
                 label: c,
@@ -242,6 +269,18 @@ const Treemap = (props: any) => {
         }
 
         return chapters;
+    }
+
+    function getGroupWeight(verseStart: number, verseEnd: number) {
+        let weight = 0.0;
+
+        for (let i = verseStart; i <= verseEnd; i++) {
+            weight += 20;
+        }
+
+        if (weight < 100) weight = 100;
+
+        return weight;
     }
 
     function getBookWeight(book: any) {
@@ -347,7 +386,7 @@ const Treemap = (props: any) => {
                 });
             }
 
-            // Book Name
+            // Book Name // fixme...
             if (params.index >= 0 && params.group.level == 'chapter') {
                 const ctx = params.context;
 
@@ -357,7 +396,7 @@ const Treemap = (props: any) => {
                     ctx.fillStyle = params.group.color + (props.device == 'mobile' ? "50" : "30");
                     ctx.shadowBlur = 0;
 
-                    const txt = params.parent.label
+                    const txt = params.parent.book
                     ctx.font = Math.floor(geom.boxWidth / txt.split().length) / 8 + "px Verdana"
                     const xOffset = 0.5 * ctx.measureText(txt).width;
                     const yOffset = 0; // 0.5 * ctx.measureText(txt).height;
@@ -446,7 +485,7 @@ const Treemap = (props: any) => {
         }
     }
 
-    function updateColours (opts: any, params: any, vars: any): void {
+    function updateColours(opts: any, params: any, vars: any): void {
         if (!params.group.color) return;
 
         const colour = hexToHSLA(params.group.color);
