@@ -1,20 +1,8 @@
-import type { Metadata, Viewport } from "next";
 import "./globals.sass";
 import React from "react";
 import Providers from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Head from "next/head";
-
-export const metadata: Metadata = {
-  title: "Bible Game",
-  description: "A game that explores the Bible 📖✨",
-};
-
-export const viewport: Viewport = {
-    width: 'device-width',
-    initialScale: 1.0,
-    userScalable: false,
-}
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
   return (

@@ -40,6 +40,9 @@ main
       @include panel
       line-height: 2rem
 
+  ul, li
+    list-style-type: none
+
 /** Mobile Styling */
 @media only screen and (max-width: 440px)
   main
@@ -47,12 +50,10 @@ main
     width: 75vw
     position: relative
 
+    top: $safe-area-inset-top
+
     section
       width: $panel-width-mobile
-
-  .menu-wrapper
-    --safe-area-inset-top: env(safe-area-inset-top)
-    top: calc(2.75rem + var(--safe-area-inset-top))
 
 // Required to override text styling when using browser's autofill. Source: https://stackoverflow.com/a/68240841
 // Question: is there a better way?

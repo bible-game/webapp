@@ -22,7 +22,7 @@ const Metrics = (props: any) => {
         setComplete(CompletionUtil.calcPercentageCompletion(props.bible));
     }, []);
 
-    return <section className="sm:w-[46rem] w-[80vw]">
+    return <section className="sm:w-[48rem] w-[80vw]">
         <div className="flex my-8 justify-start gap-12 items-center flex-wrap">
             <div className="flex items-center">
                 <p className="text-[1.5rem]">{stars}</p>

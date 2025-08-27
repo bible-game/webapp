@@ -1,6 +1,6 @@
 "use client"
 
-import Menu from "@/app/play/[game]/menu";
+import Summary from "@/app/play/[game]/summary";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
@@ -17,7 +17,7 @@ import { Spinner } from "@heroui/react";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
 import { toast } from "react-hot-toast";
-import {Button} from "@heroui/button";
+import { Button } from "@heroui/button";
 import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -276,25 +276,19 @@ export default function Game(props: any) {
 
         return (
             <>
+                <Summary passage={passage} playing={playing}/>
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}
                          narrativeHidden={narrativeHidden}
                          playing={playing}/>
-                <section className="relative z-1 h-full pointer-events-none">
-                    <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
-                        <Menu passage={passage} playing={playing} date={props.game} device={props.device} toggleNarrative={toggleNarrative}/>
-                    </section>
-                    <section className="pointer-events-auto absolute bottom-[8.25rem] sm:bottom-[4.25rem]">
-                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
-                                isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
-                                addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
-                                selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
-                                state={props.state} passageId={passage.id} bible={props.bible}
-                                selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                        <Guesses guesses={guesses} bookFound={bookFound}/>
-                    </section>
-                    <Confetti fire={confetti}/>
-                </section>
+                <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
+                        isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
+                        addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
+                        selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
+                        state={props.state} passageId={passage.id} bible={props.bible}
+                        selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
+                <Confetti fire={confetti}/>
             </>
         );
     }
