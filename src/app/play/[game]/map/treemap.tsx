@@ -16,6 +16,7 @@ import { renderStar } from "./star-renderer";
 const Treemap = (props: any) => {
     //@ts-ignore
     const element = useRef();
+    const wheelTimeout = useRef<any>(null);
     const [ FoamTreeClass, setFoamTreeClass ] = useState();
     const [ foamtreeInstance, setFoamtreeInstance ] = useState();
     const [ zoom, setZoom ] = useState(0);
@@ -99,17 +100,21 @@ const Treemap = (props: any) => {
                     }
                 },
                 onGroupMouseWheel: (e: any) => {
-                    console.log(e)
-                    setZoom((current: number) => {
-                        if (e.delta > 0) {
-                            if (current == 3) return 3;
-                            return current + 1;
+                    if (wheelTimeout.current) {
+                        clearTimeout(wheelTimeout.current);
+                    }
+                    wheelTimeout.current = setTimeout(() => {
+                        setZoom((current: number) => {
+                            if (e.delta > 0) {
+                                if (current == 3) return 3;
+                                return current + 1;
 
-                        } else {
-                            if (current == 0) return 0;
-                            return current - 1;
-                        }
-                    });
+                            } else {
+                                if (current == 0) return 0;
+                                return current - 1;
+                            }
+                        });
+                    }, 50);
                 },
                 onTransformEnd: (e: any) => {
                     if (e.touches === 3) {
