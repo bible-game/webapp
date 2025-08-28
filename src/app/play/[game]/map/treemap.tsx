@@ -18,6 +18,7 @@ const Treemap = (props: any) => {
     const element = useRef();
     const [ FoamTreeClass, setFoamTreeClass ] = useState();
     const [ foamtreeInstance, setFoamtreeInstance ] = useState();
+    const [ zoom, setZoom ] = useState("division");
 
     const SECTION_ALPHA = 0.1;
     let lastX = 0;
@@ -62,6 +63,7 @@ const Treemap = (props: any) => {
                 groupLabelLightColor: "#060842",
                 groupLabelColorThreshold: 0,
                 parentFillOpacity: 1,
+                groupContentDecoratorTriggering: "onSurfaceDirty",
                 groupColorDecorator: setupColours,
                 descriptionGroupSize: 0,
                 groupLabelFontFamily: "inter",
@@ -94,6 +96,9 @@ const Treemap = (props: any) => {
                     if (e.keyCode === 27) {
                         e.preventDefault();
                     }
+                },
+                onGroupMouseWheel: (e: any) => {
+                    setZoom("chapter");
                 },
                 onTransformEnd: (e: any) => {
                     if (e.touches === 3) {
@@ -159,10 +164,20 @@ const Treemap = (props: any) => {
             //@ts-ignore
             foamtreeInstance.redraw(); // fixme... msg Stanislaw?
         }
-        return () => {
-
-        }
+        return () => {}
     }, [props.narrativeHidden]);
+
+    useEffect(() => {
+        if (foamtreeInstance) {
+            console.log(zoom);
+
+            //@ts-ignore
+            foamtreeInstance.set({ // TODO :: write an updateContent, that uses similar blocks to setupContent but takes in a zoom variable...?
+                groupContentDecorator: updateContent
+            }); // question :: how to update content?? how to trigger a fresh content draw?
+        }
+        return () => {}
+    }, [zoom]);
 
     function configure(data: any) {
         const testaments: any[] = [];
@@ -339,6 +354,7 @@ const Treemap = (props: any) => {
     }
 
     function setupContent(opts: any, params: any, vars: any) {
+        console.log(zoom);
         const sign = () => Math.random() < 0.5 ? -1 : 1;
         const x = params.polygonCenterX + sign() * (Math.random() * params.boxWidth / 3);
         const y = params.polygonCenterY + sign() * (Math.random() * params.boxHeight / 3);
@@ -387,7 +403,7 @@ const Treemap = (props: any) => {
             }
 
             // Book Name // fixme...
-            if (params.index >= 0 && params.group.level == 'chapter') {
+            if (zoom == "chapter" && params.index >= 0 && params.group.level == 'chapter') {
                 const ctx = params.context;
 
                 //@ts-ignore
@@ -482,6 +498,69 @@ const Treemap = (props: any) => {
 
             lastX = x;
             lastY = y;
+        }
+
+        // Division Labels
+        if (zoom == "division" && params.group.level == 'division') {
+            vars.groupLabelDrawn = false;
+
+            const group = params.group;
+            const ctx = params.context;
+
+            //@ts-ignore
+            const geom = foamtreeInstance.get("geometry", group);
+            if (geom) {
+                ctx.fillStyle = params.group.color+"80";
+                ctx.shadowBlur = 0;
+
+                const txt = params.group.label;
+                const words = txt.split(' ');
+
+                let lineHeight = Math.floor(geom.boxWidth / (words[1] || words[0]).length);
+                if (lineHeight > 24) lineHeight = 24;
+                if (props.device == "mobile" && lineHeight > 18) lineHeight = 18;
+                ctx.font = lineHeight + "px Verdana";
+
+                words.forEach((word: any, i: any) => {
+                    const xOffset = 0.5 * ctx.measureText(word).width;
+                    const y = geom.polygonCenterY + (i - (words.length - 1) / 4) * lineHeight;
+                    ctx.fillText(word, geom.polygonCenterX - xOffset, y);
+                });
+            }
+        }
+    }
+
+    function updateContent(opts: any, params: any, vars: any) {
+        console.log("hit!")
+        console.log(zoom);
+        const sign = () => Math.random() < 0.5 ? -1 : 1;
+        const x = params.polygonCenterX + sign() * (Math.random() * params.boxWidth / 3);
+        const y = params.polygonCenterY + sign() * (Math.random() * params.boxHeight / 3);
+
+        // Chapter Constellations
+        if (params.group.level == 'chapter' && params.group.label != '') {
+            const group = params.group;
+            vars.groupLabelDrawn = false;
+
+            const ctx = params.context;
+
+            // Book Name // fixme...
+            if (zoom == "chapter" && params.index >= 0 && params.group.level == 'chapter') {
+                const ctx = params.context;
+
+                //@ts-ignore
+                const geom = foamtreeInstance.get("geometry", params.parent.id);
+                if (params.index == 1 && geom) {
+                    ctx.fillStyle = params.group.color + (props.device == 'mobile' ? "50" : "30");
+                    ctx.shadowBlur = 0;
+
+                    const txt = params.parent.book
+                    ctx.font = Math.floor(geom.boxWidth / txt.split().length) / 8 + "px Verdana"
+                    const xOffset = 0.5 * ctx.measureText(txt).width;
+                    const yOffset = 0; // 0.5 * ctx.measureText(txt).height;
+                    ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
+                }
+            }
         }
     }
 
