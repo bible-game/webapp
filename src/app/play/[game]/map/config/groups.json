@@ -1,0 +1,268 @@
+{
+  "genesis": [
+    { "name": "Creation & Early History", "start": 1, "end": 11 },
+    { "name": "Patriarchs", "start": 12, "end": 36 },
+    { "name": "Joseph Story", "start": 37, "end": 50 }
+  ],
+  "exodus": [
+    { "name": "Israel in Egypt", "start": 1, "end": 15 },
+    { "name": "Covenant & Law at Sinai", "start": 16, "end": 24 },
+    { "name": "Tabernacle Instructions", "start": 25, "end": 31 },
+    { "name": "Golden Calf & Renewal", "start": 32, "end": 34 },
+    { "name": "Tabernacle Construction", "start": 35, "end": 40 }
+  ],
+  "leviticus": [
+    { "name": "Sacrifices & Priesthood", "start": 1, "end": 10 },
+    { "name": "Purity Laws", "start": 11, "end": 15 },
+    { "name": "Day of Atonement", "start": 16, "end": 16 },
+    { "name": "Holiness Code", "start": 17, "end": 27 }
+  ],
+  "deuteronomy": [
+    { "name": "Historical Review", "start": 1, "end": 4 },
+    { "name": "Covenant Laws", "start": 5, "end": 26 },
+    { "name": "Blessings & Curses", "start": 27, "end": 30 },
+    { "name": "Moses’ Final Acts", "start": 31, "end": 34 }
+  ],
+  "numbers": [
+    { "name": "Preparation at Sinai", "start": 1, "end": 10 },
+    { "name": "Rebellion & Wandering", "start": 11, "end": 20 },
+    { "name": "Toward the Promised Land", "start": 21, "end": 25 },
+    { "name": "Preparations & Inheritance", "start": 26, "end": 36 }
+  ],
+  "joshua": [
+    { "name": "Entry & Conquest", "start": 1, "end": 12 },
+    { "name": "Land Division", "start": 13, "end": 22 },
+    { "name": "Covenant Renewal", "start": 23, "end": 24 }
+  ],
+  "judges": [
+    { "name": "Incomplete Conquest & Decline", "start": 1, "end": 3 },
+    { "name": "Major Judges", "start": 4, "end": 16 },
+    { "name": "Social Collapse", "start": 17, "end": 21 }
+  ],
+  "ruth": [
+    { "name": "Naomi & Ruth’s Loyalty", "start": 1, "end": 2 },
+    { "name": "Boaz & Redemption", "start": 3, "end": 4 }
+  ],
+  "1 samuel": [
+    { "name": "Samuel’s Leadership", "start": 1, "end": 7 },
+    { "name": "Rise of Saul", "start": 8, "end": 15 },
+    { "name": "Rise of David", "start": 16, "end": 31 }
+  ],
+  "2 samuel": [
+    { "name": "David’s Rise & Rule", "start": 1, "end": 10 },
+    { "name": "David & Bathsheba, Family Trouble", "start": 11, "end": 20 },
+    { "name": "David’s Final Years", "start": 21, "end": 24 }
+  ],
+  "1 kings": [
+    { "name": "Solomon’s Rule", "start": 1, "end": 11 },
+    { "name": "Divided Kingdom: Early Kings", "start": 12, "end": 22 }
+  ],
+  "2 kings": [
+    { "name": "Elijah & Elisha", "start": 1, "end": 13 },
+    { "name": "Fall of Israel", "start": 14, "end": 17 },
+    { "name": "Fall of Judah", "start": 18, "end": 25 }
+  ],
+  "1 chronicles": [
+    { "name": "Genealogies", "start": 1, "end": 9 },
+    { "name": "David’s Reign", "start": 10, "end": 29 }
+  ],
+  "2 chronicles": [
+    { "name": "Solomon’s Rule", "start": 1, "end": 9 },
+    { "name": "Judah’s Kings", "start": 10, "end": 36 }
+  ],
+  "ezra": [
+    { "name": "Return & Temple Rebuilt", "start": 1, "end": 6 },
+    { "name": "Ezra’s Reforms", "start": 7, "end": 10 }
+  ],
+  "nehemiah": [
+    { "name": "Rebuilding the Wall", "start": 1, "end": 7 },
+    { "name": "Covenant Renewal & Dedication", "start": 8, "end": 13 }
+  ],
+  "esther": [
+    { "name": "Esther Becomes Queen", "start": 1, "end": 2 },
+    { "name": "Haman’s Plot & Esther’s Courage", "start": 3, "end": 7 },
+    { "name": "Deliverance & Purim", "start": 8, "end": 10 }
+  ],
+  "job": [
+    { "name": "Prologue & Dialogues", "start": 1, "end": 31 },
+    { "name": "Elihu & God’s Speeches", "start": 32, "end": 41 },
+    { "name": "Epilogue", "start": 42, "end": 42 }
+  ],
+  "psalms": [
+    { "name": "Book I", "start": 1, "end": 41 },
+    { "name": "Book II", "start": 42, "end": 72 },
+    { "name": "Book III", "start": 73, "end": 89 },
+    { "name": "Book IV", "start": 90, "end": 106 },
+    { "name": "Book V", "start": 107, "end": 150 }
+  ],
+  "proverbs": [
+    { "name": "Proverbs of Solomon (Prologue)", "start": 1, "end": 9 },
+    { "name": "Collections & Sayings", "start": 10, "end": 29 },
+    { "name": "Words of the Wise", "start": 30, "end": 31 }
+  ],
+  "ecclesiastes": [
+    { "name": "Life’s Vanity", "start": 1, "end": 6 },
+    { "name": "Wisdom & Life’s Limits", "start": 7, "end": 12 }
+  ],
+  "song of songs": [
+    { "name": "Courtship & Longing", "start": 1, "end": 4 },
+    { "name": "Union & Love’s Power", "start": 5, "end": 8 }
+  ],
+  "isaiah": [
+    { "name": "Judgment & Hope", "start": 1, "end": 39 },
+    { "name": "Comfort & Restoration", "start": 40, "end": 55 },
+    { "name": "Future Glory", "start": 56, "end": 66 }
+  ],
+  "jeremiah": [
+    { "name": "Call & Oracles", "start": 1, "end": 25 },
+    { "name": "Opposition & Prophecies", "start": 26, "end": 45 },
+    { "name": "Nations & Fall of Jerusalem", "start": 46, "end": 52 }
+  ],
+  "lamentations": [
+    { "name": "Laments for Jerusalem", "start": 1, "end": 5 }
+  ],
+  "ezekiel": [
+    { "name": "God’s Glory & Judgment", "start": 1, "end": 24 },
+    { "name": "Oracles Against Nations", "start": 25, "end": 32 },
+    { "name": "Restoration & Temple Vision", "start": 33, "end": 48 }
+  ],
+  "daniel": [
+    { "name": "Court Narratives", "start": 1, "end": 6 },
+    { "name": "Apocalyptic Visions", "start": 7, "end": 12 }
+  ],
+  "hosea": [
+    { "name": "Unfaithfulness & God’s Love", "start": 1, "end": 14 }
+  ],
+  "joel": [
+    { "name": "Day of the Lord", "start": 1, "end": 3 }
+  ],
+  "amos": [
+    { "name": "Justice & Judgment", "start": 1, "end": 9 }
+  ],
+  "obadiah": [
+    { "name": "Against Edom", "start": 1, "end": 1 }
+  ],
+  "jonah": [
+    { "name": "God’s Mercy", "start": 1, "end": 4 }
+  ],
+  "micah": [
+    { "name": "Judgment & Hope", "start": 1, "end": 7 }
+  ],
+  "nahum": [
+    { "name": "Fall of Nineveh", "start": 1, "end": 3 }
+  ],
+  "habakkuk": [
+    { "name": "Faith in Troubled Times", "start": 1, "end": 3 }
+  ],
+  "zephaniah": [
+    { "name": "Day of the Lord", "start": 1, "end": 3 }
+  ],
+  "haggai": [
+    { "name": "Rebuilding the Temple", "start": 1, "end": 2 }
+  ],
+  "zechariah": [
+    { "name": "Visions & Restoration", "start": 1, "end": 14 }
+  ],
+  "malachi": [
+    { "name": "Covenant & Coming Messenger", "start": 1, "end": 4 }
+  ],
+  "mathew": [
+    { "name": "Birth & Early Ministry", "start": 1, "end": 7 },
+    { "name": "Teachings & Miracles", "start": 8, "end": 20 },
+    { "name": "Passion & Resurrection", "start": 21, "end": 28 }
+  ],
+  "mark": [
+    { "name": "Ministry in Galilee", "start": 1, "end": 8 },
+    { "name": "Journey to the Cross", "start": 9, "end": 16 }
+  ],
+  "luke": [
+    { "name": "Birth & Ministry", "start": 1, "end": 9 },
+    { "name": "Journey to Jerusalem", "start": 10, "end": 19 },
+    { "name": "Passion & Resurrection", "start": 20, "end": 24 }
+  ],
+  "john": [
+    { "name": "Signs & Discourses", "start": 1, "end": 12 },
+    { "name": "Passion & Resurrection", "start": 13, "end": 21 }
+  ],
+  "acts": [
+    { "name": "Church in Jerusalem", "start": 1, "end": 7 },
+    { "name": "Church Expands", "start": 8, "end": 12 },
+    { "name": "Paul’s Journeys", "start": 13, "end": 20 },
+    { "name": "Paul’s Trials & Rome", "start": 21, "end": 28 }
+  ],
+  "romans": [
+    { "name": "Salvation Explained", "start": 1, "end": 11 },
+    { "name": "Christian Living", "start": 12, "end": 16 }
+  ],
+  "1 corinthians": [
+    { "name": "Church Issues", "start": 1, "end": 14 },
+    { "name": "Resurrection & Closing", "start": 15, "end": 16 }
+  ],
+  "2 corinthians": [
+    { "name": "Defense of Ministry", "start": 1, "end": 7 },
+    { "name": "Giving & Authority", "start": 8, "end": 13 }
+  ],
+  "galatians": [
+    { "name": "Freedom in Christ", "start": 1, "end": 6 }
+  ],
+  "ephesians": [
+    { "name": "Unity in Christ", "start": 1, "end": 3 },
+    { "name": "Christian Living", "start": 4, "end": 6 }
+  ],
+  "philippians": [
+    { "name": "Joy in Christ", "start": 1, "end": 4 }
+  ],
+  "colossians": [
+    { "name": "Supremacy of Christ", "start": 1, "end": 2 },
+    { "name": "Christian Living", "start": 3, "end": 4 }
+  ],
+  "1 thessalonians": [
+    { "name": "Encouragement", "start": 1, "end": 5 }
+  ],
+  "2 thessalonians": [
+    { "name": "Perseverance", "start": 1, "end": 3 }
+  ],
+  "1 timothy": [
+    { "name": "Instructions for Church", "start": 1, "end": 6 }
+  ],
+  "2 timothy": [
+    { "name": "Paul’s Farewell", "start": 1, "end": 4 }
+  ],
+  "titus": [
+    { "name": "Church Order", "start": 1, "end": 3 }
+  ],
+  "philemon": [
+    { "name": "Forgiveness & Reconciliation", "start": 1, "end": 1 }
+  ],
+  "hebrews": [
+    { "name": "Christ’s Superiority", "start": 1, "end": 10 },
+    { "name": "Faith & Perseverance", "start": 11, "end": 13 }
+  ],
+  "james": [
+    { "name": "Faith & Works", "start": 1, "end": 5 }
+  ],
+  "1 peter": [
+    { "name": "Hope in Suffering", "start": 1, "end": 5 }
+  ],
+  "2 peter": [
+    { "name": "Warnings & Future Hope", "start": 1, "end": 3 }
+  ],
+  "1 john": [
+    { "name": "Love & Truth", "start": 1, "end": 5 }
+  ],
+  "2 john": [
+    { "name": "Walk in Truth & Love", "start": 1, "end": 1 }
+  ],
+  "3 john": [
+    { "name": "Support & Hospitality", "start": 1, "end": 1 }
+  ],
+  "jude": [
+    { "name": "Contending for the Faith", "start": 1, "end": 1 }
+  ],
+  "revelation": [
+    { "name": "Vision of Christ", "start": 1, "end": 3 },
+    { "name": "Heavenly Throne & Judgments", "start": 4, "end": 11 },
+    { "name": "Conflict with Evil", "start": 12, "end": 18 },
+    { "name": "Triumph & New Creation", "start": 19, "end": 22 }
+  ]
+}
