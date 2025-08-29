@@ -369,8 +369,8 @@ const Treemap = (props: any) => {
     }
 
     function setupContent(opts: any, params: any, vars: any) {
-        const x = params.polygonCenterX + sign() * (Math.random() * params.boxWidth / 3);
-        const y = params.polygonCenterY + sign() * (Math.random() * params.boxHeight / 3);
+        const x = params.polygonCenterX // + sign() * (Math.random() * params.boxWidth / 3);
+        const y = params.polygonCenterY // + sign() * (Math.random() * params.boxHeight / 3);
 
         vars.groupLabelDrawn = false;
 
@@ -393,8 +393,8 @@ const Treemap = (props: any) => {
 
     function updateContent(opts: any, params: any, vars: any) {
         const sign = () => Math.random() < 0.5 ? -1 : 1;
-        const x = params.polygonCenterX + sign() * (Math.random() * params.boxWidth / 3);
-        const y = params.polygonCenterY + sign() * (Math.random() * params.boxHeight / 3);
+        const x = params.polygonCenterX // + sign() * (Math.random() * params.boxWidth / 3);
+        const y = params.polygonCenterY // + sign() * (Math.random() * params.boxHeight / 3);
         // Question :: in short-term at least, could make offset non-random but dependent on index... (consult gemini)?
 
         vars.groupLabelDrawn = false;
