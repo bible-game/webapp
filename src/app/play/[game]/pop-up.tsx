@@ -32,7 +32,7 @@ export default function PopUp() {
                         base: "max-w-[40rem] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border-[1px] border-[#ffffff]/25",
                         header: "pt-8 w-full text-center",
                         closeButton: "hidden",
-                        footer: "m-6"
+                        footer: "m-5"
                     }}>
         <ModalContent>
           {(onClose) => (
