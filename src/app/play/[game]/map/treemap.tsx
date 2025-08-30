@@ -271,11 +271,12 @@ const Treemap = (props: any) => {
                 level: 'group',
                 testament: test,
                 division: div,
-                book: book.name
+                book: book.name,
+                start: group.start,
+                end: group.end || ch
             })
         }
 
-        console.log(groups);
         return groups;
     }
 
@@ -424,7 +425,7 @@ const Treemap = (props: any) => {
             addBookLabels(ctx, group);
 
         if (zoom >= 2 && group.level == 'group')
-            addGroupLabels(ctx, group, x, y);
+            addGroupLabels(ctx, group);
 
         if (zoom == 3 && group.level == 'chapter')
             addChapterLabels(ctx, group, x, y);
@@ -534,18 +535,26 @@ const Treemap = (props: any) => {
         }
     }
 
-    function addGroupLabels(ctx: any, group: any, x: number, y: number): void {
+    function addGroupLabels(ctx: any, group: any): void {
         //@ts-ignore
         const geom = foamtreeInstance.get("geometry", group.id);
         if (geom) {
             ctx.fillStyle = group.color + "80";
             ctx.shadowBlur = 0;
 
-            const txt = group.label;
-            ctx.font = Math.floor(geom.boxWidth / txt.split().length) / 12 + "px Verdana"
+            const txt: any = group.label;
+            const size = Math.floor(geom.boxWidth / txt.split().length) / 12;
+            ctx.font = size + "px Verdana"
             const xOffset = 0.5 * ctx.measureText(txt).width;
             const yOffset = geom.boxHeight / 2;
             ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
+
+            ctx.fillStyle = group.color + "40";
+            ctx.shadowBlur = 0;
+            ctx.font = (0.75 * size) + "px Verdana"
+            const header: any = `${group.book} ${group.start}-${group.end}`;
+            ctx.fillText(header, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset - (1.25 * size));
+
         }
     }
 
