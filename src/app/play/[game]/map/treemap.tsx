@@ -369,13 +369,15 @@ const Treemap = (props: any) => {
     }
 
     function setupContent(opts: any, params: any, vars: any) {
-        const x = params.polygonCenterX // + sign() * (Math.random() * params.boxWidth / 3);
-        const y = params.polygonCenterY // + sign() * (Math.random() * params.boxHeight / 3);
-
-        vars.groupLabelDrawn = false;
-
         const group = params.group;
         const ctx = params.context;
+
+        const hash = hashCode(group.id);
+        const offsetX = (hash % 1000) / 1000 - 0.5; // Range: -0.5 to 0.5
+        const offsetY = (hashCode(group.id.split('').reverse().join('')) % 1000) / 1000 - 0.5; // Range: -0.5 to 0.5
+
+        const x = params.polygonCenterX + offsetX * params.boxWidth / 1.5;
+        const y = params.polygonCenterY + offsetY * params.boxHeight / 1.5;
 
         if (params.group.level == 'chapter') {
             addStars(ctx, group, x, y);
@@ -391,16 +393,26 @@ const Treemap = (props: any) => {
             addDivisionLabels(ctx, group)
     }
 
+    function hashCode(s: string): number {
+        let h = 0;
+        for (let i = 0; i < s.length; i++) {
+            h = Math.imul(31, h) + s.charCodeAt(i) | 0;
+        }
+        return h;
+    }
+
     function updateContent(opts: any, params: any, vars: any) {
-        const sign = () => Math.random() < 0.5 ? -1 : 1;
-        const x = params.polygonCenterX // + sign() * (Math.random() * params.boxWidth / 3);
-        const y = params.polygonCenterY // + sign() * (Math.random() * params.boxHeight / 3);
-        // Question :: in short-term at least, could make offset non-random but dependent on index... (consult gemini)?
-
-        vars.groupLabelDrawn = false;
-
         const group = params.group;
         const ctx = params.context;
+
+        const hash = hashCode(group.id);
+        const offsetX = (hash % 1000) / 1000 - 0.5; // Range: -0.5 to 0.5
+        const offsetY = (hashCode(group.id.split('').reverse().join('')) % 1000) / 1000 - 0.5; // Range: -0.5 to 0.5
+
+        const x = params.polygonCenterX + offsetX * params.boxWidth / 1.5;
+        const y = params.polygonCenterY + offsetY * params.boxHeight / 1.5;
+
+        vars.groupLabelDrawn = false;
 
         if (group.level == 'chapter')
             addStars(ctx, group, x, y);
