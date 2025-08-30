@@ -25,13 +25,14 @@ export default function PopUp() {
     if (visible) return (
     <>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}
-      backdrop="opaque"
+      backdrop="opaque" placement="center"
                     classNames={{
                         body: "p-10 text-center",
                         backdrop: "bg-[#060842]/75",
                         base: "max-w-[40rem] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border-[1px] border-[#ffffff]/25",
                         header: "pt-8 w-full text-center",
-                        closeButton: "hover:bg-white/5 active:bg-white/10 absolute right-6 top-6 m-4",
+                        closeButton: "hidden",
+                        footer: "m-6"
                     }}>
         <ModalContent>
           {(onClose) => (
@@ -39,15 +40,15 @@ export default function PopUp() {
               <ModalHeader className="flex flex-col gap-1">Cookies</ModalHeader>
                 <ModalBody>
                     <p>
-                        Welcome to the Bible Game- a free web app that encourages Bible Study, committing Scripture to memory and building a Bible
-                        ready habit in a fun and stimulating way.
+                        Welcome to the Bible Game - a free web app that encourages Bible Study, committing Scripture to memory and building a Bible
+                        reading habit in a fun and stimulating way.
                     </p>
                     <p className="mt-8">
                         Information Before You Play:
                     </p>
                     <ul>
                         <li>
-                            We and our third party systems use cookies and data to
+                            We and our third party systems use cookies and data to:
                         </li>
                         <li>
                             • Create accounts for our users
@@ -69,10 +70,10 @@ export default function PopUp() {
                 </ModalBody>
                 <ModalFooter>
                     <Button color="danger" variant="light" onPress={close}>
-                        Close
+                        Reject
                     </Button>
                     <Button color="primary" onPress={close}>
-                        Action
+                        Accept
                     </Button>
               </ModalFooter>
             </>
