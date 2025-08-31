@@ -131,7 +131,7 @@ const Treemap = (props: any) => {
 
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
-                groupInsetWidth: 16,
+                groupInsetWidth: 12,
                 groupMinDiameter: 0,
                 groupStrokeWidth: 2,
                 groupStrokeType: 'plain',
