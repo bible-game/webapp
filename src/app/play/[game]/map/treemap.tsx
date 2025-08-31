@@ -131,7 +131,7 @@ const Treemap = (props: any) => {
 
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
-                groupInsetWidth: props.device == "mobile" ? 6 : 12,
+                groupInsetWidth: 16, // props.device == "mobile" ? 6 : 12, // 16
                 groupMinDiameter: 0,
                 groupStrokeWidth: 2,
                 groupStrokeType: 'plain',
