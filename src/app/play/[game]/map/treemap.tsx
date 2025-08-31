@@ -27,6 +27,7 @@ const Treemap = (props: any) => {
     let lastY = 0;
     let lastNarrativeX = 0;
     let lastNarrativeY = 0;
+    let groupPlacement = 1 // -1;
 
     useEffect(() => {
         let disposed = false;
@@ -128,7 +129,7 @@ const Treemap = (props: any) => {
 
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
-                groupInsetWidth: 12,
+                groupInsetWidth: 16,
                 groupMinDiameter: 0,
                 groupStrokeWidth: 2,
                 groupStrokeType: 'plain',
@@ -433,7 +434,6 @@ const Treemap = (props: any) => {
         if (zoom >= 2 && group.level == 'chapter')
             addConstellations(ctx, group, params.parent, params.index, x, y);
 
-
         lastX = x;
         lastY = y;
     }
@@ -473,8 +473,7 @@ const Treemap = (props: any) => {
     }
 
     function addStars(ctx: any, group: any, x: number, y: number): void {
-        let size = props.device == 'mobile' ? group.verses / 100 : group.verses / 50;
-        if (group.verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
+        const size = calcStarRadius(group.verses);
 
         renderStar(ctx, {
             x, y,
@@ -546,23 +545,30 @@ const Treemap = (props: any) => {
             const size = Math.floor(geom.boxWidth / txt.split().length) / 12;
             ctx.font = size + "px Verdana"
             const xOffset = 0.5 * ctx.measureText(txt).width;
-            const yOffset = geom.boxHeight / 2;
+            const yOffset = groupPlacement * (geom.boxHeight / 2);
             ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
 
             ctx.fillStyle = group.color + "40";
             ctx.shadowBlur = 0;
-            ctx.font = (0.75 * size) + "px Verdana"
-            const header: any = `${group.book} ${group.start}-${group.end}`;
+            ctx.font = (0.75 * size) + "px Verdana";
+            const header: any = (group.start == group.end ? `${group.book} ${group.start}` : `${group.book} ${group.start}-${group.end}`);
             ctx.fillText(header, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset - (1.25 * size));
 
+            groupPlacement *= 1 //-1;
+            // fixme :: why are group labels being rendered twice?
         }
     }
 
     function addChapterLabels(ctx: any, group: any, x: number, y: number): void {
-        ctx.font = "2.5px Arial";
+        ctx.font = "1.5px Arial";
         ctx.fillStyle = group.color+"80";
         ctx.shadowBlur = 0;
-        ctx.fillText(group.label,x-1,y-2);
+
+        const size = calcStarRadius(group.verses);
+        const xOffset = 1.5
+
+        let yOffset = (3 * size); // todo :: outlier distances?
+        ctx.fillText(group.label, x - xOffset, y - yOffset);
     }
 
     function addConstellations(ctx: any, thisGroup: any, parent: any, index: any, x: number, y: number): void {
@@ -640,6 +646,13 @@ const Treemap = (props: any) => {
 
     // question :: util?
     const sign = () => Math.random() < 0.5 ? -1 : 1;
+
+    function calcStarRadius(verses: number): number {
+        let size = props.device == 'mobile' ? verses / 100 : verses / 50;
+        if (verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
+
+        return size;
+    }
 
     // FixMe :: how to determine when foamtreeInstance is ready to display? hooks error at present
     // if (!foamtreeInstance) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
