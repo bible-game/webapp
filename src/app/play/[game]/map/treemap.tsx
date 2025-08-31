@@ -22,6 +22,8 @@ const Treemap = (props: any) => {
     const [ zoom, setZoom ] = useState(0);
     // fixme : 0 -> Division, 1 -> Book, 2 -> Group, 3 -> Chapter
 
+    const pinchRef = useRef({ base: 1 });
+
     const SECTION_ALPHA = 0.1;
     let lastX = 0;
     let lastY = 0;
@@ -136,6 +138,21 @@ const Treemap = (props: any) => {
                 groupFillType: 'gradient',
                 stacking: "flattened",
                 descriptionGroupType: "stab",
+                onGroupTransformStart: (e: any) => {
+                    pinchRef.current.base = 1;
+                },
+                onGroupTransform: (e: any) => {
+                    const rel = e.scale / pinchRef.current.base;
+                    const STEP = 1.18; // tweak 1.15–1.25
+
+                    if (rel > STEP) {
+                        setZoom(z => Math.min(3, z + 1));
+                        pinchRef.current.base *= STEP;
+                    } else if (rel < 1 / STEP) {
+                        setZoom(z => Math.max(0, z - 1));
+                        pinchRef.current.base /= STEP;
+                    }
+                },
             }));
         }
 
