@@ -124,20 +124,6 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
-                groupLabelLayoutDecorator: function (opts: any, props: any, vars: any) {
-                    vars.verticalPadding = 0;
-                    vars.maxTotalTextHeight = 0.1;
-                },
-
-                groupBorderWidth: 0,
-                groupBorderRadius: 0,
-                groupInsetWidth: props.device == "mobile" ? 12 : 16,
-                groupMinDiameter: 0,
-                groupStrokeWidth: 2,
-                groupStrokeType: 'plain',
-                groupFillType: 'gradient',
-                stacking: "flattened",
-                descriptionGroupType: "stab",
                 onGroupTransformStart: (e: any) => {
                     pinchRef.current.base = 1;
                 },
@@ -153,6 +139,15 @@ const Treemap = (props: any) => {
                         pinchRef.current.base /= STEP;
                     }
                 },
+                groupBorderWidth: 0,
+                groupBorderRadius: 0,
+                groupInsetWidth: props.device == "mobile" ? 12 : 16,
+                groupMinDiameter: 0,
+                groupStrokeType: 'plain',
+                groupStrokeWidth: 2,
+                groupFillType: 'gradient',
+                stacking: "flattened",
+                descriptionGroupType: "stab",
             }));
         }
 
@@ -497,20 +492,6 @@ const Treemap = (props: any) => {
             radius: size,
             tint: group.color,
         });
-
-        // Events
-        if (group.event) { // todo :: move to inside star!?
-            const img = new Image;
-            img.src = group.event;
-            ctx.fillStyle = "#040127";
-            ctx.globalCompositeOperation = "destination-in"; // fixme?
-            img.onload = function () {
-                ctx.globalAlpha = 0.25;
-                ctx.drawImage(img, x + 2 * size, y + 2 * size, 6 * size, 6 * size);
-            };
-            ctx.globalCompositeOperation = "source-over";
-            ctx.globalAlpha = 1;
-        }
     }
 
     function addDivisionLabels(ctx: any, group: any) {
@@ -582,9 +563,13 @@ const Treemap = (props: any) => {
 
         const size = calcStarRadius(group.verses);
         const xOffset = 1.5
+        const yOffset = (3 * size); // todo :: outlier distances?
 
-        let yOffset = (3 * size); // todo :: outlier distances?
-        ctx.fillText(group.label, x - xOffset, y - yOffset);
+        let txt = group.label;
+
+        if (group.event) txt += group.event
+
+        ctx.fillText(txt, x - xOffset, y - yOffset);
     }
 
     function addConstellations(ctx: any, thisGroup: any, parent: any, index: any, x: number, y: number): void {
