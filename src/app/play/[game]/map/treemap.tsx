@@ -29,7 +29,7 @@ const Treemap = (props: any) => {
     let lastY = 0;
     let lastNarrativeX = 0;
     let lastNarrativeY = 0;
-    let groupPlacement = 1 // -1;
+    let groupPlacement = -1;
 
     useEffect(() => {
         let disposed = false;
@@ -442,7 +442,7 @@ const Treemap = (props: any) => {
         if (zoom == 1 && group.level == 'book')
             addBookLabels(ctx, group);
 
-        if (zoom >= 2 && group.level == 'group')
+        if (zoom >= 2 && group.level == 'group' && params.parent.level == 'book') // fixme :: shouldn't require parent...
             addGroupLabels(ctx, group);
 
         if (zoom == 3 && group.level == 'chapter')
@@ -571,8 +571,7 @@ const Treemap = (props: any) => {
             const header: any = (group.start == group.end ? `${group.book} ${group.start}` : `${group.book} ${group.start}-${group.end}`);
             ctx.fillText(header, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset - (1.25 * size));
 
-            groupPlacement *= 1 //-1;
-            // fixme :: why are group labels being rendered twice?
+            groupPlacement *= -1;
         }
     }
 
