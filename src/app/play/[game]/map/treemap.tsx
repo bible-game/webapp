@@ -16,13 +16,90 @@ import { renderStar } from "./star-renderer";
 const Treemap = (props: any) => {
     //@ts-ignore
     const element = useRef();
-    const wheelTimeout = useRef<any>(null);
-    const [ FoamTreeClass, setFoamTreeClass ] = useState();
-    const [ foamtreeInstance, setFoamtreeInstance ] = useState();
-    const [ zoom, setZoom ] = useState(0);
-    // fixme : 0 -> Division, 1 -> Book, 2 -> Group, 3 -> Chapter
+    const [FoamTreeClass, setFoamTreeClass] = useState<any>();
+    const [foamtreeInstance, setFoamtreeInstance] = useState<any>();
 
+    // ---- Absolute Zoom Model (Accumulator -> Discrete Level) ----
+    // 0 -> Division, 1 -> Book, 2 -> Group, 3 -> Chapter
+    const [zoomLevel, setZoomLevel] = useState(0);
+    const [zoomAccum, setZoomAccum] = useState(0); // cumulative “units” since last level change
     const pinchRef = useRef({ base: 1 });
+
+    const MIN_LEVEL = 0;
+    const MAX_LEVEL = 3;
+
+    // TUNING:
+    // - DELTA_UNIT: normalizes raw wheel delta into "units".
+    //   If your wheel is very sensitive, increase this value.
+    const DELTA_UNIT = 0.25; // raw wheel delta per "unit"
+    // Per-transition thresholds in "units" (index = current level).
+    // Example: at level 1, need THRESHOLDS.up[1] units to go to 2; THRESHOLDS.down[1] to go to 0.
+    const THRESHOLDS = {
+        up:   [0.5, 5, 7.5], // 0->1, 1->2, 2->3
+        down: [2.5, 5, 7.5],  // 1->0, 2->1, 3->2   (down[0] unused)
+    };
+    // Pinch sensitivity. Increasing makes smaller scale changes count more.
+    const STEP_PINCH = 1.18;
+
+    // Convert a delta "units" to a new level if thresholds crossed.
+    function applyAccumDelta(unitsDelta: number) {
+        setZoomAccum((accPrev) => {
+            let acc = accPrev + unitsDelta;
+            let levelChanged = false;
+
+            if (acc < 0) acc = 0;
+
+            setZoomLevel((lvlPrev: number) => {
+                let lvl = lvlPrev;
+
+                // try go up
+                if (unitsDelta > 0 && lvl < MAX_LEVEL) {
+                    console.log("up")
+                    const need = THRESHOLDS.up[lvl];
+                    if (acc >= need) {
+                        lvl = Math.min(MAX_LEVEL, lvl + 1);
+                        acc = 0; // reset accumulator after a step
+                        levelChanged = true;
+                    }
+                }
+
+                // try go down
+                if (unitsDelta < 0 && lvl > MIN_LEVEL) {
+                    console.log("down")
+                    const need = THRESHOLDS.down[lvl - 1]; // threshold for current level to go down
+                    console.log(lvl);
+                    console.log(need);
+                    console.log(acc);
+                    if (acc <= need) {
+                        lvl = Math.max(MIN_LEVEL, lvl - 1);
+                        acc = 0; // reset accumulator after a step
+                        levelChanged = true;
+                    }
+                }
+
+                // Optional nicety: small decay toward zero if we didn’t cross a threshold
+                if (!levelChanged) {
+                    // keep acc bounded so it doesn't grow unbounded
+                    const cap = 2 * Math.max(
+                        THRESHOLDS.up[Math.max(0, Math.min(lvl, THRESHOLDS.up.length - 1))] || 10,
+                        THRESHOLDS.down[Math.max(0, Math.min(lvl, THRESHOLDS.down.length - 1))] || 10
+                    );
+                    if (acc > cap) acc = cap;
+                    if (acc < -cap) acc = -cap;
+                }
+
+                // update outer accumulator to the (possibly reset) value
+                // (this return is to the outer setZoomAccum call)
+                setZoomAccum(acc);
+                return lvl;
+            });
+
+            // we've already written the real new acc via setZoomAccum(acc)
+            // but we must still return something from this setter; return the latest acc we computed
+            return acc;
+        });
+    }
+    // -------------------------------------------------------------
 
     const SECTION_ALPHA = 0.1;
     let lastX = 0;
@@ -34,18 +111,10 @@ const Treemap = (props: any) => {
     useEffect(() => {
         let disposed = false;
         import("@carrotsearch/foamtree").then(module => {
-            if (disposed) {
-                return;
-            }
-
-            if (!disposed) {
-                setFoamTreeClass(() => module.FoamTree);
-            }
+            if (disposed) return;
+            setFoamTreeClass(() => module.FoamTree);
         });
-
-        return () => {
-            disposed = true;
-        }
+        return () => { disposed = true; }
     }, []);
 
     useEffect(() => {
@@ -75,7 +144,6 @@ const Treemap = (props: any) => {
 
                 ...(props.device == 'mobile' ? mobileOptimisations : {}),
 
-                // Roll out in groups
                 rolloutMethod: "groups",
                 onGroupDoubleClick: function (event: any) {
                     event.preventDefault();
@@ -92,7 +160,7 @@ const Treemap = (props: any) => {
                         props.select(event.group.id, null, false);
                         toast.success(`${event.group.id} 1`);
                     }
-                    },
+                },
                 openCloseDuration: 1000,
                 onViewResetting: function(e: any) {
                     e.preventDefault();
@@ -102,43 +170,31 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
-                onGroupMouseWheel: (e: any) => {
-                    if (wheelTimeout.current) {
-                        clearTimeout(wheelTimeout.current);
-                    }
-                    wheelTimeout.current = setTimeout(() => {
-                        setZoom((current: number) => {
-                            if (e.delta > 0) {
-                                if (current == 3) return 3;
-                                return current + 1;
 
-                            } else {
-                                if (current == 0) return 0;
-                                return current - 1;
-                            }
-                        });
-                    }, 50);
+                // --------- Absolute Zoom Handlers (accumulate, then snap) ----------
+                onGroupMouseWheel: (e: any) => {
+                    // Normalize delta. If your direction feels inverted, flip the sign.
+                    const raw = typeof e.delta === "number" ? e.delta : (e.deltaY ?? 0);
+                    const units = raw / DELTA_UNIT; // positive units => zoom in (tweak sign if needed)
+                    if (units !== 0) applyAccumDelta(units);
                 },
                 onTransformEnd: (e: any) => {
-                    if (e.touches === 3) {
-                        e.preventDefault();
-                    }
+                    if (e.touches === 3) e.preventDefault();
                 },
                 onGroupTransformStart: (e: any) => {
-                    pinchRef.current.base = 1;
+                    pinchRef.current.base = e.scale ?? 1;
                 },
                 onGroupTransform: (e: any) => {
-                    const rel = e.scale / pinchRef.current.base;
-                    const STEP = 1.18; // tweak 1.15–1.25
-
-                    if (rel > STEP) {
-                        setZoom(z => Math.min(3, z + 1));
-                        pinchRef.current.base *= STEP;
-                    } else if (rel < 1 / STEP) {
-                        setZoom(z => Math.max(0, z - 1));
-                        pinchRef.current.base /= STEP;
+                    const currentScale = e.scale ?? 1;
+                    // Convert pinch scale delta into "units" that match wheel feel
+                    const deltaLevels = Math.log(currentScale / pinchRef.current.base) / Math.log(STEP_PINCH);
+                    if (deltaLevels !== 0) {
+                        applyAccumDelta(deltaLevels);
+                        pinchRef.current.base = currentScale;
                     }
                 },
+                // -------------------------------------------------------------------
+
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
                 groupInsetWidth: props.device == "mobile" ? 12 : 16,
@@ -148,14 +204,10 @@ const Treemap = (props: any) => {
                 groupFillType: 'gradient',
                 stacking: "flattened",
                 descriptionGroupType: "stab",
-            }));
-        }
 
-        if (foamtreeInstance) {
-            //@ts-ignore
-            foamtreeInstance.set({
-                groupContentDecorator: setupContent
-            })
+                // content is bound initially; zoomLevel changes will adjust what it draws
+                groupContentDecorator: setupContent,
+            }));
         }
 
         return () => {
@@ -166,49 +218,51 @@ const Treemap = (props: any) => {
                 setFoamtreeInstance(null);
             }
         }
-    }, [ FoamTreeClass, foamtreeInstance ]);
+    }, [FoamTreeClass, foamtreeInstance]);
 
+    // Tinting + programmatic centers; keep zoomLevel in sync with semantic jumps
     useEffect(() => {
         if (foamtreeInstance && (props.bookFound || props.divFound || props.testFound)) {
             //@ts-ignore
-            foamtreeInstance.set({
-                groupColorDecorator: updateColours
-            });
+            foamtreeInstance.set({ groupColorDecorator: updateColours });
         }
 
         //@ts-ignore
-        if (props.bookFound) foamtreeInstance.zoom(props.passage.book)
-        //@ts-ignore
-        else if (props.divFound) foamtreeInstance.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'))
-        //@ts-ignore
-        else if (props.testFound) foamtreeInstance.zoom(props.passage.testament.toLowerCase());
-
-        return () => {
-
+        if (props.bookFound) {
+            //@ts-ignore
+            foamtreeInstance?.zoom(props.passage.book);
+            setZoomLevel(1);
+            setZoomAccum(0);
         }
-    }, [props.bookFound, props.divFound, props.testFound]);
+        //@ts-ignore
+        else if (props.divFound) {
+            //@ts-ignore
+            foamtreeInstance?.zoom(props.passage.division.toLowerCase().replace(/\s/g, '-'));
+            setZoomLevel(0);
+            setZoomAccum(0);
+        }
+        //@ts-ignore
+        else if (props.testFound) {
+            //@ts-ignore
+            foamtreeInstance?.zoom(props.passage.testament.toLowerCase());
+            setZoomLevel(0);
+            setZoomAccum(0);
+        }
+    }, [props.bookFound, props.divFound, props.testFound, foamtreeInstance]);
 
     useEffect(() => {
-        if (foamtreeInstance) {
-            //@ts-ignore
-            foamtreeInstance.redraw(); // fixme... msg Stanislaw?
-        }
-        return () => {}
-    }, [props.narrativeHidden]);
+        foamtreeInstance?.redraw(); // to reflect narrative toggle without altering zoom logic
+        // (If you'd prefer zero explicit redraws, you can remove this.)
+    }, [props.narrativeHidden, foamtreeInstance]);
 
+    // Rebind the decorator whenever zoomLevel changes so it uses new rules.
+    // (FoamTree calls the decorator on paint; re-setting ensures it reads latest closure state.)
     useEffect(() => {
-        if (foamtreeInstance) {
-            //@ts-ignore
-            foamtreeInstance.set({ // TODO :: write an updateContent, that uses similar blocks to setupContent but takes in a zoom variable...?
-                groupContentDecorator: updateContent
-            }); // question :: how to update content?? how to trigger a fresh content draw?
-        }
-        return () => {}
-    }, [zoom]);
+        foamtreeInstance?.set({ groupContentDecorator: updateContent });
+    }, [zoomLevel, foamtreeInstance]);
 
     function configure(data: any) {
         const testaments: any[] = [];
-
         for (const test of data) {
             testaments.push({
                 id: test.name.toLowerCase(),
@@ -221,13 +275,11 @@ const Treemap = (props: any) => {
                 level: 'testament'
             })
         }
-
         return { groups: testaments }
     }
 
     function getDivisions(test: string, div: any) {
         const divisions: any[] = [];
-
         for (const d of div) {
             divisions.push({
                 id: d.name.toLowerCase().replace(/\s/g, '-'),
@@ -241,13 +293,11 @@ const Treemap = (props: any) => {
                 testament: test
             })
         }
-
         return divisions
     }
 
     function getBooks(test: string, div: string, bk: any) {
         const books: any[] = [];
-
         for (const b of bk) {
             books.push({
                 id: b.name,
@@ -263,7 +313,6 @@ const Treemap = (props: any) => {
                 book: b.name,
             });
         }
-
         return books;
     }
 
@@ -271,7 +320,6 @@ const Treemap = (props: any) => {
         const groups: any[] = [];
         const name = book.name.toLowerCase();
         const groupings = (chapterGroups as any)[name]
-
         for (const group of groupings) {
             groups.push({
                 id: book.key + '/' + group.name,
@@ -289,13 +337,11 @@ const Treemap = (props: any) => {
                 end: group.end || ch
             })
         }
-
         return groups;
     }
 
     function getChapters(test: string, div: string, book: any, chStart: number, chEnd: number) {
         const chapters: any[] = [];
-
         for (let c = chStart; c <= chEnd; c++) {
             chapters.push({
                 id: book.key + '/' + c.toString(),
@@ -311,51 +357,32 @@ const Treemap = (props: any) => {
                 event: (events as any)[book.name.toLowerCase() + c] || ''
             })
         }
-
         return chapters;
     }
 
     function getGroupWeight(verseStart: number, verseEnd: number) {
         let weight = 0.0;
-
-        for (let i = verseStart; i <= verseEnd; i++) {
-            weight += 20;
-        }
-
+        for (let i = verseStart; i <= verseEnd; i++) weight += 20;
         if (weight < 100) weight = 100;
-
         return weight;
     }
 
     function getBookWeight(book: any) {
         let weight = 0.0;
-
-        for (const verse of book.verses) {
-            weight += 20;
-        }
-
+        for (const verse of book.verses) weight += 20;
         if (weight < 100) weight = 100;
-
         return weight;
     }
 
     function getDivisionWeight(division: any) {
         let weight = 0.0;
-
-        for (const book of division.books) {
-            weight += getBookWeight(book);
-        }
-
+        for (const book of division.books) weight += getBookWeight(book);
         return weight;
     }
 
     function getTestamentWeight(testament: any) {
         let weight = 0.0;
-
-        for (const division of testament.divisions) {
-            weight += getDivisionWeight(division);
-        }
-
+        for (const division of testament.divisions) weight += getDivisionWeight(division);
         return weight;
     }
 
@@ -366,19 +393,12 @@ const Treemap = (props: any) => {
 
     function setupColours(opts: any, params: any, vars: any): void {
         vars.labelColor = "auto";
-
         if (params.group.color) {
             const colour = hexToHSLA(params.group.color);
-
             vars.groupColor.h = colour.h
             vars.groupColor.l = colour.l
             vars.groupColor.s = colour.s
-
-            if (params.group.level === "division") {
-                vars.groupColor.a = SECTION_ALPHA;
-            } else {
-                vars.groupColor.a = 0;
-            }
+            vars.groupColor.a = (params.group.level === "division") ? SECTION_ALPHA : 0;
         }
     }
 
@@ -387,31 +407,26 @@ const Treemap = (props: any) => {
         const ctx = params.context;
 
         const hash = hashCode(group.id);
-        const offsetX = (hash % 1000) / 1000 - 0.5; // Range: -0.5 to 0.5
-        const offsetY = (hashCode(group.id.split('').reverse().join('')) % 1000) / 1000 - 0.5; // Range: -0.5 to 0.5
+        const offsetX = (hash % 1000) / 1000 - 0.5;
+        const offsetY = (hashCode(group.id.split('').reverse().join('')) % 1000) / 1000 - 0.5;
 
         const x = params.polygonCenterX + offsetX * params.boxWidth / 1.5;
         const y = params.polygonCenterY + offsetY * params.boxHeight / 1.5;
 
         if (params.group.level == 'chapter') {
             addStars(ctx, group, x, y);
-
             if (!props.narrativeHidden && (narrative as any)[group.id])
                 addNarrative(ctx, group, x, y);
-
             lastX = x;
             lastY = y;
         }
 
-        if (group.level == 'division')
-            addDivisionLabels(ctx, group)
+        if (group.level == 'division') addDivisionLabels(ctx, group)
     }
 
     function hashCode(s: string): number {
         let h = 0;
-        for (let i = 0; i < s.length; i++) {
-            h = Math.imul(31, h) + s.charCodeAt(i) | 0;
-        }
+        for (let i = 0; i < s.length; i++) h = Math.imul(31, h) + s.charCodeAt(i) | 0;
         return h;
     }
 
@@ -420,31 +435,21 @@ const Treemap = (props: any) => {
         const ctx = params.context;
 
         const hash = hashCode(group.id);
-        const offsetX = (hash % 1000) / 1000 - 0.5; // Range: -0.5 to 0.5
-        const offsetY = (hashCode(group.id.split('').reverse().join('')) % 1000) / 1000 - 0.5; // Range: -0.5 to 0.5
+        const offsetX = (hash % 1000) / 1000 - 0.5;
+        const offsetY = (hashCode(group.id.split('').reverse().join('')) % 1000) / 1000 - 0.5;
 
         const x = params.polygonCenterX + offsetX * params.boxWidth / 1.5;
         const y = params.polygonCenterY + offsetY * params.boxHeight / 1.5;
 
         vars.groupLabelDrawn = false;
 
-        if (group.level == 'chapter')
-            addStars(ctx, group, x, y);
+        if (group.level == 'chapter') addStars(ctx, group, x, y);
 
-        if (zoom == 0 && group.level == 'division')
-            addDivisionLabels(ctx, group)
-
-        if (zoom == 1 && group.level == 'book')
-            addBookLabels(ctx, group);
-
-        if (zoom >= 2 && group.level == 'group' && params.parent.level == 'book') // fixme :: shouldn't require parent...
-            addGroupLabels(ctx, group);
-
-        if (zoom == 3 && group.level == 'chapter')
-            addChapterLabels(ctx, group, x, y);
-
-        if (zoom >= 2 && group.level == 'chapter')
-            addConstellations(ctx, group, params.parent, params.index, x, y);
+        if (zoomLevel == 0 && group.level == 'division') addDivisionLabels(ctx, group);
+        if (zoomLevel == 1 && group.level == 'book') addBookLabels(ctx, group);
+        if (zoomLevel >= 2 && group.level == 'group' && params.parent.level == 'book') addGroupLabels(ctx, group);
+        if (zoomLevel == 3 && group.level == 'chapter') addChapterLabels(ctx, group, x, y);
+        if (zoomLevel >= 2 && group.level == 'chapter') addConstellations(ctx, group, params.parent, params.index, x, y);
 
         lastX = x;
         lastY = y;
@@ -460,25 +465,16 @@ const Treemap = (props: any) => {
         let alpha = 0;
 
         if (props.bookFound) {
-            const isBook: boolean =
-                (params.group.book == props.passage.book);
-
-            if (isBook && params.group.level == "chapter")
-                alpha = SECTION_ALPHA;
+            const isBook: boolean = (params.group.book == props.passage.book);
+            if (isBook && params.group.level == "chapter") alpha = SECTION_ALPHA;
 
         } else if (props.divFound) {
-            const isDivision: boolean =
-                (params.group.label == props.passage.division);
-
-            if (isDivision)
-                alpha = SECTION_ALPHA;
+            const isDivision: boolean = (params.group.label == props.passage.division);
+            if (isDivision) alpha = SECTION_ALPHA;
 
         } else if (props.testFound) {
-            const isTestament: boolean =
-                (params.group.testament == props.passage.testament);
-
-            if (isTestament && params.group.level == "division")
-                alpha = SECTION_ALPHA;
+            const isTestament: boolean = (params.group.testament == props.passage.testament);
+            if (isTestament && params.group.level == "division") alpha = SECTION_ALPHA;
         }
 
         vars.groupColor.a = alpha
@@ -486,12 +482,7 @@ const Treemap = (props: any) => {
 
     function addStars(ctx: any, group: any, x: number, y: number): void {
         const size = calcStarRadius(group.verses);
-
-        renderStar(ctx, {
-            x, y,
-            radius: size,
-            tint: group.color,
-        });
+        renderStar(ctx, { x, y, radius: size, tint: group.color });
     }
 
     function addDivisionLabels(ctx: any, group: any) {
@@ -527,7 +518,7 @@ const Treemap = (props: any) => {
             const txt = group.label;
             ctx.font = Math.floor(geom.boxWidth / txt.split().length) / 8 + "px Verdana"
             const xOffset = 0.5 * ctx.measureText(txt).width;
-            const yOffset = 0; // 0.5 * ctx.measureText(txt).height;
+            const yOffset = 0;
             ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
         }
     }
@@ -543,7 +534,7 @@ const Treemap = (props: any) => {
             const size = Math.floor(geom.boxWidth / txt.split().length) / 12;
             ctx.font = size + "px Verdana"
             const xOffset = 0.5 * ctx.measureText(txt).width;
-            const yOffset = (geom.boxHeight / 2) // * groupPlacement;
+            const yOffset = (geom.boxHeight / 2)
             ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
 
             ctx.fillStyle = group.color + "40";
@@ -563,10 +554,9 @@ const Treemap = (props: any) => {
 
         const size = calcStarRadius(group.verses);
         const xOffset = 1.5
-        const yOffset = (3 * size); // todo :: outlier distances?
+        const yOffset = (3 * size);
 
         let txt = group.label;
-
         if (group.event) txt += group.event
 
         ctx.fillText(txt, x - xOffset, y - yOffset);
@@ -619,15 +609,12 @@ const Treemap = (props: any) => {
         ctx.arc(x, y, props.device == 'mobile' ? 2 : 4, 0, 2 * Math.PI);
         ctx.fill();
 
-        // draw connector
         if (lastNarrativeX && lastNarrativeY) {
             ctx.beginPath();
             ctx.moveTo(lastNarrativeX, lastNarrativeY);
-            // ctx.quadraticCurveTo((lastNarrativeX + x)/2, (lastY + y)/2, x, y);
             ctx.lineTo(x, y);
             ctx.shadowBlur = 0;
-            ctx.strokeStyle = group.color+"40"; // todo :: gradient fill
-            // ctx.setLineDash([1, 1]);
+            ctx.strokeStyle = group.color+"40";
             ctx.lineWidth = 1;
             ctx.stroke();
         }
@@ -639,28 +626,27 @@ const Treemap = (props: any) => {
         const lines = (narrative as any)[group.id].split('\n');
 
         for (let i = 0; i < lines.length; i++)
-            ctx.fillText(lines[i], x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 15 : -30), y - (lines.length > 1 ? 10 : 0) - (y < document.getElementsByTagName('canvas')[3].height / 2 ? -10 : 10) + (i*lineHeight));
+            ctx.fillText(
+                lines[i],
+                x + (x < document.getElementsByTagName('canvas')[3].width / 2 ? 15 : -30),
+                y - (lines.length > 1 ? 10 : 0) - (y < document.getElementsByTagName('canvas')[3].height / 2 ? -10 : 10) + (i*lineHeight)
+            );
 
-        lastNarrativeX = x
-        lastNarrativeY = y
+        lastNarrativeX = x;
+        lastNarrativeY = y;
     }
 
-    // question :: util?
     const sign = () => Math.random() < 0.5 ? -1 : 1;
 
     function calcStarRadius(verses: number): number {
         let size = props.device == 'mobile' ? verses / 100 : verses / 50;
         if (verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
-
         return size;
     }
 
-    // FixMe :: how to determine when foamtreeInstance is ready to display? hooks error at present
-    // if (!foamtreeInstance) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
-    // else
     return (
-            //@ts-ignore
-            <div ref={element} className="sm:absolute w-full sm:w-[44rem] h-[calc(100%-18rem)] sm:h-[calc(100%-16.5rem)] left-0 sm:left-[calc(50%-22rem)] top-[6.5rem] sm:top-[7.5rem]" id="treemap"></div>
+        //@ts-ignore
+        <div ref={element} className="sm:absolute w-full sm:w-[44rem] h-[calc(100%-18rem)] sm:h-[calc(100%-16.5rem)] left-0 sm:left-[calc(50%-22rem)] top-[6.5rem] sm:top-[7.5rem]" id="treemap"></div>
     );
 };
 
