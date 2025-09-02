@@ -491,9 +491,9 @@ const Treemap = (props: any) => {
         parent.groups.forEach(function (group: any) {
             if (parent.groups.length == 1) return;
 
-            const firstNode = parseInt(thisGroup.id.split('/')[1]) == 1;
-            const lastNode = parseInt(thisGroup.id.split('/')[1]) == parent.groups.length;
-            if (!firstNode && parseInt(thisGroup.id.split('/')[1]) + 1 == parseInt(group.id.split('/')[1])) {
+            const firstNode = parseInt(thisGroup.label) == parent.groups[0].label;
+            const lastNode = parseInt(thisGroup.label) == parent.groups[parent.groups.length - 1].label;
+            if (!firstNode && parseInt(thisGroup.label) + 1 == parseInt(group.label)) {
                 //@ts-ignore
                 const geom = foamtreeInstance.get("geometry", group);
                 if (geom && lastX && lastY) {
@@ -508,6 +508,7 @@ const Treemap = (props: any) => {
             } else if (lastNode) {
                 //@ts-ignore
                 const geom = foamtreeInstance.get("geometry", group);
+
                 if (!drawn && geom && lastX && lastY) {
                     ctx.beginPath();
                     ctx.moveTo(lastX, lastY);
