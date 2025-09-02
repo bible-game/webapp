@@ -28,11 +28,11 @@ const Treemap = (props: any) => {
     const STEP_PINCH = 1.18;
     const DELTA_UNIT = 0.25;
     const THRESHOLDS = props.device == "mobile" ? {
-        up:   [0.5, 2.5, 5],
-        down: [1.5, 3, 5],
+        up:   [0.5, 2.5, 7.5],
+        down: [1.5, 3, 7.5],
     } : {
-        up:   [0.5, 7.5, 10],
-        down: [2.5, 7.5, 10],
+        up:   [0.5, 7.5, 15],
+        down: [2.5, 7.5, 15],
     };
 
     const SECTION_ALPHA = 0.1;
@@ -126,7 +126,7 @@ const Treemap = (props: any) => {
                 },
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
-                groupInsetWidth: props.device == "mobile" ? 12 : 16,
+                groupInsetWidth: 12,
                 groupMinDiameter: 0,
                 groupStrokeType: 'plain',
                 groupStrokeWidth: 2,
@@ -369,9 +369,9 @@ const Treemap = (props: any) => {
 
         if (zoomLevel == 0 && group.level == 'division') addDivisionLabels(ctx, group);
         if (zoomLevel == 1 && group.level == 'book') addBookLabels(ctx, group);
-        if (zoomLevel >= 2 && group.level == 'group' && params.parent.level == 'book') addGroupLabels(ctx, group);
+        if (zoomLevel == 2 && group.level == 'group' && params.parent.level == 'book') addGroupLabels(ctx, group);
         if (zoomLevel == 3 && group.level == 'chapter') addChapterLabels(ctx, group, x, y);
-        if (zoomLevel >= 2 && group.level == 'chapter') addConstellations(ctx, group, params.parent, params.index, x, y);
+        if (zoomLevel == 3 && group.level == 'chapter') addConstellations(ctx, group, params.parent, params.index, x, y);
 
         lastX = x;
         lastY = y;
@@ -404,7 +404,7 @@ const Treemap = (props: any) => {
 
     function addStars(ctx: any, group: any, x: number, y: number): void {
         const size = calcStarRadius(group.verses);
-        renderStar(ctx, { x, y, radius: size, tint: group.color });
+        renderStar(ctx, { x, y, radius: size || 0.2, tint: group.color });
     }
 
     function addDivisionLabels(ctx: any, group: any) {
@@ -454,12 +454,12 @@ const Treemap = (props: any) => {
 
             const txt: any = group.label;
 
-            let size = Math.floor(geom.boxWidth / txt.split().length) / 20;
+            let size = Math.floor(geom.boxWidth / txt.split().length) / 12;
             if (size < 1.5) size = 1.5;
 
             ctx.font = size + "px Verdana"
-            const xOffset = (geom.boxWidth / 2);
-            const yOffset = 0.75 * (geom.boxHeight / 2);
+            const xOffset = 0.5 * ctx.measureText(txt).width;
+            const yOffset = 0;
             ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
 
             ctx.fillStyle = group.color + "40";
