@@ -28,8 +28,8 @@ const Treemap = (props: any) => {
     const STEP_PINCH = 1.18;
     const DELTA_UNIT = 0.25;
     const THRESHOLDS = props.device == "mobile" ? {
-        up:   [0.5, 5, 7.5],
-        down: [2.5, 5, 7.5],
+        up:   [0.5, 2.5, 5],
+        down: [1.5, 3, 5],
     } : {
         up:   [0.5, 7.5, 10],
         down: [2.5, 7.5, 10],
