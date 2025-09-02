@@ -19,87 +19,18 @@ const Treemap = (props: any) => {
     const [FoamTreeClass, setFoamTreeClass] = useState<any>();
     const [foamtreeInstance, setFoamtreeInstance] = useState<any>();
 
-    // ---- Absolute Zoom Model (Accumulator -> Discrete Level) ----
     // 0 -> Division, 1 -> Book, 2 -> Group, 3 -> Chapter
     const [zoomLevel, setZoomLevel] = useState(0);
-    const [zoomAccum, setZoomAccum] = useState(0); // cumulative “units” since last level change
+    const [zoomAccum, setZoomAccum] = useState(0);
     const pinchRef = useRef({ base: 1 });
-
     const MIN_LEVEL = 0;
     const MAX_LEVEL = 3;
-
-    // TUNING:
-    // - DELTA_UNIT: normalizes raw wheel delta into "units".
-    //   If your wheel is very sensitive, increase this value.
-    const DELTA_UNIT = 0.25; // raw wheel delta per "unit"
-    // Per-transition thresholds in "units" (index = current level).
-    // Example: at level 1, need THRESHOLDS.up[1] units to go to 2; THRESHOLDS.down[1] to go to 0.
-    const THRESHOLDS = {
-        up:   [0.5, 5, 7.5], // 0->1, 1->2, 2->3
-        down: [2.5, 5, 7.5],  // 1->0, 2->1, 3->2   (down[0] unused)
-    };
-    // Pinch sensitivity. Increasing makes smaller scale changes count more.
     const STEP_PINCH = 1.18;
-
-    // Convert a delta "units" to a new level if thresholds crossed.
-    function applyAccumDelta(unitsDelta: number) {
-        setZoomAccum((accPrev) => {
-            let acc = accPrev + unitsDelta;
-            let levelChanged = false;
-
-            if (acc < 0) acc = 0;
-
-            setZoomLevel((lvlPrev: number) => {
-                let lvl = lvlPrev;
-
-                // try go up
-                if (unitsDelta > 0 && lvl < MAX_LEVEL) {
-                    console.log("up")
-                    const need = THRESHOLDS.up[lvl];
-                    if (acc >= need) {
-                        lvl = Math.min(MAX_LEVEL, lvl + 1);
-                        acc = 0; // reset accumulator after a step
-                        levelChanged = true;
-                    }
-                }
-
-                // try go down
-                if (unitsDelta < 0 && lvl > MIN_LEVEL) {
-                    console.log("down")
-                    const need = THRESHOLDS.down[lvl - 1]; // threshold for current level to go down
-                    console.log(lvl);
-                    console.log(need);
-                    console.log(acc);
-                    if (acc <= need) {
-                        lvl = Math.max(MIN_LEVEL, lvl - 1);
-                        acc = 0; // reset accumulator after a step
-                        levelChanged = true;
-                    }
-                }
-
-                // Optional nicety: small decay toward zero if we didn’t cross a threshold
-                if (!levelChanged) {
-                    // keep acc bounded so it doesn't grow unbounded
-                    const cap = 2 * Math.max(
-                        THRESHOLDS.up[Math.max(0, Math.min(lvl, THRESHOLDS.up.length - 1))] || 10,
-                        THRESHOLDS.down[Math.max(0, Math.min(lvl, THRESHOLDS.down.length - 1))] || 10
-                    );
-                    if (acc > cap) acc = cap;
-                    if (acc < -cap) acc = -cap;
-                }
-
-                // update outer accumulator to the (possibly reset) value
-                // (this return is to the outer setZoomAccum call)
-                setZoomAccum(acc);
-                return lvl;
-            });
-
-            // we've already written the real new acc via setZoomAccum(acc)
-            // but we must still return something from this setter; return the latest acc we computed
-            return acc;
-        });
-    }
-    // -------------------------------------------------------------
+    const DELTA_UNIT = props.device == "mobile" ? 0.5 : 0.25;
+    const THRESHOLDS = {
+        up:   [0.5, 7.5, 10],
+        down: [2.5, 7.5, 10],
+    };
 
     const SECTION_ALPHA = 0.1;
     let lastX = 0;
@@ -139,6 +70,7 @@ const Treemap = (props: any) => {
                 parentFillOpacity: 1,
                 groupContentDecoratorTriggering: "onSurfaceDirty",
                 groupColorDecorator: setupColours,
+                groupContentDecorator: setupContent,
                 descriptionGroupSize: 0,
                 groupLabelFontFamily: "inter",
 
@@ -170,13 +102,10 @@ const Treemap = (props: any) => {
                         e.preventDefault();
                     }
                 },
-
-                // --------- Absolute Zoom Handlers (accumulate, then snap) ----------
                 onGroupMouseWheel: (e: any) => {
-                    // Normalize delta. If your direction feels inverted, flip the sign.
                     const raw = typeof e.delta === "number" ? e.delta : (e.deltaY ?? 0);
-                    const units = raw / DELTA_UNIT; // positive units => zoom in (tweak sign if needed)
-                    if (units !== 0) applyAccumDelta(units);
+                    const units = raw / DELTA_UNIT;
+                    if (units !== 0) accumulate(units);
                 },
                 onTransformEnd: (e: any) => {
                     if (e.touches === 3) e.preventDefault();
@@ -186,15 +115,12 @@ const Treemap = (props: any) => {
                 },
                 onGroupTransform: (e: any) => {
                     const currentScale = e.scale ?? 1;
-                    // Convert pinch scale delta into "units" that match wheel feel
                     const deltaLevels = Math.log(currentScale / pinchRef.current.base) / Math.log(STEP_PINCH);
                     if (deltaLevels !== 0) {
-                        applyAccumDelta(deltaLevels);
+                        accumulate(deltaLevels);
                         pinchRef.current.base = currentScale;
                     }
                 },
-                // -------------------------------------------------------------------
-
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
                 groupInsetWidth: props.device == "mobile" ? 12 : 16,
@@ -204,9 +130,6 @@ const Treemap = (props: any) => {
                 groupFillType: 'gradient',
                 stacking: "flattened",
                 descriptionGroupType: "stab",
-
-                // content is bound initially; zoomLevel changes will adjust what it draws
-                groupContentDecorator: setupContent,
             }));
         }
 
@@ -220,7 +143,6 @@ const Treemap = (props: any) => {
         }
     }, [FoamTreeClass, foamtreeInstance]);
 
-    // Tinting + programmatic centers; keep zoomLevel in sync with semantic jumps
     useEffect(() => {
         if (foamtreeInstance && (props.bookFound || props.divFound || props.testFound)) {
             //@ts-ignore
@@ -251,12 +173,9 @@ const Treemap = (props: any) => {
     }, [props.bookFound, props.divFound, props.testFound, foamtreeInstance]);
 
     useEffect(() => {
-        foamtreeInstance?.redraw(); // to reflect narrative toggle without altering zoom logic
-        // (If you'd prefer zero explicit redraws, you can remove this.)
-    }, [props.narrativeHidden, foamtreeInstance]);
+        foamtreeInstance?.redraw();
+    }, [props.narrativeHidden, foamtreeInstance]); // fixme...
 
-    // Rebind the decorator whenever zoomLevel changes so it uses new rules.
-    // (FoamTree calls the decorator on paint; re-setting ensures it reads latest closure state.)
     useEffect(() => {
         foamtreeInstance?.set({ groupContentDecorator: updateContent });
     }, [zoomLevel, foamtreeInstance]);
@@ -643,6 +562,53 @@ const Treemap = (props: any) => {
         if (verses > 100) size = props.device == 'mobile' ? 1.5 : 3;
         return size;
     }
+
+    function accumulate(delta: number) {
+        setZoomAccum((accPrev: number) => {
+            let acc = accPrev + delta;
+            let levelChanged = false;
+
+            if (acc < 0) acc = 0;
+
+            setZoomLevel((lvlPrev: number) => {
+                let lvl = lvlPrev;
+
+                if (delta > 0 && lvl < MAX_LEVEL) {
+                    const need = THRESHOLDS.up[lvl];
+                    if (acc >= need) {
+                        lvl = Math.min(MAX_LEVEL, lvl + 1);
+                        acc = 0;
+                        levelChanged = true;
+                    }
+                }
+
+                if (delta < 0 && lvl > MIN_LEVEL) {
+                    const need = THRESHOLDS.down[lvl - 1];
+                    if (acc <= need) {
+                        lvl = Math.max(MIN_LEVEL, lvl - 1);
+                        acc = 0;
+                        levelChanged = true;
+                    }
+                }
+
+                // small decay toward zero if we didn’t cross a threshold
+                if (!levelChanged) {
+                    const cap = 2 * Math.max(
+                        THRESHOLDS.up[Math.max(0, Math.min(lvl, THRESHOLDS.up.length - 1))] || 10,
+                        THRESHOLDS.down[Math.max(0, Math.min(lvl, THRESHOLDS.down.length - 1))] || 10
+                    );
+                    if (acc > cap) acc = cap;
+                    if (acc < -cap) acc = -cap;
+                }
+
+                setZoomAccum(acc);
+                return lvl;
+            });
+
+            return acc;
+        });
+    }
+
 
     return (
         //@ts-ignore
