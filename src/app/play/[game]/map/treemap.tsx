@@ -453,10 +453,13 @@ const Treemap = (props: any) => {
             ctx.shadowBlur = 0;
 
             const txt: any = group.label;
-            const size = Math.floor(geom.boxWidth / txt.split().length) / 12;
+
+            let size = Math.floor(geom.boxWidth / txt.split().length) / 20;
+            if (size < 1.5) size = 1.5;
+
             ctx.font = size + "px Verdana"
-            const xOffset = 0.5 * ctx.measureText(txt).width;
-            const yOffset = (geom.boxHeight / 2)
+            const xOffset = (geom.boxWidth / 2);
+            const yOffset = 0.75 * (geom.boxHeight / 2);
             ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
 
             ctx.fillStyle = group.color + "40";

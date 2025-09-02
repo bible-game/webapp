@@ -109,22 +109,36 @@
     { "name": "Union & Love’s Power", "start": 5, "end": 8 }
   ],
   "isaiah": [
-    { "name": "Judgment & Hope", "start": 1, "end": 39 },
-    { "name": "Comfort & Restoration", "start": 40, "end": 55 },
-    { "name": "Future Glory", "start": 56, "end": 66 }
+    { "name": "Introduction & Call to Repentance", "start": 1, "end": 6 },
+    { "name": "Immanuel Prophecies & Ahaz Crisis", "start": 7, "end": 12 },
+    { "name": "Oracles Against Nations", "start": 13, "end": 23 },
+    { "name": "Isaiah’s Little Apocalypse", "start": 24, "end": 27 },
+    { "name": "Woes & Warnings", "start": 28, "end": 35 },
+    { "name": "Historical Narratives", "start": 36, "end": 39 },
+    { "name": "Words of Comfort & Greatness of God", "start": 40, "end": 48 },
+    { "name": "Servant Songs & Redemption", "start": 49, "end": 55 },
+    { "name": "True Worship & God’s Salvation", "start": 56, "end": 59 },
+    { "name": "Zion’s Restoration & New Creation", "start": 60, "end": 66 }
   ],
   "jeremiah": [
-    { "name": "Call & Oracles", "start": 1, "end": 25 },
-    { "name": "Opposition & Prophecies", "start": 26, "end": 45 },
-    { "name": "Nations & Fall of Jerusalem", "start": 46, "end": 52 }
+    { "name": "Call & Early Oracles", "start": 1, "end": 6 },
+    { "name": "Temple Sermon & Judgment Warnings", "start": 7, "end": 10 },
+    { "name": "Covenant Breaking & Consequences", "start": 11, "end": 20 },
+    { "name": "Confrontations with Kings & False Prophets", "start": 21, "end": 29 },
+    { "name": "Book of Consolation", "start": 30, "end": 33 },
+    { "name": "Fall of Jerusalem Prophesied", "start": 34, "end": 38 },
+    { "name": "Fall & Aftermath", "start": 39, "end": 45 },
+    { "name": "Oracles Against Nations", "start": 46, "end": 52 }
   ],
   "lamentations": [
     { "name": "Laments for Jerusalem", "start": 1, "end": 5 }
   ],
   "ezekiel": [
-    { "name": "God’s Glory & Judgment", "start": 1, "end": 24 },
-    { "name": "Oracles Against Nations", "start": 25, "end": 32 },
-    { "name": "Restoration & Temple Vision", "start": 33, "end": 48 }
+    { "name": "Call & Visions of God’s Glory", "start": 1, "end": 3 },
+    { "name": "Judgments on Judah & Jerusalem", "start": 4, "end": 24 },
+    { "name": "Oracles Against the Nations", "start": 25, "end": 32 },
+    { "name": "Hope & Restoration for Israel", "start": 33, "end": 39 },
+    { "name": "Vision of the New Temple & Land", "start": 40, "end": 48 }
   ],
   "daniel": [
     { "name": "Court Narratives", "start": 1, "end": 6 },
