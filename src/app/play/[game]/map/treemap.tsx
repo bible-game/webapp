@@ -130,6 +130,8 @@ const Treemap = (props: any) => {
                 groupMinDiameter: 0,
                 groupStrokeType: 'plain',
                 groupStrokeWidth: 2,
+                finalCompleteDrawMaxDuration: 10000,
+                wireframeDrawMaxDuration: 10000,
                 groupFillType: 'gradient',
                 stacking: "flattened",
                 descriptionGroupType: "stab",
