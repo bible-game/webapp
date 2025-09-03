@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import { hexToHSLA } from "@/core/util/colour-util";
 import narrative from './config/narrative.json';
 import events from './config/events.json';
+import nebula from './config/nebula.json';
 import chapterGroups from './config/groups.json';
 import colours from './config/colours.json';
 import { renderStar } from "./star-renderer";
@@ -132,6 +133,7 @@ const Treemap = (props: any) => {
                 groupStrokeWidth: 2,
                 finalCompleteDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
                 wireframeDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
+                // todo :: continue to tune for mobile (performance vs smooth draw) ^^
                 groupFillType: 'gradient',
                 stacking: "flattened",
                 descriptionGroupType: "stab",
@@ -223,7 +225,7 @@ const Treemap = (props: any) => {
     function getBooks(test: string, div: string, bk: any) {
         const books: any[] = [];
         for (const b of bk) {
-            books.push({
+            const obj: any = {
                 id: b.name,
                 label: b.name,
                 open: true,
@@ -235,7 +237,13 @@ const Treemap = (props: any) => {
                 testament: test,
                 division: div,
                 book: b.name,
-            });
+            }
+
+            if ((nebula as any)[b.name.toLowerCase()]) {
+                obj['background'] = (nebula as any)[b.name.toLowerCase()];
+            }
+
+            books.push(obj);
         }
         return books;
     }
@@ -371,6 +379,7 @@ const Treemap = (props: any) => {
 
         if (zoomLevel == 0 && group.level == 'division') addDivisionLabels(ctx, group);
         if (zoomLevel == 1 && group.level == 'book') addBookLabels(ctx, group);
+        // if (zoomLevel >= 1 && group.level == 'book') addNebula(ctx, group);
         if (zoomLevel >= 2 && group.level == 'group' && params.parent.level == 'book') addGroupLabels(ctx, group);
         if (zoomLevel == 3 && group.level == 'chapter') addChapterLabels(ctx, group, x, y);
         if (zoomLevel >= 2 && group.level == 'chapter') addConstellations(ctx, group, params.parent, params.index, x, y);
@@ -407,6 +416,22 @@ const Treemap = (props: any) => {
     function addStars(ctx: any, group: any, x: number, y: number): void {
         const size = calcStarRadius(group.verses);
         renderStar(ctx, { x, y, radius: size, tint: group.color });
+    }
+
+    function addNebula(ctx: any, group: any): void {
+        if (!group.background) return;
+
+        const geom = foamtreeInstance.get("geometry", group);
+        if (geom) {
+            const img = new Image;
+            img.src = group.background;
+            ctx.fillStyle = "#040127";
+            img.onload = function () {
+                ctx.globalAlpha = 0.25;
+                ctx.drawImage(img, geom.polygonCenterX, geom.polygonCenterY, geom.boxWidth, geom.boxHeight);
+            };
+            ctx.globalAlpha = 1;
+        }
     }
 
     function addDivisionLabels(ctx: any, group: any) {
