@@ -57,7 +57,7 @@ export default function Content(props: any) {
         passage.verses.map((verse: any) => (
             <div key={verse.verse} className="my-6 grid grid-cols-[auto,1fr] gap-3 items-start">
                 <div className="text-gray-400 text-[10px] font-light pt-2">{verse.verse}</div>
-                <div className="text-gray-800 text-[18px] font-light leading-[2rem]">{verse.text}</div>
+                <div className="text-gray-800 text-[16px] font-light leading-[1.75rem]">{verse.text}</div>
             </div>
         ))
     ) : null;
@@ -122,7 +122,7 @@ export default function Content(props: any) {
     const splitKey = useMemo(() => (key ? split(key) : { book: "", chapter: "", verseStart: undefined, verseEnd: undefined }), [key]);
 
     return (
-        <section className="relative mt-4 sm:mt-6">
+        <section className="relative mt-4 sm:mt-6 w-[90%] left-[5%]">
             <ScrollProgress className="bg-gradient-to-r from-indigo-600 to-violet-600" height={6} />
 
             {/* Toolbar */}

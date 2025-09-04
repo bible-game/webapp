@@ -28,11 +28,9 @@ const Context = (props: any) => {
             isCompact
         >
             <AccordionItem key="1" aria-label="context" title={title}>
-                {loading ? (
-                    <Spinner color="primary" />
-                ) : (
-                    <p className="max-w-[65ch] text-sm leading-6 text-indigo-700">{context}</p>
-                )}
+                {loading ? ( <Spinner color="secondary" />) : (
+                    <p className="font-light text-sm leading-6 text-indigo-700 max-w-[80%] sm:max-w-[42rem]">{context}</p>
+            )}
             </AccordionItem>
         </Accordion>
     );
