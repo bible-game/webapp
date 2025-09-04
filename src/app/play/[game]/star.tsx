@@ -1,10 +1,8 @@
 import React from "react";
 
 export const Star = ({
-                       filled = true,
-                       popping = false,
-                       className = "",
-                   }: { filled?: boolean; popping?: boolean; className?: string }) => (
+                       filled = true, shadow = true, popping = false, className = "",
+                   }: { filled?: boolean; shadow?: boolean, popping?: boolean; className?: string }) => (
     <svg
         className={[
             // base sizing + smooth transforms
@@ -13,8 +11,11 @@ export const Star = ({
             "group-hover:scale-110",
             // glow & color
             filled
-                ? "text-yellow-300 [filter:drop-shadow(0_0_6px_rgba(245,197,66,.6))_drop-shadow(0_0_18px_rgba(245,197,66,.30))]"
+                ? "text-yellow-300"
                 : "text-[#D9D9D9]",
+            shadow
+                ? "[filter:drop-shadow(0_0_6px_rgba(245,197,66,.6))_drop-shadow(0_0_18px_rgba(245,197,66,.30))]"
+                : "",
             // one-shot pop (applied only to the newest earned star)
             popping
                 ? "scale-125 rotate-6 [filter:drop-shadow(0_0_12px_rgba(245,197,66,1))_drop-shadow(0_0_28px_rgba(245,197,66,.6))]"

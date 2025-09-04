@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Accordion, AccordionItem, Spinner } from "@heroui/react";
 import { getPostContext } from "@/core/action/read/get-postcontext";
 import { getPreContext } from "@/core/action/read/get-precontext";
-import {InfoCircleIcon} from "@heroui/shared-icons";
 
 const Context = (props: any) => {
     const [context, setContext] = useState("");

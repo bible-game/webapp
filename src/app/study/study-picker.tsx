@@ -37,7 +37,7 @@ export default function StudyPicker(props: any) {
     }
 
     function toPassageSlug(book: string, chapter: number) {
-        return encodeURIComponent(`${book}${chapter}`);
+        return encodeURIComponent(`${book.replace(/ /g, "")}${chapter}`);
     }
 
     return (
