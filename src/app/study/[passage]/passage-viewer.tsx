@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { XIcon } from "lucide-react";
 import useSWR from "swr";
-import {Passage} from "@/core/model/play/passage";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -54,7 +53,7 @@ export function PassageViewer({ id, title, open, onClose }: {
                             <h2 id={`${id}-title`} className="text-base font-semibold truncate">
                                 {title}
                             </h2>
-                            <p className="text-xs text-slate-500">Press Esc to close · V to toggle</p>
+                            <p className="text-xs text-slate-500">Press Esc to close</p>
                         </div>
                         <button
                             onClick={onClose}

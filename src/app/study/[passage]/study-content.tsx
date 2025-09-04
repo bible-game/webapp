@@ -34,7 +34,6 @@ export default function StudyContent(props: any) {
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key.toLowerCase() === "v") setOpen((s) => !s);
             if (e.key === "Escape") setOpen(false);
         };
         window.addEventListener("keydown", onKey);
@@ -46,14 +45,13 @@ export default function StudyContent(props: any) {
     }
 
     return (
-        <div className="text-slate-900 pb-16">
+        <div className="text-slate-900 pb-16 bg-white">
             <header className="bg-white/90 border-b border-slate-200/60">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6">
                     <div className="h-14 flex items-center justify-between gap-3">
                         <Link
                             href={"/read/" + props.passage}
-                            className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 rounded-xl px-3 py-1.5 hover:bg-slate-100 transition"
-                        >
+                            className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 rounded-xl px-3 py-1.5 hover:bg-slate-100 transition">
                             <ArrowLeftIcon className="size-5"/>
                             <span className="font-medium">Reading</span>
                         </Link>
