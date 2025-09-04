@@ -40,10 +40,12 @@ export default function StudyContent(props: any) {
                 className="bg-white/90 border-b border-slate-200/60">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6">
                     <div className="h-14 flex items-center justify-between gap-3">
-                        <Link href={"/read/" + props.passage} className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 rounded-xl px-3 py-1.5 hover:bg-slate-100 transition">
+                        <Link href={"/read/" + props.passage}
+                              className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 rounded-xl px-3 py-1.5 hover:bg-slate-100 transition">
                             <ArrowLeftIcon className="size-5"/><span className="font-medium">Reading</span>
                         </Link>
-                        <Link href={"/study/"} className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 rounded-xl px-3 py-1.5 hover:bg-slate-100 transition">
+                        <Link href={"/study/"}
+                              className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 rounded-xl px-3 py-1.5 hover:bg-slate-100 transition">
                             <span className="font-medium">All Studies</span><ArrowRightIcon className="size-5"/>
                         </Link>
                     </div>

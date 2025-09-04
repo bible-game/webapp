@@ -97,9 +97,9 @@ export default function Questions(props: QuestionsProps & any) {
   };
 
   const getScoreTint = (score: number) => {
-    if (score > 60) return 'bg-green-50 ring-1 ring-green-200';
+    if (score > 60) return 'bg-emerald-50 ring-1 ring-emerald-200';
     if (score > 40) return 'bg-amber-50 ring-1 ring-amber-200';
-    return 'bg-red-50 ring-1 ring-red-200';
+    return 'bg-rose-50 ring-1 ring-rose-200';
   };
 
   const isCorrect = (q: any, option: string) => option === q.correct;
@@ -108,16 +108,16 @@ export default function Questions(props: QuestionsProps & any) {
   const optionClass = (q: any, qIndex: number, option: string) => {
     // Base
     let cls = 'w-full p-3 sm:p-3.5 rounded-xl border text-sm transition hover:border-slate-300 bg-white/90';
-    cls += ' peer-checked:ring-2 peer-checked:ring-indigo-300 peer-checked:border-indigo-300';
+    cls += ' peer-checked:ring-1 peer-checked:ring-indigo-600 peer-checked:border-indigo-300';
 
     if (!submitted) return cls + ' text-slate-700';
 
     // After submit: show correct/incorrect tints
     if (isCorrect(q, option)) {
-      return cls + ' border-green-300 bg-green-50 text-green-900';
+      return cls + ' border-emerald-300 bg-gradient-to-r from-emerald-100 to-emerald-50 text-emerald-900';
     }
     if (isChosen(qIndex, option)) {
-      return cls + ' border-red-300 bg-red-50 text-red-900';
+      return cls + ' border-rose-300 bg-gradient-to-r from-rose-100 to-rose-50 text-rose-900';
     }
     return cls + ' text-slate-600 opacity-70';
   };
@@ -136,17 +136,17 @@ export default function Questions(props: QuestionsProps & any) {
                       className={`mb-6 rounded-2xl bg-white/90 ring-1 ring-slate-200 overflow-hidden transition ${
                           submitted
                               ? isCorrect(q, selectedAnswers[qi])
-                                  ? 'ring-green-200 bg-green-50'
-                                  : 'ring-red-200 bg-red-50'
+                                  ? 'ring-emerald-200 bg-emerald-50'
+                                  : 'ring-rose-200 bg-rose-50'
                               : 'hover:ring-slate-300'
                       }`}
                   >
                     <div className="px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-2">
                       {submitted ? (
                           isCorrect(q, selectedAnswers[qi]) ? (
-                              <CheckCircle2 className="mt-0.5 size-5 text-green-600" />
+                              <CheckCircle2 className="mt-0.5 size-5 text-emerald-600" />
                           ) : (
-                              <XCircle className="mt-0.5 size-5 text-red-600" />
+                              <XCircle className="mt-0.5 size-5 text-rose-600" />
                           )
                       ) : (
                           <HelpCircle className="mt-0.5 size-5 text-slate-400" />
