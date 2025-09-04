@@ -20,9 +20,14 @@ export default function StudyContent(props: any) {
         if (props.state) StateUtil.setAllReviews(props.state);
         const state = StateUtil.getReview(props.passage) || {} as ReviewState;
         setStars(state.stars || 0);
-        const parts = state.date.split(" ");
-        const date = `${parts[1]} ${parts[2]} ${parts[3].split(",")[0]}`
-        setDate(date || '');
+
+        let dateLabel = '';
+        if (state && state.date) {
+            const parts = state.date.split(" ");
+            dateLabel = `${parts[1]} ${parts[2]} ${parts[3].split(",")[0]}`
+        }
+
+        setDate(dateLabel);
     }, [props.passage, props.state]);
 
     function prettyPassage(passage: string) {
