@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
 import { Input } from "@heroui/input";
 import { getPassage } from "@/core/action/read/get-passage";
@@ -12,80 +12,95 @@ import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
 import { Button } from "@nextui-org/react";
 import { getAudio } from "@/core/action/read/get-audio";
 import Link from "next/link";
+import { BookOpenText, SearchIcon, XIcon, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
+import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
 
 export default function Content(props: any) {
-
-    const [key, setKey] = React.useState("");
-    const [readingTime, setReadingTime] = React.useState("");
+    const [key, setKey] = useState("");
+    const [readingTime, setReadingTime] = useState("");
     const wordsPerMinute = 160;
-    const [passage, setPassage] = React.useState({} as any);
-    const [loading, setLoading] = React.useState(false);
-    const [audioLoading, setAudioLoading] = React.useState(false);
-    const [playing, setPlaying] = React.useState(false);
-    const [current, setCurrent] = React.useState("");
+    const [passage, setPassage] = useState({} as any);
+    const [loading, setLoading] = useState(false);
+    const [audioLoading, setAudioLoading] = useState(false);
+    const [playing, setPlaying] = useState(false);
+    const [current, setCurrent] = useState("");
+
+    function prettyPassage(passage: string): string {
+        return passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ");
+    }
 
     useEffect(() => {
+        let key: string;
         if (props.passageKey) {
-            setKey(props.passageKey);
+            key = prettyPassage(Array.isArray(props.passageKey) ? props.passageKey[0] : props.passageKey);
         } else {
-            const key = "1 John 4 : 7 - 19"
-            setLoading(true)
-            setKey(key);
-            getPassage(key).then((response: any) => {
-                setPassage(response);
-                calculateReadingTime(response);
-                setLoading(false);
-            });
+            key = "1 John 4 : 7 - 19";
         }
+
+        setKey(key);
+        setLoading(true);
+        getPassage(key).then((response: any) => {
+            setPassage(response);
+            calculateReadingTime(response);
+            setLoading(false);
+        });
     }, []);
 
     function calculateReadingTime(passage: any) {
         if (passage.text) {
-            const words = passage.text.split(' ');
-
-            setReadingTime(Math.ceil(words.length / wordsPerMinute).toString() + ' minutes');
+            const words = passage.text.split(" ");
+            setReadingTime(Math.ceil(words.length / wordsPerMinute).toString() + " minutes");
         }
     }
 
-    const verses = passage.verses ? passage.verses.map((verse: any) => <div key={verse.verse} className="my-8 flex gap-2 items-start">
-        <div className="text-gray-400 text-[10px] font-light pt-2">{verse.verse}</div>
-        <div className="text-gray-800 text-[18px] font-light leading-[2rem]">{verse.text}</div>
-    </div>) : <></>;
+    const verses = passage.verses ? (
+        passage.verses.map((verse: any) => (
+            <div key={verse.verse} className="my-6 grid grid-cols-[auto,1fr] gap-3 items-start">
+                <div className="text-gray-400 text-[10px] font-light pt-2">{verse.verse}</div>
+                <div className="text-gray-800 text-[16px] font-light leading-[1.75rem]">{verse.text}</div>
+            </div>
+        ))
+    ) : null;
 
-    function split(passageKey: any): {book: string, chapter: string, verseStart: number | undefined, verseEnd: number | undefined} {
-        let key: string;
+    function split(passageKey: any): {
+        book: string;
+        chapter: string;
+        verseStart: number | undefined;
+        verseEnd: number | undefined
+    } {
+        let k: string;
         if (passageKey instanceof Array) {
-            key = passageKey[0]
+            k = passageKey[0];
         } else {
-            key = passageKey;
+            k = passageKey;
         }
         const bcv = new bcv_parser(lang);
-        const osis = bcv.parse(key).osis();
+        const osis = bcv.parse(k).osis();
 
-        const hasVerses = osis.includes('-');
+        const hasVerses = osis.includes("-");
 
         if (hasVerses) {
-            const first = osis.split('-')[0];
-            const second = osis.split('-')[1];
-            const firstParts = first.split('.');
-            const secondParts = second.split('.');
+            const first = osis.split("-")[0];
+            const second = osis.split("-")[1];
+            const firstParts = first.split(".");
+            const secondParts = second.split(".");
 
             const book = osisToName(firstParts[0]);
             return {
-                book: book ? book.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, '$& ') : '',
-                chapter: firstParts[1] || 1,
-                verseStart: firstParts[2],
-                verseEnd: secondParts[2]
-            }
+                book: book ? book.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ") : "",
+                chapter: (firstParts[1] as any) || 1,
+                verseStart: firstParts[2] as any,
+                verseEnd: secondParts[2] as any,
+            };
         } else {
-            const parts = osis.split('.');
+            const parts = osis.split(".");
             const book = osisToName(parts[0]);
             return {
-                book: book ? book.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, '$& ') : '',
-                chapter: parts[1] || 1,
+                book: book ? book.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ") : "",
+                chapter: (parts[1] as any) || 1,
                 verseStart: undefined,
-                verseEnd: undefined
-            }
+                verseEnd: undefined,
+            };
         }
     }
 
@@ -95,80 +110,110 @@ export default function Content(props: any) {
             getAudio(key).then((audioBuffer: any) => {
                 if (audioBuffer) {
                     setAudioLoading(false);
-                    const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" }); // Assuming MP3
+                    const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" });
                     const audioUrl = URL.createObjectURL(audioBlob);
                     setCurrent(audioUrl);
-                    // const audioElement = new Audio(audioUrl);
                     setPlaying(true);
-                    // audioElement.play().then(() => setPlaying(false));
-
-                    // Clean up the URL after the audio finishes playing
-                    // audioElement.onended = () => {
-                    //     URL.revokeObjectURL(audioUrl);
-                    // };
                 }
             });
         }
     }
 
+    const splitKey = useMemo(() => (key ? split(key) : { book: "", chapter: "", verseStart: undefined, verseEnd: undefined }), [key]);
+
     return (
-        <section className="left-[12.5%] sm:left-0 relative w-[75vw] sm:w-[46rem] mt-6">
-            <div className="mb-10">
-                <Input label="" variant="underlined" value={key}
-                       classNames={{
-                           input: ["text-[2rem]", "font-light"],
-                       }}
-                       onValueChange={(key: string) => {
-                           setLoading(true);
-                           setKey(key);
-                           getPassage(key).then((response: any) => {
-                               setPassage(response);
-                               calculateReadingTime(response);
-                               setLoading(false);
-                           });
-                       }}/>
-                <span className="text-gray-400 text-sm font-light">{readingTime}</span>
-                {playing ? <></> : <Button onPress={playAudio}
-                                           className="text-blue-600 h-[66px] text-sm rounded-none border-[#ffffff40] m-2"
-                                           variant="bordered">
-                    {audioLoading ? <Spinner color="primary" /> : 'Listen' }</Button>
-                }
-                {
-                    playing ? <audio controls autoPlay={true}>
-                        <source src={current} type="audio/mpeg"/>
-                        Your browser does not support the audio element.
-                    </audio> : <></>
-                }
-            </div>
-            <ScrollProgress/>
-            <div>
-                {loading ? <Spinner color="primary"/> : <div>
-                    {passage.verses ? <>
-                    <Context passageKey={key} context='before'/>
-                    {verses}
-                    <Context passageKey={key} context='after'/>
-                    <div>
-                        <ReadAction
-                            state={props.state}
-                            book={split(key).book}
-                            chapter={split(key).chapter}
-                            verseStart={split(key).verseStart}
-                            verseEnd={split(key).verseEnd}/>
-                        <Button as={Link} href={'/study/'+split(key).book.replace(/\s/g, "")+split(key).chapter}
-                            className="text-purple-600 h-[66px] text-sm rounded-none border-[#ffffff40] mt-8"
-                            variant="bordered">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 strokeWidth={1.25} stroke="currentColor" className="size-4">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
-                            </svg>
-                            Study {split(key).book} {split(key).chapter}
-                        </Button>
+        <section className="relative mt-4 sm:mt-6 w-[90%] left-[5%]">
+            <ScrollProgress className="bg-gradient-to-r from-indigo-600 to-violet-600" height={6} />
+
+            {/* Toolbar */}
+            <div className="mb-6 sm:mb-8">
+                <div className="flex flex-col gap-3">
+                    <div className="relative">
+                        <Input
+                            aria-label="Passage"
+                            variant="underlined"
+                            radius="lg"
+                            size="lg"
+                            value={key}
+                            startContent={<SearchIcon className="size-5 text-slate-400"/>}
+                            endContent={
+                                key ? (
+                                    <button
+                                        aria-label="Clear"
+                                        className="p-1 rounded hover:bg-slate-100 text-slate-400"
+                                        onClick={() => setKey("")}>
+                                        <XIcon className="size-4"/>
+                                    </button>
+                                ) : null
+                            }
+                            classNames={{
+                                inputWrapper: [
+                                    "bg-white/90",
+                                ],
+                                input: ["text-[1.75rem] sm:text-[2rem] font-light"],
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === "Escape") setKey("");
+                            }}
+                            onValueChange={(key: string) => {
+                                setLoading(true);
+                                setKey(key);
+                                getPassage(key).then((response: any) => {
+                                    setPassage(response);
+                                    calculateReadingTime(response);
+                                    setLoading(false);
+                                });
+                            }}
+                        />
                     </div>
-                    </> : <></>}
-                </div>}
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1"><BookOpenText className="size-4"/>{readingTime}</span>
+                        {playing ? null : (
+                            <Button onPress={playAudio}
+                                    className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1" variant="flat">
+                                {audioLoading ? <Spinner color="primary" size="sm"/> : <><HeadphonesIcon className="size-4"/> Listen</>}
+                            </Button>
+                        )}
+                    </div>
+                    {playing ? <AudioPlayer src={current} onClose={() => setPlaying(false)}/> : null}
+                </div>
+            </div>
+
+            {/* Reading area */}
+            <div>
+                {loading ? (
+                    <div className="flex justify-center py-24">
+                        <Spinner color="primary"/>
+                    </div>
+                ) : passage.verses ? (
+                    <div>
+                        <Context passageKey={key} context="before"/>
+                        <article className="mt-6 sm:mt-8">
+                            {verses}
+                        </article>
+                        <Context passageKey={key} context="after"/>
+
+                        <div className="mt-8 sm:mt-10">
+                            <ReadAction
+                                state={props.state}
+                                book={splitKey.book}
+                                chapter={splitKey.chapter}
+                                verseStart={splitKey.verseStart}
+                                verseEnd={splitKey.verseEnd}
+                            />
+                            <Button
+                                as={Link}
+                                href={`/study/${splitKey.book.replace(/\s/g, "")}${splitKey.chapter}`}
+                                className="ml-3 rounded-xl text-white bg-gradient-to-tr from-violet-600 to-violet-700 shadow hover:brightness-110"
+                            >
+                                <GraduationCapIcon className="size-4" />
+                                Study {splitKey.book} {splitKey.chapter}
+                            </Button>
+                        </div>
+                    </div>
+                ) : null}
             </div>
         </section>
-
     );
 }
 
@@ -191,7 +236,7 @@ const osisToName = (osis: any) => {
         "2Kgs": "2Kings",
         "2Chr": "2Chronicles",
         "1Chr": "1Chronicles",
-        "Ezra": "Ezra",
+        Ezra: "Ezra",
         Neh: "Nehemiah",
         Esth: "Esther",
         Job: "Job",
@@ -205,7 +250,7 @@ const osisToName = (osis: any) => {
         Hos: "Hosea",
         Joel: "Joel",
         Amos: "Amos",
-        Hab: "Hab",
+        Hab: "Habakkuk",
         Obad: "Obadiah",
         Jonah: "Jonah",
         Mic: "Micah",
@@ -214,7 +259,7 @@ const osisToName = (osis: any) => {
         Hag: "Haggai",
         Zech: "Zechariah",
         Mal: "Malachi",
-        Matt: "Mathew",
+        Matt: "Matthew",
         Mark: "Mark",
         Luke: "Luke",
         "1John": "1John",
@@ -225,7 +270,7 @@ const osisToName = (osis: any) => {
         Rom: "Romans",
         "2Cor": "2Corinthians",
         "1Cor": "1Corinthians",
-        Gal: "Galations",
+        Gal: "Galatians",
         Eph: "Ephesians",
         Phil: "Philippians",
         Col: "Colossians",
@@ -239,8 +284,8 @@ const osisToName = (osis: any) => {
         Jas: "James",
         "2Pet": "2Peter",
         "1Pet": "1Peter",
-        Jude: "Jude"
-    }
+        Jude: "Jude",
+    };
 
     return map[osis];
-}
+};
