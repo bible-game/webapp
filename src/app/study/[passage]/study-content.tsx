@@ -48,7 +48,7 @@ export default function StudyContent(props: any) {
         <div className="text-slate-900 pb-16 bg-white">
             <header className="bg-white/90 border-b border-slate-200/60">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6">
-                    <div className="h-14 flex items-center justify-between gap-3">
+                    <div className="h-14 flex items-center justify-between gap-3 text-[14px]">
                         <Link
                             href={"/read/" + props.passage}
                             className="inline-flex items-center gap-2 text-slate-700 hover:text-slate-900 rounded-xl px-3 py-1.5 hover:bg-slate-100 transition">
@@ -58,12 +58,12 @@ export default function StudyContent(props: any) {
                         <button
                             type="button"
                             onClick={() => setOpen(true)}
-                            className="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition"
+                            className="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-indigo-700 bg-indigo-50/75 hover:bg-indigo-100/75 border border-indigo-200 transition"
                             aria-haspopup="dialog"
                             aria-expanded={open}
                             aria-controls="passage-viewer">
                             <BookOpenIcon className="size-5"/>
-                            <span className="font-medium">View passage</span>
+                            <span className="font-medium">Passage</span>
                             <span className="sr-only">(shortcut: V)</span>
                         </button>
                         <Link
@@ -76,7 +76,7 @@ export default function StudyContent(props: any) {
                 </div>
             </header>
 
-            <section className="mx-auto max-w-3xl sm:px-6">
+            <section className="mx-4 sm:mx-auto sm:px-6 w-[90vw] sm:w-full">
                 <div className="mb-5">
                     <h1 className="text-3xl sm:text-4xl font-bold mx-2 mb-0">{title}</h1>
                     <p className="text-slate-400 mx-2 mt-2 pb-2 font-light">
@@ -84,7 +84,7 @@ export default function StudyContent(props: any) {
                     </p>
                 </div>
                 <section
-                    className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden">
+                    className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-sm ring-1 ring-slate-200 overflow-hidden w-[90vw] sm:w-full">
                     <div
                         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-slate-200/70 bg-gradient-to-br from-white to-slate-50">
                         <div className="flex items-center gap-2.5">
