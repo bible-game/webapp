@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Questions from "@/app/study/[passage]/questions";
-import { ArrowLeftIcon, ArrowRightIcon, GraduationCapIcon, BookOpenIcon, XIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, GraduationCapIcon, BookOpenIcon } from "lucide-react";
 import { StateUtil } from "@/core/util/state-util";
 import { ReviewState } from "@/core/model/state/review-state";
 import { Star } from "@/app/play/[game]/star";
@@ -14,6 +14,7 @@ export default function StudyContent(props: any) {
 
     const [stars, setStars] = useState(0);
     const [date, setDate] = useState("");
+    const [updatedState, setUpdatedState] = useState({} as any);
     const MAX_STARS = 5;
 
     const [open, setOpen] = useState<boolean>(false);
@@ -30,7 +31,7 @@ export default function StudyContent(props: any) {
         }
 
         setDate(dateLabel);
-    }, [props.passage, props.state]);
+    }, [props.passage, props.state, updatedState]);
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
@@ -42,6 +43,18 @@ export default function StudyContent(props: any) {
 
     function prettyPassage(passage: string) {
         return passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ");
+    }
+
+    function update(state: any) {
+        setStars(state.stars || 0);
+
+        let dateLabel = "";
+        if (state && state.date) {
+            const parts = state.date.split(" ");
+            dateLabel = `${parts[1]} ${parts[2]} ${parts[3].split(",")[0]}`;
+        }
+
+        setDate(dateLabel);
     }
 
     return (
@@ -109,7 +122,7 @@ export default function StudyContent(props: any) {
                         </div>
                     </div>
                     <div className="p-4 sm:p-6">
-                        <Questions passage={props.passage} state={props.state}/>
+                        <Questions passage={props.passage} state={props.state} update={update}/>
                     </div>
                 </section>
             </section>

@@ -77,7 +77,7 @@ export default function Questions(props: QuestionsProps & any) {
       return acc;
     }, 0);
 
-    if (gradingResult && gradingResult.score > 60) finalStars += 1; // summary star
+    if (gradingResult && gradingResult.score > 60) finalStars += 1;
 
     const formatted = moment(new Date()).format('dddd, MMMM Do YYYY, h:mm:ss a').toString();
     setStars(finalStars);
@@ -94,6 +94,8 @@ export default function Questions(props: QuestionsProps & any) {
 
     if (props.state) post(`${process.env.SVC_USER}/state/review`, state);
     StateUtil.setReview(state);
+
+    props.update(state);
   };
 
   const getScoreTint = (score: number) => {
@@ -198,14 +200,11 @@ export default function Questions(props: QuestionsProps & any) {
                     </div>
                 )}
               </div>
-
-              {/* Submit */}
               {!stars && (
                   <Button
                       onPress={handleSubmit}
                       className="rounded-xl mt-4 bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white shadow hover:brightness-110"
-                      disabled={submitted}
-                  >
+                      disabled={submitted}>
                     Submit
                   </Button>
               )}
