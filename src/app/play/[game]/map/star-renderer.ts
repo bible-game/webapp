@@ -33,8 +33,8 @@ const CONFIG: Config = {
 };
 
 export function renderStar(ctx: CanvasRenderingContext2D, args: RenderStarArgs) {
-    const { x, y, radius, tint } = args;
-    if (radius <= 0) return;
+    let { x, y, radius, tint } = args;
+    if (isNaN(radius) || !isFinite(radius)) radius = 0.1; // question :: more appropriate value?
 
     const C = CONFIG;
     const boost = C.intensity * (1 + (Math.random() * 2 - 1) * C.twinkle);

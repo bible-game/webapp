@@ -24,6 +24,7 @@ const Treemap = (props: any) => {
     const [zoomLevel, setZoomLevel] = useState(0);
     const [zoomAccum, setZoomAccum] = useState(0);
     const pinchRef = useRef({ base: 1 });
+    const CHAPTER_WEIGHT = 20;
     const MIN_LEVEL = 0;
     const MAX_LEVEL = 3;
     const STEP_PINCH = 1.18;
@@ -127,7 +128,7 @@ const Treemap = (props: any) => {
                 },
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
-                groupInsetWidth: props.device == "mobile" ? 12 : 16,
+                groupInsetWidth: props.device == "mobile" ? 4 : 8,
                 groupMinDiameter: 0,
                 groupStrokeType: 'plain',
                 groupStrokeWidth: 2,
@@ -278,7 +279,7 @@ const Treemap = (props: any) => {
             chapters.push({
                 id: book.key + '/' + c.toString(),
                 label: c,
-                weight: 20,
+                weight: CHAPTER_WEIGHT,
                 color: (colours as any)[book.key],
                 level: 'chapter',
                 chapter: c,
@@ -294,14 +295,14 @@ const Treemap = (props: any) => {
 
     function getGroupWeight(verseStart: number, verseEnd: number) {
         let weight = 0.0;
-        for (let i = verseStart; i <= verseEnd; i++) weight += 20;
+        for (let i = verseStart; i <= verseEnd; i++) weight += CHAPTER_WEIGHT;
         if (weight < 100) weight = 100;
         return weight;
     }
 
     function getBookWeight(book: any) {
         let weight = 0.0;
-        for (const verse of book.verses) weight += 20;
+        for (const verse of book.verses) weight += CHAPTER_WEIGHT;
         if (weight < 100) weight = 100;
         return weight;
     }
