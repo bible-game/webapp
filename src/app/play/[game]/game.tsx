@@ -9,7 +9,7 @@ import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
-import Treemap from "@/app/play/[game]/map/treemap";
+import Skymap from "@/app/play/[game]/map/skymap";
 import moment from "moment/moment";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
@@ -277,7 +277,7 @@ export default function Game(props: any) {
         return (
             <>
                 <Summary passage={passage} playing={playing}/>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
+                <Skymap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}
                          narrativeHidden={narrativeHidden}
                          playing={playing}/>
