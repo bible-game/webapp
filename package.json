@@ -25,6 +25,7 @@
     "@nextui-org/react": "^2.4.6",
     "@nextui-org/system": "^2.2.5",
     "@nextui-org/theme": "^2.4.5",
+    "@types/three": "^0.180.0",
     "@uidotdev/usehooks": "^2.4.1",
     "@vercel/speed-insights": "^1.2.0",
     "bible-passage-reference-parser": "^3.0.0",
@@ -44,6 +45,7 @@
     "react-hot-toast": "^2.5.1",
     "react-textarea-autosize": "^8.5.9",
     "swr": "^2.3.3",
+    "three": "^0.180.0",
     "use-debounce": "^10.0.5",
     "zod": "^3.25.76"
   },
