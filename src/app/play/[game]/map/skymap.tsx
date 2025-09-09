@@ -165,7 +165,7 @@ function buildStarfield(stars: Star[]) {
         col.set([r, g, b], i * 3);
         const t = Math.sqrt((Math.max(vMin, Math.min(vMax, s.verses ?? vMin)) - vMin) / (vMax - vMin + 1e-6));
         size[i] = t / 20;
-        lum[i] = t; // todo
+        lum[i] = t;
     }
     const geom = new THREE.BufferGeometry(); geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     geom.setAttribute("color", new THREE.BufferAttribute(col, 3)); geom.setAttribute("aSize", new THREE.BufferAttribute(size, 1)); geom.setAttribute("aLum", new THREE.BufferAttribute(lum, 1));
