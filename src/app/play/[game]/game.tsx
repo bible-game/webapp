@@ -9,7 +9,6 @@ import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
-import Skymap from "@/app/play/[game]/map/skymap";
 import moment from "moment/moment";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
@@ -19,6 +18,7 @@ import { GameState } from "@/core/model/state/game-state";
 import { toast } from "react-hot-toast";
 import { Button } from "@heroui/button";
 import Link from "next/link";
+import SkyMap from "@/app/play/[game]/map/skymap";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -277,10 +277,7 @@ export default function Game(props: any) {
         return (
             <>
                 <Summary passage={passage} playing={playing}/>
-                <Skymap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
-                         testFound={testamentFound} data={testaments} book={book} device={props.device}
-                         narrativeHidden={narrativeHidden}
-                         playing={playing}/>
+                <SkyMap/>
                 <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
                         isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
                         addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
