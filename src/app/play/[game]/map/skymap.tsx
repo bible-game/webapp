@@ -327,5 +327,5 @@ export default function SkyMap(props: any) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [starsUrl, fov, maxDpr, nearestPerNode, showGrid, showCardinals]);
 
-    return <div ref={containerRef} className="relative w-full h-full" />;
+    return <div ref={containerRef} className="absolute h-[100vh] w-full top-0" />;
 }

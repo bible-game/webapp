@@ -49,8 +49,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
 
     return (
         <>
-            <Background/>
-            <main className="w-full relative z-1">
+            <main className="w-[100vw] relative z-1">
                 <Menu isPlay={true} info={info} date={game} device={device} />
                 <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
             </main>

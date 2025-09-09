@@ -66,7 +66,7 @@ export default function Menu(props: any) {
     }
 
     const stylesNavbar = {
-        base: ["w-full", "sm:w-[48rem]", "bg-transparent", "backdrop-saturate-100", "h-12"],
+        base: ["w-full", "sm:w-[48rem]", "bg-transparent", "backdrop-saturate-100", "h-12", "relative z-10 left-[calc(50%-22rem)]"],
         wrapper: ["px-2"]
     }
 
