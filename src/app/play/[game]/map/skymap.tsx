@@ -23,21 +23,6 @@ export type Star = {
     icon?: string;
 };
 
-export type SkyMapProps = {
-    starsUrl?: string; // default "/stars.json"
-    fov?: number; // deg
-    maxDpr?: number; // cap DPR for perf
-    nearestPerNode?: number; // extra edges per node for auto graph
-    autoConstellations?: boolean;
-    // View options
-    showGrid?: boolean;
-    showCardinals?: boolean;
-    // Time/location
-    latitude?: number; // deg (−90..+90)
-    longitude?: number; // deg (−180..+180, east positive)
-    datetime?: Date | string | number; // JS Date, ISO string or ms
-};
-
 // ===== Math helpers =====
 const TAU = Math.PI * 2;
 const deg2rad = (d: number) => THREE.MathUtils.degToRad(d);
@@ -237,18 +222,7 @@ function makeCardinals() {
     return group;
 }
 
-export default function SkyMap({
-                                   starsUrl = "/stars.json",
-                                   fov = 75,
-                                   maxDpr = 2,
-                                   nearestPerNode = 2,
-                                   autoConstellations = true,
-                                   showGrid = true,
-                                   showCardinals = true,
-                                   latitude = 51.5, // London‑ish
-                                   longitude = 0,   // Greenwich
-                                   datetime,
-                               }: SkyMapProps) {
+export default function SkyMap(props: any) {
     const containerRef = useRef<HTMLDivElement | null>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -257,6 +231,14 @@ export default function SkyMap({
     const skyGroupRef = useRef<THREE.Group | null>(null);
     const groundRef = useRef<THREE.Group | null>(null);
     const labelsRef = useRef<THREE.Group | null>(null);
+
+    const starsUrl = "/stars.json"
+    const fov = 75;
+    const showGrid = true;
+    const showCardinals = true;
+    const maxDpr = 2;
+    const nearestPerNode = 2;
+    const autoConstellations = true;
 
     const data = useMemo(() => ({
         loadStars: async (): Promise<Star[]> => { const res = await fetch(starsUrl); return await res.json(); },
@@ -310,11 +292,7 @@ export default function SkyMap({
 
         // Time model: rotate sky with Local Sidereal Time; tilt by latitude so the NCP altitude ≈ latitude
         const start = Date.now();
-        const userDate = datetime ? new Date(datetime as any) : new Date();
-        const baseGMST = gmstRad(userDate);
 
-        const latRad = deg2rad(latitude);
-        sky.rotation.x = -(Math.PI / 2 - latRad); // crude tilt so horizon roughly matches latitude
 
         let raf = 0; let running = true;
         const animate = () => {
@@ -322,9 +300,6 @@ export default function SkyMap({
             controlsRef.current?.update?.();
             const t = Date.now();
             // advance GMST by elapsed real time (sidereal day ~ 86164s)
-            const elapsed = (t - start) / 1000; const gmst = baseGMST + (elapsed / 86164) * TAU;
-            const lst = gmst + deg2rad(longitude);
-            sky.rotation.y = lst; // rotate sphere around Y
             updateLabelFading(labels, camera);
             renderer.render(scene, camera);
         };
@@ -350,7 +325,7 @@ export default function SkyMap({
             renderer.dispose(); container.removeChild(renderer.domElement);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [starsUrl, fov, maxDpr, autoConstellations, nearestPerNode, showGrid, showCardinals, latitude, longitude, datetime]);
+    }, [starsUrl, fov, maxDpr, nearestPerNode, showGrid, showCardinals]);
 
     return <div ref={containerRef} className="relative w-full h-full" />;
 }

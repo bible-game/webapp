@@ -277,7 +277,7 @@ export default function Game(props: any) {
         return (
             <>
                 <Summary passage={passage} playing={playing}/>
-                <SkyMap/>
+                <SkyMap select={select} />
                 <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
                         isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
                         addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
