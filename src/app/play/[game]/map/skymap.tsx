@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import {initLandscape} from "@/app/play/[game]/map/scene-utils";
+import { initLandscape } from "@/app/play/[game]/map/scene-utils";
 
 let OrbitControls: any;
 if (typeof window !== "undefined") {
@@ -12,8 +12,8 @@ if (typeof window !== "undefined") {
 
 export type Star = {
     name: string;
-    ra_h: number; // Right Ascension in hours (0..24)
-    dec_d: number; // Declination in degrees (-90..+90)
+    ra_h: number;
+    dec_d: number;
     book?: string;
     chapter?: number;
     testament?: string;
@@ -34,17 +34,7 @@ function sphToVec3(raRad: number, decRad: number, r = 1) {
     return new THREE.Vector3(x, y, z);
 }
 
-// Cheap GMST (Greenwich Mean Sidereal Time, radians). Accuracy ~1s/century — plenty for viz.
-function gmstRad(date: Date) {
-    const t = date.getTime();
-    const JD = t / 86400000 + 2440587.5; // Julian Day
-    const T = (JD - 2451545.0) / 36525.0; // centuries since J2000.0
-    let GMST = 280.46061837 + 360.98564736629 * (JD - 2451545.0) + 0.000387933 * T * T - (T * T * T) / 38710000.0;
-    GMST = ((GMST % 360) + 360) % 360; // 0..360
-    return deg2rad(GMST);
-}
-
-// ===== Label sprites =====
+// ===== Labels =====
 function makeLabel(text: string, cssPx = 128) {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d")!;
@@ -66,7 +56,6 @@ function makeLabel(text: string, cssPx = 128) {
     (spr as any).userData = { cssW: cssPx, cssH: cssPx };
     return spr;
 }
-
 const fadeState = new WeakMap<THREE.Sprite, { a: number; t: number }>();
 let _lastCompute = 0; let _lastFrame = 0; const _tmp = new THREE.Vector3();
 function updateLabelFading(group: THREE.Group, camera: THREE.PerspectiveCamera, opts?: { maxLabels?: number; radius?: number; throttleMs?: number; fadeInMs?: number; fadeOutMs?: number }) {
@@ -77,34 +66,17 @@ function updateLabelFading(group: THREE.Group, camera: THREE.PerspectiveCamera, 
     const fadeInMs = opts?.fadeInMs ?? 140;
     const fadeOutMs = opts?.fadeOutMs ?? 220;
     const dt = Math.max(0, now - _lastFrame); _lastFrame = now;
-
     if (now - _lastCompute > throttleMs) {
         _lastCompute = now;
         const sprites: { s: THREE.Sprite; r2: number; on: boolean }[] = [];
         group.traverse((o) => {
-            if ((o as any).isSprite) {
-                const s = o as THREE.Sprite; s.getWorldPosition(_tmp); _tmp.project(camera);
-                const r2 = _tmp.x * _tmp.x + _tmp.y * _tmp.y; const on = Math.abs(_tmp.z) <= 1 && r2 <= radius * radius;
-                sprites.push({ s, r2, on });
-            }
+            if ((o as any).isSprite) { const s = o as THREE.Sprite; s.getWorldPosition(_tmp); _tmp.project(camera); const r2 = _tmp.x*_tmp.x + _tmp.y*_tmp.y; const on = Math.abs(_tmp.z) <= 1 && r2 <= radius*radius; sprites.push({ s, r2, on }); }
         });
-        sprites.sort((a, b) => a.r2 - b.r2);
-        let shown = 0;
-        for (const { s, on } of sprites) {
-            let st = fadeState.get(s); if (!st) { st = { a: 0, t: 0 }; fadeState.set(s, st); }
-            st.t = on && shown < maxLabels ? 1 : 0; if (on && shown < maxLabels) shown++;
-        }
+        sprites.sort((a,b)=>a.r2-b.r2);
+        let shown = 0; for (const {s,on} of sprites) { let st = fadeState.get(s); if(!st){st={a:0,t:0}; fadeState.set(s,st);} st.t = on && shown < maxLabels ? 1 : 0; if (on && shown < maxLabels) shown++; }
     }
-    group.traverse((o) => {
-        if ((o as any).isSprite) {
-            const s = o as THREE.Sprite; let st = fadeState.get(s) ?? { a: 0, t: 0 }; fadeState.set(s, st);
-            const tau = st.t > st.a ? fadeInMs : fadeOutMs; const k = 1 - Math.exp(-(dt / Math.max(1, tau)));
-            st.a = THREE.MathUtils.lerp(st.a, st.t, k);
-            (s.material as THREE.SpriteMaterial).opacity = st.a;
-        }
-    });
+    group.traverse((o) => { if ((o as any).isSprite) { const s = o as THREE.Sprite; let st = fadeState.get(s) ?? { a:0, t:0 }; fadeState.set(s, st); const tau = st.t > st.a ? fadeInMs : fadeOutMs; const k = 1 - Math.exp(-(dt/Math.max(1, tau))); st.a = THREE.MathUtils.lerp(st.a, st.t, k); (s.material as THREE.SpriteMaterial).opacity = st.a; } });
 }
-
 function worldUnitsPerCssPixel(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, worldPos: THREE.Vector3) {
     const dist = camera.position.distanceTo(worldPos);
     const worldH = 2 * dist * Math.tan(deg2rad(camera.fov * 0.5));
@@ -112,220 +84,115 @@ function worldUnitsPerCssPixel(camera: THREE.PerspectiveCamera, renderer: THREE.
     return worldH / px;
 }
 function fitSpriteToPixels(s: THREE.Sprite, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) {
-    const u = (s as any).userData; if (!u) return; const wp = new THREE.Vector3(); s.getWorldPosition(wp);
-    const wu = worldUnitsPerCssPixel(camera, renderer, wp);
-    s.scale.set(u.cssW * wu, u.cssH * wu, 1);
+    const u = (s as any).userData; if (!u) return; const wp = new THREE.Vector3(); s.getWorldPosition(wp); const wu = worldUnitsPerCssPixel(camera, renderer, wp); s.scale.set(u.cssW*wu, u.cssH*wu, 1);
 }
-function fitSpriteGroupToPixels(group: THREE.Group, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) {
-    group.traverse((o) => { if ((o as any).isSprite) fitSpriteToPixels(o as THREE.Sprite, camera, renderer); });
-}
+function fitSpriteGroupToPixels(group: THREE.Group, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer) { group.traverse((o)=>{ if ((o as any).isSprite) fitSpriteToPixels(o as THREE.Sprite, camera, renderer); }); }
 
 // ===== Starfield shader =====
-function hexToRgb01(hex: string) {
-    const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex.trim());
-    if (!m) return [0.62, 0.75, 1.0] as const;
-    return [parseInt(m[1], 16) / 255, parseInt(m[2], 16) / 255, parseInt(m[3], 16) / 255] as const;
-}
-function makeStarfield(stars: Star) {
-    return null; // placeholder to satisfy TS when copy/pasting helpers around
-}
+function hexToRgb01(hex: string) { const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(hex.trim()); if (!m) return [0.62,0.75,1.0] as const; return [parseInt(m[1],16)/255, parseInt(m[2],16)/255, parseInt(m[3],16)/255] as const; }
 function buildStarfield(stars: Star[]) {
-    const n = stars.length;
-    const pos = new Float32Array(n * 3);
-    const col = new Float32Array(n * 3);
-    const size = new Float32Array(n);
-    const lum = new Float32Array(n);
-    let vMin = Infinity, vMax = -Infinity;
-    for (const s of stars) if (typeof s.verses === "number") {
-        vMin = Math.min(vMin, s.verses);
-        vMax = Math.max(vMax, s.verses);
-    }
-    if (!isFinite(vMin) || !isFinite(vMax) || vMin === vMax) { vMin = 10; vMax = 50; }
-    const v = new THREE.Vector3();
-    for (let i = 0; i < n; i++) {
-        const s = stars[i];
-        v.copy(sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1));
-        pos.set([v.x, v.y, v.z], i * 3);
-        const [r, g, b] = hexToRgb01(s.division_color || "#9fbfff");
-        col.set([r, g, b], i * 3);
-        const t = Math.sqrt((Math.max(vMin, Math.min(vMax, s.verses ?? vMin)) - vMin) / (vMax - vMin + 1e-6));
-        size[i] = t / 20;
-        lum[i] = t;
-    }
-    const geom = new THREE.BufferGeometry(); geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    geom.setAttribute("color", new THREE.BufferAttribute(col, 3)); geom.setAttribute("aSize", new THREE.BufferAttribute(size, 1)); geom.setAttribute("aLum", new THREE.BufferAttribute(lum, 1));
-    const mat = new THREE.ShaderMaterial({ transparent: true, depthWrite: false, vertexColors: true, uniforms: { uPixelRatio: { value: (typeof window !== "undefined" ? window.devicePixelRatio : 1) } },
-        vertexShader: /*glsl*/`attribute float aSize; attribute float aLum; varying vec3 vColor; varying float vLum; uniform float uPixelRatio; void main(){ vColor=color; vLum=aLum; vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*uPixelRatio*(300.0/ -mv.z); gl_Position=projectionMatrix*mv; }`,
-        fragmentShader: /*glsl*/`precision mediump float; varying vec3 vColor; varying float vLum; void main(){ vec2 p=gl_PointCoord*2.0-1.0; float r=length(p); if(r>1.0) discard; float core=smoothstep(0.0,0.2,1.0-r); float halo=smoothstep(1.0,0.0,r); float a=mix(halo*0.75,1.0,core)*mix(0.5,1.0,vLum); gl_FragColor=vec4(vColor,a);} `, });
-    const points = new THREE.Points(geom, mat); points.frustumCulled = false; return points;
+    const n = stars.length; const pos = new Float32Array(n*3); const col = new Float32Array(n*3); const size = new Float32Array(n); const lum = new Float32Array(n);
+    let vMin=Infinity,vMax=-Infinity; for (const s of stars) if (typeof s.verses === 'number'){ vMin=Math.min(vMin,s.verses); vMax=Math.max(vMax,s.verses); }
+    if (!isFinite(vMin)||!isFinite(vMax)||vMin===vMax){ vMin=10; vMax=50; }
+    const v=new THREE.Vector3();
+    for (let i=0;i<n;i++){ const s=stars[i]; v.copy(sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1)); pos.set([v.x,v.y,v.z], i*3); const [r,g,b]=hexToRgb01(s.division_color||"#9fbfff"); col.set([r,g,b], i*3); const t=Math.sqrt((Math.max(vMin, Math.min(vMax, s.verses ?? vMin))-vMin)/(vMax-vMin+1e-6)); size[i]=t/20; lum[i]=t; }
+    const geom=new THREE.BufferGeometry(); geom.setAttribute('position', new THREE.BufferAttribute(pos,3)); geom.setAttribute('color', new THREE.BufferAttribute(col,3)); geom.setAttribute('aSize', new THREE.BufferAttribute(size,1)); geom.setAttribute('aLum', new THREE.BufferAttribute(lum,1));
+    const mat=new THREE.ShaderMaterial({ transparent:true, depthWrite:false, vertexColors:true, uniforms:{ uPixelRatio:{value: (typeof window!=='undefined'? window.devicePixelRatio:1)}, uHighlightIndex:{value:-1}, uHighlightAmt:{value:0}, uHoverIndex:{value:-1}, uHoverAmt:{value:0}, uTime:{value:0}},
+        vertexShader: /*glsl*/`attribute float aSize; attribute float aLum; varying vec3 vColor; varying float vLum; varying float vIndex; uniform float uPixelRatio; void main(){ vColor=color; vLum=aLum; vIndex=float(gl_VertexID); vec4 mv=modelViewMatrix*vec4(position,1.0); gl_PointSize=aSize*uPixelRatio*(300.0/ -mv.z); gl_Position=projectionMatrix*mv; }`,
+        fragmentShader: /*glsl*/`precision mediump float; varying vec3 vColor; varying float vLum; varying float vIndex; uniform float uTime; uniform float uHighlightIndex; uniform float uHighlightAmt; uniform float uHoverIndex; uniform float uHoverAmt; void main(){ vec2 p=gl_PointCoord*2.0-1.0; float r=length(p); if(r>1.0) discard; float core=smoothstep(0.0,0.2,1.0-r); float halo=smoothstep(1.0,0.0,r); float a=mix(halo*0.75,1.0,core)*mix(0.5,1.0,vLum); vec3 col=vColor; if(abs(vIndex-uHoverIndex)<0.5){ float pulse=0.5+0.5*sin(uTime*6.28318); float amt=clamp(uHoverAmt*(0.4+0.6*pulse),0.0,1.0); col=mix(col,vec3(0.9,0.95,1.0),amt); a=mix(a,1.0,amt*0.6);} if(abs(vIndex-uHighlightIndex)<0.5){ float pulse=0.5+0.5*sin(uTime*6.28318); float amt=clamp(uHighlightAmt*(0.6+0.4*pulse),0.0,1.0); col=mix(col,vec3(1.0,1.0,0.5),amt); a=mix(a,1.0,amt);} gl_FragColor=vec4(col,a);} `});
+    const points=new THREE.Points(geom, mat); points.frustumCulled=false; return points;
 }
 
-// ===== Book‑constellation lines (MST + nearest neighbors) =====
-function pickDivisionColor(list: Array<{ division?: string; division_color?: string }>): number {
-    for (const s of list) if (s.division_color) return new THREE.Color(...hexToRgb01(s.division_color)).getHex();
-    const div = (list[0]?.division || "Division").toLowerCase(); let h = 2166136261 >>> 0; for (let i = 0; i < div.length; i++) { h ^= div.charCodeAt(i); h = Math.imul(h, 16777619); }
-    const hue = (h % 360) / 360; const c = new THREE.Color().setHSL(hue, 0.45, 0.7); return c.getHex();
-}
-function createLineMaterial(colorHex: number, opacity = 0.5, fadeLow = -0.08, fadeHigh = 0.12) {
-    return new THREE.ShaderMaterial({ transparent: true, depthTest: true, depthWrite: false, uniforms: { uColor: { value: new THREE.Color(colorHex) }, uOpacity: { value: opacity }, uFadeLow: { value: fadeLow }, uFadeHigh: { value: fadeHigh } },
-        vertexShader: /*glsl*/`varying float vY; void main(){ vec4 wp=modelMatrix*vec4(position,1.0); vY=wp.y; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);} `,
-        fragmentShader: /*glsl*/`precision mediump float; varying float vY; uniform vec3 uColor; uniform float uOpacity; uniform float uFadeLow; uniform float uFadeHigh; float smooth01(float x,float a,float b){ float t=clamp((x-a)/max(1e-5,b-a),0.0,1.0); return t*t*(3.0-2.0*t);} void main(){ float t=smooth01(vY,uFadeLow,uFadeHigh); float a=uOpacity*t; if(a<0.01) discard; gl_FragColor=vec4(uColor,a);} `, });
-}
-function computeLocalBasis(points: THREE.Vector3[]) { const n = new THREE.Vector3(); for (const p of points) n.add(p); if (n.lengthSq() < 1e-8) n.set(0, 1, 0); n.normalize(); const ref = Math.abs(n.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0); const u = new THREE.Vector3().crossVectors(ref, n).normalize(); const v = new THREE.Vector3().crossVectors(n, u).normalize(); return { u, v, n }; }
-function mstEdges2D(P: THREE.Vector2[]) { const n = P.length; if (n <= 1) return [] as Array<[number, number]>; const inT = new Array(n).fill(false), minD = new Array(n).fill(Infinity), parent = new Array(n).fill(-1); inT[0] = true; for (let j = 1; j < n; j++) { minD[j] = P[0].distanceTo(P[j]); parent[j] = 0; } const E: Array<[number, number]> = []; for (let k = 0; k < n - 1; k++) { let v = -1, best = Infinity; for (let j = 0; j < n; j++) if (!inT[j] && minD[j] < best) { best = minD[j]; v = j; } if (v === -1) break; inT[v] = true; const p = parent[v]; E.push(p < v ? [p, v] : [v, p]); for (let w = 0; w < n; w++) if (!inT[w]) { const d = P[v].distanceTo(P[w]); if (d < minD[w]) { minD[w] = d; parent[w] = v; } } } return E; }
-function nearestExtras(P: THREE.Vector2[], k: number, existing: Set<string>) { if (k <= 0) return [] as Array<[number, number]>; const n = P.length; const out: Array<[number, number]> = []; for (let i = 0; i < n; i++) { const order = Array.from({ length: n }, (_, j) => j).filter((j) => j !== i).sort((a, b) => P[i].distanceTo(P[a]) - P[i].distanceTo(P[b])); let added = 0; for (const j of order) { const key = i < j ? `${i}-${j}` : `${j}-${i}`; if (existing.has(key)) continue; existing.add(key); out.push(i < j ? [i, j] : [j, i]); if (++added >= k) break; } } return out; }
-function buildBookConstellations(stars: Star[], radius = 1.0, opts: { extraNearestPerNode?: number; opacity?: number; fadeLow?: number; fadeHigh?: number } = {}) {
-    const { extraNearestPerNode = 1, opacity = 0.5, fadeLow = -0.08, fadeHigh = 0.12 } = opts;
-    const group = new THREE.Group();
-    const byBook = new Map<string, Star[]>(); for (const s of stars) { const key = s.book || (s.name?.split(" ")[0] ?? ""); const arr = byBook.get(key) || []; arr.push(s); byBook.set(key, arr); }
-    for (const [_, raw] of byBook) {
-        const chapters = raw.slice().sort((a, b) => (a.chapter ?? 0) - (b.chapter ?? 0)); if (chapters.length < 2) continue;
-        const P3 = chapters.map((s) => sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1).normalize());
-        const { u, v, n } = computeLocalBasis(P3); const P2 = P3.map((p) => { const pn = p.clone().sub(n.clone().multiplyScalar(p.dot(n))).normalize(); return new THREE.Vector2(pn.dot(u), pn.dot(v)); });
-        const mst = mstEdges2D(P2); const existing = new Set(mst.map(([i, j]) => (i < j ? `${i}-${j}` : `${j}-${i}`))); const extras = nearestExtras(P2, extraNearestPerNode, existing); const edges = mst.concat(extras);
-        const arr: number[] = []; for (const [i, j] of edges) { const a = P3[i].clone().multiplyScalar(radius * 0.999); const b = P3[j].clone().multiplyScalar(radius * 0.999); arr.push(a.x, a.y, a.z, b.x, b.y, b.z); }
-        if (!arr.length) continue; const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.Float32BufferAttribute(arr, 3));
-        const mat = createLineMaterial(pickDivisionColor(chapters), opacity, fadeLow, fadeHigh); const lines = new THREE.LineSegments(geo, mat); lines.frustumCulled = false; lines.renderOrder = 0; group.add(lines);
-    }
-    return group;
-}
+function buildPickingPoints(stars: Star[]) { const n=stars.length; const pos=new Float32Array(n*3); for (let i=0;i<n;i++){ const s=stars[i]; const v=sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1); pos.set([v.x,v.y,v.z], i*3);} const geom=new THREE.BufferGeometry(); geom.setAttribute('position', new THREE.BufferAttribute(pos,3)); const mat=new THREE.PointsMaterial({ size:8, sizeAttenuation:false, transparent:true, opacity:0.0, depthTest:false }); const pts=new THREE.Points(geom, mat); pts.renderOrder=-1; return pts; }
 
-// ===== Azimuth grid + cardinals =====
-function makeAzimuthGrid(segments = 36) {
-    const group = new THREE.Group();
-    // Horizon ring
-    const R = 1.001; const ring = new THREE.RingGeometry(R * 0.995, R, segments);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x416a8a, transparent: true, opacity: 0.35, side: THREE.DoubleSide });
-    const ringMesh = new THREE.Mesh(ring, ringMat); ringMesh.rotation.x = Math.PI / 2; // y=0 plane
-    group.add(ringMesh);
-    // North–South meridian (semi‑circles)
-    const curve = new THREE.RingGeometry(R * 0.995, R, segments, 1, 0, Math.PI);
-    const mat = new THREE.MeshBasicMaterial({ color: 0x395a78, transparent: true, opacity: 0.25, side: THREE.DoubleSide });
-    const m1 = new THREE.Mesh(curve, mat); m1.rotation.z = Math.PI / 2; group.add(m1);
-    const m2 = new THREE.Mesh(curve, mat); m2.rotation.z = -Math.PI / 2; group.add(m2);
-    return group;
-}
-function makeCardinals() {
-    const group = new THREE.Group();
-    const labels = [
-        { t: "N", a: 0 },
-        { t: "E", a: Math.PI / 2 },
-        { t: "S", a: Math.PI },
-        { t: "W", a: -Math.PI / 2 },
-    ];
-    for (const { t, a } of labels) {
-        const spr = makeLabel(t, 128);
-        const r = 1.02; const x = r * Math.cos(a); const z = r * Math.sin(a);
-        spr.position.set(x, 0.001, z);
-        group.add(spr);
-    }
-    return group;
-}
+export default function SkyMap(props: any){
+    const containerRef=useRef<HTMLDivElement|null>(null); const rendererRef=useRef<THREE.WebGLRenderer|null>(null); const cameraRef=useRef<THREE.PerspectiveCamera|null>(null); const controlsRef=useRef<any|null>(null);
+    const pickPtsRef=useRef<THREE.Points|null>(null); const starsRef=useRef<Star[]|null>(null); const starfieldRef=useRef<THREE.Points|null>(null); const labelsRef=useRef<THREE.Group|null>(null);
+    const mouseRef=useRef(new THREE.Vector2());
 
-export default function SkyMap(props: any) {
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
-    const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
-    const sceneRef = useRef<THREE.Scene | null>(null);
-    const controlsRef = useRef<any | null>(null);
-    const skyGroupRef = useRef<THREE.Group | null>(null);
-    const groundRef = useRef<THREE.Group | null>(null);
-    const labelsRef = useRef<THREE.Group | null>(null);
+    // highlight & hover state
+    const highlightIndex=useRef<number>(-1); const highlightAmt=useRef<number>(0); const prevTime=useRef<number>(performance.now()/1000);
+    let hoverIdx=-1; let hoverEase=0; // 0..1
+    let cycleList:number[]=[]; let cyclePos=0; let lastClick={x:0,y:0};
 
-    const starsUrl = "/stars.json"
-    const fov = 75;
-    const showGrid = true;
-    const showCardinals = true;
-    const maxDpr = 2;
-    const nearestPerNode = 2;
-    const autoConstellations = true;
+    // drag guard
+    const downPos=useRef<{x:number;y:number}|null>(null); const DRAG_TOL=5;
 
-    const data = useMemo(() => ({
-        loadStars: async (): Promise<Star[]> => { const res = await fetch(starsUrl); return await res.json(); },
-    }), [starsUrl]);
+    const starsUrl="/stars.json";
+    const data=useMemo(()=>({ loadStars: async():Promise<Star[]>=>{ const res=await fetch(starsUrl); return await res.json(); } }),[starsUrl]);
 
-    useEffect(() => {
-        if (!containerRef.current) return;
-        const container = containerRef.current;
+    useEffect(()=>{
+        if (!containerRef.current) return; const container=containerRef.current;
+        const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020814);
 
-        const scene = new THREE.Scene(); scene.background = new THREE.Color(0x020814); sceneRef.current = scene;
-        const camera = new THREE.PerspectiveCamera(fov, container.clientWidth / container.clientHeight, 0.1, 1000);
-        camera.position.set(0, 0, 0.01);
-        camera.up.set(0, 1, 0);
-        cameraRef.current = camera;
-        const renderer = new THREE.WebGLRenderer({ antialias: true }); renderer.setPixelRatio(Math.min(maxDpr, window.devicePixelRatio || 1)); renderer.setSize(container.clientWidth, container.clientHeight); renderer.outputColorSpace = THREE.SRGBColorSpace; rendererRef.current = renderer; container.appendChild(renderer.domElement);
+        const camera=new THREE.PerspectiveCamera(75, container.clientWidth/container.clientHeight, 0.1, 1000); camera.position.set(0,0,0.01); camera.up.set(0,1,0); cameraRef.current=camera;
+        const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1)); renderer.setSize(container.clientWidth, container.clientHeight); renderer.outputColorSpace=THREE.SRGBColorSpace; rendererRef.current=renderer; container.appendChild(renderer.domElement);
 
-        // Controls
-        if (OrbitControls) {
-            const c = new OrbitControls(camera, renderer.domElement);
-            c.enableDamping = true;
-            c.dampingFactor = 0.08;
-            c.rotateSpeed = 0.5;
-            c.enableZoom = true;
-            c.minDistance = 0.01;
-            c.maxDistance = 2;
-            c.enablePan = false;
-            controlsRef.current = c;
+        if (OrbitControls){ const c=new OrbitControls(camera, renderer.domElement); c.enableDamping=true; c.dampingFactor=0.08; c.rotateSpeed=0.5; c.enableZoom=true; c.minDistance=0.01; c.maxDistance=2; c.enablePan=false; controlsRef.current=c; }
+
+        const labels=new THREE.Group(); scene.add(labels); labelsRef.current=labels;
+        const ground=initLandscape(); scene.add(ground);
+
+        // Wheel zoom + double-click reset
+        const BASE_FOV=75; const MIN_FOV=0, MAX_FOV=100, STEP=0.5;
+        const onWheel=(e:WheelEvent)=>{ e.preventDefault(); const dir=Math.sign(e.deltaY); camera.fov=THREE.MathUtils.clamp(camera.fov+dir*STEP, MIN_FOV, MAX_FOV); camera.updateProjectionMatrix(); if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer); };
+        const onDbl=()=>{ camera.fov=BASE_FOV; camera.updateProjectionMatrix(); if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer); };
+        renderer.domElement.addEventListener('wheel', onWheel, { passive:false }); renderer.domElement.addEventListener('dblclick', onDbl);
+
+        const onResize=()=>{ const w=container.clientWidth, h=container.clientHeight; renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix(); if(labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer); };
+        window.addEventListener('resize', onResize);
+
+        // pointer helpers
+        const ndcFromEvent=(e:MouseEvent|PointerEvent)=>{ const rect=renderer.domElement.getBoundingClientRect(); mouseRef.current.set(((e.clientX-rect.left)/rect.width)*2-1, -((e.clientY-rect.top)/rect.height)*2+1); };
+
+        // Core: screen-space nearest candidates with adaptive tolerance and prominence tiebreak
+        function collectCandidates(e: MouseEvent|PointerEvent){
+            const cam=cameraRef.current, pick=pickPtsRef.current, rend=rendererRef.current, stars=starsRef.current; if(!cam||!pick||!rend||!stars) return null;
+            const rect=rend.domElement.getBoundingClientRect(); const cx=e.clientX, cy=e.clientY; const posAttr=(pick.geometry as THREE.BufferGeometry).getAttribute('position') as THREE.BufferAttribute; const lumAttr=((starfieldRef.current?.geometry as THREE.BufferGeometry)?.getAttribute('aLum') as THREE.BufferAttribute|undefined);
+            const tmp=new THREE.Vector3(); const list: Array<{index:number; d:number; lum:number}> = [];
+            for (let i=0,n=posAttr.count;i<n;i++){ tmp.set(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i)).project(cam); const sx=(tmp.x*0.5+0.5)*rect.width+rect.left; const sy=(-tmp.y*0.5+0.5)*rect.height+rect.top; const d=Math.hypot(cx-sx, cy-sy); const lum = lumAttr? lumAttr.getX(i) : 0.5; list.push({index:i, d, lum}); }
+            list.sort((a,b)=> a.d - b.d || b.lum - a.lum);
+            return { rect, list };
         }
 
-        // Scene graph
-        const sky = new THREE.Group();
-        const ground = initLandscape();
-        const labels = new THREE.Group();
-        scene.add(sky);
-        scene.add(ground);
-        sky.add(labels);
-        skyGroupRef.current = sky; groundRef.current = ground; labelsRef.current = labels;
+        function adaptiveTolPx(){ const cam=cameraRef.current!; const dpr=window.devicePixelRatio||1; const fovT=THREE.MathUtils.clamp((cam.fov-20)/(100-20),0,1); return (Math.max(8, 10 + 6*fovT))*dpr; }
 
-        // Optional grid + cardinals
-        if (showGrid) sky.add(makeAzimuthGrid());
-        if (showCardinals) sky.add(makeCardinals());
+        function rebuildHover(e: PointerEvent){ const res=collectCandidates(e); if(!res) return; const enterTol=adaptiveTolPx(); const leaveTol=enterTol*1.5; if (hoverIdx!==-1){ // maintain or switch
+            const currentD = res.list.find(c=>c.index===hoverIdx)?.d ?? Infinity; if (currentD>leaveTol){ const within=res.list.filter(c=>c.d<=enterTol); hoverIdx = within.length? within[0].index : -1; cycleList = within.map(c=>c.index); cyclePos=0; }
+        } else { const within=res.list.filter(c=>c.d<=enterTol); if (within.length){ hoverIdx=within[0].index; cycleList=within.map(c=>c.index); cyclePos=0; } }
+        }
 
-        // Mouse wheel → FOV, double‑click → reset
-        const MIN_FOV = 0, MAX_FOV = 120, STEP = 0.25;
-        const onWheel = (e: WheelEvent) => { e.preventDefault(); const dir = Math.sign(e.deltaY); camera.fov = THREE.MathUtils.clamp(camera.fov + dir * STEP, MIN_FOV, MAX_FOV); camera.updateProjectionMatrix(); fitSpriteGroupToPixels(labels, camera, renderer); };
-        const onDbl = () => { camera.fov = fov; camera.updateProjectionMatrix(); fitSpriteGroupToPixels(labels, camera, renderer); };
-        renderer.domElement.addEventListener("wheel", onWheel, { passive: false }); renderer.domElement.addEventListener("dblclick", onDbl);
+        // drag guard helpers
+        const onPointerDown=(e:PointerEvent)=>{ downPos.current={x:e.clientX, y:e.clientY}; };
+        const exceededDrag=(e:MouseEvent|PointerEvent)=>{ if(!downPos.current) return false; const dx=e.clientX-downPos.current.x; const dy=e.clientY-downPos.current.y; return Math.hypot(dx,dy)>DRAG_TOL; };
 
-        const onResize = () => { const w = container.clientWidth, h = container.clientHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); fitSpriteGroupToPixels(labels, camera, renderer); };
-        window.addEventListener("resize", onResize);
-
-        // Time model: rotate sky with Local Sidereal Time; tilt by latitude so the NCP altitude ≈ latitude
-        const start = Date.now();
-
-
-        let raf = 0; let running = true;
-        const animate = () => {
-            if (!running) return; raf = requestAnimationFrame(animate);
-            controlsRef.current?.update?.();
-            const t = Date.now();
-            // advance GMST by elapsed real time (sidereal day ~ 86164s)
-            updateLabelFading(labels, camera);
-            renderer.render(scene, camera);
+        const onClick=(e:MouseEvent)=>{ ndcFromEvent(e); if (exceededDrag(e)) return; const res=collectCandidates(e); if(!res) return; const enterTol=adaptiveTolPx(); const moved = Math.hypot(e.clientX-lastClick.x, e.clientY-lastClick.y) <= 5; let idx:number|undefined;
+            const within = res.list.filter(c=>c.d<=enterTol);
+            if (moved && cycleList.length>1){ idx = cycleList[cyclePos % cycleList.length]; cyclePos++; }
+            else if (within.length){ cycleList = within.map(c=>c.index); cyclePos=1; idx = within[0].index; lastClick={x:e.clientX,y:e.clientY}; }
+            if (idx!==undefined){ hoverIdx = idx; highlightIndex.current = idx; highlightAmt.current = 1; const s=starsRef.current?.[idx]; if (s && s.book && typeof s.chapter==='number' && typeof props?.select==='function'){ props.select(s.book, s.chapter); } }
         };
 
-        (async () => {
-            const stars = await data.loadStars();
-            const field = buildStarfield(stars);
-            sky.add(field);
-            // Labels (name + optional emoji icon)
-            for (const s of stars) {
-                const text = `${s.icon ? s.icon + " " : ""}${s.name ?? ""}`.trim(); if (!text) continue;
-                const spr = makeLabel(text, 128);
-                const p = sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01); spr.position.copy(p); labels.add(spr);
-            }
-            fitSpriteGroupToPixels(labels, camera, renderer);
-            if (autoConstellations) sky.add(buildBookConstellations(stars, 1.0, { extraNearestPerNode: nearestPerNode, opacity: 0.5 }));
-            animate();
-        })();
+        const onPointerMove=(e:PointerEvent)=>{ ndcFromEvent(e); rebuildHover(e); renderer.domElement.style.cursor = hoverIdx!==-1 ? 'pointer' : ''; };
 
-        return () => {
-            running = false; cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); renderer.domElement.removeEventListener("wheel", onWheel as any); renderer.domElement.removeEventListener("dblclick", onDbl as any); controlsRef.current?.dispose?.();
-            scene.traverse((o: any) => { o.geometry?.dispose?.(); if (o.material) { Array.isArray(o.material) ? o.material.forEach((m: any) => m.dispose?.()) : o.material.dispose?.(); } });
-            renderer.dispose(); container.removeChild(renderer.domElement);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [starsUrl, fov, maxDpr, nearestPerNode, showGrid, showCardinals]);
+        renderer.domElement.addEventListener('pointerdown', onPointerDown);
+        renderer.domElement.addEventListener('click', onClick);
+        renderer.domElement.addEventListener('pointermove', onPointerMove);
+
+        // animate
+        let raf=0; let running=true; const animate=()=>{ if(!running) return; raf=requestAnimationFrame(animate); controlsRef.current?.update?.(); const now=performance.now()/1000; const dt=Math.max(0, Math.min(0.1, now - prevTime.current)); prevTime.current=now; const k=1 - Math.exp(-dt/0.75); highlightAmt.current += (0 - highlightAmt.current)*k; if (starfieldRef.current){ const mat=starfieldRef.current.material as THREE.ShaderMaterial; mat.uniforms.uTime.value = now; mat.uniforms.uHighlightIndex.value = highlightIndex.current; mat.uniforms.uHighlightAmt.value = highlightAmt.current; // hover easing fast
+            const hk = 1 - Math.exp(-dt/0.12); hoverEase += ((hoverIdx!==-1?1:0) - hoverEase) * hk; mat.uniforms.uHoverIndex.value = hoverIdx; mat.uniforms.uHoverAmt.value = hoverEase; }
+            if (labelsRef.current){ updateLabelFading(labelsRef.current, camera); fitSpriteGroupToPixels(labelsRef.current, camera, renderer); }
+            renderer.render(scene, camera); };
+
+        (async()=>{
+            const stars=await data.loadStars(); starsRef.current=stars; const field=buildStarfield(stars); starfieldRef.current=field; scene.add(field); const picking=buildPickingPoints(stars); scene.add(picking); pickPtsRef.current=picking;
+            // labels
+            for (const s of stars){ const text=`${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim(); if(!text) continue; const spr=makeLabel(text, 128); const p=sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01); spr.position.copy(p); labels.add(spr);} fitSpriteGroupToPixels(labels, camera, renderer);
+            animate(); })();
+
+        return ()=>{ running=false; cancelAnimationFrame(raf); renderer.domElement.removeEventListener('wheel', onWheel as any); renderer.domElement.removeEventListener('dblclick', onDbl as any); window.removeEventListener('resize', onResize as any); renderer.domElement.removeEventListener('pointerdown', onPointerDown as any); renderer.domElement.removeEventListener('click', onClick as any); renderer.domElement.removeEventListener('pointermove', onPointerMove as any); controlsRef.current?.dispose?.(); scene.traverse((o:any)=>{ o.geometry?.dispose?.(); if(o.material){ Array.isArray(o.material) ? o.material.forEach((m:any)=>m.dispose?.()) : o.material.dispose?.(); } }); renderer.dispose(); container.removeChild(renderer.domElement); };
+    }, [data]);
 
     return <div ref={containerRef} className="absolute h-[100vh] w-full top-0" />;
 }

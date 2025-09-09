@@ -255,6 +255,8 @@ export default function Game(props: any) {
 
     function select(book: any, chapter: any, isBookKey = true) {
         console.log(chapter);
+        toast.success(`${book} ${chapter}`);
+
         if (isBookKey) {
             const bookName = allBooks.find((bk: any) => bk.key == book).name;
             if (book) selectBook(bookName);
@@ -286,6 +288,7 @@ export default function Game(props: any) {
                         selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
                 <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
                 <Confetti fire={confetti}/>
+
             </>
         );
     }
