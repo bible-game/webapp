@@ -61,7 +61,7 @@ function makeLabel(text: string, cssPx = 128) {
     ctx.font = `500 ${Math.round(px*0.28)}px system-ui, -apple-system, Segoe UI, Roboto`;
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillStyle = "white"; ctx.shadowBlur = Math.round(px*0.06); ctx.shadowColor = "rgba(0,0,0,0.9)";
-    const lines = text.split("");
+    const lines = text.split("\n");
     if (lines.length === 1) ctx.fillText(text, px/2, px/2);
     else { const y0 = px/2 - (lines.length-1)*(px*0.25); lines.forEach((l,i)=>ctx.fillText(l, px/2, y0 + i*(px*0.5))); }
     const tex = new THREE.CanvasTexture(canvas); tex.anisotropy = 4; tex.needsUpdate = true;
@@ -297,27 +297,72 @@ function buildBookConstellations(stars: Star[], radius = 1.0, opts: { extraNeare
 // ===== Ground dome + horizon glow (occludes below-horizon stars) =====
 function makeGround() {
     const group = new THREE.Group();
-    // Occluding hemisphere (depthWrite true, BackSide)
-    const hemiGeom = new THREE.SphereGeometry(50, 48, 32);
-    const hemiMat = new THREE.MeshBasicMaterial({ color: 0x041425, side: THREE.BackSide, depthWrite: true, transparent: true, opacity: 0.42 });
-    group.add(new THREE.Mesh(hemiGeom, hemiMat));
-    // Horizon ring glow (screen-facing) — simple shader quad billboard
-    const plane = new THREE.PlaneGeometry(100,100);
+
+    // Inner occluder just below the stars
+    const R = 0.99; // slightly smaller than star radius (1.0) so it sits in front from the camera’s POV
+    const geom = new THREE.SphereGeometry(R, 64, 32);
+
     const mat = new THREE.ShaderMaterial({
-        transparent: true, depthWrite: false,
-        uniforms: {},
-        vertexShader: /*glsl*/`
-      varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+        transparent: true,
+        depthWrite: true,   // write depth so stars below horizon are hidden
+        depthTest: true,
+        side: THREE.BackSide, // render inside of the sphere
+        uniforms: {
+            uColor:   { value: new THREE.Color(0x041425) },
+            uOpacity: { value: 0.35 },
+        },
+        vertexShader: /* glsl */`
+      varying vec3 vWorld;
+      void main() {
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        vWorld = wp.xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
     `,
-        fragmentShader: /*glsl*/`
-      varying vec2 vUv; void main(){ vec2 p = vUv*2.0-1.0; float r = length(p);
-        float a = smoothstep(1.0, 0.6, r) * 0.25; gl_FragColor = vec4(0.5,0.7,1.0, a); }
+        fragmentShader: /* glsl */`
+      precision mediump float;
+      varying vec3 vWorld;
+      uniform vec3  uColor;
+      uniform float uOpacity;
+      void main() {
+        // horizon test: y > 0 is above horizon; discard so it won't write depth
+        if (vWorld.y > 0.0) discard;
+        gl_FragColor = vec4(uColor, uOpacity);
+      }
     `,
-        blending: THREE.AdditiveBlending,
     });
-    const glow = new THREE.Mesh(plane, mat); glow.position.set(0,0, -10); group.add(glow);
+
+    const dome = new THREE.Mesh(geom, mat);
+    group.add(dome);
+
+    // Optional: a subtle horizon glow “ring”
+    const plane = new THREE.PlaneGeometry(100, 100);
+    const glowMat = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        vertexShader: /* glsl */`
+      varying vec2 vUv;
+      void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }
+    `,
+        fragmentShader: /* glsl */`
+      precision mediump float;
+      varying vec2 vUv;
+      void main(){
+        vec2 p = vUv*2.0 - 1.0;
+        float r = length(p);
+        float a = smoothstep(1.0, 0.6, r) * 0.25;
+        gl_FragColor = vec4(0.5, 0.7, 1.0, a);
+      }
+    `,
+    });
+    const glow = new THREE.Mesh(plane, glowMat);
+    glow.position.set(0, 0, -10);
+    group.add(glow);
+
     return group;
 }
+
 
 // ===== Main component =====
 export default function SkyMap({
@@ -348,7 +393,8 @@ export default function SkyMap({
 
         const scene = new THREE.Scene(); scene.background = new THREE.Color(0x020814); sceneRef.current = scene;
         const camera = new THREE.PerspectiveCamera(fov, container.clientWidth/container.clientHeight, 0.1, 1000);
-        camera.position.set(0, 0, 2.8); cameraRef.current = camera;
+        camera.position.set(0, 0, 0.01);
+        cameraRef.current = camera;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
         renderer.setPixelRatio(Math.min(maxDpr, window.devicePixelRatio || 1));
@@ -361,11 +407,18 @@ export default function SkyMap({
         // Controls
         if (OrbitControls) {
             const controls = new OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true; controls.dampingFactor = 0.08; controls.rotateSpeed = 0.5;
-            controls.enablePan = false; controls.enableZoom = true; controls.minDistance = 1.2; controls.maxDistance = 10;
-            if (horizonLocked) { const EPS = THREE.MathUtils.degToRad(0.5); controls.minPolarAngle = EPS; controls.maxPolarAngle = Math.PI/2 - EPS; }
-            else { controls.minPolarAngle = 0; controls.maxPolarAngle = Math.PI; }
-            controlsRef.current = controls;
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.rotateSpeed = 0.5;
+
+            controls.enableZoom = true;            // keep if you want dolly in/out; set to false to lock distance
+            controls.minDistance = 0.01;           // allow camera to live at center
+            controls.maxDistance = 2;              // still “inside” while dollying
+
+            const EPS = THREE.MathUtils.degToRad(0.5);
+            controls.minPolarAngle = EPS;                 // don’t go exactly through the zenith singularity
+            controls.maxPolarAngle = Math.PI / 2 - EPS;   // cap at horizon
+            controls.enablePan = false;
         }
 
         // Ambient light
@@ -392,7 +445,7 @@ export default function SkyMap({
             if (!running) return; raf = requestAnimationFrame(animate);
             controlsRef.current?.update?.();
             // Simulate sky rotation (replace with real LST if desired)
-            skyGroup.rotation.y += 0.0003;
+            skyGroup.rotation.y += 0.00001;
             // Update labels
             updateLabelFading(labelGroup, camera);
             renderer.render(scene, camera);
