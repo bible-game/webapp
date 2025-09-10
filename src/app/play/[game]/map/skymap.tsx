@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { initLandscape } from "@/app/play/[game]/map/scene-utils";
+import { initLandscape } from "@/app/play/[game]/map/utils/scene-utils";
 
 let OrbitControls: any;
 if (typeof window !== "undefined") {
@@ -10,8 +10,8 @@ if (typeof window !== "undefined") {
     OrbitControls = require("three/examples/jsm/controls/OrbitControls").OrbitControls;
 }
 
-import { makeLabel, updateLabelLayoutAndFading, fitSpriteGroupToPixels } from "./label-utils";
-import { Star, buildStarfield, buildPickingPoints, sphToVec3, raHoursToRad, deg2rad } from "./star-utils";
+import { makeLabel, updateLabelLayoutAndFading, fitSpriteGroupToPixels } from "./utils/label-utils";
+import { Star, buildStarfield, buildPickingPoints, sphToVec3, raHoursToRad, deg2rad } from "./utils/star-utils";
 
 export default function SkyMap(props: any){
     const containerRef=useRef<HTMLDivElement|null>(null); const rendererRef=useRef<THREE.WebGLRenderer|null>(null); const cameraRef=useRef<THREE.PerspectiveCamera|null>(null); const controlsRef=useRef<any|null>(null);
