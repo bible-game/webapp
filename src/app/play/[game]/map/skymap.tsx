@@ -35,25 +35,81 @@ function sphToVec3(raRad: number, decRad: number, r = 1) {
 }
 
 // ===== Labels =====
-function makeLabel(text: string, cssPx = 128) {
+/**
+ * Make a crisp, auto-sized sprite label with word-wrapping.
+ * - Sizes the canvas to the measured text (no more fixed square!)
+ * - Stores desired CSS pixel size on sprite.userData so we can keep
+ *   label size constant on screen in `fitSpriteToPixels`.
+ */
+function makeLabel(text: string, opts?: { fontPx?: number; maxWidthPx?: number; paddingPx?: number; align?: CanvasTextAlign }) {
+    const fontPx = opts?.fontPx ?? 28;           // visual font size in CSS px
+    const maxWidthPx = opts?.maxWidthPx ?? 280;  // wrap long titles nicely
+    const paddingPx = opts?.paddingPx ?? 12;
+    const align: CanvasTextAlign = opts?.align ?? "center";
+
+    // Prepare a measuring context
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d")!;
-    canvas.width = cssPx; canvas.height = cssPx;
-    ctx.clearRect(0, 0, cssPx, cssPx);
-    ctx.font = `500 ${Math.round(cssPx * 0.28)}px system-ui, -apple-system, Segoe UI, Roboto`;
-    ctx.textAlign = "center"; ctx.textBaseline = "middle";
-    ctx.fillStyle = "white"; ctx.shadowColor = "rgba(0,0,0,0.9)"; ctx.shadowBlur = Math.round(cssPx * 0.06);
-    const lines = text.split("\n");
-    if (lines.length === 1) ctx.fillText(text, cssPx / 2, cssPx / 2);
-    else {
-        const y0 = cssPx / 2 - (lines.length - 1) * (cssPx * 0.25);
-        lines.forEach((l, i) => ctx.fillText(l, cssPx / 2, y0 + i * (cssPx * 0.5)));
+
+    const dpr = Math.min(2, window.devicePixelRatio || 1); // cap for memory
+    const font = `500 ${fontPx}px system-ui, -apple-system, Segoe UI, Roboto`;
+    ctx.font = font;
+
+    // Simple word-wrap (spaces and hyphens)
+    const words = text.split(/([\s\-])/); // keep delimiters so we don't lose hyphens
+    const lines: string[] = [];
+    let line = "";
+    const measure = (t: string) => ctx.measureText(t).width;
+    for (const w of words) {
+        const candidate = line + w;
+        if (measure(candidate) > maxWidthPx && line) {
+            lines.push(line.trim());
+            line = w.trimStart();
+        } else {
+            line = candidate;
+        }
     }
+    if (line.trim()) lines.push(line.trim());
+
+    const textW = Math.min(maxWidthPx, Math.max(...lines.map(measure), 1));
+    const lineHeight = Math.round(fontPx * 1.2);
+    const textH = lines.length * lineHeight;
+
+    // Final CSS size we want on screen
+    const cssW = Math.ceil(textW + paddingPx * 2);
+    const cssH = Math.ceil(textH + paddingPx * 2);
+
+    // Backing store pixels for crisp rendering
+    canvas.width = Math.max(2, Math.ceil(cssW * dpr));
+    canvas.height = Math.max(2, Math.ceil(cssH * dpr));
+
+    // Draw at CSS scale
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
+    ctx.font = font;
+    ctx.textAlign = align;
+    ctx.textBaseline = "middle";
+
+    // Style
+    ctx.fillStyle = "white";
+    ctx.shadowColor = "rgba(0,0,0,0.9)";
+    ctx.shadowBlur = Math.round(fontPx * 0.4);
+
+    // Draw
+    const x = align === "center" ? cssW / 2 : align === "right" ? cssW - paddingPx : paddingPx;
+    const y0 = Math.round(cssH / 2 - ((lines.length - 1) * lineHeight) / 2);
+    lines.forEach((l, i) => ctx.fillText(l, x, y0 + i * lineHeight));
+
     const tex = new THREE.CanvasTexture(canvas);
-    tex.anisotropy = 4; tex.needsUpdate = true;
+    tex.anisotropy = 4;
+    tex.needsUpdate = true;
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    tex.generateMipmaps = false; // NPOT safety & crisper text
+
     const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0 });
     const spr = new THREE.Sprite(mat);
-    (spr as any).userData = { cssW: cssPx, cssH: cssPx };
+    (spr as any).userData = { cssW, cssH };
     return spr;
 }
 const fadeState = new WeakMap<THREE.Sprite, { a: number; t: number }>();
@@ -188,7 +244,7 @@ export default function SkyMap(props: any){
         (async()=>{
             const stars=await data.loadStars(); starsRef.current=stars; const field=buildStarfield(stars); starfieldRef.current=field; scene.add(field); const picking=buildPickingPoints(stars); scene.add(picking); pickPtsRef.current=picking;
             // labels
-            for (const s of stars){ const text=`${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim(); if(!text) continue; const spr=makeLabel(text, 128); const p=sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01); spr.position.copy(p); labels.add(spr);} fitSpriteGroupToPixels(labels, camera, renderer);
+            for (const s of stars){ const text=`${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim(); if(!text) continue; const spr=makeLabel(text, { fontPx: 28, maxWidthPx: 300, paddingPx: 10 }); const p=sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01); spr.position.copy(p); labels.add(spr);} fitSpriteGroupToPixels(labels, camera, renderer);
             animate(); })();
 
         return ()=>{ running=false; cancelAnimationFrame(raf); renderer.domElement.removeEventListener('wheel', onWheel as any); renderer.domElement.removeEventListener('dblclick', onDbl as any); window.removeEventListener('resize', onResize as any); renderer.domElement.removeEventListener('pointerdown', onPointerDown as any); renderer.domElement.removeEventListener('click', onClick as any); renderer.domElement.removeEventListener('pointermove', onPointerMove as any); controlsRef.current?.dispose?.(); scene.traverse((o:any)=>{ o.geometry?.dispose?.(); if(o.material){ Array.isArray(o.material) ? o.material.forEach((m:any)=>m.dispose?.()) : o.material.dispose?.(); } }); renderer.dispose(); container.removeChild(renderer.domElement); };
