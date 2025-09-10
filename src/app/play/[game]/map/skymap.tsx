@@ -109,29 +109,37 @@ function makeLabel(text: string, opts?: { fontPx?: number; maxWidthPx?: number; 
 
     const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0 });
     const spr = new THREE.Sprite(mat);
-    (spr as any).userData = { cssW, cssH };
+    (spr as any).userData = { cssW, cssH, scale: 1, lum: 0.5 };
     return spr;
 }
 const fadeState = new WeakMap<THREE.Sprite, { a: number; t: number }>();
 let _lastCompute = 0; let _lastFrame = 0; const _tmp = new THREE.Vector3();
-function updateLabelFading(group: THREE.Group, camera: THREE.PerspectiveCamera, opts?: { maxLabels?: number; radius?: number; throttleMs?: number; fadeInMs?: number; fadeOutMs?: number }) {
+function updateLabelLayoutAndFading(group: THREE.Group, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, opts?: { maxLabels?: number; marginPx?: number; throttleMs?: number; fadeInMs?: number; fadeOutMs?: number }) {
     const now = performance.now();
-    const maxLabels = opts?.maxLabels ?? 24;
-    const radius = opts?.radius ?? 0.65; // in NDC
+    const maxLabels = opts?.maxLabels ?? 26;
+    const marginPx = opts?.marginPx ?? 6;
     const throttleMs = opts?.throttleMs ?? 120;
     const fadeInMs = opts?.fadeInMs ?? 140;
     const fadeOutMs = opts?.fadeOutMs ?? 220;
     const dt = Math.max(0, now - _lastFrame); _lastFrame = now;
+
+    const rect = renderer.domElement.getBoundingClientRect();
+
     if (now - _lastCompute > throttleMs) {
         _lastCompute = now;
-        const sprites: { s: THREE.Sprite; r2: number; on: boolean }[] = [];
-        group.traverse((o) => {
-            if ((o as any).isSprite) { const s = o as THREE.Sprite; s.getWorldPosition(_tmp); _tmp.project(camera); const r2 = _tmp.x*_tmp.x + _tmp.y*_tmp.y; const on = Math.abs(_tmp.z) <= 1 && r2 <= radius*radius; sprites.push({ s, r2, on }); }
+        type Cand = { s: THREE.Sprite; lum: number; cx: number; cy: number; w: number; h: number; r2: number; z: number };
+        const cand: Cand[] = [];
+        group.traverse((o)=>{
+            if ((o as any).isSprite){ const s=o as THREE.Sprite; s.getWorldPosition(_tmp); const p=_tmp.clone().project(camera); if(Math.abs(p.z)>1) return; const u=(s as any).userData || { cssW:0, cssH:0, scale:1, lum:0.5 }; const w=u.cssW*u.scale; const h=u.cssH*u.scale; const cx=(p.x*0.5+0.5)*rect.width; const cy=(-p.y*0.5+0.5)*rect.height; const r2=p.x*p.x + p.y*p.y; cand.push({ s, lum: u.lum ?? 0.5, cx, cy, w, h, r2, z: Math.abs(p.z) }); }
         });
-        sprites.sort((a,b)=>a.r2-b.r2);
-        let shown = 0; for (const {s,on} of sprites) { let st = fadeState.get(s); if(!st){st={a:0,t:0}; fadeState.set(s,st);} st.t = on && shown < maxLabels ? 1 : 0; if (on && shown < maxLabels) shown++; }
+        cand.sort((a,b)=> (b.lum - a.lum) || (a.r2 - b.r2) || (a.z - b.z));
+        const chosen: Cand[]=[];
+        const overlap=(a:Cand,b:Cand)=> !(a.cx+a.w/2+marginPx < b.cx-b.w/2 || a.cx-a.w/2-marginPx > b.cx+b.w/2 || a.cy+a.h/2+marginPx < b.cy-b.h/2 || a.cy-a.h/2-marginPx > b.cy+b.h/2);
+        for (const c of cand){ if (chosen.length>=maxLabels) break; const within = c.cx>-c.w && c.cx<rect.width+c.w && c.cy>-c.h && c.cy<rect.height+c.h; if (!within) continue; let ok=true; for(const d of chosen){ if (overlap(c,d)){ ok=false; break; } } if (ok) chosen.push(c); }
+        const set = new Set(chosen.map(c=>c.s));
+        group.traverse((o)=>{ if ((o as any).isSprite){ const s=o as THREE.Sprite; let st=fadeState.get(s); if(!st){st={a:0,t:0}; fadeState.set(s,st);} st.t = set.has(s)? 1:0; } });
     }
-    group.traverse((o) => { if ((o as any).isSprite) { const s = o as THREE.Sprite; let st = fadeState.get(s) ?? { a:0, t:0 }; fadeState.set(s, st); const tau = st.t > st.a ? fadeInMs : fadeOutMs; const k = 1 - Math.exp(-(dt/Math.max(1, tau))); st.a = THREE.MathUtils.lerp(st.a, st.t, k); (s.material as THREE.SpriteMaterial).opacity = st.a; } });
+    group.traverse((o)=>{ if ((o as any).isSprite){ const s=o as THREE.Sprite; let st=fadeState.get(s) ?? { a:0, t:0 }; fadeState.set(s, st); const tau = st.t > st.a ? fadeInMs : fadeOutMs; const k = 1 - Math.exp(-(dt/Math.max(1, tau))); st.a = THREE.MathUtils.lerp(st.a, st.t, k); (s.material as THREE.SpriteMaterial).opacity = st.a; } });
 }
 function worldUnitsPerCssPixel(camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, worldPos: THREE.Vector3) {
     const dist = camera.position.distanceTo(worldPos);
@@ -238,13 +246,13 @@ export default function SkyMap(props: any){
         // animate
         let raf=0; let running=true; const animate=()=>{ if(!running) return; raf=requestAnimationFrame(animate); controlsRef.current?.update?.(); const now=performance.now()/1000; const dt=Math.max(0, Math.min(0.1, now - prevTime.current)); prevTime.current=now; const k=1 - Math.exp(-dt/0.75); highlightAmt.current += (0 - highlightAmt.current)*k; if (starfieldRef.current){ const mat=starfieldRef.current.material as THREE.ShaderMaterial; mat.uniforms.uTime.value = now; mat.uniforms.uHighlightIndex.value = highlightIndex.current; mat.uniforms.uHighlightAmt.value = highlightAmt.current; // hover easing fast
             const hk = 1 - Math.exp(-dt/0.12); hoverEase += ((hoverIdx!==-1?1:0) - hoverEase) * hk; mat.uniforms.uHoverIndex.value = hoverIdx; mat.uniforms.uHoverAmt.value = hoverEase; }
-            if (labelsRef.current){ updateLabelFading(labelsRef.current, camera); fitSpriteGroupToPixels(labelsRef.current, camera, renderer); }
+            if (labelsRef.current){ updateLabelLayoutAndFading(labelsRef.current, camera, renderer); fitSpriteGroupToPixels(labelsRef.current, camera, renderer); }
             renderer.render(scene, camera); };
 
         (async()=>{
             const stars=await data.loadStars(); starsRef.current=stars; const field=buildStarfield(stars); starfieldRef.current=field; scene.add(field); const picking=buildPickingPoints(stars); scene.add(picking); pickPtsRef.current=picking;
             // labels
-            for (const s of stars){ const text=`${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim(); if(!text) continue; const spr=makeLabel(text, { fontPx: 28, maxWidthPx: 300, paddingPx: 10 }); const p=sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01); spr.position.copy(p); labels.add(spr);} fitSpriteGroupToPixels(labels, camera, renderer);
+            for (let i=0;i<stars.length;i++){ const s=stars[i]; const text=`${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim(); if(!text) continue; const spr=makeLabel(text, { fontPx: 28, maxWidthPx: 320, paddingPx: 10 }); const p=sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01); spr.position.copy(p); const lum=((starfieldRef.current!.geometry as THREE.BufferGeometry).getAttribute('aLum') as THREE.BufferAttribute).getX(i) ?? 0.5; (spr as any).userData.lum=lum; (spr as any).userData.scale = 0.9 + 0.45*lum; labels.add(spr);}  fitSpriteGroupToPixels(labels, camera, renderer);
             animate(); })();
 
         return ()=>{ running=false; cancelAnimationFrame(raf); renderer.domElement.removeEventListener('wheel', onWheel as any); renderer.domElement.removeEventListener('dblclick', onDbl as any); window.removeEventListener('resize', onResize as any); renderer.domElement.removeEventListener('pointerdown', onPointerDown as any); renderer.domElement.removeEventListener('click', onClick as any); renderer.domElement.removeEventListener('pointermove', onPointerMove as any); controlsRef.current?.dispose?.(); scene.traverse((o:any)=>{ o.geometry?.dispose?.(); if(o.material){ Array.isArray(o.material) ? o.material.forEach((m:any)=>m.dispose?.()) : o.material.dispose?.(); } }); renderer.dispose(); container.removeChild(renderer.domElement); };
