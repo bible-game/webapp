@@ -12,10 +12,13 @@ if (typeof window !== "undefined") {
 
 import { makeLabel, updateLabelLayoutAndFading, fitSpriteGroupToPixels } from "./label-utils";
 import { Star, buildStarfield, buildPickingPoints, sphToVec3, raHoursToRad, deg2rad } from "./star-utils";
+import { createDistantStars, createNebula, createShootingStars, updateShootingStars } from "./galaxy-utils";
 
 export default function SkyMap(props: any){
     const containerRef=useRef<HTMLDivElement|null>(null); const rendererRef=useRef<THREE.WebGLRenderer|null>(null); const cameraRef=useRef<THREE.PerspectiveCamera|null>(null); const controlsRef=useRef<any|null>(null);
     const pickPtsRef=useRef<THREE.Points|null>(null); const starsRef=useRef<Star[]|null>(null); const starfieldRef=useRef<THREE.Points|null>(null); const labelsRef=useRef<THREE.Group|null>(null);
+    const nebulaRef = useRef<THREE.Mesh|null>(null);
+    const shootingStarsRef = useRef<THREE.Points|null>(null);
     const mouseRef=useRef(new THREE.Vector2());
 
     // highlight & hover state
@@ -29,9 +32,17 @@ export default function SkyMap(props: any){
     const starsUrl="/stars.json";
     const data=useMemo(()=>({ loadStars: async():Promise<Star[]>=>{ const res=await fetch(starsUrl); return await res.json(); } }),[starsUrl]);
 
-    useEffect(()=>{
+    useEffect(()=> {
         if (!containerRef.current) return; const container=containerRef.current;
         const scene=new THREE.Scene(); scene.background=new THREE.Color(0x020814);
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(0, 1, 1);
+        scene.add(directionalLight);
 
         const camera=new THREE.PerspectiveCamera(75, container.clientWidth/container.clientHeight, 0.1, 1000); camera.position.set(0,0,0.01); camera.up.set(0,1,0); cameraRef.current=camera;
         const renderer=new THREE.WebGLRenderer({antialias:true}); renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1)); renderer.setSize(container.clientWidth, container.clientHeight); renderer.outputColorSpace=THREE.SRGBColorSpace; rendererRef.current=renderer; container.appendChild(renderer.domElement);
@@ -41,14 +52,36 @@ export default function SkyMap(props: any){
         const labels=new THREE.Group(); scene.add(labels); labelsRef.current=labels;
         const ground=initLandscape(); scene.add(ground);
 
+        const distantStars = createDistantStars();
+        scene.add(distantStars);
+
+        const nebula = createNebula();
+        nebulaRef.current = nebula;
+        scene.add(nebula);
+
+        const shootingStars = createShootingStars();
+        shootingStarsRef.current = shootingStars;
+        scene.add(shootingStars);
+
         // Wheel zoom + double-click reset
         const BASE_FOV=75; const MIN_FOV=0, MAX_FOV=100, STEP=0.5;
         const onWheel=(e:WheelEvent)=>{ e.preventDefault(); const dir=Math.sign(e.deltaY); camera.fov=THREE.MathUtils.clamp(camera.fov+dir*STEP, MIN_FOV, MAX_FOV); camera.updateProjectionMatrix(); if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer); };
         const onDbl=()=>{ camera.fov=BASE_FOV; camera.updateProjectionMatrix(); if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer); };
         renderer.domElement.addEventListener('wheel', onWheel, { passive:false }); renderer.domElement.addEventListener('dblclick', onDbl);
 
-        const onResize=()=>{ const w=container.clientWidth, h=container.clientHeight; renderer.setSize(w,h); camera.aspect=w/h; camera.updateProjectionMatrix(); if(labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer); };
+        const onResize=()=>{
+            const w=container.clientWidth, h=container.clientHeight;
+            renderer.setSize(w,h);
+            camera.aspect=w/h;
+            camera.updateProjectionMatrix();
+            if(labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+            if (nebulaRef.current) {
+                (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uResolution.value.x = w;
+                (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uResolution.value.y = h;
+            }
+        };
         window.addEventListener('resize', onResize);
+        onResize(); // initial call
 
         // pointer helpers
         const ndcFromEvent=(e:MouseEvent|PointerEvent)=>{ const rect=renderer.domElement.getBoundingClientRect(); mouseRef.current.set(((e.clientX-rect.left)/rect.width)*2-1, -((e.clientY-rect.top)/rect.height)*2+1); };
@@ -88,12 +121,25 @@ export default function SkyMap(props: any){
         renderer.domElement.addEventListener('pointermove', onPointerMove);
 
         // animate
-        let raf=0; let running=true; const animate=()=>{ if(!running) return; raf=requestAnimationFrame(animate); controlsRef.current?.update?.(); const now=performance.now()/1000; const dt=Math.max(0, Math.min(0.1, now - prevTime.current)); prevTime.current=now; const k=1 - Math.exp(-dt/0.75); highlightAmt.current += (0 - highlightAmt.current)*k; if (starfieldRef.current){ const mat=starfieldRef.current.material as THREE.ShaderMaterial; mat.uniforms.uTime.value = now; mat.uniforms.uHighlightIndex.value = highlightIndex.current; mat.uniforms.uHighlightAmt.value = highlightAmt.current; // hover easing fast
-            const hk = 1 - Math.exp(-dt/0.12); hoverEase += ((hoverIdx!==-1?1:0) - hoverEase) * hk; mat.uniforms.uHoverIndex.value = hoverIdx; mat.uniforms.uHoverAmt.value = hoverEase; }
-            if (labelsRef.current){ updateLabelLayoutAndFading(labelsRef.current, camera, renderer); fitSpriteGroupToPixels(labelsRef.current, camera, renderer); }
-            renderer.render(scene, camera); };
+        let raf=0; let running=true; const animate=()=>{ if(!running) return; raf=requestAnimationFrame(animate); controlsRef.current?.update?.(); const now=performance.now()/1000; const dt=Math.max(0, Math.min(0.1, now - prevTime.current)); prevTime.current=now; const k=1 - Math.exp(-dt/0.75); highlightAmt.current += (0 - highlightAmt.current)*k;
+            if (starfieldRef.current){
+                const mat=starfieldRef.current.material as THREE.ShaderMaterial; mat.uniforms.uTime.value = now; mat.uniforms.uHighlightIndex.value = highlightIndex.current; mat.uniforms.uHighlightAmt.value = highlightAmt.current; // hover easing fast
+                const hk = 1 - Math.exp(-dt/0.12); hoverEase += ((hoverIdx!==-1?1:0) - hoverEase) * hk; mat.uniforms.uHoverIndex.value = hoverIdx; mat.uniforms.uHoverAmt.value = hoverEase;
+            }
+            if (labelsRef.current){
+                updateLabelLayoutAndFading(labelsRef.current, camera, renderer);
+                fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+            }
+            if (nebulaRef.current) {
+                (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = now;
+            }
+            if (shootingStarsRef.current) {
+                updateShootingStars(shootingStarsRef.current, dt);
+            }
+            renderer.render(scene, camera);
+        };
 
-        (async()=>{
+        (async()=> {
             const stars=await data.loadStars(); starsRef.current=stars; const field=buildStarfield(stars); starfieldRef.current=field; scene.add(field); const picking=buildPickingPoints(stars); scene.add(picking); pickPtsRef.current=picking;
             // labels
             for (let i=0;i<stars.length;i++){ const s=stars[i]; const text=`${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim(); if(!text) continue; const spr=makeLabel(text, { fontPx: 28, maxWidthPx: 320, paddingPx: 10 }); const p=sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01); spr.position.copy(p); const lum=((starfieldRef.current!.geometry as THREE.BufferGeometry).getAttribute('aLum') as THREE.BufferAttribute).getX(i) ?? 0.5; (spr as any).userData.lum=lum; (spr as any).userData.scale = 0.9 + 0.45*lum; labels.add(spr);}  fitSpriteGroupToPixels(labels, camera, renderer);
