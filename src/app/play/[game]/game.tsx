@@ -253,18 +253,11 @@ export default function Game(props: any) {
         // return passage.icon != icon;
     }
 
-    function select(book: any, chapter: any, isBookKey = true) {
-        console.log(chapter);
+    function select(book: any, chapter: any) {
         toast.success(`${book} ${chapter}`);
 
-        if (isBookKey) {
-            const bookName = allBooks.find((bk: any) => bk.key == book).name;
-            if (book) selectBook(bookName);
-
-        } else {
-            selectBook(book);
-        }
-        if (chapter) selectChapter(chapter);
+        selectBook(book);
+        selectChapter(chapter);
     }
 
     function toggleNarrative() {
@@ -279,7 +272,7 @@ export default function Game(props: any) {
         return (
             <>
                 <Summary passage={passage} playing={playing}/>
-                <SkyMap select={select} />
+                <SkyMap select={select} found={{bookFound, divisionFound, testamentFound}} target={passage}/>
                 <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
                         isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
                         addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
