@@ -12,7 +12,6 @@ if (typeof window !== "undefined") {
 
 import { makeLabel, updateLabelLayoutAndFading, fitSpriteGroupToPixels } from "./label-utils";
 import { Star, buildStarfield, buildPickingPoints, sphToVec3, raHoursToRad, deg2rad } from "./star-utils";
-import { createDistantStars, createNebula, createShootingStars, updateShootingStars } from "./galaxy-utils";
 
 export default function SkyMap(props: any){
     const containerRef=useRef<HTMLDivElement|null>(null); const rendererRef=useRef<THREE.WebGLRenderer|null>(null); const cameraRef=useRef<THREE.PerspectiveCamera|null>(null); const controlsRef=useRef<any|null>(null);
@@ -51,17 +50,6 @@ export default function SkyMap(props: any){
 
         const labels=new THREE.Group(); scene.add(labels); labelsRef.current=labels;
         const ground=initLandscape(); scene.add(ground);
-
-        const distantStars = createDistantStars();
-        scene.add(distantStars);
-
-        const nebula = createNebula();
-        nebulaRef.current = nebula;
-        scene.add(nebula);
-
-        const shootingStars = createShootingStars();
-        shootingStarsRef.current = shootingStars;
-        scene.add(shootingStars);
 
         // Wheel zoom + double-click reset
         const BASE_FOV=75; const MIN_FOV=0, MAX_FOV=100, STEP=0.5;
@@ -133,9 +121,7 @@ export default function SkyMap(props: any){
             if (nebulaRef.current) {
                 (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = now;
             }
-            if (shootingStarsRef.current) {
-                updateShootingStars(shootingStarsRef.current, dt);
-            }
+
             renderer.render(scene, camera);
         };
 

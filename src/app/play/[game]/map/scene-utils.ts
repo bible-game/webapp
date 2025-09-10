@@ -70,30 +70,5 @@ export function initLandscape() {
     glow.position.y = 0;
     groundGroup.add(glow);
 
-    // Add mountains
-    const mountainMaterial = new THREE.MeshStandardMaterial({
-        color: 0x101a2a,
-        roughness: 0.8,
-        metalness: 0.1,
-    });
-
-    const mountainCount = 50;
-    for (let i = 0; i < mountainCount; i++) {
-        const angle = (i / mountainCount) * Math.PI * 2;
-        const distance = r - 50 + (Math.random() - 0.5) * 100;
-        const x = Math.cos(angle) * distance;
-        const z = Math.sin(angle) * distance;
-
-        const height = Math.random() * 100 + 50;
-        const radius = Math.random() * 50 + 20;
-        const mountainGeo = new THREE.ConeGeometry(radius, height, 8);
-        const mountain = new THREE.Mesh(mountainGeo, mountainMaterial);
-
-        mountain.position.set(x, height / 2 - 10, z);
-        mountain.rotation.y = Math.random() * Math.PI;
-
-        groundGroup.add(mountain);
-    }
-
     return groundGroup;
 }
