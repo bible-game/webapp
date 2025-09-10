@@ -14,7 +14,7 @@ import { makeLabel, updateLabelLayoutAndFading, fitSpriteGroupToPixels } from ".
 import { Star, buildStarfield, buildPickingPoints, sphToVec3, raHoursToRad, deg2rad } from "./utils/star-utils";
 
 export default function SkyMap(props: any){
-    const containerRef=useRef<HTMLDivElement|null>(null); const rendererRef=useRef<THREE.WebGLRenderer|null>(null); const cameraRef=useRef<THREE.PerspectiveCamera|null>(null); const controlsRef=useRef<any|null>(null);
+    const containerRef=useRef<HTMLDivElement|null>(null); const rendererRef=useRef<THREE.WebGLRenderer|null>(null); const cameraRef=useRef<THREE.PerspectiveCamera|null>(null); const controlsRef=useRef<any|null>(null); const sceneRef=useRef<THREE.Scene|null>(null);
     const pickPtsRef=useRef<THREE.Points|null>(null); const starsRef=useRef<Star[]|null>(null); const starfieldRef=useRef<THREE.Points|null>(null); const labelsRef=useRef<THREE.Group|null>(null);
     const nebulaRef = useRef<THREE.Mesh|null>(null);
     const mouseRef=useRef(new THREE.Vector2());
@@ -36,6 +36,7 @@ export default function SkyMap(props: any){
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x020814);
+        sceneRef.current = scene;
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
@@ -169,38 +170,93 @@ export default function SkyMap(props: any){
             scene.add(picking);
             pickPtsRef.current = picking;
 
-            // labels - question :: move to labels util?
-            for (let i=0; i < stars.length; i++){
-                const s: Star = stars[i];
-                const text: string = `${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim();
+            // initial labels build (will also be called by update effect)
+            rebuildLabels();
+            animate();
+        })();
 
-                let disabled = false;
-                if (props.found.testamentFound && s.testament != props.target.testament) {
-                    disabled = true;
-                } else if (props.found.divisionFound && s.division != props.target.division) {
-                    disabled = true;
-                } else if (props.found.bookFound && s.book != props.target.book) {
-                    disabled = true;
-                }
-                if (!text || disabled) continue;
+        return ()=>{
+            running=false;
+            cancelAnimationFrame(raf);
+            renderer.domElement.removeEventListener('wheel', onWheel as any);
+            renderer.domElement.removeEventListener('dblclick', onDbl as any);
+            window.removeEventListener('resize', onResize as any);
+            renderer.domElement.removeEventListener('pointerdown', onPointerDown as any);
+            renderer.domElement.removeEventListener('click', onClick as any);
+            renderer.domElement.removeEventListener('pointermove', onPointerMove as any);
+            controlsRef.current?.dispose?.();
+            scene.traverse((o:any)=>{
+                o.geometry?.dispose?.();
+                if(o.material){ Array.isArray(o.material) ? o.material.forEach((m:any)=> m.dispose?.()) : o.material.dispose?.(); } });
+            renderer.dispose();
+            container.removeChild(renderer.domElement);
+        };
+    }, [data]);
 
-                const spr = makeLabel(text, { fontPx: 28, maxWidthPx: 320, paddingPx: 10 });
-                const p = sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01);
-                spr.position.copy(p);
-                const lum=((starfieldRef.current!.geometry as THREE.BufferGeometry).getAttribute('aLum') as THREE.BufferAttribute).getX(i) ?? 0.5;
-                (spr as any).userData.lum=lum;
-                (spr as any).userData.scale = 0.9 + 0.45*lum;
-                labels.add(spr);
-            }
-            fitSpriteGroupToPixels(labels, camera, renderer);
-            animate(); })();
 
-        return ()=>{ running=false; cancelAnimationFrame(raf); renderer.domElement.removeEventListener('wheel', onWheel as any); renderer.domElement.removeEventListener('dblclick', onDbl as any); window.removeEventListener('resize', onResize as any); renderer.domElement.removeEventListener('pointerdown', onPointerDown as any); renderer.domElement.removeEventListener('click', onClick as any); renderer.domElement.removeEventListener('pointermove', onPointerMove as any); controlsRef.current?.dispose?.(); scene.traverse((o:any)=>{ o.geometry?.dispose?.(); if(o.material){ Array.isArray(o.material) ? o.material.forEach((m:any)=>m.dispose?.()) : o.material.dispose?.(); } }); renderer.dispose(); container.removeChild(renderer.domElement); };
-    }, [data, props.found]);
+// --- UPDATE EFFECT: when found/target changes, swap starfield + rebuild labels only
+    useEffect(() => {
+        const scene = sceneRef.current;
+        const stars = starsRef.current;
+        if (!scene || !stars) return; // not initialized yet
 
-    // useEffect(() => {
-    //
-    // }, [props.found])
+        // dispose helper
+        const disposePoints = (obj: THREE.Points | null) => {
+            if (!obj) return;
+            (obj.geometry as any)?.dispose?.();
+            const mat = obj.material as any;
+            if (Array.isArray(mat)) mat.forEach(m => m?.dispose?.());
+            else mat?.dispose?.();
+        };
+
+        // replace starfield only; keep camera/controls/picking intact
+        if (starfieldRef.current) {
+            scene.remove(starfieldRef.current);
+            disposePoints(starfieldRef.current);
+            starfieldRef.current = null;
+        }
+        const newField = buildStarfield(stars, props.found, props.target);
+        starfieldRef.current = newField;
+        scene.add(newField);
+
+        // labels reflect new filters/target
+        rebuildLabels();
+    }, [props.found, props.target]);
+
+// --- shared label rebuild used by init + updates
+    function rebuildLabels(){
+        const labels = labelsRef.current;
+        const stars = starsRef.current;
+        const camera = cameraRef.current!;
+        const renderer = rendererRef.current!;
+        if (!labels || !stars || !starfieldRef.current) return;
+
+        // clear old labels (dispose materials/geometries)
+        while (labels.children.length) {
+            const child = labels.children.pop()!;
+            (child as any).material?.dispose?.();
+            (child as any).geometry?.dispose?.();
+        }
+
+        for (let i = 0; i < stars.length; i++) {
+            const s = stars[i];
+            const text = `${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim();
+            let disabled = false;
+            if (props.found.testamentFound && s.testament != props.target.testament) disabled = true;
+            else if (props.found.divisionFound && s.division != props.target.division) disabled = true;
+            else if (props.found.bookFound && s.book != props.target.book) disabled = true;
+            if (!text || disabled) continue;
+
+            const spr = makeLabel(text, { fontPx: 28, maxWidthPx: 320, paddingPx: 10 });
+            const p = sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01);
+            spr.position.copy(p);
+            const lum=((starfieldRef.current!.geometry as THREE.BufferGeometry).getAttribute('aLum') as THREE.BufferAttribute).getX(i) ?? 0.5;
+            (spr as any).userData.lum=lum;
+            (spr as any).userData.scale = 0.9 + 0.45*lum;
+            labels.add(spr);
+        }
+        fitSpriteGroupToPixels(labels, camera, renderer);
+    }
 
     return <div ref={containerRef} className="absolute h-[100vh] w-full top-0" />;
 }
