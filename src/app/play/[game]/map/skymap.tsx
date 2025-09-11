@@ -32,6 +32,13 @@ export default function SkyMap(props: any){
 
     const BOOK_ZOOM_FOV = 42; // tweak to taste
 
+    // --- Stellarium-like FOV control (multiplicative + eased) ---
+    const targetFovRef = useRef<number>(75);        // start matching original camera fov
+    const BASE_FOV     = 75;                         // double-click reset
+    const MIN_FOV      = 9;                          // reasonable min (no extreme zoom-in)
+    const MAX_FOV      = 110;                        // cap zoom-out so horizon isn't fish-eye
+    const ZOOM_SENS    = 0.085;                      // wheel/pinch sensitivity
+
     const starsUrl="/stars.json";
     const data=useMemo(()=>({ loadStars: async():Promise<Star[]>=>{ const res=await fetch(starsUrl); return await res.json(); } }),[starsUrl]);
 
@@ -90,6 +97,7 @@ export default function SkyMap(props: any){
         camera.position.set(0,0,0.01);
         camera.up.set(0,1,0);
         cameraRef.current=camera;
+        targetFovRef.current = camera.fov; // sync target with initial lens
 
         const renderer = new THREE.WebGLRenderer({antialias:true});
         renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1));
@@ -97,15 +105,18 @@ export default function SkyMap(props: any){
         renderer.outputColorSpace=THREE.SRGBColorSpace; rendererRef.current=renderer;
         container.appendChild(renderer.domElement);
 
+        // --- OrbitControls: rotation-only with horizon clamps ---
         if (OrbitControls) {
             const c=new OrbitControls(camera, renderer.domElement);
             c.enableDamping=true;
             c.dampingFactor=0.08;
             c.rotateSpeed=0.5;
-            c.enableZoom=true;
-            c.minDistance=0.01;
-            c.maxDistance=2
+
+            c.enableZoom=false;   // no dolly/zoom — we manage FOV ourselves
             c.enablePan=false;
+            c.minPolarAngle = THREE.MathUtils.degToRad(5);
+            c.maxPolarAngle = THREE.MathUtils.degToRad(175);
+
             controlsRef.current=c;
         }
 
@@ -127,21 +138,16 @@ export default function SkyMap(props: any){
         const ground: any = initLandscape();
         scene.add(ground);
 
-        // Wheel zoom + double-click reset
-        const BASE_FOV=75; const MIN_FOV=0, MAX_FOV=100, STEP=0.5;
+        // --- Wheel zoom + double-click reset (multiplicative; no immediate relayout) ---
         const onWheel: any = (e:WheelEvent): void => {
             e.preventDefault();
-            const dir: number = Math.sign(e.deltaY);
-            camera.fov = THREE.MathUtils.clamp(camera.fov+dir*STEP, MIN_FOV, MAX_FOV);
-            camera.updateProjectionMatrix();
-            if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
-            if (bookLabelsRef.current) fitSpriteGroupToPixels(bookLabelsRef.current, camera, renderer);
+            const dir: number = Math.sign(e.deltaY); // +1 out, -1 in
+            const sens = (e as any).ctrlKey ? ZOOM_SENS * 0.6 : ZOOM_SENS; // trackpad gentler
+            const scale = Math.exp(dir * sens);
+            targetFovRef.current = THREE.MathUtils.clamp(targetFovRef.current * scale, MIN_FOV, MAX_FOV);
         };
         const onDbl: any = (): void => {
-            camera.fov=BASE_FOV;
-            camera.updateProjectionMatrix();
-            if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
-            if (bookLabelsRef.current) fitSpriteGroupToPixels(bookLabelsRef.current, camera, renderer);
+            targetFovRef.current = BASE_FOV;
         };
         renderer.domElement.addEventListener('wheel', onWheel, { passive:false }); renderer.domElement.addEventListener('dblclick', onDbl);
 
@@ -150,6 +156,7 @@ export default function SkyMap(props: any){
             renderer.setSize(w,h);
             camera.aspect=w/h;
             camera.updateProjectionMatrix();
+            // Still OK to refit on hard resizes (not every wheel tick)
             if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
             if (bookLabelsRef.current) fitSpriteGroupToPixels(bookLabelsRef.current, camera, renderer);
             if (nebulaRef.current) {
@@ -215,6 +222,14 @@ export default function SkyMap(props: any){
             const now=performance.now()/1000;
             const dt=Math.max(0, Math.min(0.1, now - prevTime.current));
             prevTime.current=now;
+
+            // --- Ease camera FOV toward target (multiplicative updates handled by wheel handler) ---
+            const fovK = 1 - Math.exp(-dt / 0.12);
+            const cam = cameraRef.current!;
+            cam.fov += (targetFovRef.current - cam.fov) * fovK;
+            cam.fov = THREE.MathUtils.clamp(cam.fov, MIN_FOV, MAX_FOV);
+            cam.updateProjectionMatrix();
+
             const k=1 - Math.exp(-dt/0.75);
             highlightAmt.current += (0 - highlightAmt.current)*k;
 
@@ -223,26 +238,27 @@ export default function SkyMap(props: any){
                 const hk = 1 - Math.exp(-dt/0.12); hoverEase += ((hoverIdx!==-1?1:0) - hoverEase) * hk; mat.uniforms.uHoverIndex.value = hoverIdx; mat.uniforms.uHoverAmt.value = hoverEase;
             }
 
+            // --- Labels: update/fade/fit once per frame AFTER FOV has been updated ---
             if (bookLabelsRef.current || labelsRef.current){
                 const bookMode = useBookMode();
                 if (bookLabelsRef.current) bookLabelsRef.current.visible = bookMode;
                 if (labelsRef.current)     labelsRef.current.visible     = !bookMode;
 
                 if (bookMode && bookLabelsRef.current){
-                    updateLabelLayoutAndFading(bookLabelsRef.current, camera, renderer);
-                    fitSpriteGroupToPixels(bookLabelsRef.current, camera, renderer);
+                    updateLabelLayoutAndFading(bookLabelsRef.current, cam, renderer);
+                    fitSpriteGroupToPixels(bookLabelsRef.current, cam, renderer);
                 } else if (!bookMode && labelsRef.current){
-                    updateLabelLayoutAndFading(labelsRef.current, camera, renderer);
-                    fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+                    updateLabelLayoutAndFading(labelsRef.current, cam, renderer);
+                    fitSpriteGroupToPixels(labelsRef.current, cam, renderer);
                 }
             }
 
-            if (horizonLabelsRef.current) fitSpriteGroupToPixels(horizonLabelsRef.current, camera, renderer);
+            if (horizonLabelsRef.current) fitSpriteGroupToPixels(horizonLabelsRef.current, cam, renderer);
             if (nebulaRef.current) {
                 (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = now;
             }
 
-            renderer.render(scene, camera);
+            renderer.render(scene, cam);
         };
 
         (async()=> {
