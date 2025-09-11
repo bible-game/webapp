@@ -19,6 +19,7 @@ export default function SkyMap(props: any){
     const nebulaRef = useRef<THREE.Mesh|null>(null);
     const mouseRef=useRef(new THREE.Vector2());
     const horizonLabelsRef = useRef<THREE.Group|null>(null);
+    const bookLabelsRef = useRef<THREE.Group|null>(null);
 
     // highlight & hover state
     const highlightIndex=useRef<number>(-1); const highlightAmt=useRef<number>(0); const prevTime=useRef<number>(performance.now()/1000);
@@ -27,6 +28,8 @@ export default function SkyMap(props: any){
 
     // drag guard
     const downPos=useRef<{x:number;y:number}|null>(null); const DRAG_TOL=5;
+
+    const BOOK_ZOOM_FOV = 42; // tweak to taste
 
     const starsUrl="/stars.json";
     const data=useMemo(()=>({ loadStars: async():Promise<Star[]>=>{ const res=await fetch(starsUrl); return await res.json(); } }),[starsUrl]);
@@ -78,13 +81,32 @@ export default function SkyMap(props: any){
         scene.add(horizonLabels);
         horizonLabelsRef.current = horizonLabels;
 
+        const bookLabels = new THREE.Group();
+        scene.add(bookLabels);
+        bookLabelsRef.current = bookLabels;
+
+        bookLabels.visible = true;
+        labels.visible = false;
+
         const ground: any = initLandscape();
         scene.add(ground);
 
         // Wheel zoom + double-click reset
         const BASE_FOV=75; const MIN_FOV=0, MAX_FOV=100, STEP=0.5;
-        const onWheel=(e:WheelEvent)=>{ e.preventDefault(); const dir=Math.sign(e.deltaY); camera.fov=THREE.MathUtils.clamp(camera.fov+dir*STEP, MIN_FOV, MAX_FOV); camera.updateProjectionMatrix(); if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer); };
-        const onDbl=()=>{ camera.fov=BASE_FOV; camera.updateProjectionMatrix(); if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer); };
+        const onWheel: any = (e:WheelEvent): void => {
+            e.preventDefault();
+            const dir: number = Math.sign(e.deltaY);
+            camera.fov = THREE.MathUtils.clamp(camera.fov+dir*STEP, MIN_FOV, MAX_FOV);
+            camera.updateProjectionMatrix();
+            if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+            if (bookLabelsRef.current) fitSpriteGroupToPixels(bookLabelsRef.current, camera, renderer);
+        };
+        const onDbl: any = (): void => {
+            camera.fov=BASE_FOV;
+            camera.updateProjectionMatrix();
+            if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+            if (bookLabelsRef.current) fitSpriteGroupToPixels(bookLabelsRef.current, camera, renderer);
+        };
         renderer.domElement.addEventListener('wheel', onWheel, { passive:false }); renderer.domElement.addEventListener('dblclick', onDbl);
 
         const onResize=()=>{
@@ -92,7 +114,8 @@ export default function SkyMap(props: any){
             renderer.setSize(w,h);
             camera.aspect=w/h;
             camera.updateProjectionMatrix();
-            if(labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+            if (labelsRef.current) fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+            if (bookLabelsRef.current) fitSpriteGroupToPixels(bookLabelsRef.current, camera, renderer);
             if (nebulaRef.current) {
                 (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uResolution.value.x = w;
                 (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uResolution.value.y = h;
@@ -147,15 +170,37 @@ export default function SkyMap(props: any){
         renderer.domElement.addEventListener('pointermove', onPointerMove);
 
         // animate
-        let raf=0; let running=true; const animate=()=>{ if(!running) return; raf=requestAnimationFrame(animate); controlsRef.current?.update?.(); const now=performance.now()/1000; const dt=Math.max(0, Math.min(0.1, now - prevTime.current)); prevTime.current=now; const k=1 - Math.exp(-dt/0.75); highlightAmt.current += (0 - highlightAmt.current)*k;
+        let raf: number = 0;
+        let running: boolean = true;
+        const animate: any = ()=> {
+            if (!running) return;
+            raf=requestAnimationFrame(animate);
+            controlsRef.current?.update?.();
+            const now=performance.now()/1000;
+            const dt=Math.max(0, Math.min(0.1, now - prevTime.current));
+            prevTime.current=now;
+            const k=1 - Math.exp(-dt/0.75);
+            highlightAmt.current += (0 - highlightAmt.current)*k;
+
             if (starfieldRef.current){
                 const mat=starfieldRef.current.material as THREE.ShaderMaterial; mat.uniforms.uTime.value = now; mat.uniforms.uHighlightIndex.value = highlightIndex.current; mat.uniforms.uHighlightAmt.value = highlightAmt.current; // hover easing fast
                 const hk = 1 - Math.exp(-dt/0.12); hoverEase += ((hoverIdx!==-1?1:0) - hoverEase) * hk; mat.uniforms.uHoverIndex.value = hoverIdx; mat.uniforms.uHoverAmt.value = hoverEase;
             }
-            if (labelsRef.current){
-                updateLabelLayoutAndFading(labelsRef.current, camera, renderer);
-                fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+
+            if (bookLabelsRef.current || labelsRef.current){
+                const bookMode = useBookMode();
+                if (bookLabelsRef.current) bookLabelsRef.current.visible = bookMode;
+                if (labelsRef.current)     labelsRef.current.visible     = !bookMode;
+
+                if (bookMode && bookLabelsRef.current){
+                    updateLabelLayoutAndFading(bookLabelsRef.current, camera, renderer);
+                    fitSpriteGroupToPixels(bookLabelsRef.current, camera, renderer);
+                } else if (!bookMode && labelsRef.current){
+                    updateLabelLayoutAndFading(labelsRef.current, camera, renderer);
+                    fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
+                }
             }
+
             if (horizonLabelsRef.current) fitSpriteGroupToPixels(horizonLabelsRef.current, camera, renderer);
             if (nebulaRef.current) {
                 (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = now;
@@ -178,6 +223,7 @@ export default function SkyMap(props: any){
 
             // initial labels build (will also be called by update effect)
             rebuildLabels();
+            rebuildBookLabels();
             rebuildHorizonDivisionLabels();
             animate();
         })();
@@ -228,8 +274,96 @@ export default function SkyMap(props: any){
 
         // labels reflect new filters/target
         rebuildLabels();
+        rebuildBookLabels();
         rebuildHorizonDivisionLabels();
     }, [props.found, props.target]);
+
+    function rebuildBookLabels(){
+        const group = bookLabelsRef.current;
+        const stars = starsRef.current;
+        const camera = cameraRef.current!;
+        const renderer = rendererRef.current!;
+        if (!group || !stars || !starfieldRef.current) return;
+
+        // clear old
+        while (group.children.length) {
+            const child = group.children.pop()!;
+            (child as any).material?.dispose?.();
+            (child as any).geometry?.dispose?.();
+        }
+
+        // prepare aLum per-star for prominence scoring
+        const lumAttr = (starfieldRef.current.geometry as THREE.BufferGeometry).getAttribute('aLum') as THREE.BufferAttribute | undefined;
+
+        // aggregate by book
+        type Agg = { idxs: number[]; ras: number[]; decs: number[]; divColor?: string };
+        const byBook = new Map<string, Agg>();
+        for (let i=0; i<stars.length; i++){
+            const s = stars[i];
+            // respect your existing “found/target” filters (books outside the current slice shouldn’t get a label)
+            let disabled = false;
+            if (props.found.testamentFound && s.testament != props.target.testament) disabled = true;
+            else if (props.found.divisionFound && s.division != props.target.division) disabled = true;
+            if (disabled) continue;
+
+            const key: string = s.book!;
+            const e = byBook.get(key!) ?? { idxs: [], ras: [], decs: [], divColor: s.division_color as string | undefined };
+            e.idxs.push(i);
+            e.ras.push(s.ra_h);
+            e.decs.push(s.dec_d);
+            if (!e.divColor && s.division_color) e.divColor = s.division_color as string;
+            byBook.set(key, e);
+        }
+
+        // build labels
+        const R = 1.02;           // slightly outside the star sphere
+        const LIFT = 6 * Math.PI/180; // nudge "above" centroid ~6° in Dec for readability
+        for (const [book, agg] of byBook){
+            // circular mean of RA to avoid wrap
+            let sx=0, sy=0;
+            for (const raH of agg.ras){ const a = raHoursToRad(raH); sx += Math.cos(a); sy += Math.sin(a); }
+            const meanRA = Math.atan2(sy, sx);
+
+            // average Dec then lift
+            const meanDec = deg2rad(agg.decs.reduce((a,b)=>a+b, 0) / Math.max(1, agg.decs.length)) + LIFT;
+
+            // approximate prominence = top luminance among that book
+            let lum = 0.5;
+            if (lumAttr && agg.idxs.length){
+                lum = agg.idxs.reduce((m,i)=> Math.max(m, lumAttr.getX(i) ?? 0.5), 0.5);
+            }
+
+            const spr = makeLabel(book, {
+                fontPx: 26,
+                maxWidthPx: 360,
+                paddingPx: 10,
+                // if you added color support earlier, this will tint; if not, it's harmless and ignored
+                // @ts-ignore optional enhancement (see label-utils tweak below)
+                color: agg.divColor ?? "#ffffff",
+                // @ts-ignore
+                shadowColor: "rgba(0,0,0,0.95)",
+            });
+            (spr as any).userData.lum = lum;
+            (spr as any).userData.scale = 1.0;
+
+            // place slightly “above” the cluster
+            const p = sphToVec3(meanRA, meanDec, R);
+            spr.position.copy(p);
+
+            // allow fader to manage occlusion/overlap
+            (spr.material as THREE.SpriteMaterial).depthWrite = false;
+            group.add(spr);
+        }
+
+        fitSpriteGroupToPixels(group, camera, renderer);
+    }
+
+    function useBookMode(){
+        // force chapter mode when a book is “found”; otherwise use FOV to infer zoom
+        if (props.found.bookFound) return false;
+        const cam = cameraRef.current!;
+        return cam.fov > BOOK_ZOOM_FOV;
+    }
 
     function rebuildHorizonDivisionLabels() {
         const horizon = horizonLabelsRef.current;
