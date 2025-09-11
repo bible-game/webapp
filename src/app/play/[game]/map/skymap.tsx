@@ -18,6 +18,7 @@ export default function SkyMap(props: any){
     const pickPtsRef=useRef<THREE.Points|null>(null); const starsRef=useRef<Star[]|null>(null); const starfieldRef=useRef<THREE.Points|null>(null); const labelsRef=useRef<THREE.Group|null>(null);
     const nebulaRef = useRef<THREE.Mesh|null>(null);
     const mouseRef=useRef(new THREE.Vector2());
+    const horizonLabelsRef = useRef<THREE.Group|null>(null);
 
     // highlight & hover state
     const highlightIndex=useRef<number>(-1); const highlightAmt=useRef<number>(0); const prevTime=useRef<number>(performance.now()/1000);
@@ -72,6 +73,10 @@ export default function SkyMap(props: any){
         const labels = new THREE.Group();
         scene.add(labels);
         labelsRef.current = labels;
+
+        const horizonLabels = new THREE.Group();
+        scene.add(horizonLabels);
+        horizonLabelsRef.current = horizonLabels;
 
         const ground: any = initLandscape();
         scene.add(ground);
@@ -151,6 +156,7 @@ export default function SkyMap(props: any){
                 updateLabelLayoutAndFading(labelsRef.current, camera, renderer);
                 fitSpriteGroupToPixels(labelsRef.current, camera, renderer);
             }
+            if (horizonLabelsRef.current) fitSpriteGroupToPixels(horizonLabelsRef.current, camera, renderer);
             if (nebulaRef.current) {
                 (nebulaRef.current.material as THREE.ShaderMaterial).uniforms.uTime.value = now;
             }
@@ -172,6 +178,7 @@ export default function SkyMap(props: any){
 
             // initial labels build (will also be called by update effect)
             rebuildLabels();
+            rebuildHorizonDivisionLabels();
             animate();
         })();
 
@@ -221,7 +228,62 @@ export default function SkyMap(props: any){
 
         // labels reflect new filters/target
         rebuildLabels();
+        rebuildHorizonDivisionLabels();
     }, [props.found, props.target]);
+
+    function rebuildHorizonDivisionLabels() {
+        const horizon = horizonLabelsRef.current;
+        const stars = starsRef.current;
+        const camera = cameraRef.current!;
+        const renderer = rendererRef.current!;
+        if (!horizon || !stars) return;
+
+        // clear old
+        while (horizon.children.length) {
+            const child = horizon.children.pop()!;
+            (child as any).material?.dispose?.();
+            (child as any).geometry?.dispose?.();
+        }
+
+        // group stars by division
+        const byDiv = new Map<string, { ras: number[]; color?: string }>();
+        for (const s of stars) {
+            const e = byDiv.get(s.division!) ?? { ras: [], color: s.division_color as string | undefined };
+            e.ras.push(s.ra_h);
+            if (!e.color && s.division_color) e.color = s.division_color as string;
+            byDiv.set(s.division!, e);
+        }
+
+        // place on horizon (dec = 0°) slightly outside the star sphere
+        const R = 1.015;
+        for (const [division, info] of byDiv) {
+            let sx = 0, sy = 0;
+            for (const raH of info.ras) {
+                const a = raHoursToRad(raH);
+                sx += Math.cos(a); sy += Math.sin(a);
+            }
+            const meanA = Math.atan2(sy, sx);
+
+            const spr = makeLabel(division, {
+                fontPx: 24,
+                maxWidthPx: 360,
+                paddingPx: 10,
+                color: info.color ?? "#ffffff",          // ← use division color
+                shadowColor: "rgba(0,0,0,0.95)",
+            });
+            const mat = spr.material as THREE.SpriteMaterial;
+            mat.depthTest = false; // always on top of geometry
+            mat.opacity = 1.0;     // not managed by auto-fader
+
+            const p = sphToVec3(meanA, deg2rad(0), R);
+            spr.position.copy(p);
+            (spr as any).userData.scale = 1.0;
+
+            horizon.add(spr);
+        }
+
+        fitSpriteGroupToPixels(horizon, camera, renderer);
+    }
 
 // --- shared label rebuild used by init + updates
     function rebuildLabels(){

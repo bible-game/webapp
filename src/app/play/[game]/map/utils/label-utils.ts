@@ -8,7 +8,16 @@ import * as THREE from "three";
  * - Stores desired CSS pixel size on sprite.userData so we can keep
  *   label size constant on screen in `fitSpriteToPixels`.
  */
-export function makeLabel(text: string, opts?: { fontPx?: number; maxWidthPx?: number; paddingPx?: number; align?: CanvasTextAlign }) {
+export function makeLabel(
+    text: string,
+    opts?: {
+        fontPx?: number;
+        maxWidthPx?: number;
+        paddingPx?: number;
+        align?: CanvasTextAlign,
+        color?: string,
+        shadowColor?: string
+    }) {
     const fontPx = opts?.fontPx ?? 28;           // visual font size in CSS px
     const maxWidthPx = opts?.maxWidthPx ?? 280;  // wrap long titles nicely
     const paddingPx = opts?.paddingPx ?? 12;
@@ -58,8 +67,8 @@ export function makeLabel(text: string, opts?: { fontPx?: number; maxWidthPx?: n
     ctx.textBaseline = "middle";
 
     // Style
-    ctx.fillStyle = "white";
-    ctx.shadowColor = "rgba(0,0,0,0.9)";
+    ctx.fillStyle = opts?.color ?? "white";
+    ctx.shadowColor = opts?.shadowColor ?? "rgba(0,0,0,0.9)";
     ctx.shadowBlur = Math.round(fontPx * 0.4);
 
     // Draw
