@@ -386,7 +386,7 @@ export default function SkyMap(props: any){
             }
 
             const spr = makeLabel(book, {
-                fontPx: 26,
+                fontPx: 16,
                 maxWidthPx: 360,
                 paddingPx: 10,
                 // if you added color support earlier, this will tint; if not, it's harmless and ignored
@@ -451,7 +451,7 @@ export default function SkyMap(props: any){
             const meanA = Math.atan2(sy, sx);
 
             const spr = makeLabel(division, {
-                fontPx: 24,
+                fontPx: 18,
                 maxWidthPx: 360,
                 paddingPx: 10,
                 color: info.color ?? "#ffffff",          // ← use division color
@@ -495,7 +495,7 @@ export default function SkyMap(props: any){
             else if (props.found.bookFound && s.book != props.target.book) disabled = true;
             if (!text || disabled) continue;
 
-            const spr = makeLabel(text, { fontPx: 28, maxWidthPx: 320, paddingPx: 10 });
+            const spr = makeLabel(text, { fontPx: 14, maxWidthPx: 320, paddingPx: 10 });
             const p = sphToVec3(raHoursToRad(s.ra_h + 0.1), deg2rad(s.dec_d + 0.1), 1.01);
             spr.position.copy(p);
             const lum=((starfieldRef.current!.geometry as THREE.BufferGeometry).getAttribute('aLum') as THREE.BufferAttribute).getX(i) ?? 0.5;
