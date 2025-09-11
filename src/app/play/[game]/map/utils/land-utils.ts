@@ -8,23 +8,23 @@ export function initLandscape() {
     const hemi = new THREE.SphereGeometry(r, 64, 32, 0, Math.PI * 2, Math.PI / 2, Math.PI);
     hemi.scale(-1, 1, 1);
 
-    // vertex color gradient (darker down, brighter near horizon)
-    const count = hemi.attributes['position'].count;
+    // vertex color gradient (bottom: #040127 → horizon: #050730)
+    const pos = hemi.attributes['position'] as THREE.BufferAttribute;
+    const count = pos.count;
     const colors = new Float32Array(count * 3);
-    const yArr = hemi.attributes['position'] as THREE.BufferAttribute;
-    const c = new THREE.Color();
+    const cBottom = new THREE.Color("#040127");
+    const cTop = new THREE.Color("#050730");
     for (let i = 0; i < count; i++) {
-        const y = yArr.getY(i); // [-r,0]
-        const t = THREE.MathUtils.clamp(1 - Math.abs(y) / r, 0, 1);
-        c.setRGB(
-            THREE.MathUtils.lerp(0x06/255, 0x15/255, t),
-            THREE.MathUtils.lerp(0x10/255, 0x23/255, t),
-            THREE.MathUtils.lerp(0x17/255, 0x35/255, t)
-        );
-        colors.set([c.r, c.g, c.b], i * 3);
+        // y is in [-r, 0] because this is the lower hemisphere
+        const y = pos.getY(i);
+        const t = THREE.MathUtils.clamp((y + r) / r, 0, 1); // 0 at bottom, 1 at horizon
+        const col = cBottom.clone().lerp(cTop, t);
+        const o = i * 3;
+        colors[o + 0] = col.r;
+        colors[o + 1] = col.g;
+        colors[o + 2] = col.b;
     }
     hemi.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
     const groundMat = new THREE.MeshBasicMaterial({
         vertexColors: true,
         side: THREE.FrontSide,

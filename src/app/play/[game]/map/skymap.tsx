@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
-import { initLandscape } from "@/app/play/[game]/map/utils/scene-utils";
+import { initLandscape } from "@/app/play/[game]/map/utils/land-utils";
 
 let OrbitControls: any;
 if (typeof window !== "undefined") {
@@ -40,8 +40,40 @@ export default function SkyMap(props: any){
         const container: HTMLDivElement = containerRef.current;
 
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x020814);
+        // scene.background = new THREE.Color(0x020814); // Replaced with gradient sky
         sceneRef.current = scene;
+
+        // Gradient Sky
+        const skyGeometry = new THREE.SphereGeometry(900, 32, 15);
+        const skyMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vWorldPosition;
+                void main() {
+                    vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+                    vWorldPosition = worldPosition.xyz;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+                }
+            `,
+            fragmentShader: `
+                uniform vec3 uTopColor;
+                uniform vec3 uBottomColor;
+                varying vec3 vWorldPosition;
+
+                void main() {
+                    float h = normalize(vWorldPosition).y;
+                    gl_FragColor = vec4(mix(uBottomColor, uTopColor, h), 1.0);
+                }
+            `,
+            uniforms: {
+                uTopColor: { value: new THREE.Color("#283167") },
+                uBottomColor: { value: new THREE.Color("#6f7eb1") },
+            },
+            side: THREE.BackSide,
+            depthWrite: false,
+            depthTest: false
+        });
+        const sky = new THREE.Mesh(skyGeometry, skyMaterial);
+        scene.add(sky);
 
         // Lights
         const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
