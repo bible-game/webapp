@@ -208,109 +208,64 @@ export function updateLabelLayoutAndFading(
     camera: THREE.PerspectiveCamera,
     renderer: THREE.WebGLRenderer,
     opts?: {
-        maxLabels?: number;
-        marginPx?: number;
-        throttleMs?: number;
-        fadeInMs?: number;
-        fadeOutMs?: number;
+        cellPx?: number;        // size of spatial grid cells (px). smaller => more labels
+        overlapPx?: number;     // min distance between labels before we start fading (px)
+        fadeBandPx?: number;    // softness around overlap threshold (px)
+        maxPerCell?: number;    // allow more than one label per cell
+        labelBudget?: number;   // cap on total visible labels
+        getPriority?: (s: THREE.Sprite) => number; // higher keeps first
     }
 ) {
-    const now = performance.now();
-    const maxLabels = opts?.maxLabels ?? 26;
-    const marginPx = opts?.marginPx ?? 6;
-    const throttleMs = opts?.throttleMs ?? 120;
-    const fadeInMs = opts?.fadeInMs ?? 140;
-    const fadeOutMs = opts?.fadeOutMs ?? 220;
-    const dt = Math.max(0, now - _lastFrame);
-    _lastFrame = now;
+    const {
+        cellPx = 60,          // (your previous behaviour)
+        overlapPx = 28,
+        fadeBandPx = 18,
+        maxPerCell = 1,
+        labelBudget = Infinity,
+        getPriority = (s: any) => (s as any).userData?.lum ?? 0.5,
+    } = opts ?? {};
 
-    const rect = renderer.domElement.getBoundingClientRect();
+    const size = renderer.getSize(new THREE.Vector2());
+    const W = size.x, H = size.y;
 
-    // Recompute selection on throttle
-    if (now - _lastCompute > throttleMs) {
-        _lastCompute = now;
+    const tmp = new THREE.Vector3();
+    const items: { s: THREE.Sprite; x: number; y: number; pr: number }[] = [];
 
-        type Cand = {
-            s: THREE.Sprite;
-            lum: number;
-            cx: number;
-            cy: number;
-            w: number;
-            h: number;
-            r2: number;
-            z: number;
-        };
-
-        const cand: Cand[] = [];
-
-        group.traverse((o) => {
-            if (!(o as any).isSprite) return;
-            const s = o as THREE.Sprite;
-            s.getWorldPosition(_tmp);
-            _tmp.project(camera);
-            if (_tmp.z > 1) return; // behind camera
-
-            const u = (s as any).userData ?? {};
-            const cssW = u.cssW ?? 100;
-            const cssH = u.cssH ?? 30;
-
-            const cx = (( _tmp.x + 1 ) * 0.5) * rect.width;
-            const cy = ((- _tmp.y + 1 ) * 0.5) * rect.height;
-            const w = cssW;
-            const h = cssH;
-            const r2 = (cx - rect.width/2) ** 2 + (cy - rect.height/2) ** 2;
-
-            cand.push({
-                s,
-                lum: u.lum ?? 0.5,
-                cx,
-                cy,
-                w,
-                h,
-                r2,
-                z: Math.abs(_tmp.z),
-            });
-        });
-
-        // Sort: brighter first, nearer center, then nearer camera
-        cand.sort((a, b) => (b.lum - a.lum) || (a.r2 - b.r2) || (a.z - b.z));
-
-        // Greedy non-overlap selection
-        const chosen: Cand[] = [];
-        const overlap = (a: Cand, b: Cand) =>
-            !(a.cx + a.w/2 + marginPx < b.cx - b.w/2 ||
-                a.cx - a.w/2 - marginPx > b.cx + b.w/2 ||
-                a.cy + a.h/2 + marginPx < b.cy - b.h/2 ||
-                a.cy - a.h/2 - marginPx > b.cy + b.h/2);
-
-        for (const c of cand) {
-            if (chosen.length >= maxLabels) break;
-            let ok = true;
-            for (const d of chosen) { if (overlap(c, d)) { ok = false; break; } }
-            if (ok) chosen.push(c);
-        }
-
-        const chosenSet = new Set(chosen.map((c) => c.s));
-        group.traverse((o) => {
-            if (!(o as any).isSprite) return;
-            const s = o as THREE.Sprite;
-            let st = fadeState.get(s);
-            if (!st) { st = { a: 0, t: 0 }; fadeState.set(s, st); }
-            st.t = chosenSet.has(s) ? 1 : 0;
-        });
+    for (const child of group.children) {
+        const s = child as THREE.Sprite;
+        s.getWorldPosition(tmp).project(camera);
+        const x = (tmp.x * 0.5 + 0.5) * W;
+        const y = (-tmp.y * 0.5 + 0.5) * H;
+        items.push({ s, x, y, pr: getPriority(s) });
     }
 
-    // Animate opacity
-    group.traverse((o) => {
-        if (!(o as any).isSprite) return;
-        const s = o as THREE.Sprite;
-        let st = fadeState.get(s);
-        if (!st) { st = { a: 0, t: 0 }; fadeState.set(s, st); }
+    // brightest/most important first
+    items.sort((a, b) => b.pr - a.pr);
 
-        const T = st.t ? (opts?.fadeInMs ?? fadeInMs) : (opts?.fadeOutMs ?? fadeOutMs);
-        const k = T <= 0 ? 1 : Math.min(1, dt / T);
-        st.a += (st.t - st.a) * k;
+    // light-weight spatial hash
+    const grid = new Map<string, number>();
+    const key = (x: number, y: number) => `${Math.floor(x / cellPx)},${Math.floor(y / cellPx)}`;
 
-        (s.material as THREE.SpriteMaterial).opacity = st.a;
-    });
+    let shown = 0;
+    for (const it of items) {
+        const k = key(it.x, it.y);
+        const taken = grid.get(k) ?? 0;
+
+        let alpha = 0;
+
+        if (taken < maxPerCell && shown < labelBudget) {
+            // keep it
+            alpha = 1;
+            grid.set(k, taken + 1);
+            shown++;
+        } else {
+            // soft fade near the threshold
+            const t = Math.max(0, Math.min(1, (overlapPx - fadeBandPx) / Math.max(1, overlapPx)));
+            alpha = t;
+        }
+
+        const mat = it.s.material as THREE.SpriteMaterial;
+        mat.opacity = alpha;
+        it.s.visible = alpha > 0.01;
+    }
 }

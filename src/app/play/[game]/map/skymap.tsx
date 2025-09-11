@@ -30,13 +30,13 @@ export default function SkyMap(props: any){
     // drag guard
     const downPos=useRef<{x:number;y:number}|null>(null); const DRAG_TOL=5;
 
-    const BOOK_ZOOM_FOV = 42; // tweak to taste
+    const BOOK_ZOOM_FOV = 20; // tweak to taste
 
     // --- Stellarium-like FOV control (multiplicative + eased) ---
     const targetFovRef = useRef<number>(75);        // start matching original camera fov
     const BASE_FOV     = 75;                         // double-click reset
-    const MIN_FOV      = 9;                          // reasonable min (no extreme zoom-in)
-    const MAX_FOV      = 110;                        // cap zoom-out so horizon isn't fish-eye
+    const MIN_FOV      = 6;                          // reasonable min (no extreme zoom-in)
+    const MAX_FOV      = 75;                        // cap zoom-out so horizon isn't fish-eye
     const ZOOM_SENS    = 0.085;                      // wheel/pinch sensitivity
 
     const starsUrl="/stars.json";
@@ -245,10 +245,21 @@ export default function SkyMap(props: any){
                 if (labelsRef.current)     labelsRef.current.visible     = !bookMode;
 
                 if (bookMode && bookLabelsRef.current){
-                    updateLabelLayoutAndFading(bookLabelsRef.current, cam, renderer);
+                    updateLabelLayoutAndFading(bookLabelsRef.current, cam, renderer, {
+                        cellPx: 64,
+                        overlapPx: 28,
+                        fadeBandPx: 16,
+                        maxPerCell: 1,
+                    });
                     fitSpriteGroupToPixels(bookLabelsRef.current, cam, renderer);
                 } else if (!bookMode && labelsRef.current){
-                    updateLabelLayoutAndFading(labelsRef.current, cam, renderer);
+                    updateLabelLayoutAndFading(labelsRef.current, cam, renderer, {
+                        cellPx: 42,        // was ~60 → denser grid
+                        overlapPx: 20,     // allow labels closer together
+                        fadeBandPx: 14,    // smoother fade when near
+                        maxPerCell: 2,     // permit two labels per grid cell
+                        labelBudget: 9999, // effectively no global cap
+                    });
                     fitSpriteGroupToPixels(labelsRef.current, cam, renderer);
                 }
             }
@@ -496,7 +507,7 @@ export default function SkyMap(props: any){
             if (!text || disabled) continue;
 
             const spr = makeLabel(text, { fontPx: 14, maxWidthPx: 320, paddingPx: 10 });
-            const p = sphToVec3(raHoursToRad(s.ra_h + 0.1), deg2rad(s.dec_d + 0.1), 1.01);
+            const p = sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d + 0.2), 1.01);
             spr.position.copy(p);
             const lum=((starfieldRef.current!.geometry as THREE.BufferGeometry).getAttribute('aLum') as THREE.BufferAttribute).getX(i) ?? 0.5;
             (spr as any).userData.lum=lum;
