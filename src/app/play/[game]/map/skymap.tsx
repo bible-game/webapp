@@ -12,6 +12,7 @@ if (typeof window !== "undefined") {
 
 import { makeLabel, updateLabelLayoutAndFading, fitSpriteGroupToPixels } from "./utils/label-utils";
 import { Star, buildStarfield, buildPickingPoints, sphToVec3, raHoursToRad, deg2rad } from "./utils/star-utils";
+import {createGalaxy} from "@/app/play/[game]/map/utils/galaxy-utils";
 
 export default function SkyMap(props: any){
     const containerRef=useRef<HTMLDivElement|null>(null); const rendererRef=useRef<THREE.WebGLRenderer|null>(null); const cameraRef=useRef<THREE.PerspectiveCamera|null>(null); const controlsRef=useRef<any|null>(null); const sceneRef=useRef<THREE.Scene|null>(null);
@@ -49,6 +50,9 @@ export default function SkyMap(props: any){
         const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
         directionalLight.position.set(0, 1, 1);
         scene.add(directionalLight);
+
+        const galaxy = createGalaxy();
+        scene.add(galaxy);
 
         const camera = new THREE.PerspectiveCamera(75, container.clientWidth/container.clientHeight, 0.1, 1000);
         camera.position.set(0,0,0.01);
@@ -436,7 +440,7 @@ export default function SkyMap(props: any){
 
         for (let i = 0; i < stars.length; i++) {
             const s = stars[i];
-            const text = `${s.icon ? s.icon+" " : ""}${s.name ?? ""}`.trim();
+            const text = s.name;
             let disabled = false;
             if (props.found.testamentFound && s.testament != props.target.testament) disabled = true;
             else if (props.found.divisionFound && s.division != props.target.division) disabled = true;
@@ -444,7 +448,7 @@ export default function SkyMap(props: any){
             if (!text || disabled) continue;
 
             const spr = makeLabel(text, { fontPx: 28, maxWidthPx: 320, paddingPx: 10 });
-            const p = sphToVec3(raHoursToRad(s.ra_h), deg2rad(s.dec_d), 1.01);
+            const p = sphToVec3(raHoursToRad(s.ra_h + 0.1), deg2rad(s.dec_d + 0.1), 1.01);
             spr.position.copy(p);
             const lum=((starfieldRef.current!.geometry as THREE.BufferGeometry).getAttribute('aLum') as THREE.BufferAttribute).getX(i) ?? 0.5;
             (spr as any).userData.lum=lum;
