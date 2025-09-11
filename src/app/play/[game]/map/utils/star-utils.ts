@@ -1,5 +1,6 @@
 
 import * as THREE from "three";
+import {brighten} from "@/core/util/colour-util";
 
 export type Star = {
     name: string;
@@ -68,7 +69,7 @@ export function buildStarfield(stars: Star[], found: any, target: any) {
             disabled = true;
         }
 
-        const hex: string = disabled ? "#000000" : s.division_color!;
+        const hex: string = brighten(disabled ? "#000000" : s.division_color!, 75);
         const [r,g,b] = hexToRgb(hex);
         col.set([r,g,b], i * 3);
         const t: number = Math.sqrt((Math.max(vMin, Math.min(vMax, s.verses ?? vMin))-vMin)/(vMax-vMin+1e-6));

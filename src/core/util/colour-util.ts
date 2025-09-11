@@ -77,3 +77,38 @@ export function average(color1: any,color2: any): any{
       + hex(avg(g(hex1), g(hex2)))
       + hex(avg(b(hex1), b(hex2)));
 }
+
+export function brighten(hexColor: string, percentage: number): string {
+  if (percentage < 0 || percentage > 100) {
+    throw new Error("Percentage must be between 0 and 100.");
+  }
+
+  // Remove the hash at the start if it's there
+  hexColor = hexColor.replace(/^#/, "");
+
+  // Parse the r, g, b values
+  let r = parseInt(hexColor.substring(0, 2), 16);
+  let g = parseInt(hexColor.substring(2, 4), 16);
+  let b = parseInt(hexColor.substring(4, 6), 16);
+
+  // Calculate the amount to brighten by
+  const amount = (255 - r) * (percentage / 100);
+  r = Math.round(r + amount);
+
+  const gAmount = (255 - g) * (percentage / 100);
+  g = Math.round(g + gAmount);
+
+  const bAmount = (255 - b) * (percentage / 100);
+  b = Math.round(b + bAmount);
+
+  // Ensure the values are within the 0-255 range
+  r = Math.min(255, r);
+  g = Math.min(255, g);
+  b = Math.min(255, b);
+
+  // Convert back to hex
+  const newHexColor = `#${(r).toString(16).padStart(2, "0")}${(g).toString(16).padStart(2, "0")}${(b).toString(16).padStart(2, "0")}`;
+
+  return newHexColor;
+}
+
