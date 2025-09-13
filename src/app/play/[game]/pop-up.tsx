@@ -12,14 +12,16 @@ import Image from "next/image";
 
 export default function PopUp() {
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
-    const consent = false; // GameStatesService.getConsentState();
+
+    const [ visible, setVisible ] = useState(true);
+    const [ consent, setConsent ] = useState(false);
     if (!isOpen && !consent) {
         onOpen()
     }
 
-    const [ visible, setVisible ] = useState(true);
-    function close(): void {
+    function close(accepted : boolean): void {
         setVisible(false)
+        setConsent(accepted)
     }
 
     if (visible) return (
@@ -69,10 +71,10 @@ export default function PopUp() {
                     </ul>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="danger" variant="light" onPress={close}>
+                    <Button color="danger" variant="light" onPress={() => close(true)}>
                         Reject
                     </Button>
-                    <Button color="primary" onPress={close}>
+                    <Button color="primary" onPress={() => close(true)}>
                         Accept
                     </Button>
               </ModalFooter>
