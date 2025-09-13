@@ -11,7 +11,6 @@ import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
 import Treemap from "@/app/play/[game]/map/treemap";
 import moment from "moment/moment";
-import {redirect} from "next/navigation";
 import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
@@ -279,17 +278,6 @@ export default function Game(props: any) {
         return (
             <>
                 <PopUp />
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound} testFound={testamentFound} data={testaments} book={book} device={props.device} playing={playing}/>
-                <section className="relative z-1 h-full pointer-events-none">
-                    <section className="menu-wrapper pointer-events-auto top-[.375rem] relative">
-                        <Menu passage={passage} playing={playing} date={props.game} device={props.device}/>
-                    </section>
-                    <section className="pointer-events-auto absolute bottom-2 sm:bottom-[4.25rem]">
-                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess} isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game} addGuess={addGuess} selected={selected} books={books} bookFound={bookFound} selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook} selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                        <Guesses guesses={guesses} bookFound={bookFound}/>
-                    </section>
-                    <Confetti fire={confetti}/>
-                </section>
                 <Summary passage={passage} playing={playing}/>
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}

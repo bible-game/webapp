@@ -8,20 +8,20 @@ import {
   useDisclosure,
 } from "@heroui/react";
 import React, {useState} from "react";
-import Image from "next/image";
+import {StateUtil} from "@/core/util/state-util";
 
 export default function PopUp() {
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
     const [ visible, setVisible ] = useState(true);
-    const [ consent, setConsent ] = useState(false);
+    const [ consent, setConsent ] = useState(StateUtil.getConsent());
     if (!isOpen && !consent) {
         onOpen()
     }
 
     function close(accepted : boolean): void {
         setVisible(false)
-        setConsent(accepted)
+        StateUtil.setConsent(accepted)
     }
 
     if (visible) return (
@@ -71,7 +71,7 @@ export default function PopUp() {
                     </ul>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="danger" variant="light" onPress={() => close(true)}>
+                    <Button color="danger" variant="light" onPress={() => close(false)}>
                         Reject
                     </Button>
                     <Button color="primary" onPress={() => close(true)}>
