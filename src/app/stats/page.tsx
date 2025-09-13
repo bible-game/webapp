@@ -1,82 +1,83 @@
-"use client"
+"use server"
 
 import { Toaster } from "react-hot-toast";
-import React, { useEffect, useState } from "react";
-import Navigation from "@/app/navigation";
+import React from "react";
+import Menu from "@/app/menu";
 import Background from "@/app/background";
-import Cell from "@/app/stats/cell";
-import { GameStatesService } from "@/core/service/game-states-service";
-import { CompletionService } from "@/core/service/completion-service";
-import Image from 'next/image'
+import Metrics from "@/app/stats/metrics";
+import Completion from "@/app/stats/completion";
+import LoginPrompt from "@/app/stats/login-prompt";
+import Leaderboard from "@/app/stats/leaderboard";
+
+import { getReadState } from "@/core/action/state/get-state-read";
+import { ReadState } from "@/core/model/state/read-state";
+import { GameState } from "@/core/model/state/game-state";
+import { getGameState } from "@/core/action/state/get-state-game";
+import isLoggedIn, { getUserId } from "@/core/util/auth-util";
+import getUserInfo, { UserInfo } from "@/core/action/user/get-user-info";
+import getLeaders from "@/core/action/user/get-leaders";
+import { getReviewState } from "@/core/action/state/get-state-review";
+import { ReviewState } from "@/core/model/state/review-state";
+import getRank from "@/core/action/user/get-rank";
+
+async function get(url: string): Promise<any> {
+    const response = await fetch(url, {method: "GET"});
+    return await response.json();
+}
 
 /**
  * Statistics Page
  * @since 12th April 2025
  */
-export default function Stats() {
+export default async function Stats() {
 
-    const [stars, setStars] = useState(0);
-    const [games, setGames] = useState(0);
-    const [streak, setStreak] = useState(0);
-    const [completion, setCompletion] = useState([] as any[]);
-    const [complete, setComplete] = useState("");
+    let displayName: string | undefined;
+    const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
+    const leaders = await getLeaders();
 
-    useEffect(() => {
-        setStars(CompletionService.calcStars);
-        setGames(CompletionService.calcGames);
-        setStreak(CompletionService.calcStreak);
-        setCompletion(GameStatesService.getCompletion);
-        setComplete(CompletionService.calcCompletion);
-    }, []);
+    let gameState: Map<number,GameState> | undefined;
+    let readState: Map<string,ReadState> | undefined;
+    let reviewState: Map<string,ReviewState> | undefined;
+    let info: UserInfo | undefined;
+    let rank: { rank?: number, totalPlayers?: number } = {};
+    if (await isLoggedIn()) {
+        gameState = await getGameState();
+        readState = await getReadState();
+        reviewState = await getReviewState();
 
-    function pretty(text: string): any {
-        const parts = text.split(/\d/);
-
-        if (parts.length == 1)
-            return text.charAt(0).toUpperCase() + text.substring(1).toLowerCase();
-
-        else
-            return `${text[0]} ${pretty(parts[1])}`;
+        info = await getUserInfo();
+        displayName = `${info?.firstname} ${info?.lastname}`;
+        rank = await getRank(await getUserId() ?? '1'); // fixme
     }
 
     return (
         <>
             <Background/>
-            <Navigation play={true} read={true}/>
-            <main className="flex items-center sm:top-0 top-[14rem]">
-                <Toaster position="bottom-right"/>
-                <section>
-                    <h1 className="text-[1.5rem]">Statistics</h1>
-                    <section className="sm:w-[46rem] w-[80vw]">
-                        <div className="flex my-8 justify-start gap-12 items-center flex-wrap">
-                            <div className="flex items-center">
-                                <p className="text-[1.5rem]">{stars}</p>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="gold" viewBox="0 0 24 24"
-                                     strokeWidth="1.5"
-                                     stroke="gold" className="size-6">
-                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                          d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"/>
-                                </svg>
+            <main className="w-full flex justify-center">
+                <div className="w-[100vw] sm:w-min">
+                    <Menu isStats={true} info={info} />
+                    <section className="mx-4 sm:mx-0 w-[80vw] sm:w-full left-[5%] sm:left-0 relative">
+                        <div className="flex gap-12 items-center">
+                            <div className="flex flex-col">
+                                <div className="flex gap-2">
+                                    {displayName && <h1 className="text-[1.5rem] mx-0">{`${displayName}'s`}</h1>}
+                                    <h1 className="text-[1.5rem] mx-0">Statistics</h1>
+                                </div>
+                                {rank.rank && rank.totalPlayers && (
+                                    <p className="text-xs text-white-500 opacity-60 font-extralight -translate-y-3">
+                                        {`${rank.rank} of ${rank.totalPlayers}`}
+                                    </p>
+                                )}
                             </div>
-                            <div><p className="text-[1.5rem]">{games}<span
-                                className="text-gray-400 text-[1rem] ml-1">games</span></p></div>
-                            <div><p className="text-[1.5rem]">{streak}<span
-                                className="text-gray-400 text-[1rem] ml-1">days</span></p></div>
-                            <div><p className="text-[1.5rem]">{complete}<span
-                                className="text-gray-400 text-[1rem]">%</span></p></div>
                         </div>
+                        {!info && <LoginPrompt/>}
+                        <Leaderboard leaders={leaders}/>
+                        <Metrics gameState={gameState} readState={readState} reviewState={reviewState} bible={bible}/>
+                        <Completion bible={bible}/>
                     </section>
-                    <section className="flex flex-wrap sm:w-[46rem] w-[80vw] mb-12">
-                        {completion.map((c: any) => c.chapter.map((chapter: any, index = 0) =>
-                            <Cell key={c.book + index} label={`${pretty(c.book)} ${++index}`} chapter={chapter}/>))}
-                    </section>
-                    <section className="flex justify-center pb-8 absolute sm:w-[46rem] w-full">
-                        <a href="https://discord.gg/6ZJYbQcph5" target="_blank" className="flex gap-2 items-center">
-                            <Image src="/discord.png" alt="discord" width={160} height={0}/>
-                        </a>
-                    </section>
-                </section>
+                </div>
             </main>
+            <Toaster position="bottom-right"/>
         </>
     );
 }
