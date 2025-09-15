@@ -10,9 +10,10 @@ if (typeof window !== "undefined") {
     OrbitControls = require("three/examples/jsm/controls/OrbitControls").OrbitControls;
 }
 
-import { makeLabel, updateLabelLayoutAndFading, fitSpriteGroupToPixels } from "./utils/label-utils";
+import {makeLabel, updateLabelLayoutAndFading, fitSpriteGroupToPixels} from "./utils/label-utils";
 import { Star, buildStarfield, buildPickingPoints, sphToVec3, raHoursToRad, deg2rad } from "./utils/star-utils";
 import {createGalaxy} from "@/app/play/[game]/map/utils/galaxy-utils";
+import {BIBLE_BOOKS} from "@/core/model/bible/BibleBooks";
 
 export default function SkyMap(props: any){
     const containerRef=useRef<HTMLDivElement|null>(null); const rendererRef=useRef<THREE.WebGLRenderer|null>(null); const cameraRef=useRef<THREE.PerspectiveCamera|null>(null); const controlsRef=useRef<any|null>(null); const sceneRef=useRef<THREE.Scene|null>(null);
@@ -396,7 +397,8 @@ export default function SkyMap(props: any){
                 lum = agg.idxs.reduce((m,i)=> Math.max(m, lumAttr.getX(i) ?? 0.5), 0.5);
             }
 
-            const spr = makeLabel(book, {
+            const bookName = `${BIBLE_BOOKS.indexOf(book) + 1}. ${book}`;
+            const spr = makeLabel(bookName, {
                 fontPx: 16,
                 maxWidthPx: 360,
                 paddingPx: 10,
