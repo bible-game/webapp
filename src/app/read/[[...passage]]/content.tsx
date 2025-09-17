@@ -259,7 +259,7 @@ const osisToName = (osis: any) => {
         Hag: "Haggai",
         Zech: "Zechariah",
         Mal: "Malachi",
-        Matt: "Matthew",
+        Matt: "Mathew",
         Mark: "Mark",
         Luke: "Luke",
         "1John": "1John",

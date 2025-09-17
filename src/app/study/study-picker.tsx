@@ -156,7 +156,7 @@ const BOOKS: { name: string; chapters: number; testament: "OT" | "NT" }[] = [
     { name: "Haggai", chapters: 2, testament: "OT" },
     { name: "Zechariah", chapters: 14, testament: "OT" },
     { name: "Malachi", chapters: 4, testament: "OT" },
-    { name: "Matthew", chapters: 28, testament: "NT" },
+    { name: "Mathew", chapters: 28, testament: "NT" },
     { name: "Mark", chapters: 16, testament: "NT" },
     { name: "Luke", chapters: 24, testament: "NT" },
     { name: "John", chapters: 21, testament: "NT" },
