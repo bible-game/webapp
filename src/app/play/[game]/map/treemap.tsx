@@ -562,7 +562,6 @@ const Treemap = (props: any) => {
         ctx.fillText(txt, rect.x, rect.y + rect.h * 0.8);
     }
 
-    /** UPDATED: record constellation segments so labels avoid them */
     function addConstellations(ctx: any, thisGroup: any, parent: any, index: any, x: number, y: number): void {
         if (!index) return;
 
@@ -580,7 +579,7 @@ const Treemap = (props: any) => {
                     ctx.moveTo(lastX, lastY);
                     ctx.lineTo(x, y);
                     ctx.shadowBlur = 0;
-                    ctx.strokeStyle = group.color+"40";
+                    ctx.strokeStyle = group.color+"20";
                     ctx.lineWidth = 0.05;
 
                     // NEW: record constellation segment
