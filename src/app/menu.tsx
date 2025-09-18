@@ -210,13 +210,16 @@ export default function Menu(props: any) {
                                     <div className="mx-auto">
                                         {/*<p>App version: { version }</p>*/}
                                     </div>
+                                    <div className="mx-auto font-extralight">
+                                        <p>Feedback? dev@jrsmth.io</p>
+                                    </div>
                                 </ModalBody>
                             </>
                         )}
                     </ModalContent>
                 </Modal>
             </NavbarContent> : <></>}
-            <NavbarContent justify="end">
+        <NavbarContent justify="end">
                 <NavbarItem>
                     {props.info ?
                         <Dropdown placement="bottom-end">

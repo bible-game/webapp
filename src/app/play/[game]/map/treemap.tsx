@@ -138,6 +138,7 @@ const Treemap = (props: any) => {
                 finalCompleteDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
                 wireframeDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
                 // todo :: continue to tune for mobile (performance vs smooth draw) ^^
+                // finalIncrementalDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
                 groupFillType: 'gradient',
                 stacking: "flattened",
                 descriptionGroupType: "stab",
@@ -554,12 +555,9 @@ const Treemap = (props: any) => {
 
         const key = `chapter:${group.id}:${zoomLevel}`;
         const rect = labelLayout.pick(ctx, txt, x, y, base, safe, key);
-
-        const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
-
         ctx.fillStyle = group.color+"80";
         ctx.shadowBlur = 0;
-        ctx.fillText(txt, rect.x, rect.y + rect.h * 0.8);
+        ctx.fillText(txt, rect.x + rect.w * 1.25, rect.y + rect.h * 1.25);
     }
 
     function addConstellations(ctx: any, thisGroup: any, parent: any, index: any, x: number, y: number): void {
