@@ -17,9 +17,9 @@ export class LabelLayout {
     }
 
     addSegment(s: Seg) { this.segments.push(s); }
-    addStar(c: Star)    { this.stars.push(c); }
+    addStar(c: Star)    { this.stars.push(c);   }
 
-    // ---------- geometry ----------
+    // ---------- helpers ----------
     private pointInRect(px: number, py: number, r: Rect) {
         return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
     }
@@ -34,9 +34,10 @@ export class LabelLayout {
         );
     }
 
-    private det(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number,x4:number,y4:number) {
-        return (x4-x3)*(y1-y3)-(y4-y3)*(x1-x3);
+    private det(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number,x4:number,y4:number){
+        return (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
     }
+
     private segmentsIntersect(a: Seg, b: Seg) {
         const d1 = this.det(a.x1,a.y1,a.x2,a.y2,b.x1,b.y1,b.x2,b.y2);
         const d2 = this.det(a.x2,a.y2,a.x1,a.y1,b.x1,b.y1,b.x2,b.y2);
@@ -52,23 +53,34 @@ export class LabelLayout {
         // If either endpoint inside the (grown) rect → it "interferes"
         if (this.pointInRect(s.x1, s.y1, rr) || this.pointInRect(s.x2, s.y2, rr)) return true;
 
-        // Otherwise check for segment-edge intersection
+        // Any of the 4 edges intersects the segment?
         const edges: Seg[] = [
             { x1: rr.x, y1: rr.y, x2: rr.x + rr.w, y2: rr.y },
             { x1: rr.x + rr.w, y1: rr.y, x2: rr.x + rr.w, y2: rr.y + rr.h },
             { x1: rr.x + rr.w, y1: rr.y + rr.h, x2: rr.x, y2: rr.y + rr.h },
             { x1: rr.x, y1: rr.y + rr.h, x2: rr.x, y2: rr.y },
         ];
-        if (edges.some(e => this.segmentsIntersect(s, e))) return true;
+        return edges.some(e => this.segmentsIntersect(e, s));
+    }
 
-        // Finally, allow a "near miss" buffer: if the segment comes within clearance of the rect
-        // compute min distance from segment to rect by checking distance to each rect edge segment
-        const minDist = edges.reduce((mn, e) => Math.min(mn, this.distSegSeg(s, e)), Number.POSITIVE_INFINITY);
-        return minDist < clearance;
+    private segDistanceToRect(s: Seg, r: Rect) {
+        // distance from segment to rectangle (0 if entering or inside)
+        if (this.segHitsOrEntersRect(s, r)) return 0;
+
+        return Math.min(
+            this.distPointSeg(r.x, r.y, s),
+            this.distPointSeg(r.x + r.w, r.y, s),
+            this.distPointSeg(r.x + r.w, r.y + r.h, s),
+            this.distPointSeg(r.x, r.y + r.h, s),
+            this.distSegSeg(s, { x1: r.x, y1: r.y, x2: r.x + r.w, y2: r.y }),
+            this.distSegSeg(s, { x1: r.x + r.w, y1: r.y, x2: r.x + r.w, y2: r.y + r.h }),
+            this.distSegSeg(s, { x1: r.x + r.w, y1: r.y + r.h, x2: r.x, y2: r.y + r.h }),
+            this.distSegSeg(s, { x1: r.x, y1: r.y + r.h, x2: r.x, y2: r.y }),
+        );
     }
 
     private distSegSeg(a: Seg, b: Seg) {
-        // Approx: min distance between segment endpoints and the opposite segment
+        if (this.segmentsIntersect(a, b)) return 0;
         return Math.min(
             this.distPointSeg(a.x1, a.y1, b),
             this.distPointSeg(a.x2, a.y2, b),
@@ -116,9 +128,71 @@ export class LabelLayout {
             [0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],
         ];
 
-        // how much clearance from lines / stars
+        // tighter, collision-aware gap
         const lineClear = Math.max(2, baseFontPx * 0.35);
         const starClear = Math.max(2, baseFontPx * 0.25);
+        const edgeGap   = Math.max(lineClear, starClear) + Math.ceil(baseFontPx * 0.2); // ~hug the edge
+
+        const anyCtx: any = ctx as any;
+        const cw = Number.isFinite(anyCtx?.canvas?.width)
+            ? anyCtx.canvas.width
+            : Math.ceil(safeBox.x + safeBox.w + edgeGap * 4);
+        const ch = Number.isFinite(anyCtx?.canvas?.height)
+            ? anyCtx.canvas.height
+            : Math.ceil(safeBox.y + safeBox.h + edgeGap * 4);
+
+        const rectW = w, rectH = h;
+        const pad   = Math.max(4, baseFontPx * 0.8);
+
+        // try closer-first distances; only go farther if collisions force it
+        const offsets = [edgeGap, edgeGap + 6, edgeGap + 12];
+
+        let placedOutside: Rect | null = null;
+        for (const off of offsets) {
+            const outsideRound: Rect[] = [
+                // TOP
+                {
+                    x: Math.round(this.clamp(safeBox.x + (safeBox.w - rectW) / 2, pad, cw - rectW - pad)),
+                    y: Math.round(this.clamp(safeBox.y - off - rectH, 0, ch - rectH)),
+                    w: rectW, h: rectH
+                },
+                // BOTTOM
+                {
+                    x: Math.round(this.clamp(safeBox.x + (safeBox.w - rectW) / 2, pad, cw - rectW - pad)),
+                    y: Math.round(this.clamp(safeBox.y + safeBox.h + off, 0, ch - rectH)),
+                    w: rectW, h: rectH
+                },
+                // LEFT
+                {
+                    x: Math.round(this.clamp(safeBox.x - off - rectW, 0, cw - rectW)),
+                    y: Math.round(this.clamp(safeBox.y + (safeBox.h - rectH) / 2, pad, ch - rectH - pad)),
+                    w: rectW, h: rectH
+                },
+                // RIGHT
+                {
+                    x: Math.round(this.clamp(safeBox.x + safeBox.w + off, 0, cw - rectW)),
+                    y: Math.round(this.clamp(safeBox.y + (safeBox.h - rectH) / 2, pad, ch - rectH - pad)),
+                    w: rectW, h: rectH
+                }
+            ];
+
+            // pick the first collision-free spot for this offset
+            for (const rect of outsideRound) {
+                if (this.placed.some(b => this.rectsOverlap(rect, b, 2))) continue;
+                if (this.segments.some(s => this.segHitsOrEntersRect(s, rect, lineClear))) continue;
+                if (this.stars.some(c => this.rectCircleOverlap(rect, c, starClear))) continue;
+
+                placedOutside = rect;
+                break;
+            }
+            if (placedOutside) break; // stop at the closest valid offset
+        }
+
+        if (placedOutside) {
+            this.placed.push(placedOutside);
+            this.cache.set(cacheKey, placedOutside);
+            return placedOutside;
+        }
 
         let best: Rect | null = null;
         let bestScore = Number.POSITIVE_INFINITY;
@@ -145,7 +219,7 @@ export class LabelLayout {
 
                 // soft score: prefer close & slightly above/right
                 const dist2 = (rect.x + rect.w/2 - anchorX)**2 + (rect.y + rect.h/2 - anchorY)**2;
-                const bias = (dy < 0 ? 0 : h * 2) + (dx >= 0 ? 0 : h);
+                const bias  = (dy < 0 ? 0 : h * 2) + (dx >= 0 ? 0 : h);
                 const score = dist2 + bias;
 
                 if (score < bestScore) { bestScore = score; best = rect; }
