@@ -1,113 +1,114 @@
 // label-layout.ts
-export type Rect = { x: number; y: number; w: number; h: number };
-export type Seg  = { x1: number; y1: number; x2: number; y2: number };
-export type Star = { x: number; y: number; r: number };
+// Groups: prefer outside of their box.
+// Chapters: hug the star, with star-size-aware clearance and max distance cap.
+
+type Rect = { x: number; y: number; w: number; h: number };
+type Seg  = { x1: number; y1: number; x2: number; y2: number };
+type Star = { x: number; y: number; r: number };
+
+function clamp(v: number, a: number, b: number) { return Math.max(a, Math.min(b, v)); }
+function rectsOverlap(a: Rect, b: Rect, pad = 0): boolean {
+    return !(
+        a.x + a.w + pad <= b.x ||
+        b.x + b.w + pad <= a.x ||
+        a.y + a.h + pad <= b.y ||
+        b.y + b.h + pad <= a.y
+    );
+}
+function det(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number,x4:number,y4:number) {
+    return (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+}
+function segmentsIntersect(a: Seg, b: Seg): boolean {
+    // Inclusive segment intersection
+    const d = det(a.x1, a.y1, a.x2, a.y2, b.x1, b.y1, b.x2, b.y2);
+    if (Math.abs(d) < 1e-9) {
+        // Parallel/collinear: bbox overlap test
+        const minAx = Math.min(a.x1, a.x2), maxAx = Math.max(a.x1, a.x2);
+        const minAy = Math.min(a.y1, a.y2), maxAy = Math.max(a.y1, a.y2);
+        const minBx = Math.min(b.x1, b.x2), maxBx = Math.max(b.x1, b.x2);
+        const minBy = Math.min(b.y1, b.y2), maxBy = Math.max(b.y1, b.y2);
+        const overlapX = !(maxAx < minBx || maxBx < minAx);
+        const overlapY = !(maxAy < minBy || maxBy < minAy);
+        return overlapX && overlapY;
+    }
+    const ua = det(b.x1, b.y1, b.x2, b.y2, b.x1, b.y1, a.x1, a.y1) / d;
+    const ub = det(a.x1, a.y1, a.x2, a.y2, a.x1, a.y1, b.x1, b.y1) / d;
+    return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1;
+}
+function pointInRect(px: number, py: number, r: Rect): boolean {
+    return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
+}
+function segHitsOrEntersRect(s: Seg, r: Rect, clearance = 0): boolean {
+    const rr: Rect = { x: r.x - clearance, y: r.y - clearance, w: r.w + 2 * clearance, h: r.h + 2 * clearance };
+    if (pointInRect(s.x1, s.y1, rr) || pointInRect(s.x2, s.y2, rr)) return true;
+    const edges: Seg[] = [
+        { x1: rr.x, y1: rr.y, x2: rr.x + rr.w, y2: rr.y },
+        { x1: rr.x + rr.w, y1: rr.y, x2: rr.x + rr.w, y2: rr.y + rr.h },
+        { x1: rr.x + rr.w, y1: rr.y + rr.h, x2: rr.x, y2: rr.y + rr.h },
+        { x1: rr.x, y1: rr.y + rr.h, x2: rr.x, y2: rr.y },
+    ];
+    return edges.some(e => segmentsIntersect(e, s));
+}
+function rectCircleOverlap(r: Rect, c: Star, pad = 0): boolean {
+    const cx = clamp(c.x, r.x, r.x + r.w);
+    const cy = clamp(c.y, r.y, r.y + r.h);
+    const dx = c.x - cx, dy = c.y - cy;
+    return Math.hypot(dx, dy) < (c.r + pad);
+}
+function safeCanvasSize(ctx: CanvasRenderingContext2D, fbW: number, fbH: number) {
+    const anyCtx: any = ctx as any;
+    const cw = Number.isFinite(anyCtx?.canvas?.width)  ? anyCtx.canvas.width  : fbW;
+    const ch = Number.isFinite(anyCtx?.canvas?.height) ? anyCtx.canvas.height : fbH;
+    return { cw, ch };
+}
+
+// Tunables (sane defaults; can be changed from code if you want)
+type LayoutOptions = {
+    // Max radial distance from a chapter's star EDGE to the label's NEAREST edge (px)
+    maxChapterOffsetPx: number;
+    // Extra glow/halo beyond star radius, proportional to star r
+    chapterHaloFactor: number;      // multiplied by star.r
+    // Minimum halo (px) so tiny stars still get a little breathing room
+    chapterHaloMinPx: number;       // absolute minimum
+};
+const DEFAULTS: LayoutOptions = {
+    maxChapterOffsetPx: 0,     // <- hard cap on how far a chapter label can be from its star
+    chapterHaloFactor: 0.9,     // <- star-aware clearance: 0.9 * r
+    chapterHaloMinPx: 0.5,      // <- at least 0.5px of extra gap
+};
 
 export class LabelLayout {
     private placed: Rect[] = [];
     private segments: Seg[] = [];
     private stars: Star[] = [];
     private cache = new Map<string, Rect>();
+    private opts: LayoutOptions;
+
+    constructor(opts?: Partial<LayoutOptions>) {
+        this.opts = {...DEFAULTS, ...(opts || {})};
+    }
 
     reset() {
-        this.placed.length = 0;
-        this.segments.length = 0;
-        this.stars.length = 0;
+        this.placed = [];
+        this.segments = [];
+        this.stars = [];
         this.cache.clear();
     }
 
-    addSegment(s: Seg) { this.segments.push(s); }
-    addStar(c: Star)    { this.stars.push(c);   }
-
-    // ---------- helpers ----------
-    private pointInRect(px: number, py: number, r: Rect) {
-        return px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h;
-    }
-    private clamp(v:number, a:number, b:number){ return Math.max(a, Math.min(b, v)); }
-
-    private rectsOverlap(a: Rect, b: Rect, pad = 0) {
-        return !(
-            a.x + a.w + pad < b.x ||
-            b.x + b.w + pad < a.x ||
-            a.y + a.h + pad < b.y ||
-            b.y + b.h + pad < a.y
-        );
+    addSegment(s: Seg) {
+        this.segments.push(s);
     }
 
-    private det(x1:number,y1:number,x2:number,y2:number,x3:number,y3:number,x4:number,y4:number){
-        return (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+    addStar(c: Star) {
+        this.stars.push(c);
     }
 
-    private segmentsIntersect(a: Seg, b: Seg) {
-        const d1 = this.det(a.x1,a.y1,a.x2,a.y2,b.x1,b.y1,b.x2,b.y2);
-        const d2 = this.det(a.x2,a.y2,a.x1,a.y1,b.x1,b.y1,b.x2,b.y2);
-        const d3 = this.det(b.x1,b.y1,b.x2,b.y2,a.x1,a.y1,a.x2,a.y2);
-        const d4 = this.det(b.x2,b.y2,b.x1,b.y1,a.x1,a.y1,a.x2,a.y2);
-        return (d1 * d2 >= 0) && (d3 * d4 >= 0);
-    }
-
-    private segHitsOrEntersRect(s: Seg, r: Rect, clearance = 0) {
-        // Grow rect a little for clearance
-        const rr: Rect = { x: r.x - clearance, y: r.y - clearance, w: r.w + 2*clearance, h: r.h + 2*clearance };
-
-        // If either endpoint inside the (grown) rect → it "interferes"
-        if (this.pointInRect(s.x1, s.y1, rr) || this.pointInRect(s.x2, s.y2, rr)) return true;
-
-        // Any of the 4 edges intersects the segment?
-        const edges: Seg[] = [
-            { x1: rr.x, y1: rr.y, x2: rr.x + rr.w, y2: rr.y },
-            { x1: rr.x + rr.w, y1: rr.y, x2: rr.x + rr.w, y2: rr.y + rr.h },
-            { x1: rr.x + rr.w, y1: rr.y + rr.h, x2: rr.x, y2: rr.y + rr.h },
-            { x1: rr.x, y1: rr.y + rr.h, x2: rr.x, y2: rr.y },
-        ];
-        return edges.some(e => this.segmentsIntersect(e, s));
-    }
-
-    private segDistanceToRect(s: Seg, r: Rect) {
-        // distance from segment to rectangle (0 if entering or inside)
-        if (this.segHitsOrEntersRect(s, r)) return 0;
-
-        return Math.min(
-            this.distPointSeg(r.x, r.y, s),
-            this.distPointSeg(r.x + r.w, r.y, s),
-            this.distPointSeg(r.x + r.w, r.y + r.h, s),
-            this.distPointSeg(r.x, r.y + r.h, s),
-            this.distSegSeg(s, { x1: r.x, y1: r.y, x2: r.x + r.w, y2: r.y }),
-            this.distSegSeg(s, { x1: r.x + r.w, y1: r.y, x2: r.x + r.w, y2: r.y + r.h }),
-            this.distSegSeg(s, { x1: r.x + r.w, y1: r.y + r.h, x2: r.x, y2: r.y + r.h }),
-            this.distSegSeg(s, { x1: r.x, y1: r.y + r.h, x2: r.x, y2: r.y }),
-        );
-    }
-
-    private distSegSeg(a: Seg, b: Seg) {
-        if (this.segmentsIntersect(a, b)) return 0;
-        return Math.min(
-            this.distPointSeg(a.x1, a.y1, b),
-            this.distPointSeg(a.x2, a.y2, b),
-            this.distPointSeg(b.x1, b.y1, a),
-            this.distPointSeg(b.x2, b.y2, a),
-        );
-    }
-    private distPointSeg(px:number, py:number, s: Seg) {
-        const vx = s.x2 - s.x1, vy = s.y2 - s.y1;
-        const len2 = vx*vx + vy*vy || 1;
-        let t = ((px - s.x1)*vx + (py - s.y1)*vy) / len2;
-        t = this.clamp(t, 0, 1);
-        const cx = s.x1 + t*vx, cy = s.y1 + t*vy;
-        const dx = px - cx, dy = py - cy;
-        return Math.hypot(dx, dy);
-    }
-
-    private rectCircleOverlap(r: Rect, c: Star, pad = 0) {
-        // distance from circle center to rectangle (0 if inside)
-        const cx = this.clamp(c.x, r.x, r.x + r.w);
-        const cy = this.clamp(c.y, r.y, r.y + r.h);
-        const dx = c.x - cx, dy = c.y - cy;
-        const dist = Math.hypot(dx, dy);
-        return dist < (c.r + pad);
-    }
-
-    // ---------- main picker ----------
+    /**
+     * Pick a rectangle for a label near (anchorX, anchorY) within 'safeBox'.
+     * Strategy by key:
+     *   - "group:*"   → outside the group box (top/bottom/left/right)
+     *   - others      → star-hugging (chapter labels)
+     */
     pick(
         ctx: CanvasRenderingContext2D,
         text: string,
@@ -115,121 +116,194 @@ export class LabelLayout {
         anchorY: number,
         baseFontPx: number,
         safeBox: Rect,
-        cacheKey: string,
+        cacheKey: string
     ): Rect {
         const cached = this.cache.get(cacheKey);
         if (cached) return cached;
 
+        const rect =
+            cacheKey.startsWith("group:")
+                ? this.pickGroupOutside(ctx, text, baseFontPx, safeBox)
+                : this.pickChapterHug(ctx, text, anchorX, anchorY, baseFontPx, safeBox);
+
+        this.cache.set(cacheKey, rect);
+        this.placed.push(rect);
+        return rect;
+    }
+
+    // ---------- Groups: prefer outside ----------
+    private pickGroupOutside(
+        ctx: CanvasRenderingContext2D,
+        text: string,
+        base: number,
+        box: Rect
+    ): Rect {
         const w = Math.ceil(ctx.measureText(text).width);
-        const h = Math.ceil(baseFontPx * 1.2);
+        const h = Math.ceil(base * 1.2);
 
-        const radii = [h * 1.4, h * 2.2, h * 3.2, h * 4.2];
-        const dirs: ReadonlyArray<[number, number]> = [
-            [0,-1],[1,-1],[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],
-        ];
+        // Keep the group gap modest but readable (unrelated to star size)
+        const lineClear = Math.max(2, base * 0.35);
+        const starClear = Math.max(2, base * 0.25);
+        const edgeGap = Math.max(lineClear, starClear) + Math.ceil(base * 0.2);
+        const pad = Math.max(4, base * 0.8);
 
-        // tighter, collision-aware gap
-        const lineClear = Math.max(2, baseFontPx * 0.35);
-        const starClear = Math.max(2, baseFontPx * 0.25);
-        const edgeGap   = Math.max(lineClear, starClear) + Math.ceil(baseFontPx * 0.2); // ~hug the edge
+        const {cw, ch} = safeCanvasSize(
+            ctx,
+            Math.ceil(box.x + box.w + edgeGap * 4),
+            Math.ceil(box.y + box.h + edgeGap * 4)
+        );
 
-        const anyCtx: any = ctx as any;
-        const cw = Number.isFinite(anyCtx?.canvas?.width)
-            ? anyCtx.canvas.width
-            : Math.ceil(safeBox.x + safeBox.w + edgeGap * 4);
-        const ch = Number.isFinite(anyCtx?.canvas?.height)
-            ? anyCtx.canvas.height
-            : Math.ceil(safeBox.y + safeBox.h + edgeGap * 4);
-
-        const rectW = w, rectH = h;
-        const pad   = Math.max(4, baseFontPx * 0.8);
-
-        // try closer-first distances; only go farther if collisions force it
         const offsets = [edgeGap, edgeGap + 6, edgeGap + 12];
-
-        let placedOutside: Rect | null = null;
         for (const off of offsets) {
-            const outsideRound: Rect[] = [
+            const candidates: Rect[] = [
                 // TOP
                 {
-                    x: Math.round(this.clamp(safeBox.x + (safeBox.w - rectW) / 2, pad, cw - rectW - pad)),
-                    y: Math.round(this.clamp(safeBox.y - off - rectH, 0, ch - rectH)),
-                    w: rectW, h: rectH
+                    x: Math.round(clamp(box.x + (box.w - w) / 2, pad, cw - w - pad)),
+                    y: Math.round(clamp(box.y - off - h, 0, ch - h)), w, h
                 },
                 // BOTTOM
                 {
-                    x: Math.round(this.clamp(safeBox.x + (safeBox.w - rectW) / 2, pad, cw - rectW - pad)),
-                    y: Math.round(this.clamp(safeBox.y + safeBox.h + off, 0, ch - rectH)),
-                    w: rectW, h: rectH
+                    x: Math.round(clamp(box.x + (box.w - w) / 2, pad, cw - w - pad)),
+                    y: Math.round(clamp(box.y + box.h + off, 0, ch - h)), w, h
                 },
                 // LEFT
                 {
-                    x: Math.round(this.clamp(safeBox.x - off - rectW, 0, cw - rectW)),
-                    y: Math.round(this.clamp(safeBox.y + (safeBox.h - rectH) / 2, pad, ch - rectH - pad)),
-                    w: rectW, h: rectH
+                    x: Math.round(clamp(box.x - off - w, 0, cw - w)),
+                    y: Math.round(clamp(box.y + (box.h - h) / 2, pad, ch - h - pad)), w, h
                 },
                 // RIGHT
                 {
-                    x: Math.round(this.clamp(safeBox.x + safeBox.w + off, 0, cw - rectW)),
-                    y: Math.round(this.clamp(safeBox.y + (safeBox.h - rectH) / 2, pad, ch - rectH - pad)),
-                    w: rectW, h: rectH
-                }
+                    x: Math.round(clamp(box.x + box.w + off, 0, cw - w)),
+                    y: Math.round(clamp(box.y + (box.h - h) / 2, pad, ch - h - pad)), w, h
+                },
             ];
 
-            // pick the first collision-free spot for this offset
-            for (const rect of outsideRound) {
-                if (this.placed.some(b => this.rectsOverlap(rect, b, 2))) continue;
-                if (this.segments.some(s => this.segHitsOrEntersRect(s, rect, lineClear))) continue;
-                if (this.stars.some(c => this.rectCircleOverlap(rect, c, starClear))) continue;
-
-                placedOutside = rect;
-                break;
+            for (const r of candidates) {
+                if (this.placed.some(b => rectsOverlap(r, b, 2))) continue;
+                if (this.segments.some(s => segHitsOrEntersRect(s, r, lineClear))) continue;
+                if (this.stars.some(c => rectCircleOverlap(r, c, starClear))) continue;
+                return r;
             }
-            if (placedOutside) break; // stop at the closest valid offset
         }
 
-        if (placedOutside) {
-            this.placed.push(placedOutside);
-            this.cache.set(cacheKey, placedOutside);
-            return placedOutside;
-        }
-
-        let best: Rect | null = null;
-        let bestScore = Number.POSITIVE_INFINITY;
-
-        for (const r of radii) {
-            for (const [dx, dy] of dirs) {
-                const cx = anchorX + dx * r;
-                const cy = anchorY + dy * r;
-                const rect: Rect = { x: Math.round(cx - w / 2), y: Math.round(cy - h / 2), w, h };
-
-                // must be inside safe box
-                if (
-                    rect.x < safeBox.x || rect.y < safeBox.y ||
-                    rect.x + rect.w > safeBox.x + safeBox.w ||
-                    rect.y + rect.h > safeBox.y + safeBox.h
-                ) continue;
-
-                // avoid other placed labels
-                if (this.placed.some(b => this.rectsOverlap(rect, b, 2))) continue;
-
-                // avoid lines (with clearance) and stars (dots)
-                if (this.segments.some(s => this.segHitsOrEntersRect(s, rect, lineClear))) continue;
-                if (this.stars.some(c => this.rectCircleOverlap(rect, c, starClear))) continue;
-
-                // soft score: prefer close & slightly above/right
-                const dist2 = (rect.x + rect.w/2 - anchorX)**2 + (rect.y + rect.h/2 - anchorY)**2;
-                const bias  = (dy < 0 ? 0 : h * 2) + (dx >= 0 ? 0 : h);
-                const score = dist2 + bias;
-
-                if (score < bestScore) { bestScore = score; best = rect; }
-            }
-            if (best) break;
-        }
-
-        const chosen = best ?? { x: Math.round(anchorX - w / 2), y: Math.round(anchorY - h / 2), w, h };
-        this.placed.push(chosen);
-        this.cache.set(cacheKey, chosen);
-        return chosen;
+        // Fallback: inside center of the box
+        return {
+            x: Math.round(box.x + (box.w - w) / 2),
+            y: Math.round(box.y + (box.h - h) / 2),
+            w, h
+        };
     }
+
+    // Chapters: star-hugging with star-size-aware clearance and a HARD max distance cap.
+    private pickChapterHug(
+        ctx: CanvasRenderingContext2D,
+        text: string,
+        ax: number,
+        ay: number,
+        base: number,
+        box: Rect
+    ): Rect {
+        const w = Math.ceil(ctx.measureText(text).width);
+        const h = Math.ceil(base * 1.2);
+
+        // Find nearest star (to size the halo + anchor distance)
+        let nearestR = 0, nearestD = Number.POSITIVE_INFINITY;
+        for (const s of this.stars) {
+            const d = Math.hypot(ax - s.x, ay - s.y);
+            if (d < nearestD) {
+                nearestD = d;
+                nearestR = s.r;
+            }
+        }
+
+        // --- HARD CAP + star-aware halo (bounded by the cap) ---
+        const cap = Math.max(0, this.opts.maxChapterOffsetPx); // user’s hard limit in px
+        const desiredHalo = Math.max(this.opts.chapterHaloMinPx, nearestR * this.opts.chapterHaloFactor);
+        // Effective halo is limited by the cap, so the cap always “wins”
+        const halo = Math.min(cap, desiredHalo);
+
+        // Collision clearances
+        const lineClear = Math.max(1, base * 0.22);
+        // IMPORTANT: allow true tangency when cap==0 by keeping starClear <= cap
+        const starClear = Math.min(cap, Math.max(0, Math.min(1, desiredHalo)));
+
+        // Helper
+        const isValid = (r: Rect) =>
+            !(r.x < box.x || r.y < box.y || r.x + r.w > box.x + box.w || r.y + r.h > box.y + box.h) &&
+            !this.placed.some(b => rectsOverlap(r, b, 1.25)) &&
+            !this.segments.some(s => segHitsOrEntersRect(s, r, lineClear)) &&
+            !this.stars.some(c => rectCircleOverlap(r, c, starClear));
+
+        // We "edge-lock" the nearest edge at (nearestR + g) and slide tangentially first.
+        const slideStep = Math.max(2, Math.round(base * 0.6));
+        const slideMax = Math.max(12, Math.round(base * 6));
+        const slides: number[] = [0];
+        for (let d = slideStep; d <= slideMax; d += slideStep) slides.push(d, -d);
+
+        // Sides ordered by available room (TOP/RIGHT bias when similar)
+        const sides = [
+            {id: "TOP", room: ay - box.y, bias: 0},
+            {id: "RIGHT", room: box.x + box.w - ax, bias: 1},
+            {id: "BOTTOM", room: box.y + box.h - ay, bias: 2},
+            {id: "LEFT", room: ax - box.x, bias: 3},
+        ].sort((a, b) => (b.room - a.room) || (a.bias - b.bias));
+
+        // Try gaps from (halo) up to cap. If cap==0, this loop tries 0 only.
+        const gapSteps: number[] = [];
+        // start at halo (may be 0), step by 1–2px until the cap
+        const gapStepPx = Math.max(1, Math.round(base * 0.4));
+        for (let g = halo; g <= cap; g += gapStepPx) gapSteps.push(g);
+        if (gapSteps.length === 0) gapSteps.push(0); // when halo>cap (shouldn't happen now), still try 0
+
+        for (const g of gapSteps) {
+            for (const s of sides) {
+                for (const t of slides) {
+                    let cand: Rect;
+                    switch (s.id) {
+                        case "TOP":
+                            cand = {x: Math.round(ax - w / 2 + t), y: Math.round(ay - (nearestR + g) - h), w, h};
+                            break;
+                        case "BOTTOM":
+                            cand = {x: Math.round(ax - w / 2 + t), y: Math.round(ay + (nearestR + g)), w, h};
+                            break;
+                        case "RIGHT":
+                            cand = {x: Math.round(ax + (nearestR + g)), y: Math.round(ay - h / 2 + t), w, h};
+                            break;
+                        default: // LEFT
+                            cand = {x: Math.round(ax - (nearestR + g) - w), y: Math.round(ay - h / 2 + t), w, h};
+                    }
+                    // Keep the tangential slide inside the box (doesn't change radial gap)
+                    cand.x = clamp(cand.x, box.x, box.x + box.w - w);
+                    cand.y = clamp(cand.y, box.y, box.y + box.h - h);
+
+                    if (isValid(cand)) return cand;
+                }
+            }
+        }
+
+        // No valid placement found within the cap — as a strict rule, we DON'T exceed it.
+        // Last resort: clamp a tangential slide at the cap above the star (still <= cap).
+        const g = cap;
+        const fallback: Rect = {
+            x: clamp(Math.round(ax - w / 2), box.x, box.x + box.w - w),
+            y: clamp(Math.round(ay - (nearestR + g) - h), box.y, box.y + box.h - h),
+            w, h
+        };
+        if (isValid(fallback)) return fallback;
+
+        // If even that fails, try sliding on the top side at the cap.
+        const altSlides = [0, slideStep, -slideStep, 2 * slideStep, -2 * slideStep];
+        for (const t of altSlides) {
+            const alt: Rect = {
+                x: clamp(Math.round(ax - w / 2 + t), box.x, box.x + box.w - w),
+                y: clamp(Math.round(ay - (nearestR + g) - h), box.y, box.y + box.h - h),
+                w, h
+            };
+            if (isValid(alt)) return alt;
+        }
+
+        // Absolute last resort: return the unclamped TOP position (may overlap if space is truly blocked)
+        return fallback;
+    }
+
 }
