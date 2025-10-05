@@ -325,7 +325,14 @@ const Treemap = (props: any) => {
 
     const mobileOptimisations = {
         pixelRatio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
-        interactionHandler: "hammerjs"
+        interactionHandler: "hammerjs",
+        relaxationInitializer: "treemap",
+        relaxationVisible: false,
+        relaxationQualityThreshold: 5,
+        rolloutDuration: 0,
+        pullbackDuration: 0,
+        finalCompleteDrawMaxDuration: 50,
+        finalIncrementalDrawMaxDuration: 20
     }
 
     function setupColours(opts: any, params: any, vars: any): void {
