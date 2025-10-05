@@ -135,8 +135,8 @@ const Treemap = (props: any) => {
                 groupMinDiameter: 0,
                 groupStrokeType: 'plain',
                 groupStrokeWidth: 2,
-                finalCompleteDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
-                wireframeDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
+                finalCompleteDrawMaxDuration: props.device == "mobile" ? 135 : 20000,
+                wireframeDrawMaxDuration: props.device == "mobile" ? 135 : 20000,
                 // todo :: continue to tune for mobile (performance vs smooth draw) ^^
                 // finalIncrementalDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
                 groupFillType: 'gradient',
