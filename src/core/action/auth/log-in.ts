@@ -1,12 +1,10 @@
 "use server"
 
-import { cookies } from "next/headers"
 import { LogInFormState } from "@/core/model/form/form-definitions"
 import { redirect } from "next/navigation";
+import { setCookie } from "@/core/action/auth/cookie";
 
 export async function logIn(state: LogInFormState, formData: FormData) {
-
-    const cookieStore = await cookies()
 
     if (!state) {
         state = {
@@ -40,14 +38,14 @@ export async function logIn(state: LogInFormState, formData: FormData) {
             body: JSON.stringify(body)
         })
 
-        let result: string | any
         if (response.status == 200) {
-            result = await response.text()
-            state!.token = result
-            cookieStore.set('token', result, { httpOnly: true })
+            const tokens = await response.json() as { authToken: string, refreshToken: string }
+            state!.token = tokens.authToken
+            await setCookie('token', tokens.authToken)
+            await setCookie('refresh', tokens.refreshToken)
 
         } else {
-            result = await response.json()
+            const result = await response.json()
             console.error(`Error when logging in with [Email: ${body.email}, Password: ${body.password}]: ${result.error}`)
             switch (response.status) {
                 case 401:
@@ -61,7 +59,7 @@ export async function logIn(state: LogInFormState, formData: FormData) {
         console.error(`Error when logging in with [Email: ${body.email}, Password: ${body.password}]: ${error.message}`)
         state!.errors.form.push('An error occurred on our end. Please try again later or reach out for support if this persists.')
     }
-
     // return state
-    redirect('/');
+
+    redirect('/stats');
 }

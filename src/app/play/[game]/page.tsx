@@ -9,7 +9,7 @@ import { headers } from "next/headers";
 import { GameState } from "@/core/model/state/game-state";
 import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn from "@/core/util/auth-util";
-import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
+import getUserInfo, { UserInfo } from "@/core/action/user/get-user-info";
 import Menu from "@/app/menu";
 
 async function get(url: string): Promise<any> {

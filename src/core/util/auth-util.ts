@@ -1,9 +1,8 @@
 "use server"
 
-import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
-import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
-import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { JWTExpired } from "jose/errors";
+import { getCookie } from "@/core/action/auth/cookie";
 
 /**
  * Authentication-related Utilities
@@ -20,7 +19,9 @@ export default async function isLoggedIn(): Promise<boolean> {
             return !!payload.sub;
         }
     } catch (e) {
-        console.error(e);
+        if (e instanceof JWTExpired) {
+            console.debug("JWT has expired. Attempting to refresh...")
+        }
     }
 
     return false;
@@ -28,13 +29,12 @@ export default async function isLoggedIn(): Promise<boolean> {
 
 /** Return the base64-encoded signing secret */
 export async function getSecret(): Promise<Uint8Array> {
-    return new TextEncoder().encode(process.env.SIGNING_SECRET);
+    return new TextEncoder().encode("Bible-Game secret authentication key - for development use only");
 }
 
 /** Returns the auth token if it exists */
 export async function getToken(): Promise<string | null> {
-    const cookieStore: ReadonlyRequestCookies = await cookies();
-    const cookie: RequestCookie | undefined = cookieStore.get('token');
+    const cookie = await getCookie('token')
 
     return cookie ? cookie.value : null;
 }
@@ -43,7 +43,7 @@ export async function getToken(): Promise<string | null> {
 export async function getUserId(): Promise<string | undefined> {
     const token = await getToken();
     if (token) {
-        const {payload} = await jwtVerify(token, await getSecret());
+        const { payload } = await jwtVerify(token, await getSecret());
         return payload.sub;
     } else {
         return undefined;

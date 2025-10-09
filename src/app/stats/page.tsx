@@ -19,6 +19,7 @@ import getLeaders from "@/core/action/user/get-leaders";
 import { getReviewState } from "@/core/action/state/get-state-review";
 import { ReviewState } from "@/core/model/state/review-state";
 import getRank from "@/core/action/user/get-rank";
+import {refreshTokens} from "@/core/action/auth/refresh-tokens";
 
 async function get(url: string): Promise<any> {
     const response = await fetch(url, {method: "GET"});
@@ -40,7 +41,8 @@ export default async function Stats() {
     let reviewState: Map<string,ReviewState> | undefined;
     let info: UserInfo | undefined;
     let rank: { rank?: number, totalPlayers?: number } = {};
-    if (await isLoggedIn()) {
+
+    if (await isLoggedIn() || await refreshTokens()) {
         gameState = await getGameState();
         readState = await getReadState();
         reviewState = await getReviewState();
