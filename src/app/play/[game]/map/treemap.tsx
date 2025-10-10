@@ -9,6 +9,7 @@ import nebula from './config/nebula.json';
 import chapterGroups from './config/groups.json';
 import colours from './config/colours.json';
 import { renderStar } from "./star-renderer";
+import { LabelLayout } from "./label-layout";
 
 /**
  * Voronoi Treemap Component for displaying the Bible
@@ -24,6 +25,7 @@ const Treemap = (props: any) => {
     const [zoomLevel, setZoomLevel] = useState(0);
     const [zoomAccum, setZoomAccum] = useState(0);
     const pinchRef = useRef({ base: 1 });
+    const CHAPTER_WEIGHT = 20;
     const MIN_LEVEL = 0;
     const MAX_LEVEL = 3;
     const STEP_PINCH = 1.18;
@@ -42,6 +44,8 @@ const Treemap = (props: any) => {
     let lastNarrativeX = 0;
     let lastNarrativeY = 0;
     let groupPlacement = -1;
+
+    const labelLayout = new LabelLayout();
 
     useEffect(() => {
         let disposed = false;
@@ -127,13 +131,14 @@ const Treemap = (props: any) => {
                 },
                 groupBorderWidth: 0,
                 groupBorderRadius: 0,
-                groupInsetWidth: props.device == "mobile" ? 12 : 16,
+                groupInsetWidth: props.device == "mobile" ? 4 : 8,
                 groupMinDiameter: 0,
                 groupStrokeType: 'plain',
                 groupStrokeWidth: 2,
-                finalCompleteDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
+                finalCompleteDrawMaxDuration: props.device == "mobile" ? 150 : 20000,
                 wireframeDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
                 // todo :: continue to tune for mobile (performance vs smooth draw) ^^
+                // finalIncrementalDrawMaxDuration: props.device == "mobile" ? 100 : 20000,
                 groupFillType: 'gradient',
                 stacking: "flattened",
                 descriptionGroupType: "stab",
@@ -278,7 +283,7 @@ const Treemap = (props: any) => {
             chapters.push({
                 id: book.key + '/' + c.toString(),
                 label: c,
-                weight: 20,
+                weight: CHAPTER_WEIGHT,
                 color: (colours as any)[book.key],
                 level: 'chapter',
                 chapter: c,
@@ -294,14 +299,14 @@ const Treemap = (props: any) => {
 
     function getGroupWeight(verseStart: number, verseEnd: number) {
         let weight = 0.0;
-        for (let i = verseStart; i <= verseEnd; i++) weight += 20;
+        for (let i = verseStart; i <= verseEnd; i++) weight += CHAPTER_WEIGHT;
         if (weight < 100) weight = 100;
         return weight;
     }
 
     function getBookWeight(book: any) {
         let weight = 0.0;
-        for (const verse of book.verses) weight += 20;
+        for (const verse of book.verses) weight += CHAPTER_WEIGHT;
         if (weight < 100) weight = 100;
         return weight;
     }
@@ -334,7 +339,21 @@ const Treemap = (props: any) => {
         }
     }
 
+    /** reset the label layout at the very start of a traversal */
+    function maybeResetLayout(params: any) {
+        if (
+            params.index === 0 &&
+            (!params.parent ||
+                params.parent.level === "testament" ||
+                params.parent.level === "division")
+        ) {
+            labelLayout.reset();
+        }
+    }
+
     function setupContent(opts: any, params: any, vars: any) {
+        maybeResetLayout(params);
+
         const group = params.group;
         const ctx = params.context;
 
@@ -363,6 +382,8 @@ const Treemap = (props: any) => {
     }
 
     function updateContent(opts: any, params: any, vars: any) {
+        maybeResetLayout(params);
+
         const group = params.group;
         const ctx = params.context;
 
@@ -416,7 +437,10 @@ const Treemap = (props: any) => {
     function addStars(ctx: any, group: any, x: number, y: number): void {
         const size = calcStarRadius(group.verses);
         renderStar(ctx, { x, y, radius: size, tint: group.color });
+
+        labelLayout.addStar({ x, y, r: size + 0.8 });
     }
+
 
     function addNebula(ctx: any, group: any): void {
         if (!group.background) return;
@@ -475,43 +499,65 @@ const Treemap = (props: any) => {
     function addGroupLabels(ctx: any, group: any): void {
         //@ts-ignore
         const geom = foamtreeInstance.get("geometry", group.id);
-        if (geom) {
-            ctx.fillStyle = group.color + "80";
-            ctx.shadowBlur = 0;
+        if (!geom) return;
 
-            const txt: any = group.label;
+        const txt: string = group.label;
+        let size = Math.floor(geom.boxWidth / (txt.length || 1)) / 20;
+        if (size < 1.5) size = 1.5;
 
-            let size = Math.floor(geom.boxWidth / txt.split().length) / 20;
-            if (size < 1.5) size = 1.5;
+        ctx.font = `${size}px Verdana`;
 
-            ctx.font = size + "px Verdana"
-            const xOffset = (geom.boxWidth * 0.5);
-            const yOffset = (geom.boxHeight * 0.5);
-            ctx.fillText(txt, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset);
+        const ax = geom.polygonCenterX;
+        const ay = geom.polygonCenterY;
 
-            ctx.fillStyle = group.color + "40";
-            ctx.shadowBlur = 0;
-            ctx.font = (0.75 * size) + "px Verdana";
-            const header: any = (group.start == group.end ? `${group.book} ${group.start}` : `${group.book} ${group.start}-${group.end}`);
-            ctx.fillText(header, geom.polygonCenterX - xOffset, geom.polygonCenterY - yOffset - (1.25 * size));
+        const pad = Math.max(6, size);
+        const safe = {
+            x: geom.polygonCenterX - geom.boxWidth / 2 + pad,
+            y: geom.polygonCenterY - geom.boxHeight / 2 + pad,
+            w: geom.boxWidth - 2 * pad,
+            h: geom.boxHeight - 2 * pad,
+        };
 
-            groupPlacement *= -1;
-        }
+        const key = `group:${group.id}:${zoomLevel}`;
+        const rect = labelLayout.pick(ctx, txt, ax, ay, size, safe, key);
+
+        const cx = rect.x + rect.w / 2, cy = rect.y + rect.h / 2;
+
+        ctx.fillStyle = group.color + "80";
+        ctx.shadowBlur = 0;
+        ctx.fillText(txt, rect.x, rect.y + rect.h * 0.8);
+
+        ctx.fillStyle = group.color + "40";
+        ctx.shadowBlur = 0;
+        ctx.font = `${0.75 * size}px Verdana`;
+        const header: string = (group.start == group.end ? `${group.book} ${group.start}` : `${group.book} ${group.start}-${group.end}`);
+        ctx.fillText(header, rect.x, rect.y - size * 0.25);
     }
 
     function addChapterLabels(ctx: any, group: any, x: number, y: number): void {
-        ctx.font = "1.5px Arial";
+        const base = 1.5;
+        ctx.font = `${base}px Arial`;
+
+        let txt = String(group.label);
+        if (group.event) txt += group.event;
+
+        //@ts-ignore
+        const geom = foamtreeInstance.get("geometry", group.id);
+        if (!geom) return;
+
+        const pad = Math.max(4, base * 0.75);
+        const safe = {
+            x: geom.polygonCenterX - geom.boxWidth / 2 + pad,
+            y: geom.polygonCenterY - geom.boxHeight / 2 + pad,
+            w: geom.boxWidth - 2 * pad,
+            h: geom.boxHeight - 2 * pad,
+        };
+
+        const key = `chapter:${group.id}:${zoomLevel}`;
+        const rect = labelLayout.pick(ctx, txt, x, y, base, safe, key);
         ctx.fillStyle = group.color+"80";
         ctx.shadowBlur = 0;
-
-        const size = calcStarRadius(group.verses);
-        const xOffset = 1.5
-        const yOffset = (3 * size);
-
-        let txt = group.label;
-        if (group.event) txt += group.event
-
-        ctx.fillText(txt, x - xOffset, y - yOffset);
+        ctx.fillText(txt, rect.x + rect.w * 1.25, rect.y + rect.h * 1.25);
     }
 
     function addConstellations(ctx: any, thisGroup: any, parent: any, index: any, x: number, y: number): void {
@@ -531,8 +577,12 @@ const Treemap = (props: any) => {
                     ctx.moveTo(lastX, lastY);
                     ctx.lineTo(x, y);
                     ctx.shadowBlur = 0;
-                    ctx.strokeStyle = group.color+"40";
+                    ctx.strokeStyle = group.color+"20";
                     ctx.lineWidth = 0.05;
+
+                    // NEW: record constellation segment
+                    labelLayout.addSegment({ x1: lastX, y1: lastY, x2: x, y2: y });
+
                     ctx.stroke();
                 }
             } else if (lastNode) {
@@ -546,6 +596,10 @@ const Treemap = (props: any) => {
                     ctx.shadowBlur = 0;
                     ctx.strokeStyle = group.color+"40";
                     ctx.lineWidth = 0.05;
+
+                    // NEW: record segment
+                    labelLayout.addSegment({ x1: lastX, y1: lastY, x2: x, y2: y });
+
                     ctx.stroke();
                     drawn = true;
                 }
@@ -642,7 +696,6 @@ const Treemap = (props: any) => {
             return acc;
         });
     }
-
 
     return (
         //@ts-ignore

@@ -25,6 +25,12 @@ async function get(url: string): Promise<any> {
     return await response.json();
 }
 
+const getOrdinalSuffix = (n: number) => {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return s[(v - 20) % 10] || s[v] || s[0];
+};
+
 /**
  * Statistics Page
  * @since 12th April 2025
@@ -65,7 +71,7 @@ export default async function Stats() {
                                 </div>
                                 {rank.rank && rank.totalPlayers && (
                                     <p className="text-xs text-white-500 opacity-60 font-extralight -translate-y-3">
-                                        {`${rank.rank} of ${rank.totalPlayers}`}
+                                        <span>{rank.rank}</span><sup>{getOrdinalSuffix(rank.rank)}</sup><span> of {rank.totalPlayers}</span>
                                     </p>
                                 )}
                             </div>

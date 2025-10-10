@@ -22,7 +22,7 @@ import {
     MapIcon,
     MenuIcon,
     NotebookIcon,
-    PlayIcon, RefreshCwIcon,
+    PlayIcon, ShuffleIcon,
 } from "lucide-react";
 import { SiGithub, SiDiscord } from '@icons-pack/react-simple-icons';
 import {redirect} from "next/navigation";
@@ -159,7 +159,7 @@ export default function Menu(props: any) {
                             isIconOnly
                             onPress={() => changeDate()}
                             className="-mt-0.5 text-white hover:!bg-[#ffffff14] opacity-85">
-                        <RefreshCwIcon className="h-4 w-4"/>
+                        <ShuffleIcon className="h-4 w-4"/>
                     </Button>
                 </NavbarItem>
                 {
@@ -210,13 +210,16 @@ export default function Menu(props: any) {
                                     <div className="mx-auto">
                                         {/*<p>App version: { version }</p>*/}
                                     </div>
+                                    <div className="mx-auto font-extralight">
+                                        <p>Feedback? dev@jrsmth.io</p>
+                                    </div>
                                 </ModalBody>
                             </>
                         )}
                     </ModalContent>
                 </Modal>
             </NavbarContent> : <></>}
-            <NavbarContent justify="end">
+        <NavbarContent justify="end">
                 <NavbarItem>
                     {props.info ?
                         <Dropdown placement="bottom-end">
