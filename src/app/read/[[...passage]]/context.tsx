@@ -6,6 +6,7 @@ import { getPostContext } from "@/core/action/read/get-postcontext";
 import { getPreContext } from "@/core/action/read/get-precontext";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { postFeedback } from "@/core/action/read/post-feedback";
+import toast from "react-hot-toast";
 
 type FeedbackOption = { label: string, value: string };
 
@@ -24,6 +25,7 @@ const Context = (props: any) => {
     const [title] = useState(props.context == "before" ? "Pre‑Context" : "Post‑Context");
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
+    const [comment, setComment] = useState("");
 
 
     function toggle(e: any): void {
@@ -45,11 +47,32 @@ const Context = (props: any) => {
     }
     const updateModalOpen = (open: boolean) => {
         setSelectedOptions([]);
+        setComment("");
         setModalOpen(open);
     }
+    const handlePositiveSubmit = () => {
+        postFeedback(props.passageKey, "positive", props.context, "").then((response: any) => {
+            console.log(response);
+            if (response.status == 200) {
+                toast.success("Thank you for your feedback!");
+            }
+        });
+    }
 
-    const handelSubmit = () => {
-        setModalOpen(false);
+    const handleNegativeSubmit = () => {
+        let cmt = "";
+        if (selectedOptions.length > 0) cmt += "I found this ";
+        selectedOptions.forEach((index) => {
+            cmt += FEEDBACK_OPTIONS[index].value + ", ";
+        });
+        if (comment) cmt += "My other thoughts are: " + comment;
+        postFeedback(props.passageKey, "negative", props.context, comment).then((response: any) => {
+            console.log(response);
+            if (response.status == 200) {
+                toast.success("Thank you for your feedback!");
+            }
+        });
+        updateModalOpen(false);
     }
 
     return (
@@ -65,14 +88,14 @@ const Context = (props: any) => {
                         <p className="font-light text-sm leading-6 text-indigo-700 max-w-[80%] sm:max-w-[42rem]">{context}</p>
                         <div className="flex gap-4 max-w-[80%] sm:max-w-[42rem] justify-end ">
                             <Button className="p-2 min-w-0 aspect-square bg-transparent border-1 border-indigo-700 text-indigo-700 hover:text-green-500 hover:border-green-500 duration-50"
-                                onPress={() => postFeedback(props.passageKey, "positive", props.context)}>
+                                onPress={handlePositiveSubmit}>
                                 <ThumbsUp className="size-5" />
                             </Button>
 
-                                <Button className="p-2 min-w-0 aspect-square bg-transparent border-1 border-indigo-700 text-indigo-700 hover:text-red-500 hover:border-red-500 duration-50"
-                                    onPress={() => updateModalOpen(true)}>
-                                    <ThumbsDown className="size-5" />
-                                </Button>
+                            <Button className="p-2 min-w-0 aspect-square bg-transparent border-1 border-indigo-700 text-indigo-700 hover:text-red-500 hover:border-red-500 duration-50"
+                                onPress={() => updateModalOpen(true)}>
+                                <ThumbsDown className="size-5" />
+                            </Button>
                             <Modal isOpen={modalOpen} onOpenChange={updateModalOpen}>
 
 
@@ -80,13 +103,13 @@ const Context = (props: any) => {
                                     <h3 className="text-xl font-bold">Leave a comment?</h3>
                                     <p className="text-black/80">Help us improve our content by adding a comment to you feedback</p>
                                     <div className="flex gap-2 flex-wrap">
-                                        {FEEDBACK_OPTIONS.map(({label, value}, index) => {
+                                        {FEEDBACK_OPTIONS.map(({ label, value }, index) => {
                                             return <Button key={index} className={`text-sm hover:scale-[103%] transition-all duration-100 py-0 min-h-0 min-w-0 rounded-full ${selectedOptions.includes(index) && " bg-indigo-700 text-white"}`} onPress={() => toggleOption(index)}>{label}</Button>
                                         })}
                                     </div>
-                                    <Textarea placeholder="Write a comment (optional)"/>
+                                    <Textarea placeholder="Write a comment (optional)" value={comment} onValueChange={setComment} />
                                     <div className="flex justify-end gap-4">
-                                        <Button onPress={handelSubmit}>
+                                        <Button onPress={handleNegativeSubmit}>
                                             Submit
                                         </Button>
                                     </div>
