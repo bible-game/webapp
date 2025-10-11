@@ -52,9 +52,11 @@ const Context = (props: any) => {
     }
     const handlePositiveSubmit = () => {
         postFeedback(props.passageKey, "positive", props.context, "").then((response: any) => {
-            console.log(response);
             if (response.success) {
                 toast.success("Thank you for your feedback!");
+            } else {
+                console.log(response);
+                toast.error("Uh oh! something went wrong.");
             }
         });
     }
@@ -67,9 +69,11 @@ const Context = (props: any) => {
         });
         if (comment) cmt += "My other thoughts are: " + comment;
         postFeedback(props.passageKey, "negative", props.context, cmt).then((response: any) => {
-            console.log(response);
             if (response.success) {
                 toast.success("Thank you for your feedback!");
+            } else {
+                console.log(response);
+                toast.error("Uh oh! something went wrong.");
             }
         });
         updateModalOpen(false);
