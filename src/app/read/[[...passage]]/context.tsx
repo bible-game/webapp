@@ -43,6 +43,10 @@ const Context = (props: any) => {
             setSelectedOptions([...selectedOptions, index]);
         }
     }
+    const updateModalOpen = (open: boolean) => {
+        setSelectedOptions([]);
+        setModalOpen(open);
+    }
 
     const handelSubmit = () => {
         setModalOpen(false);
@@ -66,10 +70,10 @@ const Context = (props: any) => {
                             </Button>
 
                                 <Button className="p-2 min-w-0 aspect-square bg-transparent border-1 border-indigo-700 text-indigo-700 hover:text-red-500 hover:border-red-500 duration-50"
-                                    onPress={() => setModalOpen(true)}>
+                                    onPress={() => updateModalOpen(true)}>
                                     <ThumbsDown className="size-5" />
                                 </Button>
-                            <Modal isOpen={modalOpen} onOpenChange={setModalOpen}>
+                            <Modal isOpen={modalOpen} onOpenChange={updateModalOpen}>
 
 
                                 <ModalContent className="text-black p-4 flex flex-col gap-4">
