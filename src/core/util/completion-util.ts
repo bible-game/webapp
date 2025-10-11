@@ -36,9 +36,9 @@ export class CompletionUtil {
         if (!gamesMap || gamesMap.size === 0) return 0;
 
         const games = Array.from(gamesMap.values())
-        const sortedGames = games.filter(g => g.stars !==0)
+        const sortedGames = games.filter(g => g.stars !==0 && g.createdDate)
             .sort( (a,b) =>
-                new Date(b.createdDate).getTime() - new Date(a.createdDate).getTime())
+                new Date(b.createdDate!).getTime() - new Date(a.createdDate!).getTime())
         if (!sortedGames || sortedGames.length == 0) return 0;
 
         let streak = 0
@@ -46,6 +46,7 @@ export class CompletionUtil {
 
         // increment streak for each consistent daily game
         for (const game of sortedGames) {
+            if (!game.createdDate) continue;
             const currentDate = new Date(game.createdDate)
             const day = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
 

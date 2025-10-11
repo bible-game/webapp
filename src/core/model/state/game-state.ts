@@ -9,6 +9,6 @@ export type GameState = {
     passageId: number,
     passageBook: string,
     passageChapter: string,
-    createdDate: Date,
-    lastModified: Date
+    createdDate?: Date,
+    lastModified?: Date
 }

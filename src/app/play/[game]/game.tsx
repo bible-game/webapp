@@ -230,7 +230,9 @@ export default function Game(props: any) {
             playing: !(won || limitReached),
             passageId: passage.id,
             passageBook: passage.book,
-            passageChapter: passage.chapter
+            passageChapter: passage.chapter,
+            createdDate: new Date(),
+            lastModified: new Date()
         }
         StateUtil.setGame(state);
     }
