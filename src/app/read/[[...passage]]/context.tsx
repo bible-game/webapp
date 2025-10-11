@@ -53,7 +53,7 @@ const Context = (props: any) => {
     const handlePositiveSubmit = () => {
         postFeedback(props.passageKey, "positive", props.context, "").then((response: any) => {
             console.log(response);
-            if (response.status == 200) {
+            if (response.success) {
                 toast.success("Thank you for your feedback!");
             }
         });
@@ -68,7 +68,7 @@ const Context = (props: any) => {
         if (comment) cmt += "My other thoughts are: " + comment;
         postFeedback(props.passageKey, "negative", props.context, cmt).then((response: any) => {
             console.log(response);
-            if (response.status == 200) {
+            if (response.success) {
                 toast.success("Thank you for your feedback!");
             }
         });
