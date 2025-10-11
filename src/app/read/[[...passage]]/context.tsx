@@ -11,12 +11,12 @@ import toast from "react-hot-toast";
 type FeedbackOption = { label: string, value: string };
 
 const FEEDBACK_OPTIONS: FeedbackOption[] = [
-    { label: "Too long", value: "too-long" },
-    { label: "Too short", value: "too-short" },
-    { label: "Not relevant", value: "not-relevant" },
-    { label: "Not helpful", value: "not-helpful" },
-    { label: "Inaccurate", value: "inaccurate" },
-    { label: "Harmful", value: "harmful" },
+    { label: "Too long", value: "The summary is too long." },
+    { label: "Too short", value: "The summary is too short." },
+    { label: "Not relevant", value: "The summary is not relevant to the passage." },
+    { label: "Not helpful", value: "I didn't find the summary helpful." },
+    { label: "Inaccurate", value: "The summary contains inaccuracies." },
+    { label: "Harmful", value: "The summary contains harmful content." },
 ]
 
 const Context = (props: any) => {
