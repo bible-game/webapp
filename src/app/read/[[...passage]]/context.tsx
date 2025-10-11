@@ -1,17 +1,30 @@
 "use client"
 
 import React, { useState } from "react";
-import { Accordion, AccordionItem, Spinner, Button, Modal, ModalContent, Textarea } from "@heroui/react";
+import { Accordion, AccordionItem, Spinner, Button, Modal, ModalContent, Textarea, Chip } from "@heroui/react";
 import { getPostContext } from "@/core/action/read/get-postcontext";
 import { getPreContext } from "@/core/action/read/get-precontext";
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { postFeedback } from "@/core/action/read/post-feedback";
+
+type FeedbackOption = { label: string, value: string };
+
+const FEEDBACK_OPTIONS: FeedbackOption[] = [
+    { label: "Too long", value: "too-long" },
+    { label: "Too short", value: "too-short" },
+    { label: "Not relevant", value: "not-relevant" },
+    { label: "Not helpful", value: "not-helpful" },
+    { label: "Inaccurate", value: "inaccurate" },
+    { label: "Harmful", value: "harmful" },
+]
 
 const Context = (props: any) => {
     const [context, setContext] = useState("");
     const [loading, setLoading] = useState(false);
     const [title] = useState(props.context == "before" ? "Pre‑Context" : "Post‑Context");
     const [modalOpen, setModalOpen] = useState(false);
+    const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
+
 
     function toggle(e: any): void {
         if (!context && e.size) {
@@ -20,6 +33,14 @@ const Context = (props: any) => {
                 setContext(ctx.text);
                 setLoading(false);
             });
+        }
+    }
+
+    const toggleOption = (index: number) => {
+        if (selectedOptions.includes(index)) {
+            setSelectedOptions(selectedOptions.filter((value) => value !== index));
+        } else {
+            setSelectedOptions([...selectedOptions, index]);
         }
     }
 
@@ -54,6 +75,11 @@ const Context = (props: any) => {
                                 <ModalContent className="text-black p-4 flex flex-col gap-4">
                                     <h3 className="text-xl font-bold">Leave a comment?</h3>
                                     <p className="text-black/80">Help us improve our content by adding a comment to you feedback</p>
+                                    <div className="flex gap-2 flex-wrap">
+                                        {FEEDBACK_OPTIONS.map(({label, value}, index) => {
+                                            return <Button key={index} className={`text-sm hover:scale-[103%] transition-all duration-100 py-0 min-h-0 min-w-0 rounded-full ${selectedOptions.includes(index) && " bg-indigo-700 text-white"}`} onPress={() => toggleOption(index)}>{label}</Button>
+                                        })}
+                                    </div>
                                     <Textarea placeholder="Write a comment (optional)"/>
                                     <div className="flex justify-end gap-4">
                                         <Button onPress={handelSubmit}>
