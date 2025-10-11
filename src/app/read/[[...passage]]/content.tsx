@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
 import { Input } from "@heroui/input";
+import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { getPassage } from "@/core/action/read/get-passage";
 import { Spinner } from "@heroui/react";
 import Context from "@/app/read/[[...passage]]/context";
@@ -12,16 +13,17 @@ import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
 import { Button } from "@nextui-org/react";
 import { getAudio } from "@/core/action/read/get-audio";
 import Link from "next/link";
-import { BookOpenText, SearchIcon, XIcon, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
+import { ChevronDown, BookOpenText, SearchIcon, XIcon, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
 import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
 import { useQuery } from "@tanstack/react-query";
 import { useDebouncedValue } from '@mantine/hooks';
+import translations from "./translations.json";
 
 
-const usePassage = (passageKey: string) => {
+const usePassage = (passageKey: string, translation?: string) => {
     return useQuery({
-        queryKey: ['passage', passageKey],
-        queryFn: () => getPassage(passageKey),
+        queryKey: ['passage', passageKey, translation],
+        queryFn: () => getPassage(passageKey, translation),
         staleTime: Infinity,
     });
 }
@@ -32,13 +34,15 @@ export default function Content(props: any) {
     const [audioLoading, setAudioLoading] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [current, setCurrent] = useState("");
+    const [selectedTranslations, setSelectedTranslations] = useState(new Set(["web"]));
+    const [translation, setTranslation] = useState<string>(translations["web"].abbr);
 
     function prettyPassage(passage: string): string {
         return passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ");
-    }
+    } []
     const [debouncedKey] = useDebouncedValue(key, 400);
 
-    const { data: passage, isLoading: loading, isError, refetch } = usePassage(debouncedKey);
+    const { data: passage, isLoading: loading, isError, refetch } = usePassage(debouncedKey, translation);
 
     const readingTime = useMemo(() => {
         if (passage?.text) {
@@ -47,6 +51,10 @@ export default function Content(props: any) {
         }
     }, [passage]);
 
+    const selectedValue = useMemo(() => {
+        const selectedTranslation = Array.from(selectedTranslations)[0];
+        return translations[selectedTranslation as keyof typeof translations] || selectedTranslation;
+    }, [selectedTranslations]);
 
     const verses = passage?.verses ? (
         passage.verses.map((verse: any) => (
@@ -122,7 +130,10 @@ export default function Content(props: any) {
 
     return (
         <section className="relative mt-4 sm:mt-6 w-[90%] left-[5%]">
-            <ScrollProgress className="bg-gradient-to-r from-indigo-600 to-violet-600" height={6} />
+            <ScrollProgress
+                className="bg-gradient-to-r from-indigo-600 to-violet-600"
+                height={6}
+            />
 
             {/* Toolbar */}
             <div className="mb-6 sm:mb-8">
@@ -140,15 +151,14 @@ export default function Content(props: any) {
                                     <button
                                         aria-label="Clear"
                                         className="p-1 rounded hover:bg-slate-100 text-slate-400"
-                                        onClick={() => setKey("")}>
+                                        onClick={() => setKey("")}
+                                    >
                                         <XIcon className="size-4" />
                                     </button>
                                 ) : null
                             }
                             classNames={{
-                                inputWrapper: [
-                                    "bg-white/90",
-                                ],
+                                inputWrapper: ["bg-white/90"],
                                 input: ["text-[1.75rem] sm:text-[2rem] font-light"],
                             }}
                             onKeyDown={(e) => {
@@ -158,15 +168,68 @@ export default function Content(props: any) {
                         />
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1"><BookOpenText className="size-4" />{readingTime}</span>
+
+                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1">
+                            <BookOpenText className="size-4" />
+                            {readingTime}
+                        </span>
+
+
+                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700">
+                            <Dropdown>
+                                <DropdownTrigger className="bg-slate-100">
+                                    <Button className="capitalize">
+                                        {selectedValue.name}
+                                        <ChevronDown />
+                                    </Button>
+                                </DropdownTrigger>
+                                <DropdownMenu
+                                    disallowEmptySelection
+                                    aria-label="Bible translation selection"
+                                    selectedKeys={selectedTranslations}
+                                    selectionMode="single"
+                                    variant="flat"
+                                    onSelectionChange={(keys) => {
+                                        const newSelectedTranslations = new Set(keys as Set<string>);
+                                        setSelectedTranslations(newSelectedTranslations);
+                                        if (key) {
+                                            const newSelected = Array.from(newSelectedTranslations)[0];
+                                            const newSelectedTranslation = translations[newSelected as keyof typeof translations];
+                                            setTranslation(newSelectedTranslation.abbr);
+                                            // getPassage(key, newSelectedTranslation.abbr).then((response: any) => {
+                                            //   setPassage(response);
+                                            //   calculateReadingTime(response);
+                                            //   setLoading(false);
+                                            // });
+                                        }
+                                    }}
+                                >
+                                    {Object.entries(translations).map(([key, translation]) => (
+                                        <DropdownItem className="bg-slate-100 text-black" key={key}>{translation.name}</DropdownItem>
+                                    ))}
+                                </DropdownMenu>
+                            </Dropdown>
+                        </span>
+
                         {playing ? null : (
-                            <Button onPress={playAudio}
-                                className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1" variant="flat">
-                                {audioLoading ? <Spinner color="primary" size="sm" /> : <><HeadphonesIcon className="size-4" /> Listen</>}
+                            <Button
+                                onPress={playAudio}
+                                className="h-8 inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2.5 py-4 border border-[2px] border-slate-100 hover:bg-primary hover:text-white"
+                                color="default"
+                            >
+                                {audioLoading ? (
+                                    <Spinner color="primary" size="sm" />
+                                ) : (
+                                    <>
+                                        <HeadphonesIcon className="size-4" /> Listen
+                                    </>
+                                )}
                             </Button>
                         )}
                     </div>
-                    {playing ? <AudioPlayer src={current} onClose={() => setPlaying(false)} /> : null}
+                    {playing ? (
+                        <AudioPlayer src={current} onClose={() => setPlaying(false)} />
+                    ) : null}
                 </div>
             </div>
 
@@ -176,7 +239,8 @@ export default function Content(props: any) {
                     <div className="flex justify-center py-24">
                         <Spinner color="primary" />
                     </div>
-                ) : passage?.verses ? (
+                ) : passage.verses ? (
+
                     <div>
                         <Context passageKey={key} context="before" />
                         <article className="mt-6 sm:mt-8">
@@ -194,7 +258,8 @@ export default function Content(props: any) {
                             />
                             <Button
                                 as={Link}
-                                href={`/study/${splitKey.book.replace(/\s/g, "")}${splitKey.chapter}`}
+                                href={`/study/${splitKey.book.replace(/\s/g, "")}${splitKey.chapter
+                                    }`}
                                 className="ml-3 rounded-xl text-white bg-gradient-to-tr from-violet-600 to-violet-700 shadow hover:brightness-110"
                             >
                                 <GraduationCapIcon className="size-4" />

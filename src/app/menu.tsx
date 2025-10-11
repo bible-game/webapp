@@ -91,7 +91,7 @@ export default function Menu(props: any) {
                         itemClasses={{
                             base: "gap-4 !text-back",
                         }}>
-                        {props.isLanding ? <></> : <DropdownItem key="home" startContent={icons.home} className="text-gray-900" href="/">Back</DropdownItem>}
+                        {!props.isLanding ? <DropdownItem key="home" startContent={icons.home} className="text-gray-900" href="/">Back</DropdownItem> : null}
                         <DropdownItem key="play" startContent={icons.play} className="text-gray-900" href="/play/today">Play</DropdownItem>
                         <DropdownItem key="read" startContent={icons.read} className="text-gray-900" href="/read">Read</DropdownItem>
                         <DropdownItem key="study" startContent={icons.study} className="text-gray-900" href="/study">Study</DropdownItem>

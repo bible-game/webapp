@@ -31,8 +31,41 @@ export class CompletionUtil {
 
     /** Calculates the user's streak */
     static calcStreak() {
-        // TODO
-        return 0;
+        // Get users game as list by ID
+        const gamesMap = StateUtil.getAllGames()
+        if (!gamesMap || gamesMap.size === 0) return 0;
+
+        const games = Array.from(gamesMap.values())
+        const sortedGames = games.filter(g => g.stars !==0 && g.createdDate)
+            .sort( (a,b) =>
+                new Date(b.createdDate!).getTime() - new Date(a.createdDate!).getTime())
+        if (!sortedGames || sortedGames.length == 0) return 0;
+
+        let streak = 0
+        let previousDate = null
+
+        // increment streak for each consistent daily game
+        for (const game of sortedGames) {
+            if (!game.createdDate) continue;
+            const currentDate = new Date(game.createdDate)
+            const day = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+
+            if (!previousDate) {
+                streak = 1;
+            } else {
+                const diffDays = (previousDate.getTime() - day.getTime()) / (1000 * 60 * 60 * 24);
+
+                if (diffDays === 1) {
+                    streak++;
+                } else if (diffDays > 1) {
+                    // streak complete
+                    break;
+                }
+            }
+
+            previousDate = day;
+        }
+        return streak;
     }
 
     /** Calculates the % Bible that the user has seen */
