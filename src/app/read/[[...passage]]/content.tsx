@@ -42,6 +42,7 @@ export default function Content(props: any) {
     } []
     const [debouncedKey] = useDebouncedValue(key, 400);
 
+
     const { data: passage, isLoading: loading, isError, refetch } = usePassage(debouncedKey, translation);
 
     const readingTime = useMemo(() => {
@@ -55,6 +56,7 @@ export default function Content(props: any) {
         const selectedTranslation = Array.from(selectedTranslations)[0];
         return translations[selectedTranslation as keyof typeof translations] || selectedTranslation;
     }, [selectedTranslations]);
+
 
     const verses = passage?.verses ? (
         passage.verses.map((verse: any) => (
