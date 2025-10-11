@@ -54,6 +54,20 @@ const Action = (props: any) => {
         return guessBlocks;
     }
 
+    function calcStreakIcon() {
+        let streakIcon = ''
+        const streak = CompletionUtil.calcStreak()
+
+        if (streak == 0) {streakIcon = '😵'}
+        if (streak <= 100 && streak > 50) {streakIcon = '💎'}
+        if (streak <= 50 && streak > 25) {streakIcon = '🏅'}
+        if (streak <= 25 && streak > 10) {streakIcon = '🥈'}
+        if (streak <= 10 && streak > 5) {streakIcon = '🥉'}
+        if (streak <= 5 && streak > 0 ) {streakIcon = '🔥'}
+
+        return streakIcon
+    }
+
     function results() {
         let won = false;
         props.guesses.forEach((guess: any) => {
@@ -63,7 +77,7 @@ const Action = (props: any) => {
         return `https://bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
-⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
+⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}% ${calcStreakIcon()} ${CompletionUtil.calcStreak()}`;
     }
 
     return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)]">{

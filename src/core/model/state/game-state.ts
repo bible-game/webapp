@@ -8,5 +8,7 @@ export type GameState = {
     playing: boolean
     passageId: number,
     passageBook: string,
-    passageChapter: string
+    passageChapter: string,
+    createdDate: Date,
+    lastModified: Date
 }
