@@ -66,7 +66,7 @@ const Context = (props: any) => {
             cmt += FEEDBACK_OPTIONS[index].value + ", ";
         });
         if (comment) cmt += "My other thoughts are: " + comment;
-        postFeedback(props.passageKey, "negative", props.context, comment).then((response: any) => {
+        postFeedback(props.passageKey, "negative", props.context, cmt).then((response: any) => {
             console.log(response);
             if (response.status == 200) {
                 toast.success("Thank you for your feedback!");
