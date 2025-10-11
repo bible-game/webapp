@@ -14,13 +14,21 @@ import { getAudio } from "@/core/action/read/get-audio";
 import Link from "next/link";
 import { BookOpenText, SearchIcon, XIcon, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
 import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
+import { useQuery } from "@tanstack/react-query";
+import { useDebouncedValue } from '@mantine/hooks';
+
+
+const usePassage = (passageKey: string) => {
+    return useQuery({
+        queryKey: ['passage', passageKey],
+        queryFn: () => getPassage(passageKey),
+        staleTime: Infinity,
+    });
+}
 
 export default function Content(props: any) {
-    const [key, setKey] = useState("");
-    const [readingTime, setReadingTime] = useState("");
+    const [key, setKey] = useState(props.passageKey ? prettyPassage(Array.isArray(props.passageKey) ? props.passageKey[0] : props.passageKey) : "1 John 4 : 7 - 19");
     const wordsPerMinute = 160;
-    const [passage, setPassage] = useState({} as any);
-    const [loading, setLoading] = useState(false);
     const [audioLoading, setAudioLoading] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [current, setCurrent] = useState("");
@@ -28,32 +36,19 @@ export default function Content(props: any) {
     function prettyPassage(passage: string): string {
         return passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ");
     }
+    const [debouncedKey] = useDebouncedValue(key, 400);
 
-    useEffect(() => {
-        let key: string;
-        if (props.passageKey) {
-            key = prettyPassage(Array.isArray(props.passageKey) ? props.passageKey[0] : props.passageKey);
-        } else {
-            key = "1 John 4 : 7 - 19";
+    const { data: passage, isLoading: loading, isError, refetch } = usePassage(debouncedKey);
+
+    const readingTime = useMemo(() => {
+        if (passage?.text) {
+            const words = passage?.text.split(" ");
+            return Math.ceil(words.length / wordsPerMinute).toString() + " minutes";
         }
+    }, [passage]);
 
-        setKey(key);
-        setLoading(true);
-        getPassage(key).then((response: any) => {
-            setPassage(response);
-            calculateReadingTime(response);
-            setLoading(false);
-        });
-    }, []);
 
-    function calculateReadingTime(passage: any) {
-        if (passage.text) {
-            const words = passage.text.split(" ");
-            setReadingTime(Math.ceil(words.length / wordsPerMinute).toString() + " minutes");
-        }
-    }
-
-    const verses = passage.verses ? (
+    const verses = passage?.verses ? (
         passage.verses.map((verse: any) => (
             <div key={verse.verse} className="my-6 grid grid-cols-[auto,1fr] gap-3 items-start">
                 <div className="text-gray-400 text-[10px] font-light pt-2">{verse.verse}</div>
@@ -119,6 +114,10 @@ export default function Content(props: any) {
         }
     }
 
+    const handleSearchChange = (key: string) => {
+        setKey(key);
+    }
+
     const splitKey = useMemo(() => (key ? split(key) : { book: "", chapter: "", verseStart: undefined, verseEnd: undefined }), [key]);
 
     return (
@@ -135,14 +134,14 @@ export default function Content(props: any) {
                             radius="lg"
                             size="lg"
                             value={key}
-                            startContent={<SearchIcon className="size-5 text-slate-400"/>}
+                            startContent={<SearchIcon className="size-5 text-slate-400" />}
                             endContent={
                                 key ? (
                                     <button
                                         aria-label="Clear"
                                         className="p-1 rounded hover:bg-slate-100 text-slate-400"
                                         onClick={() => setKey("")}>
-                                        <XIcon className="size-4"/>
+                                        <XIcon className="size-4" />
                                     </button>
                                 ) : null
                             }
@@ -155,27 +154,19 @@ export default function Content(props: any) {
                             onKeyDown={(e) => {
                                 if (e.key === "Escape") setKey("");
                             }}
-                            onValueChange={(key: string) => {
-                                setLoading(true);
-                                setKey(key);
-                                getPassage(key).then((response: any) => {
-                                    setPassage(response);
-                                    calculateReadingTime(response);
-                                    setLoading(false);
-                                });
-                            }}
+                            onValueChange={handleSearchChange}
                         />
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1"><BookOpenText className="size-4"/>{readingTime}</span>
+                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1"><BookOpenText className="size-4" />{readingTime}</span>
                         {playing ? null : (
                             <Button onPress={playAudio}
-                                    className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1" variant="flat">
-                                {audioLoading ? <Spinner color="primary" size="sm"/> : <><HeadphonesIcon className="size-4"/> Listen</>}
+                                className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1" variant="flat">
+                                {audioLoading ? <Spinner color="primary" size="sm" /> : <><HeadphonesIcon className="size-4" /> Listen</>}
                             </Button>
                         )}
                     </div>
-                    {playing ? <AudioPlayer src={current} onClose={() => setPlaying(false)}/> : null}
+                    {playing ? <AudioPlayer src={current} onClose={() => setPlaying(false)} /> : null}
                 </div>
             </div>
 
@@ -183,15 +174,15 @@ export default function Content(props: any) {
             <div>
                 {loading ? (
                     <div className="flex justify-center py-24">
-                        <Spinner color="primary"/>
+                        <Spinner color="primary" />
                     </div>
-                ) : passage.verses ? (
+                ) : passage?.verses ? (
                     <div>
-                        <Context passageKey={key} context="before"/>
+                        <Context passageKey={key} context="before" />
                         <article className="mt-6 sm:mt-8">
                             {verses}
                         </article>
-                        <Context passageKey={key} context="after"/>
+                        <Context passageKey={key} context="after" />
 
                         <div className="mt-8 sm:mt-10">
                             <ReadAction
