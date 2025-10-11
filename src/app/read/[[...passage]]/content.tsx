@@ -47,9 +47,12 @@ export default function Content(props: any) {
     }, []);
 
     function calculateReadingTime(passage: any) {
-        if (passage.text) {
-            const words = passage.text.split(" ");
-            setReadingTime(Math.ceil(words.length / wordsPerMinute).toString() + " minutes");
+        if (passage.verses && Array.isArray(passage.verses)) {
+            // Calculate total word count from all verses
+            const totalWords = passage.verses.reduce((count: number, verse: any) => {
+                return count + (verse.text ? verse.text.split(" ").length : 0);
+            }, 0);
+            setReadingTime(Math.ceil(totalWords / wordsPerMinute).toString() + " minutes");
         }
     }
 
