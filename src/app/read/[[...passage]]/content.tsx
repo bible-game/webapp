@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
 import { Input } from "@heroui/input";
+import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem} from "@heroui/react";
 import { getPassage } from "@/core/action/read/get-passage";
 import { Spinner } from "@heroui/react";
 import Context from "@/app/read/[[...passage]]/context";
@@ -12,8 +13,9 @@ import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
 import { Button } from "@nextui-org/react";
 import { getAudio } from "@/core/action/read/get-audio";
 import Link from "next/link";
-import { BookOpenText, SearchIcon, XIcon, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
+import { ChevronDown, BookOpenText, SearchIcon, XIcon, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
 import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
+import translations from "./translations.json";
 
 export default function Content(props: any) {
     const [key, setKey] = useState("");
@@ -24,10 +26,16 @@ export default function Content(props: any) {
     const [audioLoading, setAudioLoading] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [current, setCurrent] = useState("");
+    const [selectedKeys, setSelectedKeys] = useState(new Set(["web"]));
 
     function prettyPassage(passage: string): string {
         return passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ");
     }
+
+    const selectedValue = useMemo(() => {
+        const selectedKey = Array.from(selectedKeys)[0];
+        return translations[selectedKey as keyof typeof translations] || selectedKey;
+    }, [selectedKeys]);
 
     useEffect(() => {
         let key: string;
@@ -39,7 +47,7 @@ export default function Content(props: any) {
 
         setKey(key);
         setLoading(true);
-        getPassage(key).then((response: any) => {
+        getPassage(key, selectedValue.abbr).then((response: any) => {
             setPassage(response);
             calculateReadingTime(response);
             setLoading(false);
@@ -122,98 +130,153 @@ export default function Content(props: any) {
     const splitKey = useMemo(() => (key ? split(key) : { book: "", chapter: "", verseStart: undefined, verseEnd: undefined }), [key]);
 
     return (
-        <section className="relative mt-4 sm:mt-6 w-[90%] left-[5%]">
-            <ScrollProgress className="bg-gradient-to-r from-indigo-600 to-violet-600" height={6} />
+      <section className="relative mt-4 sm:mt-6 w-[90%] left-[5%]">
+        <ScrollProgress
+          className="bg-gradient-to-r from-indigo-600 to-violet-600"
+          height={6}
+        />
 
-            {/* Toolbar */}
-            <div className="mb-6 sm:mb-8">
-                <div className="flex flex-col gap-3">
-                    <div className="relative">
-                        <Input
-                            aria-label="Passage"
-                            variant="underlined"
-                            radius="lg"
-                            size="lg"
-                            value={key}
-                            startContent={<SearchIcon className="size-5 text-slate-400"/>}
-                            endContent={
-                                key ? (
-                                    <button
-                                        aria-label="Clear"
-                                        className="p-1 rounded hover:bg-slate-100 text-slate-400"
-                                        onClick={() => setKey("")}>
-                                        <XIcon className="size-4"/>
-                                    </button>
-                                ) : null
-                            }
-                            classNames={{
-                                inputWrapper: [
-                                    "bg-white/90",
-                                ],
-                                input: ["text-[1.75rem] sm:text-[2rem] font-light"],
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === "Escape") setKey("");
-                            }}
-                            onValueChange={(key: string) => {
-                                setLoading(true);
-                                setKey(key);
-                                getPassage(key).then((response: any) => {
-                                    setPassage(response);
-                                    calculateReadingTime(response);
-                                    setLoading(false);
-                                });
-                            }}
-                        />
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1"><BookOpenText className="size-4"/>{readingTime}</span>
-                        {playing ? null : (
-                            <Button onPress={playAudio}
-                                    className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1" variant="flat">
-                                {audioLoading ? <Spinner color="primary" size="sm"/> : <><HeadphonesIcon className="size-4"/> Listen</>}
-                            </Button>
-                        )}
-                    </div>
-                    {playing ? <AudioPlayer src={current} onClose={() => setPlaying(false)}/> : null}
-                </div>
+        {/* Toolbar */}
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-col gap-3">
+            <div className="relative">
+              <Input
+                aria-label="Passage"
+                variant="underlined"
+                radius="lg"
+                size="lg"
+                value={key}
+                startContent={<SearchIcon className="size-5 text-slate-400" />}
+                endContent={
+                  key ? (
+                    <button
+                      aria-label="Clear"
+                      className="p-1 rounded hover:bg-slate-100 text-slate-400"
+                      onClick={() => setKey("")}
+                    >
+                      <XIcon className="size-4" />
+                    </button>
+                  ) : null
+                }
+                classNames={{
+                  inputWrapper: ["bg-white/90"],
+                  input: ["text-[1.75rem] sm:text-[2rem] font-light"],
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setKey("");
+                }}
+                onValueChange={(key: string) => {
+                  setLoading(true);
+                  setKey(key);
+                  getPassage(key, selectedValue.abbr).then((response: any) => {
+                    setPassage(response);
+                    calculateReadingTime(response);
+                    setLoading(false);
+                  });
+                }}
+              />
             </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
 
-            {/* Reading area */}
+              <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1">
+                <BookOpenText className="size-4" />
+                {readingTime}
+              </span>
+
+
+              <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700">
+                <Dropdown>
+                  <DropdownTrigger className="bg-slate-100">
+                    <Button className="capitalize">
+                      {selectedValue.name}
+                        <ChevronDown />
+                    </Button>
+                  </DropdownTrigger>
+                  <DropdownMenu
+                    disallowEmptySelection
+                    aria-label="Bible translation selection"
+                    selectedKeys={selectedKeys}
+                    selectionMode="single"
+                    variant="flat"
+                    onSelectionChange={(keys) => {
+                      const newSelectedKeys = new Set(keys as Set<string>);
+                      setSelectedKeys(newSelectedKeys);
+                      if (key) {
+                        setLoading(true);
+                        const newSelectedKey = Array.from(newSelectedKeys)[0];
+                        const newSelectedTranslation = translations[newSelectedKey as keyof typeof translations];
+                        getPassage(key, newSelectedTranslation.abbr).then((response: any) => {
+                          setPassage(response);
+                          calculateReadingTime(response);
+                          setLoading(false);
+                        });
+                      }
+                    }}
+                  >
+                    {Object.entries(translations).map(([key, translation]) => (
+                      <DropdownItem className="bg-slate-100 text-black" key={key}>{translation.name}</DropdownItem>
+                    ))}
+                  </DropdownMenu>
+                </Dropdown>
+              </span>
+
+              {playing ? null : (
+                <Button
+                  onPress={playAudio}
+                  className="h-8 inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2.5 py-4 border border-[2px] border-slate-100 hover:bg-primary hover:text-white"
+                    color="default"
+                >
+                  {audioLoading ? (
+                    <Spinner color="primary" size="sm" />
+                  ) : (
+                    <>
+                      <HeadphonesIcon className="size-4" /> Listen
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+            {playing ? (
+              <AudioPlayer src={current} onClose={() => setPlaying(false)} />
+            ) : null}
+          </div>
+        </div>
+
+        {/* Reading area */}
+        <div>
+          {loading ? (
+            <div className="flex justify-center py-24">
+              <Spinner color="primary" />
+            </div>
+          ) : passage.verses ? (
             <div>
-                {loading ? (
-                    <div className="flex justify-center py-24">
-                        <Spinner color="primary"/>
-                    </div>
-                ) : passage.verses ? (
-                    <div>
-                        <Context passageKey={key} context="before"/>
-                        <article className="mt-6 sm:mt-8">
-                            {verses}
-                        </article>
-                        <Context passageKey={key} context="after"/>
+              <Context passageKey={key} context="before" />
+              <article className="mt-6 sm:mt-8">{verses}</article>
+              <Context passageKey={key} context="after" />
 
-                        <div className="mt-8 sm:mt-10">
-                            <ReadAction
-                                state={props.state}
-                                book={splitKey.book}
-                                chapter={splitKey.chapter}
-                                verseStart={splitKey.verseStart}
-                                verseEnd={splitKey.verseEnd}
-                            />
-                            <Button
-                                as={Link}
-                                href={`/study/${splitKey.book.replace(/\s/g, "")}${splitKey.chapter}`}
-                                className="ml-3 rounded-xl text-white bg-gradient-to-tr from-violet-600 to-violet-700 shadow hover:brightness-110"
-                            >
-                                <GraduationCapIcon className="size-4" />
-                                Study {splitKey.book} {splitKey.chapter}
-                            </Button>
-                        </div>
-                    </div>
-                ) : null}
+              <div className="mt-8 sm:mt-10">
+                <ReadAction
+                  state={props.state}
+                  book={splitKey.book}
+                  chapter={splitKey.chapter}
+                  verseStart={splitKey.verseStart}
+                  verseEnd={splitKey.verseEnd}
+                />
+                <Button
+                  as={Link}
+                  href={`/study/${splitKey.book.replace(/\s/g, "")}${
+                    splitKey.chapter
+                  }`}
+                  className="ml-3 rounded-xl text-white bg-gradient-to-tr from-violet-600 to-violet-700 shadow hover:brightness-110"
+                >
+                  <GraduationCapIcon className="size-4" />
+                  Study {splitKey.book} {splitKey.chapter}
+                </Button>
+              </div>
             </div>
-        </section>
+          ) : null}
+        </div>
+      </section>
     );
 }
 
