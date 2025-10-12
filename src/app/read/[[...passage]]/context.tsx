@@ -111,7 +111,7 @@ const Context = (props: any) => {
                                             return <Button key={index} className={`text-sm hover:scale-[103%] transition-all duration-100 py-0 min-h-0 min-w-0 rounded-full ${selectedOptions.includes(index) && " bg-indigo-700 text-white"}`} onPress={() => toggleOption(index)}>{label}</Button>
                                         })}
                                     </div>
-                                    <Textarea placeholder="Write a comment (optional)" value={comment} onValueChange={setComment} />
+                                    <Textarea placeholder="Write a comment (optional)" value={comment} onValueChange={setComment} isDisabled />
                                     <div className="flex justify-end gap-4">
                                         <Button onPress={handleNegativeSubmit}>
                                             Submit
