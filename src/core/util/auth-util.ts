@@ -9,7 +9,6 @@ import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
  * Authentication-related Utilities
  * @since 24th June 2025
  */
-// export class AuthUtil { }
 
 /** Determines if the user has a valid auth token */
 export default async function isLoggedIn(): Promise<boolean> {

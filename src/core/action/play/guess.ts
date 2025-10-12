@@ -22,6 +22,7 @@ export async function guess(date: string, book: string, chapter: string, passage
     }
 
     if (await isLoggedIn()) {
+        console.log(passage.id)
         await post(`${process.env.SVC_USER}/state/guess/${passage.id}`, updatedGuess)
     }
 
