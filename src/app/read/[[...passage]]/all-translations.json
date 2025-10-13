@@ -1,0 +1,84 @@
+// Not all the translations in this list work, therefore I've listed the ones that do within translations.json.
+{
+  "cherokee": {
+    "language": "Cherokee",
+    "name": "Cherokee New Testament",
+    "abbr": "cherokee"
+  },
+  "cuv": {
+    "language": "Chinese",
+    "name": "Chinese Union Version",
+    "abbr": "cuv"
+  },
+  "bkr": {
+    "language": "Czech",
+    "name": "Bible kralická",
+    "abbr": "bkr"
+  },
+  "asv": {
+    "language": "English",
+    "name": "American Standard Version (1901)",
+    "abbr": "asv"
+  },
+  "bbe": {
+    "language": "English",
+    "name": "Bible in Basic English",
+    "abbr": "bbe"
+  },
+  "darby": {
+    "language": "English",
+    "name": "Darby Bible",
+    "abbr": "darby"
+  },
+  "dra": {
+    "language": "English",
+    "name": "Douay-Rheims 1899 American Edition",
+    "abbr": "dra"
+  },
+  "kjv": {
+    "language": "English",
+    "name": "King James Version",
+    "abbr": "kjv"
+  },
+  "web": {
+    "language": "English",
+    "name": "World English Bible",
+    "abbr": "web",
+    "default": true
+  },
+  "ylt": {
+    "language": "English",
+    "name": "Young's Literal Translation (NT only)",
+    "abbr": "ylt"
+  },
+  "oeb-cw": {
+    "language": "English (UK)",
+    "name": "Open English Bible, Commonwealth Edition",
+    "abbr": "oeb-cw"
+  },
+  "webbe": {
+    "language": "English (UK)",
+    "name": "World English Bible, British Edition",
+    "abbr": "webbe"
+  },
+  "oeb-us": {
+    "language": "English (US)",
+    "name": "Open English Bible, US Edition",
+    "abbr": "oeb-us"
+  },
+  "clementine": {
+    "language": "Latin",
+    "name": "Clementine Latin Vulgate",
+    "abbr": "clementine"
+  },
+  "almeida": {
+    "language": "Portuguese",
+    "name": "João Ferreira de Almeida",
+    "abbr": "almeida"
+  },
+  "rccv": {
+    "language": "Romanian",
+    "name": "Protestant Romanian Corrected Cornilescu Version",
+    "abbr": "rccv"
+  }
+}
