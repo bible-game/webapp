@@ -66,6 +66,16 @@ const Action = (props: any) => {
 
     }
 
+    function share() {
+        const resultText = results();
+        navigator.clipboard.writeText(resultText);
+        toast.success("Results copied!");
+
+        // remove? improve? Slack vs Whatsapp vs Discord, etc...
+        // const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(resultText)}`;
+        // window.open(whatsappUrl, '_blank');
+    }
+
     function results() {
         let won = false;
         props.guesses.forEach((guess: any) => {
@@ -75,7 +85,7 @@ const Action = (props: any) => {
         return `bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
-⭐${CompletionUtil.calcStars()} 📖${CompletionUtil.calcPercentageCompletion(props.bible, 0)}% ${calcStreakIcon()}${CompletionUtil.calcStreak()}`;
+⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible, 0)}% ${calcStreakIcon()} ${CompletionUtil.calcStreak()}`;
     }
 
     return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)]">{
@@ -155,10 +165,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 <Button
                     className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-[12px] sm:text-sm  rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
-                    onPress={() => {
-                        navigator.clipboard.writeText(results())
-                        toast.success("Results copied!")
-                    }}>
+                    onPress={share}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          strokeWidth={1.25} stroke="currentColor" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round"
