@@ -69,7 +69,7 @@ export class CompletionUtil {
     }
 
     /** Calculates the % Bible that the user has seen */
-    static calcPercentageCompletion(config: any): string {
+    static calcPercentageCompletion(config: any, decimalPlaces: number = 2): string {
         const completion = CompletionUtil.build(config);
         let completedVerses = 0;
 
@@ -81,7 +81,7 @@ export class CompletionUtil {
             }
         }
 
-        return (100 * completedVerses / 31_102).toFixed(2);
+        return (100 * completedVerses / 31_102).toFixed(decimalPlaces);
     }
 
     /** Builds, saves and returns Bible completion */

@@ -43,29 +43,27 @@ const Action = (props: any) => {
 
         for (const guess of props.guesses) {
             const distance = Math.abs(guess.closeness.distance);
-            if (distance == 0)     { continue }
+            if (distance == 0)       continue
             if (distance <= 100)   { guessBlocks += '🟩'; continue; }
             if (distance <= 500)   { guessBlocks += '🟩'; continue; }
             if (distance <= 2000)  { guessBlocks += '🟨'; continue; }
-            if (distance <= 5000) { guessBlocks += '🟧' }
-            else guessBlocks += '🟥'
+            if (distance <= 5000)  { guessBlocks += '🟧';           }
+            else                   { guessBlocks += '🟥';           }
         }
 
         return guessBlocks;
     }
 
-    function calcStreakIcon() {
-        let streakIcon = ''
-        const streak = CompletionUtil.calcStreak()
+    function calcStreakIcon(): string {
+        const streak = CompletionUtil.calcStreak();
 
-        if (streak == 0) {streakIcon = '😵'}
-        if (streak <= 100 && streak > 50) {streakIcon = '💎'}
-        if (streak <= 50 && streak > 25) {streakIcon = '🏅'}
-        if (streak <= 25 && streak > 10) {streakIcon = '🥈'}
-        if (streak <= 10 && streak > 5) {streakIcon = '🥉'}
-        if (streak <= 5 && streak > 0 ) {streakIcon = '🔥'}
+        if      (streak >= 50) return '💎';
+        else if (streak >= 25) return '🏅';
+        else if (streak >= 10) return '🥈';
+        else if (streak >= 5)  return '🥉';
+        else if (streak >= 0)  return '🔥';
+        else                   return '😵';
 
-        return streakIcon
     }
 
     function results() {
@@ -74,10 +72,10 @@ const Action = (props: any) => {
             if (guess.closeness.distance == 0) won = true;
         })
 
-        return `https://bible.game
+        return `bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
-⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}% ${calcStreakIcon()} ${CompletionUtil.calcStreak()}`;
+⭐${CompletionUtil.calcStars()} 📖${CompletionUtil.calcPercentageCompletion(props.bible, 0)}% ${calcStreakIcon()}${CompletionUtil.calcStreak()}`;
     }
 
     return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)]">{
