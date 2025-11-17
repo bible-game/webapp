@@ -30,6 +30,8 @@
     "@uidotdev/usehooks": "^2.4.1",
     "@vercel/speed-insights": "^1.2.0",
     "bible-passage-reference-parser": "^3.0.0",
+    "components": "^0.1.0",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "framer-motion": "^12.5.0",
     "hammerjs": "^1.0.9",
