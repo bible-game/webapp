@@ -25,7 +25,7 @@ import {
     PlayIcon, ShuffleIcon,
 } from "lucide-react";
 import { SiGithub, SiDiscord } from '@icons-pack/react-simple-icons';
-import {redirect} from "next/navigation";
+import {redirect, useRouter} from "next/navigation";
 import getVersion from "@/core/action/version/get-version";
 import useSWR from "swr";
 import { getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
@@ -48,6 +48,8 @@ export default function Menu(props: any) {
         study: <LightbulbIcon fill="currentColor" size={24} />,
         statistics: <BarChart fill="currentColor" size={24} />
     };
+
+    const router = useRouter();
 
     const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
@@ -227,6 +229,7 @@ export default function Menu(props: any) {
                                 <Avatar isBordered as="button" name={props.info.firstname[0].toUpperCase()+props.info.lastname[0].toUpperCase()} size="sm"/>
                             </DropdownTrigger>
                             <DropdownMenu aria-label="Profile Actions" variant="flat">
+                                <DropdownItem key="profile" color="primary" className="text-black" onPress={() => router.push("/profile")}>Profile</DropdownItem>
                                 <DropdownItem key="logout" color="danger" className="text-black" onPress={() => {logOut().then(() => window.location.reload())}}>Log Out</DropdownItem>
                             </DropdownMenu>
                         </Dropdown> :
