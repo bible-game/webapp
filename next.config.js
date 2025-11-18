@@ -10,7 +10,16 @@ const nextConfig = {
     },
     sassOptions: {
         includePaths: [path.join(__dirname, 'styles')],
-    }
+    },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'mybucket.s3.amazonaws.com',
+                pathname: '/**',
+            },
+        ],
+    },
 }
 
 module.exports = nextConfig
