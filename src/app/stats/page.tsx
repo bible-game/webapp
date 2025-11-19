@@ -19,6 +19,7 @@ import getLeaders from "@/core/action/user/get-leaders";
 import { getReviewState } from "@/core/action/state/get-state-review";
 import { ReviewState } from "@/core/model/state/review-state";
 import getRank from "@/core/action/user/get-rank";
+import { cookies } from "next/headers";
 
 async function get(url: string): Promise<any> {
     const response = await fetch(url, {method: "GET"});
@@ -36,6 +37,7 @@ const getOrdinalSuffix = (n: number) => {
  * @since 12th April 2025
  */
 export default async function Stats() {
+    let _ = cookies();
 
     let displayName: string | undefined;
     const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
