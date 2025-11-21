@@ -1,87 +1,97 @@
 import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  useDisclosure,
+    Modal,
+    ModalContent,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
+    useDisclosure,
 } from "@heroui/react";
-import React, {useState} from "react";
-import {StateUtil} from "@/core/util/state-util";
+import React, { useEffect, useState } from "react";
+import { StateUtil } from "@/core/util/state-util";
 
 export default function PopUp() {
-    const {isOpen, onOpen, onOpenChange} = useDisclosure();
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-    const [ visible, setVisible ] = useState(true);
-    const [ consent, setConsent ] = useState(StateUtil.getConsent());
-    if (!isOpen && !consent) {
-        onOpen()
+    const [visible, setVisible] = useState(true);
+    const [consent, setConsent] = useState(StateUtil.getConsent());
+
+    // Open the popup on first load if we don't yet have consent
+    useEffect(() => {
+        if (!consent) {
+            onOpen();
+        }
+    }, [consent, onOpen]);
+
+    function handleChoice(accepted: boolean, onClose: () => void): void {
+        StateUtil.setConsent(accepted);
+        setConsent(accepted);
+        setVisible(false);
+        onClose();
     }
 
-    function close(accepted : boolean): void {
-        setVisible(false)
-        StateUtil.setConsent(accepted)
-    }
+    if (!visible || consent) return null;
 
-    if (visible) return (
-    <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange}
-      backdrop="opaque" placement="center"
-                    classNames={{
-                        body: "p-10 text-center",
-                        backdrop: "bg-[#060842]/75",
-                        base: "max-w-[40rem] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border-[1px] border-[#ffffff]/25",
-                        header: "pt-8 w-full text-center",
-                        closeButton: "hidden",
-                        footer: "m-5"
-                    }}>
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Cookies</ModalHeader>
-                <ModalBody>
-                    <p>
-                        Welcome to the Bible Game - a free web app that encourages Bible Study, committing Scripture to memory and building a Bible
-                        reading habit in a fun and stimulating way.
-                    </p>
-                    <p className="mt-8">
-                        Information Before You Play:
-                    </p>
-                    <ul>
-                        <li>
-                            We and our third party systems use cookies and data to:
-                        </li>
-                        <li>
-                            • Create accounts for our users
-                        </li>
-                        <li>
-                            • Maintain and retain their play records on our leaderboards
-                        </li>
-                        <li>
-                            • To track user engagement and use the statistics to improve the quality of the webapp
-                        </li>
-                        <li>
-                            If you choose to "Accept", you will be able explore the full features of the webapp including the leaderboard, create
-                            an account and retain your play progress.
-                        </li>
-                        <li>
-                            If you choose to "Reject", you explore the webapp and attempt the daily challenges but your records will not be saved.
-                        </li>
-                    </ul>
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="danger" variant="light" onPress={() => close(false)}>
-                        Reject
-                    </Button>
-                    <Button color="primary" onPress={() => close(true)}>
-                        Accept
-                    </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-    </>
-  );
+    return (
+        <>
+            <Modal
+                isOpen={isOpen}
+                onOpenChange={onOpenChange}
+                backdrop="opaque"
+                placement="bottom"
+                classNames={{
+                    body: "py-5 md:py-7 text-center md:text-left",
+                    backdrop: "bg-[#060842]/75",
+                    base:
+                        "max-w-[100%] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border border-[#ffffff]/25 " +
+                        "shadow-2xl !mb-0 rounded-none !mx-0 px-4",
+                    header: "pt-6 pb-0 w-full text-center md:text-left",
+                    closeButton: "hidden",
+                    footer: "pb-6 md:pb-7 pt-0 flex gap-3 justify-between",
+                }}
+            >
+                <ModalContent>
+                    {(onClose) => (
+                        <>
+                            <ModalHeader className="flex flex-col gap-1">
+                                <span
+                                    className="text-base font-semibold tracking-wide text-[#e5e7ff]">
+                                    The Bible Game
+                                </span>
+                            </ModalHeader>
+                            <ModalBody>
+                                <p className="text-sm">
+                                    Explore the Bible with a daily passage-guessing game 📖✨
+                                </p>
+                                <p className="text-sm">
+                                    By continuing you accept that we use essential cookies to to save your progress.
+                                </p>
+                            </ModalBody>
+                            <ModalFooter>
+                                <p className="text-[0.7rem] md:text-xs opacity-70 text-left">
+                                    For more details, see our {" "}
+                                    <a href="/privacy"
+                                       className="underline underline-offset-2 hover:opacity-100">
+                                        Privacy Policy
+                                    </a>
+                                    {" "} and {" "}
+                                    <a href="/cookies"
+                                       className="underline underline-offset-2 hover:opacity-100">
+                                        Cookie Policy
+                                    </a>
+                                    .
+                                </p>
+                                <Button
+                                    color="default"
+                                    className="bg-transparent text-gray-200 border-1 border-gray-300 rounded-none"
+                                    onPress={() => handleChoice(true, onClose)}>
+                                    Accept
+                                </Button>
+                            </ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+        </>
+    );
 }

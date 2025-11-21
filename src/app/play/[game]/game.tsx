@@ -32,13 +32,6 @@ export default function Game(props: any) {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
 
-    // TODO :: Stanley
-    // getConsentState() => return null;
-    // const consent = GameStatesService.getConsentState();
-    // if (!consent) {
-    //     modal.open()
-    // }
-
     const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
     const passage = data as Passage;
 
@@ -68,7 +61,7 @@ export default function Game(props: any) {
 
     // FixMe :: double-render, just a dev issue like the treemap?
     useEffect(() => {
-        if (!props.state) {
+        if (!props.state && StateUtil.getConsent()) {
             toast.custom((t) => (
                 <div
                     className={`${
