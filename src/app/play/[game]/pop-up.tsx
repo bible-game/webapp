@@ -64,7 +64,7 @@ export default function PopUp() {
                                     Explore the Bible with a daily passage-guessing game 📖✨
                                 </p>
                                 <p className="text-sm">
-                                    By continuing you accept that we use essential cookies to to save your progress.
+                                    By continuing, you accept that we use cookies to to save your progress.
                                 </p>
                             </ModalBody>
                             <ModalFooter>
