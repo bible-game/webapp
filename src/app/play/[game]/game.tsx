@@ -11,6 +11,7 @@ import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
 import Treemap from "@/app/play/[game]/map/treemap";
 import moment from "moment/moment";
+import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
 import { Spinner } from "@heroui/react";
@@ -278,6 +279,7 @@ export default function Game(props: any) {
 
         return (
             <>
+                <PopUp />
                 <Summary passage={passage} playing={playing}/>
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}

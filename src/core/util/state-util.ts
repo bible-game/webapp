@@ -69,6 +69,12 @@ export class StateUtil {
         return new Map(JSON.parse(json));
     }
 
+    /** Returns the user's consent */
+    static getConsent():boolean {
+        const json = StorageUtil.retrieve('consent') ?? 'false';
+        return JSON.parse(json);
+    }
+
     /** Sets the overall game state object */
     static setAllGame(states: Map<number, GameState>): void {
         //@ts-ignore
@@ -118,4 +124,9 @@ export class StateUtil {
         StorageUtil.save('reviews', Array.from(allReviews.entries()));
     }
 
+    /** Sets the consent for the user */
+    static setConsent(consent : boolean) : void {
+        //@ts-ignore
+        StorageUtil.save('consent', consent);
+    }
 }
