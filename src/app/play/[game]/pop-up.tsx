@@ -70,12 +70,12 @@ export default function PopUp() {
                             <ModalFooter>
                                 <p className="text-[0.7rem] md:text-xs opacity-70 text-left">
                                     For more details, see our {" "}
-                                    <a href="/privacy"
+                                    <a href="/about/privacy"
                                        className="underline underline-offset-2 hover:opacity-100">
                                         Privacy Policy
                                     </a>
                                     {" "} and {" "}
-                                    <a href="/cookies"
+                                    <a href="/about/cookies"
                                        className="underline underline-offset-2 hover:opacity-100">
                                         Cookie Policy
                                     </a>
