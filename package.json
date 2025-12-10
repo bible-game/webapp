@@ -1,6 +1,6 @@
 {
   "name": "webapp",
-  "version": "0.19.2-SNAPSHOT",
+  "version": "0.19.1-SNAPSHOT",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -39,9 +39,9 @@
     "lucide-react": "^0.539.0",
     "moment": "^2.30.1",
     "next": "15.2.3",
-    "react": "19.0.0",
+    "react": "19.0.1",
     "react-canvas-confetti": "^1.4.0",
-    "react-dom": "19.0.0",
+    "react-dom": "19.0.1",
     "react-hook-form": "^7.60.0",
     "react-hot-toast": "^2.5.1",
     "react-textarea-autosize": "^8.5.9",
