@@ -211,7 +211,7 @@ export default function Menu(props: any) {
                                         {/*<p>App version: { version }</p>*/}
                                     </div>
                                     <div className="mx-auto font-extralight">
-                                        <p>Feedback? dev@jrsmth.io</p>
+                                        <p>Feedback? hello@bible.game</p>
                                     </div>
                                 </ModalBody>
                             </>

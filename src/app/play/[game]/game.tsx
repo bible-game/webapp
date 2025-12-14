@@ -11,6 +11,7 @@ import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
 import Treemap from "@/app/play/[game]/map/treemap";
 import moment from "moment/moment";
+import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
 import { Spinner } from "@heroui/react";
@@ -30,13 +31,6 @@ export default function Game(props: any) {
     if (props.game == 'today') {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
-
-    // TODO :: Stanley
-    // getConsentState() => return null;
-    // const consent = GameStatesService.getConsentState();
-    // if (!consent) {
-    //     modal.open()
-    // }
 
     const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
     const passage = data as Passage;
@@ -67,7 +61,7 @@ export default function Game(props: any) {
 
     // FixMe :: double-render, just a dev issue like the treemap?
     useEffect(() => {
-        if (!props.state) {
+        if (!props.state && StateUtil.getConsent()) {
             toast.custom((t) => (
                 <div
                     className={`${
@@ -278,6 +272,7 @@ export default function Game(props: any) {
 
         return (
             <>
+                <PopUp />
                 <Summary passage={passage} playing={playing}/>
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}

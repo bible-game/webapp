@@ -43,29 +43,37 @@ const Action = (props: any) => {
 
         for (const guess of props.guesses) {
             const distance = Math.abs(guess.closeness.distance);
-            if (distance == 0)     { continue }
+            if (distance == 0)       continue
             if (distance <= 100)   { guessBlocks += '🟩'; continue; }
             if (distance <= 500)   { guessBlocks += '🟩'; continue; }
             if (distance <= 2000)  { guessBlocks += '🟨'; continue; }
-            if (distance <= 5000) { guessBlocks += '🟧' }
-            else guessBlocks += '🟥'
+            if (distance <= 5000)  { guessBlocks += '🟧';           }
+            else                   { guessBlocks += '🟥';           }
         }
 
         return guessBlocks;
     }
 
-    function calcStreakIcon() {
-        let streakIcon = ''
-        const streak = CompletionUtil.calcStreak()
+    function calcStreakIcon(): string {
+        const streak = CompletionUtil.calcStreak();
 
-        if (streak == 0) {streakIcon = '😵'}
-        if (streak <= 100 && streak > 50) {streakIcon = '💎'}
-        if (streak <= 50 && streak > 25) {streakIcon = '🏅'}
-        if (streak <= 25 && streak > 10) {streakIcon = '🥈'}
-        if (streak <= 10 && streak > 5) {streakIcon = '🥉'}
-        if (streak <= 5 && streak > 0 ) {streakIcon = '🔥'}
+        if      (streak >= 50) return '💎';
+        else if (streak >= 25) return '🏅';
+        else if (streak >= 10) return '🥈';
+        else if (streak >= 5)  return '🥉';
+        else if (streak >= 0)  return '🔥';
+        else                   return '😵';
 
-        return streakIcon
+    }
+
+    function share() {
+        const resultText = results();
+        navigator.clipboard.writeText(resultText);
+        toast.success("Results copied!");
+
+        // remove? improve? Slack vs Whatsapp vs Discord, etc...
+        // const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(resultText)}`;
+        // window.open(whatsappUrl, '_blank');
     }
 
     function results() {
@@ -74,10 +82,10 @@ const Action = (props: any) => {
             if (guess.closeness.distance == 0) won = true;
         })
 
-        return `https://bible.game
+        return `bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
-⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}% ${calcStreakIcon()} ${CompletionUtil.calcStreak()}`;
+⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
 
     return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)]">{
@@ -157,10 +165,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 <Button
                     className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-[12px] sm:text-sm  rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
                     variant="bordered"
-                    onPress={() => {
-                        navigator.clipboard.writeText(results())
-                        toast.success("Results copied!")
-                    }}>
+                    onPress={share}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                          strokeWidth={1.25} stroke="currentColor" className="size-4">
                         <path strokeLinecap="round" strokeLinejoin="round"

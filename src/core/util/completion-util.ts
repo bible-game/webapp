@@ -69,19 +69,19 @@ export class CompletionUtil {
     }
 
     /** Calculates the % Bible that the user has seen */
-    static calcPercentageCompletion(config: any): string {
+    static calcPercentageCompletion(config: any, decimalPlaces: number = 2): string {
         const completion = CompletionUtil.build(config);
         let completedVerses = 0;
 
         for (const book of Object.values(completion)) {
-            for (const chapter of (book as any).chapters) {
+            for (const chapter of (book as any).chapters ?? []) {
                 for (const verse of chapter.verses) {
                     if (verse !== '') completedVerses++
                 }
             }
         }
 
-        return (100 * completedVerses / 31_102).toFixed(2);
+        return (100 * completedVerses / 31_102).toFixed(decimalPlaces);
     }
 
     /** Builds, saves and returns Bible completion */
@@ -98,25 +98,27 @@ export class CompletionUtil {
 
         StateUtil.getAllReads().forEach((read: ReadState) => {
             const book = completion[read.book.toLowerCase().replace(/ /g, "")];
-            const chapter = book.chapters[parseInt(read.chapter) - 1];
+            const chapter = book?.chapters[parseInt(read.chapter) - 1];
             if (read.verseEnd) { // range
-                chapter.verses.forEach((verse: number, index: number, arr: any) => {
+                chapter?.verses.forEach((verse: number, index: number, arr: any) => {
                     if (parseInt(read.verseStart) - 1 <= index && parseInt(read.verseEnd) - 1 >= index)
                         arr[index] = !verse ? 1 : verse++
                 })
             } else if (read.verseStart) { // bottom only; // fixme :: faulty logic?
-                chapter.verses.forEach((verse: number, index: number, arr: any) => {
+                chapter?.verses.forEach((verse: number, index: number, arr: any) => {
                     if (parseInt(read.verseStart) - 1 <= index)
                         arr[index] = !verse ? 1 : verse++
                 })
             } else { // full
-                chapter.verses.forEach((verse: number, index: number, arr: any) => {
+                chapter?.verses.forEach((verse: number, index: number, arr: any) => {
                     arr[index] = !verse ? 1 : verse++
                 })
             }
 
-            book.chapters[parseInt(read.chapter) - 1] = chapter;
-            completion[read.book.toLowerCase().replace(/ /g, "")] = book;
+            if (book) {
+                book.chapters[parseInt(read.chapter) - 1] = chapter;
+                completion[read.book.toLowerCase().replace(/ /g, "")] = book;
+            }
         })
 
         return StorageUtil.save('completion', completion);
