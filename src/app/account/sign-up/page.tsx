@@ -76,7 +76,7 @@ export default function SignUp() {
             <Background />
             <main className="flex items-center justify-center min-h-screen px-4 pt-24 sm:pt-32">
                 {!state?.success ? (
-                    <div className="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white">
+                    <div className="w-full max-w-lg bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white">
                         <Form
                             action={action}
                             validationErrors={state?.errors}
