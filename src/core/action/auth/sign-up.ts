@@ -87,8 +87,12 @@ export async function signup(state: SignUpFormState, formData: FormData): Promis
             state!.token = result
             state!.success = true
         } else {
-            const result = await response.json().catch(() => ({ error: "Unknown error" }))
-            console.error(`Sign-up failed [${response.status}]: ${result.error}`)
+            const result = await response.json().catch(() => ({ error: "Unknown error", raw: "Failed to parse JSON" }))
+            console.error(`Sign-up failed:
+            Status: ${response.status} ${response.statusText}
+            URL: ${process.env.SVC_USER}/auth/register
+            Response Body: ${JSON.stringify(result, null, 2)}
+            Request Body (sanitized): ${JSON.stringify({ ...body, password: "***" }, null, 2)}`)
             
             if (response.status === 409) {
                 state.errors.email.push("This email is already registered.")
