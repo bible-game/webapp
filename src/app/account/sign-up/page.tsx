@@ -46,7 +46,7 @@ export default function SignUp() {
 
     const inputClassNames = {
         base: "text-white", // wrapper span
-        label: "text-indigo-300",
+        label: "text-indigo-300 group-data-[focus=true]:text-indigo-300",
         input: "text-white placeholder:text-indigo-300",
         inputWrapper:
             "bg-white/10 data-[hover=true]:bg-white/15 " +
