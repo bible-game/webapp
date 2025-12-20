@@ -1,3 +1,5 @@
+"use server"
+
 import { SignUpFormSchema, SignUpFormState } from "@/core/model/form/form-definitions"
 
 export async function signup(state: SignUpFormState, formData: FormData): Promise<SignUpFormState> {
