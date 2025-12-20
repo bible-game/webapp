@@ -1,6 +1,6 @@
 import { SignUpFormSchema, SignUpFormState } from "@/core/model/form/form-definitions"
 
-export async function signup(state: SignUpFormState, formData: FormData) {
+export async function signup(state: SignUpFormState, formData: FormData): Promise<SignUpFormState> {
 
     if (!state) {
         state = {
@@ -47,7 +47,18 @@ export async function signup(state: SignUpFormState, formData: FormData) {
 
     if (!validatedFields.success) {
         return {
-            errors: validatedFields.error.flatten().fieldErrors as any,
+            errors: {
+                email: [],
+                password: [],
+                confirmPassword: [],
+                firstname: [],
+                lastname: [],
+                church: [],
+                form: [],
+                ...validatedFields.error.flatten().fieldErrors
+            } as any,
+            token: undefined,
+            success: undefined
         };
     }
 
