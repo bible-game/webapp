@@ -6,10 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import Background from "@/app/background";
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import { Button } from "@heroui/button";
 import Link from "next/link";
 import { StateUtil } from "@/core/util/state-util";
+import { Mail, Lock, User, Church, Eye, EyeOff } from "lucide-react";
 
 /**
  * Sign-Up Page
@@ -20,6 +21,8 @@ export default function SignUp() {
     const { register, formState: { errors } } = useForm({
         resolver: zodResolver(SignUpFormSchema)
     })
+    const [isVisible, setIsVisible] = useState(false);
+    const toggleVisibility = () => setIsVisible(!isVisible);
 
     useEffect(() => {
         const games = Array.from(StateUtil.getAllGames().values());
@@ -41,6 +44,14 @@ export default function SignUp() {
         }
     }, []);
 
+    const fields = [
+        {name: "email", type: "email", placeholder: "Email", icon: Mail},
+        {name: "password", type: "password", placeholder: "Password", icon: Lock, isPassword: true},
+        {name: "firstname", type: "text", placeholder: "First Name", icon: User},
+        {name: "lastname", type: "text", placeholder: "Last Name", icon: User},
+        {name: "church", type: "text", placeholder: "Home Church", icon: Church},
+    ];
+
     return (
         <>
             <Background/>
@@ -59,20 +70,26 @@ export default function SignUp() {
                         </div>
 
                         {/* Input Fields */}
-                        {[
-                            {name: "email", type: "email", placeholder: "Email"},
-                            {name: "password", type: "password", placeholder: "Password"},
-                            {name: "firstname", type: "text", placeholder: "First Name"},
-                            {name: "lastname", type: "text", placeholder: "Last Name"},
-                            {name: "church", type: "text", placeholder: "Home Church"},
-                        ].map(({name, type, placeholder}) => (
+                        {fields.map(({name, type, placeholder, icon: Icon, isPassword}) => (
                             <div key={name} className="space-y-1">
-                                <input
-                                    {...register(name as any)}
-                                    type={type}
-                                    placeholder={placeholder}
-                                    className="w-full px-4 py-2 bg-white/10 rounded-lg text-sm placeholder-indigo-300 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                                />
+                                <div className="relative">
+                                    <Icon className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-300/50 pointer-events-none" size={18} />
+                                    <input
+                                        {...register(name as any)}
+                                        type={isPassword && isVisible ? "text" : type}
+                                        placeholder={placeholder}
+                                        className="w-full pl-10 pr-4 py-2 bg-white/10 rounded-lg text-sm placeholder-indigo-300 text-white outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                                    />
+                                    {isPassword && (
+                                        <button
+                                            type="button"
+                                            onClick={toggleVisibility}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-indigo-300/50 hover:text-indigo-300 focus:outline-none"
+                                        >
+                                            {isVisible ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    )}
+                                </div>
                                 {//@ts-ignore
                                     errors[name] && (
                                         <p className="text-sm text-red-400">
