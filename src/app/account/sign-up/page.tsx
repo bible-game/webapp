@@ -47,6 +47,7 @@ export default function SignUp() {
     const fields = [
         {name: "email", type: "email", placeholder: "Email", icon: Mail},
         {name: "password", type: "password", placeholder: "Password", icon: Lock, isPassword: true},
+        {name: "confirmPassword", type: "password", placeholder: "Confirm Password", icon: Lock, isPassword: true},
         {name: "firstname", type: "text", placeholder: "First Name", icon: User},
         {name: "lastname", type: "text", placeholder: "Last Name", icon: User},
         {name: "church", type: "text", placeholder: "Home Church", icon: Church},

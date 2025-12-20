@@ -1,6 +1,4 @@
-"use server"
-
-import { SignUpFormState } from "@/core/model/form/form-definitions"
+import { SignUpFormSchema, SignUpFormState } from "@/core/model/form/form-definitions"
 
 export async function signup(state: SignUpFormState, formData: FormData) {
 
@@ -9,6 +7,7 @@ export async function signup(state: SignUpFormState, formData: FormData) {
             errors: {
                 email: [],
                 password: [],
+                confirmPassword: [],
                 firstname: [],
                 lastname: [],
                 church: [],
@@ -20,6 +19,7 @@ export async function signup(state: SignUpFormState, formData: FormData) {
         state.errors = {
             email: [],
             password: [],
+            confirmPassword: [],
             firstname: [],
             lastname: [],
             church: [],
@@ -30,25 +30,31 @@ export async function signup(state: SignUpFormState, formData: FormData) {
 
     // Bot protection: Honeypot check
     if (formData.get("website")) {
-        return {
-            errors: {
-                email: [],
-                password: [],
-                firstname: [],
-                lastname: [],
-                church: [],
-                form: ["Unable to process request."]
-            }
-        }
+        console.warn("Honeypot triggered by sign-up attempt.");
+        state.errors.form.push("Unable to process request at this time.");
+        return state;
     }
 
-    const body = {
+    // Server-side validation
+    const validatedFields = SignUpFormSchema.safeParse({
         email: formData.get("email"),
         password: formData.get("password"),
+        confirmPassword: formData.get("confirmPassword"),
         firstname: formData.get("firstname"),
         lastname: formData.get("lastname"),
         church: formData.get("church"),
+    });
 
+    if (!validatedFields.success) {
+        return {
+            errors: validatedFields.error.flatten().fieldErrors as any,
+        };
+    }
+
+    const { confirmPassword, ...dataToSend } = validatedFields.data;
+
+    const body = {
+        ...dataToSend,
         games: JSON.parse(formData.get("games") as string || '[]'),
         reviews: JSON.parse(formData.get("reviews") as string || '[]'),
         reads: JSON.parse(formData.get("reads") as string || '[]')
@@ -63,26 +69,23 @@ export async function signup(state: SignUpFormState, formData: FormData) {
             body: JSON.stringify(body)
         })
 
-        let result: string | any
-        if (response.status) { // fixme
-            result = await response.text()
+        if (response.ok) {
+            const result = await response.text()
             state!.token = result
             state!.success = true
-
         } else {
-            result = await response.json()
-            console.error(`Error when signing up with [Email: ${body.email}, Password: ${body.password}, Firstname: ${body.firstname}, Lastname: ${body.lastname}, Church: ${body.church}]: ${result.error}`)
-            switch (response.status) {
-                case 401:
-                    state.errors.form.push('The provided username and password don\'t match!')
-                    break
-                default:
-                    state.errors.form.push(`An error occurred on our end. Please try again later or reach out for support if this persists.`)
+            const result = await response.json().catch(() => ({ error: "Unknown error" }))
+            console.error(`Sign-up failed [${response.status}]: ${result.error}`)
+            
+            if (response.status === 409) {
+                state.errors.email.push("This email is already registered.")
+            } else {
+                state.errors.form.push("An error occurred during account creation. Please try again.")
             }
         }
     } catch (error: any) {
-        console.error(`Error when signing up with [Email: ${body.email}, Password: ${body.password}, Firstname: ${body.firstname}, Lastname: ${body.lastname}, Church: ${body.church}]: ${error.message}`)
-        state!.errors.form.push('An error occurred on our end. Please try again later or reach out for support if this persists.')
+        console.error(`Fetch error during sign-up: ${error.message}`)
+        state!.errors.form.push('Our systems are currently busy. Please try again later.')
     }
     return state
 }
