@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useActionState } from "react"
+import React, { useActionState, useState } from "react"
 import { Form } from "@heroui/form"
 import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
@@ -8,6 +8,7 @@ import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
 import Background from "@/app/background";
 import Link from "next/link"
+import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 
 import { logIn } from "@/core/action/auth/log-in"
 import { LogInFormState } from "@/core/model/form/form-definitions"
@@ -19,10 +20,12 @@ import { LogInFormState } from "@/core/model/form/form-definitions"
 export default function LogIn() {
     //@ts-ignore
     const [state, action, pending] = useActionState<LogInFormState, FormData>(logIn, undefined)
+    const [isVisible, setIsVisible] = useState(false)
+    const toggleVisibility = () => setIsVisible(!isVisible)
     
     const inputClassNames = {
         base: "text-white", // wrapper span
-        label: "text-indigo-300",
+        label: "!text-indigo-300",
         input: "text-white placeholder:text-indigo-300",
         inputWrapper:
             "bg-white/10 data-[hover=true]:bg-white/15 " +
@@ -64,16 +67,31 @@ export default function LogIn() {
                             type="email"
                             name="email"
                             isRequired
+                            startContent={
+                                <Mail className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
+                            }
                         />
 
                         {/* Password */}
                         <Input
                             classNames={inputClassNames}
-                            type="password"
+                            type={isVisible ? "text" : "password"}
                             label="Password"
                             variant="bordered"
                             name="password"
                             isRequired
+                            startContent={
+                                <Lock className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
+                            }
+                            endContent={
+                                <button className="focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
+                                    {isVisible ? (
+                                        <EyeOff className="text-indigo-300/50 pointer-events-none" size={20} />
+                                    ) : (
+                                        <Eye className="text-indigo-300/50 pointer-events-none" size={20} />
+                                    )}
+                                </button>
+                            }
                         />
 
                         {/* Form-level server error */}
