@@ -28,6 +28,20 @@ export async function signup(state: SignUpFormState, formData: FormData) {
         state.token = undefined
     }
 
+    // Bot protection: Honeypot check
+    if (formData.get("website")) {
+        return {
+            errors: {
+                email: [],
+                password: [],
+                firstname: [],
+                lastname: [],
+                church: [],
+                form: ["Unable to process request."]
+            }
+        }
+    }
+
     const body = {
         email: formData.get("email"),
         password: formData.get("password"),

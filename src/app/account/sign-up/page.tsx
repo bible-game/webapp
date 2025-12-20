@@ -96,6 +96,16 @@ export default function SignUp() {
                             <p key={error} className="text-sm text-red-400 text-center">{error}</p>
                         ))}
 
+                        {/* Honeypot field for bot protection */}
+                        <div style={{ display: 'none' }} aria-hidden="true">
+                            <input
+                                type="text"
+                                name="website"
+                                tabIndex={-1}
+                                autoComplete="off"
+                            />
+                        </div>
+
                         {/* Submit Button */}
                         <button
                             type="submit"
