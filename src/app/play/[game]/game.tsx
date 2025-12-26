@@ -271,22 +271,28 @@ export default function Game(props: any) {
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
 
         return (
-            <>
-                <PopUp />
-                <Summary passage={passage} playing={playing}/>
+            <div className="absolute inset-0 w-full h-full">
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}
                          narrativeHidden={narrativeHidden}
                          playing={playing}/>
-                <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
-                        isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
-                        addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
-                        selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
-                        state={props.state} passageId={passage.id} bible={props.bible}
-                        selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
-                <Confetti fire={confetti}/>
-            </>
+                
+                <div className="relative z-10 w-full h-full pointer-events-none">
+                    <div className="flex flex-col items-center pt-20 w-full pointer-events-none">
+                        <PopUp />
+                        <Summary passage={passage} playing={playing}/>
+                    </div>
+
+                    <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
+                            isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
+                            addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
+                            selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
+                            state={props.state} passageId={passage.id} bible={props.bible}
+                            selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                    <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
+                    <Confetti fire={confetti}/>
+                </div>
+            </div>
         );
     }
 }

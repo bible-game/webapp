@@ -10,7 +10,8 @@ const nextConfig = {
     },
     sassOptions: {
         includePaths: [path.join(__dirname, 'styles')],
-    }
+    },
+    transpilePackages: ["@project-skymap/library"]
 }
 
 module.exports = nextConfig

@@ -88,7 +88,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
 
-    return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)]">{
+    return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)] pointer-events-auto">{
         props.playing ? <section className="sm:panel flex justify-between mt-0 sm:mt-4 flex-wrap">
                 <Autocomplete
                     className="sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] sm:rounded-l-full pl-4 pr-2 py-1 sm:w-[13.33rem] w-[33%]"

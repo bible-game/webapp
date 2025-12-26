@@ -122,3 +122,9 @@ input:-webkit-autofill:focus
 
         &:hover
           background-color: rgba($white, 0.1)
+
+[data-overlay-container="true"]
+  pointer-events: none
+
+  & > *
+    pointer-events: auto

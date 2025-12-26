@@ -44,7 +44,7 @@ export default function PopUp() {
                     backdrop: "bg-[#060842]/75",
                     base:
                         "max-w-[100%] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border border-[#ffffff]/25 " +
-                        "shadow-2xl !mb-0 rounded-none !mx-0 px-4",
+                        "shadow-2xl !mb-0 rounded-none !mx-0 px-4 pointer-events-auto",
                     header: "pt-6 pb-0 w-full text-center md:text-left",
                     closeButton: "hidden",
                     footer: "pb-6 md:pb-7 pt-0 flex gap-3 justify-between",

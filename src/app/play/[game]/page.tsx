@@ -49,9 +49,10 @@ export default async function Play({params}: { params: Promise<{ game: string }>
 
     return (
         <>
-            <Background/>
-            <main className="w-full relative z-1">
-                <Menu isPlay={true} info={info} date={game} device={device} />
+            <main className="w-screen h-screen overflow-hidden relative bg-black">
+                <div className="absolute top-0 left-0 w-full z-20 pointer-events-auto flex justify-center">
+                    <Menu isPlay={true} info={info} date={game} device={device} />
+                </div>
                 <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
             </main>
             <Toaster position="bottom-right"/>
