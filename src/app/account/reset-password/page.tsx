@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useActionState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { Form } from "@heroui/form"
 import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
@@ -8,22 +9,22 @@ import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
 import Background from "@/app/background";
 import Link from "next/link"
-import { useSearchParams } from "next/navigation"
 
-import { logIn } from "@/core/action/auth/log-in"
-import { LogInFormState } from "@/core/model/form/form-definitions"
+import { resetPassword } from "@/core/action/auth/reset-password"
+import { ResetPasswordFormState } from "@/core/model/form/form-definitions"
 
 /**
- * Log-In Content
+ * Reset Password Content
  */
-function LogInContent() {
-    //@ts-ignore
-    const [state, action, pending] = useActionState<LogInFormState, FormData>(logIn, undefined)
+function ResetPasswordContent() {
     const searchParams = useSearchParams()
-    const resetSuccess = searchParams.get("reset") === "success"
-    
+    const token = searchParams.get("token") || ""
+
+    //@ts-ignore
+    const [state, action, pending] = useActionState<ResetPasswordFormState, FormData>(resetPassword, undefined)
+
     const inputClassNames = {
-        base: "text-white", // wrapper span
+        base: "text-white",
         label: "text-indigo-300",
         input: "text-white placeholder:text-indigo-300",
         inputWrapper:
@@ -40,9 +41,22 @@ function LogInContent() {
         content: "text-sm",
     }
 
-    const successAlertClassNames = {
-        base: "border-green-400/40 bg-green-500/10 text-green-300 rounded-lg px-3 py-2",
-        content: "text-sm",
+    if (!token) {
+        return (
+            <div className="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white text-center">
+                <h1 className="text-2xl font-semibold">Invalid Link</h1>
+                <p className="text-sm text-indigo-300 mt-2 mb-6">
+                    The password reset link is invalid or has expired.
+                </p>
+                <Button
+                    as={Link}
+                    href="/account/forgot-password"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded-lg transition-all"
+                >
+                    Request a new link
+                </Button>
+            </div>
+        )
     }
 
     return (
@@ -52,54 +66,33 @@ function LogInContent() {
                 validationErrors={state?.errors}
                 className="flex flex-col gap-5"
             >
-                {/* Title */}
                 <div className="text-center mb-2">
-                    <h1 className="text-2xl font-semibold">Log In</h1>
+                    <h1 className="text-2xl font-semibold">Reset Password</h1>
                     <p className="text-sm text-indigo-300 mt-1">
-                        Welcome back! Continue your scripture journey.
+                        Enter your new password below.
                     </p>
                 </div>
 
-                {/* Reset Success Alert */}
-                {resetSuccess && (
-                    <Alert
-                        hideIcon
-                        variant="bordered"
-                        color="success"
-                        description="Your password has been reset successfully. You can now log in with your new password."
-                        classNames={successAlertClassNames}
-                    />
-                )}
+                <input type="hidden" name="token" value={token} />
 
-                {/* Email */}
-                <Input
-                    classNames={inputClassNames}
-                    label="Email"
-                    variant="bordered"
-                    type="email"
-                    name="email"
-                    isRequired
-                />
-
-                {/* Password */}
                 <Input
                     classNames={inputClassNames}
                     type="password"
-                    label="Password"
+                    label="New Password"
                     variant="bordered"
                     name="password"
                     isRequired
                 />
-                <div className="flex justify-end">
-                    <Link
-                        href="/account/forgot-password"
-                        className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
-                    >
-                        Forgot password?
-                    </Link>
-                </div>
 
-                {/* Form-level server error */}
+                <Input
+                    classNames={inputClassNames}
+                    type="password"
+                    label="Confirm New Password"
+                    variant="bordered"
+                    name="confirmPassword"
+                    isRequired
+                />
+
                 {state?.errors?.form && state.errors.form.length > 0 && (
                     <Alert
                         hideIcon
@@ -110,7 +103,6 @@ function LogInContent() {
                     />
                 )}
 
-                {/* Submit */}
                 <Button
                     type="submit"
                     disabled={pending}
@@ -118,43 +110,32 @@ function LogInContent() {
                 >
                     {pending ? (
                         <span className="flex items-center gap-2">
-          <CircularProgress
-              aria-label="Checking credentials..."
-              size="sm"
-              color="secondary"
-          />
-          Checking...
-        </span>
+                            <CircularProgress
+                                aria-label="Resetting password..."
+                                size="sm"
+                                color="secondary"
+                            />
+                            Resetting...
+                        </span>
                     ) : (
-                        "Log In"
+                        "Reset Password"
                     )}
                 </Button>
-
-                {/* Footer */}
-                <p className="text-xs text-center text-indigo-400 mt-2">
-                    Don&apos;t have an account?{" "}
-                    <Link
-                        href="/account/sign-up"
-                        className="underline hover:text-indigo-300 font-medium">
-                        Sign Up
-                    </Link>
-                </p>
             </Form>
         </div>
     )
 }
 
 /**
- * Log-In Page
- * @since 6th June 2025
+ * Reset Password Page
  */
-export default function LogIn() {
+export default function ResetPassword() {
     return (
         <>
             <Background />
             <main className="flex items-center justify-center min-h-screen px-4 pt-24 sm:pt-32">
                 <Suspense fallback={<CircularProgress aria-label="Loading..." />}>
-                    <LogInContent />
+                    <ResetPasswordContent />
                 </Suspense>
             </main>
         </>

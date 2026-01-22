@@ -31,6 +31,7 @@ export async function logIn(state: LogInFormState, formData: FormData) {
         password: formData.get("password")
     }
 
+    let success = false
     try {
         const response = await fetch(`${process.env.SVC_USER}/auth/login`, {
             method: "POST",
@@ -45,6 +46,7 @@ export async function logIn(state: LogInFormState, formData: FormData) {
             result = await response.text()
             state!.token = result
             cookieStore.set('token', result, { httpOnly: true })
+            success = true
 
         } else {
             result = await response.json()
@@ -62,6 +64,8 @@ export async function logIn(state: LogInFormState, formData: FormData) {
         state!.errors.form.push('An error occurred on our end. Please try again later or reach out for support if this persists.')
     }
 
-    // return state
-    redirect('/');
+    if (success) {
+        redirect('/');
+    }
+    return state
 }
