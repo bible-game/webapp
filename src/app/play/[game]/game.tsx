@@ -135,6 +135,10 @@ export default function Game(props: any) {
 
     function selectBook(item: string, disabled?: boolean): void {
         if (disabled) return;
+        if (!item) {
+            clearSelection();
+            return;
+        }
 
         selected.book = item;
 
@@ -237,6 +241,13 @@ export default function Game(props: any) {
         selected.division = '';
         selected.book = '';
         selected.chapter = '';
+        setBook('');
+        setChapter('');
+        setHasBook(false);
+        setChapters([]);
+        setMaxChapter(0);
+        setBooks(allBooks);
+        setDivisions(allDivisions);
     }
 
     function isExistingGuess() {
