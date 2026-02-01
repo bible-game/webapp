@@ -8,6 +8,7 @@ import { StateUtil } from "@/core/util/state-util";
 import { ReviewState } from "@/core/model/state/review-state";
 import { Star } from "@/app/play/[game]/star";
 import { PassageViewer } from "@/app/study/[passage]/passage-viewer";
+import CannonConfettiCanvas from "@/core/component/confetti";
 
 export default function StudyContent(props: any) {
     const title = prettyPassage(props.passage);
@@ -18,6 +19,7 @@ export default function StudyContent(props: any) {
     const MAX_STARS = 5;
 
     const [open, setOpen] = useState<boolean>(false);
+    const [fireConfetti, setFireConfetti] = useState(false);
 
     useEffect(() => {
         if (props.state) StateUtil.setAllReviews(props.state);
@@ -36,17 +38,29 @@ export default function StudyContent(props: any) {
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") setOpen(false);
+            if (e.key.toLowerCase() === "v") setOpen(true);
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
     }, []);
+
+    useEffect(() => {
+        if (fireConfetti) {
+            const timer = setTimeout(() => setFireConfetti(false), 2000); // Reset after a short delay
+            return () => clearTimeout(timer);
+        }
+    }, [fireConfetti]);
 
     function prettyPassage(passage: string) {
         return passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ");
     }
 
     function update(state: any) {
-        setStars(state.stars || 0);
+        const newStars = state.stars || 0;
+        if (newStars > stars) {
+            setFireConfetti(true);
+        }
+        setStars(newStars);
 
         let dateLabel = "";
         if (state && state.date) {
@@ -59,6 +73,7 @@ export default function StudyContent(props: any) {
 
     return (
         <div className="text-slate-900 pb-16 bg-white">
+            <CannonConfettiCanvas fire={fireConfetti} />
             <header className="bg-white/90 border-b border-slate-200/60">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6">
                     <div className="h-14 flex items-center justify-between gap-3 text-[14px]">

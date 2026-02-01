@@ -34,6 +34,16 @@ export function PassageViewer({ id, title, open, onClose }: {
 
     if (!open) return null;
 
+    const renderContent = () => {
+        if (isLoading) {
+            return <SkeletonLoader />;
+        }
+        if (error || !data) {
+            return <div className="text-red-500">Failed to load passage. Please try again later.</div>;
+        }
+        return <pre className="whitespace-pre-wrap leading-relaxed text-[15px] text-slate-800 pb-8">{data['text']}</pre>;
+    };
+
     return (
         <div
             role="dialog"
@@ -64,10 +74,24 @@ export function PassageViewer({ id, title, open, onClose }: {
                     </header>
 
                     <div className="p-4 md:p-5 overflow-y-auto max-h-[90vh] sm:max-h-[75vh] md:max-h-none md:h-[calc(100vh-3.25rem)]">
-                        <pre className="whitespace-pre-wrap leading-relaxed text-[15px] text-slate-800 pb-8">{isLoading ? "(Passage text unavailable)" : data['text'] }</pre>
+                        {renderContent()}
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function SkeletonLoader() {
+    return (
+        <div className="animate-pulse">
+            <div className="h-4 bg-slate-200 rounded w-3/4 mb-4"></div>
+            <div className="h-4 bg-slate-200 rounded w-full mb-2"></div>
+            <div className="h-4 bg-slate-200 rounded w-full mb-2"></div>
+            <div className="h-4 bg-slate-200 rounded w-5/6 mb-4"></div>
+            <div className="h-4 bg-slate-200 rounded w-full mb-2"></div>
+            <div className="h-4 bg-slate-200 rounded w-full mb-2"></div>
+            <div className="h-4 bg-slate-200 rounded w-2/4 mb-4"></div>
         </div>
     );
 }

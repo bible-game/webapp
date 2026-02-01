@@ -4,8 +4,7 @@ import { Toaster } from "react-hot-toast";
 import React from "react";
 import Menu from "@/app/menu";
 import Background from "@/app/background";
-import Metrics from "@/app/stats/metrics";
-import Completion from "@/app/stats/completion";
+import StatsContent from "@/app/stats/stats-content";
 import LoginPrompt from "@/app/stats/login-prompt";
 import Leaderboard from "@/app/stats/leaderboard";
 
@@ -48,6 +47,7 @@ export default async function Stats() {
     let reviewState: Map<string,ReviewState> | undefined;
     let info: UserInfo | undefined;
     let rank: { rank?: number, totalPlayers?: number } = {};
+    let userId: string | undefined;
     if (await isLoggedIn()) {
         gameState = await getGameState();
         readState = await getReadState();
@@ -55,7 +55,8 @@ export default async function Stats() {
 
         info = await getUserInfo();
         displayName = `${info?.firstname} ${info?.lastname}`;
-        rank = await getRank(await getUserId() ?? '1'); // fixme
+        userId = await getUserId() ?? undefined;
+        rank = await getRank(userId ?? '1'); // fixme
     }
 
     return (
@@ -79,9 +80,13 @@ export default async function Stats() {
                             </div>
                         </div>
                         {!info && <LoginPrompt/>}
-                        <Leaderboard leaders={leaders}/>
-                        <Metrics gameState={gameState} readState={readState} reviewState={reviewState} bible={bible}/>
-                        <Completion bible={bible}/>
+                        <Leaderboard leaders={leaders} currentUserId={userId}/>
+                        <StatsContent
+                            bible={bible}
+                            gameState={gameState}
+                            readState={readState}
+                            reviewState={reviewState}
+                        />
                     </section>
                 </div>
             </main>
