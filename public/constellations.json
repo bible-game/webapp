@@ -1,0 +1,227 @@
+{
+  "version": 1,
+  "atlasBasePath": "/constellations/art",
+  "constellations": [
+    {
+      "id": "GENESIS",
+      "title": "Genesis",
+      "type": "book",
+      "image": "genesis.png",
+      "anchors": ["C:GEN:1", "C:GEN:50"],
+      "center": null,
+      "radius": 600,
+      "rotationDeg": 10,
+      "opacity": 0.1,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.05,
+        "maxOpacity": 0.4
+      }
+    },
+    {
+      "id": "EXODUS",
+      "title": "Exodus",
+      "type": "book",
+      "image": "exodus.png",
+      "anchors": ["C:EXO:1", "C:EXO:40"],
+      "center": null,
+      "radius": 550,
+      "rotationDeg": 25,
+      "opacity": 0.1,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.05,
+        "maxOpacity": 0.4
+      }
+    },
+    {
+      "id": "LEVITICUS",
+      "title": "Leviticus",
+      "type": "book",
+      "image": "leviticus.png",
+      "anchors": ["C:LEV:1", "C:LEV:27"],
+      "center": null,
+      "radius": 425,
+      "rotationDeg": -5,
+      "opacity": 0.1,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.05,
+        "maxOpacity": 0.4
+      }
+    },
+    {
+      "id": "NUMBERS",
+      "title": "Numbers",
+      "type": "book",
+      "image": "numbers.png",
+      "anchors": ["C:NUM:1", "C:NUM:36"],
+      "center": null,
+      "radius": 600,
+      "rotationDeg": -25,
+      "opacity": 0.2,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.20,
+        "maxOpacity": 0.6
+      }
+    },
+    {
+      "id": "DEUTERONOMY",
+      "title": "Deuteronomy",
+      "type": "book",
+      "image": "deuteronomy.png",
+      "anchors": ["C:DEU:1", "C:DEU:34"],
+      "center": null,
+      "radius": 500,
+      "rotationDeg": 0,
+      "opacity": 0.2,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.20,
+        "maxOpacity": 0.6
+      }
+    },
+    {
+      "id": "JOSHUA",
+      "title": "Joshua",
+      "type": "book",
+      "image": "joshua.png",
+      "anchors": ["C:JOS:1", "C:JOS:24"],
+      "center": null,
+      "radius": 400,
+      "rotationDeg": 0,
+      "opacity": 0.2,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.20,
+        "maxOpacity": 0.6
+      }
+    },
+    {
+      "id": "JUDGES",
+      "title": "Judges",
+      "type": "book",
+      "image": "judges.png",
+      "anchors": ["C:JDG:1", "C:JDG:21"],
+      "center": null,
+      "radius": 380,
+      "rotationDeg": 45,
+      "opacity": 0.2,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.20,
+        "maxOpacity": 0.6
+      }
+    },
+    {
+      "id": "RUTH",
+      "title": "Ruth",
+      "type": "book",
+      "image": "ruth.png",
+      "anchors": ["C:RUT:1", "C:RUT:4"],
+      "center": null,
+      "radius": 180,
+      "rotationDeg": -20,
+      "opacity": 0.2,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.20,
+        "maxOpacity": 0.6
+      }
+    },
+
+    {
+      "id": "3JOHN",
+      "title": "3 John",
+      "type": "book",
+      "image": "3john.png",
+      "anchors": ["C:3JN:1", "C:3JN:1"],
+      "center": null,
+      "radius": 180,
+      "rotationDeg": 15,
+      "opacity": 0.1,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      }
+    },
+    {
+      "id": "JUDE",
+      "title": "Jude",
+      "type": "book",
+      "image": "jude.png",
+      "anchors": ["C:JUD:1", "C:JUD:1"],
+      "center": null,
+      "radius": 180,
+      "rotationDeg": -15,
+      "opacity": 0.15,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      }
+    },
+    {
+      "id": "REVELATION",
+      "title": "Revelation",
+      "type": "book",
+      "image": "revelation.png",
+      "anchors": ["C:REV:1", "C:REV:22"],
+      "center": null,
+      "radius": 960,
+      "rotationDeg": 5,
+      "opacity": 0.2,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.20,
+        "maxOpacity": 0.6
+      }
+    }
+  ]
+}
