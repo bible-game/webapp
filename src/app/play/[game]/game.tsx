@@ -104,20 +104,20 @@ export default function Game(props: any) {
 
         if (typeof window !== "undefined") {
             (window as any).Hammer = Hammer.default;
-            //// global.d.ts
-            // import type * as HammerType from 'hammerjs';
-            //
-            // declare global {
-            //   interface Window {
-            //     Hammer: typeof HammerType;
-            //   }
-            // }
-            /**
-             * You can tell TypeScript about window.Hammer by augmenting the global Window type. Create a global.d.ts file in your project root (or anywhere under /types, as long as it's included in your tsconfig.json), and add this:
-             */
 
             if (passage) loadState();
         }
+    }, [passage]);
+
+    // Re-sync state from localStorage when returning to the page (bfcache / tab switch)
+    useEffect(() => {
+        function handleVisibilityChange() {
+            if (document.visibilityState === 'visible' && passage) {
+                loadState();
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [passage]);
 
     function loadState() {
