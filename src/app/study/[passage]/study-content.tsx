@@ -36,15 +36,6 @@ export default function StudyContent(props: any) {
     }, [props.passage, props.state, updatedState]);
 
     useEffect(() => {
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === "Escape") setOpen(false);
-            if (e.key.toLowerCase() === "v") setOpen(true);
-        };
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, []);
-
-    useEffect(() => {
         if (fireConfetti) {
             const timer = setTimeout(() => setFireConfetti(false), 2000); // Reset after a short delay
             return () => clearTimeout(timer);
