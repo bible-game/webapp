@@ -41,7 +41,7 @@ export function PassageViewer({ id, title, open, onClose }: {
         if (error || !data) {
             return <div className="text-red-500">Failed to load passage. Please try again later.</div>;
         }
-        return <pre className="border-2 border-red-500 whitespace-pre-wrap leading-relaxed text-[15px] text-slate-800 pb-8">{data['text']}</pre>;
+        return <pre className="whitespace-pre-wrap leading-relaxed text-[15px] text-slate-800 pb-8">{data['text']}</pre>;
     };
 
     return (
