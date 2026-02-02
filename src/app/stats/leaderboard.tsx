@@ -50,7 +50,6 @@ export default function Leaderboard(props: Readonly<Props>) {
                                     <div className="flex justify-between w-full items-center">
                                         <span className="text-white/80">
                                             {entry.firstname} {entry.lastname}
-                                            {isCurrentUser && <span className="text-[10px] ml-1.5 text-white/40 uppercase tracking-wide">(you)</span>}
                                         </span>
                                         <span className="text-white/60 tabular-nums">
                                             {entry.gameStars + entry.reviewStars}
