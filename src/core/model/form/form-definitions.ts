@@ -50,3 +50,14 @@ export type SignUpFormState =
         success?: boolean
       }
     | undefined
+
+export type ForgotPasswordFormState =
+    | {
+        errors: {
+            email?: string[]
+            form?: string[]
+        }
+        message?: string
+      }
+    | undefined
+
