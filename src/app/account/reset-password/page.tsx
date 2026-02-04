@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useActionState, Suspense } from "react"
+import React, { useActionState, Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Form } from "@heroui/form"
 import { Input } from "@heroui/input"
@@ -12,6 +12,7 @@ import Link from "next/link"
 
 import { resetPassword } from "@/core/action/auth/reset-password"
 import { ResetPasswordFormState } from "@/core/model/form/form-definitions"
+import { validateToken } from "@/core/action/auth/validate-token";
 
 /**
  * Reset Password Content
@@ -19,6 +20,12 @@ import { ResetPasswordFormState } from "@/core/model/form/form-definitions"
 function ResetPasswordContent() {
     const searchParams = useSearchParams()
     const token = searchParams.get("token") || ""
+    const [tokenValid, setTokenValid] = useState(false)
+
+    useEffect(() => {
+        validateToken(token)
+            .then((result: boolean) => setTokenValid(result))
+    })
 
     //@ts-ignore
     const [state, action, pending] = useActionState<ResetPasswordFormState, FormData>(resetPassword, undefined)
@@ -41,7 +48,7 @@ function ResetPasswordContent() {
         content: "text-sm",
     }
 
-    if (!token) {
+    if (!token || !tokenValid) {
         return (
             <div className="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white text-center">
                 <h1 className="text-2xl font-semibold">Invalid Link</h1>
