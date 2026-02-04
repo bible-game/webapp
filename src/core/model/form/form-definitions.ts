@@ -58,6 +58,7 @@ export type ForgotPasswordFormState =
             form?: string[]
         }
         message?: string
+        success?: boolean
       }
     | undefined
 
