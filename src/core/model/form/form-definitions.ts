@@ -62,3 +62,16 @@ export type ForgotPasswordFormState =
       }
     | undefined
 
+export type ResetPasswordFormState =
+    | {
+        errors: {
+            password?: string[]
+            confirmPassword?: string[]
+            form?: string[]
+        }
+        message?: string
+        success?: boolean
+      }
+    | undefined
+
+
