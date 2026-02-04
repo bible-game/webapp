@@ -2,10 +2,27 @@
 
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { toast } from "react-hot-toast";
-import colours from './config/colours.json';
-import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle } from "@project-skymap/library";
-import initialArrangement from "./arrangement.json";
-import groups from "./groups.json";
+import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON } from "@project-skymap/library";
+
+const BOOK_COLORS: Record<string, string> = {};
+
+// Simple hash-based color generator for books
+function getBookColor(bookKey: string) {
+  if (BOOK_COLORS[bookKey]) return BOOK_COLORS[bookKey];
+  
+  let hash = 0;
+  for (let i = 0; i < bookKey.length; i++) {
+    hash = bookKey.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  
+  const h = Math.abs(hash % 360);
+  const s = 60 + (Math.abs(hash >> 8) % 30); // 60-90% saturation
+  const l = 60 + (Math.abs(hash >> 16) % 20); // 60-80% lightness
+  
+  const color = `hsl(${h}, ${s}%, ${l}%)`;
+  BOOK_COLORS[bookKey] = color;
+  return color;
+}
 
 /**
  * StarMap Component for displaying the Bible (replacing FoamTree)
@@ -13,6 +30,10 @@ import groups from "./groups.json";
  */
 const Treemap = (props: any) => {
     const [constellationConfig, setConstellationConfig] = useState<any>(null);
+    const [arrangement, setArrangement] = useState<StarArrangement | null>(null);
+    const [groupsConfig, setGroupsConfig] = useState<any>(null);
+    const [bookBible, setBookBible] = useState<BibleJSON | null>(null);
+
     const mapRef = useRef<StarMapHandle>(null);
 
     useEffect(() => {
@@ -20,7 +41,33 @@ const Treemap = (props: any) => {
           .then(res => res.json())
           .then(data => setConstellationConfig(data))
           .catch(err => console.error("Failed to load constellations:", err));
+        
+        fetch("/arrangement.json")
+          .then(res => res.json())
+          .then(data => setArrangement(data))
+          .catch(err => console.error("Failed to load arrangement:", err));
+        
+        fetch("/groups.json")
+          .then(res => res.json())
+          .then(data => setGroupsConfig(data))
+          .catch(err => console.error("Failed to load groups:", err));
+
+        fetch("/bible.json")
+            .then(res => res.json())
+            .then(data => setBookBible(data))
+            .catch(err => console.error("Failed to load bible.json:", err));
     }, []);
+
+    // Pre-generate all book colors when bookBible is loaded
+    useEffect(() => {
+        if (bookBible) {
+            bookBible.testaments.forEach(t => 
+                t.divisions.forEach(d => 
+                    d.books.forEach(b => getBookColor(b.key))
+                )
+            );
+        }
+    }, [bookBible]);
 
     // Enable Order Reveal by default
     useEffect(() => {
@@ -30,14 +77,14 @@ const Treemap = (props: any) => {
     }, [mapRef.current]);
 
     const config = useMemo<StarMapConfig>(() => {
-        // Transform colours.json into StarMap color rules
-        const colorRules = Object.entries(colours).map(([key, color]) => ({
-            when: { bookKey: key },
-            value: color
-        }));
+        if (!arrangement || !groupsConfig || !constellationConfig || !bookBible) {
+            return {} as StarMapConfig; // Return an empty config or loading state if data is not ready
+        }
 
         let focusNodeId: string | undefined;
 
+        // The findBookKey logic can be simplified if we rely on bookBible and StarMap's internal hierarchy
+        // For now, keeping it similar to how it was to maintain existing focus logic
         const findBookKey = (bookName: string, data: any[]) => {
             for (const t of data) {
                 for (const d of t.divisions) {
@@ -50,7 +97,7 @@ const Treemap = (props: any) => {
         };
 
         if (props.bookFound) {
-            const key = findBookKey(props.passage.book, props.data);
+            const key = findBookKey(props.passage.book, bookBible.testaments); // Use bookBible here
             if (key) focusNodeId = `B:${key}`;
         } else if (props.divFound) {
             focusNodeId = `D:${props.passage.testament}:${props.passage.division}`;
@@ -63,10 +110,10 @@ const Treemap = (props: any) => {
         return {
             background: "#05060a",
             camera: { fov: 80, z: 120, lon: 275 * Math.PI / 180 },
-            data: { testaments: props.data }, // Wrap the data as bibleToSceneModel expects { testaments: [] }
+            data: bookBible,
             adapter: bibleToSceneModel,
-            arrangement: initialArrangement as unknown as StarArrangement,
-            groups: groups as any,
+            arrangement: arrangement,
+            groups: groupsConfig as any,
             constellations: constellationConfig,
             showBookLabels: true,
             showDivisionLabels: false,
@@ -78,12 +125,17 @@ const Treemap = (props: any) => {
             showBackdropStars: true,
             backdropStarsCount: 31000,
             showAtmosphere: false,
+            fitProjection: true,
             visuals: {
                 colorBy: [
-                    ...colorRules,
-                    { when: { level: 0 }, value: "#38bdf8" }, // Fallback for Testaments
-                    { when: { level: 1 }, value: "#a3e635" }, // Fallback for Divisions
-                    { when: { level: 2 }, value: "#ffffff" }, // Fallback for Books
+                    // Per-book colors (level 3) - using dynamically generated colors
+                    ...Object.entries(BOOK_COLORS).map(([key, color]) => ({
+                        when: { bookKey: key, level: 3 },
+                        value: color
+                    })),
+                    { when: { level: 0 }, value: "#38bdf8" }, // Testaments
+                    { when: { level: 1 }, value: "#a3e635" }, // Divisions
+                    { when: { level: 2 }, value: "#ffffff" }, // Books
                 ],
                 sizeBy: [
                     { when: { level: 3 }, field: "weight", scale: [2.0, 5.0] }
@@ -99,7 +151,7 @@ const Treemap = (props: any) => {
                 animate: true
             }
         };
-    }, [props.data, props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig]);
+    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig, bookBible]);
 
     const handleSelect = (node: SceneNode) => {
         // Order Reveal Interaction
