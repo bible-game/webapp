@@ -4,25 +4,7 @@ import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { toast } from "react-hot-toast";
 import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON } from "@project-skymap/library";
 
-const BOOK_COLORS: Record<string, string> = {};
 
-// Simple hash-based color generator for books
-function getBookColor(bookKey: string) {
-  if (BOOK_COLORS[bookKey]) return BOOK_COLORS[bookKey];
-  
-  let hash = 0;
-  for (let i = 0; i < bookKey.length; i++) {
-    hash = bookKey.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  
-  const h = Math.abs(hash % 360);
-  const s = 60 + (Math.abs(hash >> 8) % 30); // 60-90% saturation
-  const l = 60 + (Math.abs(hash >> 16) % 20); // 60-80% lightness
-  
-  const color = `hsl(${h}, ${s}%, ${l}%)`;
-  BOOK_COLORS[bookKey] = color;
-  return color;
-}
 
 /**
  * StarMap Component for displaying the Bible (replacing FoamTree)
@@ -32,6 +14,7 @@ const Treemap = (props: any) => {
     const [constellationConfig, setConstellationConfig] = useState<any>(null);
     const [arrangement, setArrangement] = useState<StarArrangement | null>(null);
     const [groupsConfig, setGroupsConfig] = useState<any>(null);
+    const [coloursConfig, setColoursConfig] = useState<any>(null);
     const [bookBible, setBookBible] = useState<BibleJSON | null>(null);
 
     const mapRef = useRef<StarMapHandle>(null);
@@ -52,22 +35,18 @@ const Treemap = (props: any) => {
           .then(data => setGroupsConfig(data))
           .catch(err => console.error("Failed to load groups:", err));
 
+        fetch("/colours.json")
+          .then(res => res.json())
+          .then(data => setColoursConfig(data))
+          .catch(err => console.error("Failed to load colours:", err));
+
         fetch("/bible.json")
             .then(res => res.json())
             .then(data => setBookBible(data))
             .catch(err => console.error("Failed to load bible.json:", err));
     }, []);
 
-    // Pre-generate all book colors when bookBible is loaded
-    useEffect(() => {
-        if (bookBible) {
-            bookBible.testaments.forEach(t => 
-                t.divisions.forEach(d => 
-                    d.books.forEach(b => getBookColor(b.key))
-                )
-            );
-        }
-    }, [bookBible]);
+
 
     // Enable Order Reveal by default
     useEffect(() => {
@@ -77,7 +56,7 @@ const Treemap = (props: any) => {
     }, [mapRef.current]);
 
     const config = useMemo<StarMapConfig>(() => {
-        if (!arrangement || !groupsConfig || !constellationConfig || !bookBible) {
+        if (!arrangement || !groupsConfig || !constellationConfig || !coloursConfig || !bookBible) {
             return {} as StarMapConfig; // Return an empty config or loading state if data is not ready
         }
 
@@ -126,17 +105,8 @@ const Treemap = (props: any) => {
             backdropStarsCount: 31000,
             showAtmosphere: false,
             fitProjection: true,
+            colorMap: coloursConfig,
             visuals: {
-                colorBy: [
-                    // Per-book colors (level 3) - using dynamically generated colors
-                    ...Object.entries(BOOK_COLORS).map(([key, color]) => ({
-                        when: { bookKey: key, level: 3 },
-                        value: color
-                    })),
-                    { when: { level: 0 }, value: "#38bdf8" }, // Testaments
-                    { when: { level: 1 }, value: "#a3e635" }, // Divisions
-                    { when: { level: 2 }, value: "#ffffff" }, // Books
-                ],
                 sizeBy: [
                     { when: { level: 3 }, field: "weight", scale: [2.0, 5.0] }
                 ]

@@ -162,6 +162,26 @@
         "maxOpacity": 0.6
       }
     },
+    {
+      "id": "1SAMUEL",
+      "title": "1 Samuel",
+      "type": "book",
+      "image": "1samuel.png",
+      "anchors": ["C:1SA:1", "C:1SA:31"],
+      "center": null,
+      "radius": 550,
+      "rotationDeg": -20,
+      "opacity": 0.1,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0.0,
+        "minOpacity": 0.20,
+        "maxOpacity": 0.6
+      }
+    },
 
     {
       "id": "3JOHN",
