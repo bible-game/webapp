@@ -71,6 +71,11 @@ export class CompletionUtil {
     /** Calculates the % Bible that the user has seen */
     static calcPercentageCompletion(config: any, decimalPlaces: number = 2): string {
         const completion = CompletionUtil.build(config);
+        return CompletionUtil.calcPercentageFromBuilt(completion, decimalPlaces);
+    }
+
+    /** Calculates % completion from pre-built completion data (avoids double build) */
+    static calcPercentageFromBuilt(completion: any, decimalPlaces: number = 2): string {
         let completedVerses = 0;
 
         for (const book of Object.values(completion)) {
@@ -82,6 +87,30 @@ export class CompletionUtil {
         }
 
         return (100 * completedVerses / 31_102).toFixed(decimalPlaces);
+    }
+
+    /** Calculates completion percentage for a single book */
+    static calcBookCompletion(bookData: any): number {
+        let total = 0;
+        let completed = 0;
+        for (const chapter of bookData.chapters ?? []) {
+            for (const verse of chapter.verses) {
+                total++;
+                if (verse !== '') completed++;
+            }
+        }
+        return total === 0 ? 0 : completed / total;
+    }
+
+    /** Calculates completion percentage for a single chapter */
+    static calcChapterCompletion(chapterData: any): number {
+        let total = 0;
+        let completed = 0;
+        for (const verse of chapterData.verses ?? []) {
+            total++;
+            if (verse !== '') completed++;
+        }
+        return total === 0 ? 0 : completed / total;
     }
 
     /** Builds, saves and returns Bible completion */

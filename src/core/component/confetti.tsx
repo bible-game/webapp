@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useRef, useEffect } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti';
 
 export default function CannonConfettiCanvas({fire}:{fire:boolean}) {
@@ -46,9 +46,11 @@ export default function CannonConfettiCanvas({fire}:{fire:boolean}) {
         });
     }, [makeShot]);
 
-    if (fire) {
-        burst()
-    }
+    useEffect(() => {
+        if (fire) {
+            burst();
+        }
+    }, [fire, burst]);
 
     return (
         <>
