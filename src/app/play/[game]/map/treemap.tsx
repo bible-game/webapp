@@ -3,7 +3,28 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { toast } from "react-hot-toast";
 import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON } from "@project-skymap/library";
+import bible from "../../../../../public/bible.json";
+import labelColors from "../../../../../public/colours.json";
 
+const BOOK_COLORS: Record<string, string> = {};
+
+// Simple hash-based color generator for books
+function getBookColor(bookKey: string) {
+    if (BOOK_COLORS[bookKey]) return BOOK_COLORS[bookKey];
+
+    let hash = 0;
+    for (let i = 0; i < bookKey.length; i++) {
+        hash = bookKey.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const h = Math.abs(hash % 360);
+    const s = 60 + (Math.abs(hash >> 8) % 30); // 60-90% saturation
+    const l = 60 + (Math.abs(hash >> 16) % 20); // 60-80% lightness
+
+    const color = `hsl(${h}, ${s}%, ${l}%)`;
+    BOOK_COLORS[bookKey] = color;
+    return color;
+}
 
 
 /**
@@ -14,8 +35,6 @@ const Treemap = (props: any) => {
     const [constellationConfig, setConstellationConfig] = useState<any>(null);
     const [arrangement, setArrangement] = useState<StarArrangement | null>(null);
     const [groupsConfig, setGroupsConfig] = useState<any>(null);
-    const [coloursConfig, setColoursConfig] = useState<any>(null);
-    const [bookBible, setBookBible] = useState<BibleJSON | null>(null);
 
     const mapRef = useRef<StarMapHandle>(null);
 
@@ -34,35 +53,30 @@ const Treemap = (props: any) => {
           .then(res => res.json())
           .then(data => setGroupsConfig(data))
           .catch(err => console.error("Failed to load groups:", err));
-
-        fetch("/colours.json")
-          .then(res => res.json())
-          .then(data => setColoursConfig(data))
-          .catch(err => console.error("Failed to load colours:", err));
-
-        fetch("/bible.json")
-            .then(res => res.json())
-            .then(data => setBookBible(data))
-            .catch(err => console.error("Failed to load bible.json:", err));
     }, []);
-
-
 
     // Enable Order Reveal by default
     useEffect(() => {
         if (mapRef.current?.setOrderRevealEnabled) {
              mapRef.current.setOrderRevealEnabled(true);
         }
-    }, [mapRef.current]);
-
-    const config = useMemo<StarMapConfig>(() => {
-        if (!arrangement || !groupsConfig || !constellationConfig || !coloursConfig || !bookBible) {
+        }, [mapRef.current]);
+    
+        // Pre-generate all book colors (moved inside component)
+        bible.testaments.forEach(t =>
+            t.divisions.forEach(d =>
+                d.books.forEach(b => getBookColor(b.key))
+            )
+        );
+    
+        const config = useMemo<StarMapConfig>(() => {
+        if (!arrangement || !groupsConfig || !constellationConfig) {
             return {} as StarMapConfig; // Return an empty config or loading state if data is not ready
         }
 
         let focusNodeId: string | undefined;
 
-        // The findBookKey logic can be simplified if we rely on bookBible and StarMap's internal hierarchy
+        // The findBookKey logic can be simplified if we rely on bible and StarMap's internal hierarchy
         // For now, keeping it similar to how it was to maintain existing focus logic
         const findBookKey = (bookName: string, data: any[]) => {
             for (const t of data) {
@@ -76,7 +90,7 @@ const Treemap = (props: any) => {
         };
 
         if (props.bookFound) {
-            const key = findBookKey(props.passage.book, bookBible.testaments); // Use bookBible here
+            const key = findBookKey(props.passage.book, bible.testaments); // Use imported bible here
             if (key) focusNodeId = `B:${key}`;
         } else if (props.divFound) {
             focusNodeId = `D:${props.passage.testament}:${props.passage.division}`;
@@ -89,10 +103,11 @@ const Treemap = (props: any) => {
         return {
             background: "#05060a",
             camera: { fov: 80, z: 120, lon: 275 * Math.PI / 180 },
-            data: bookBible,
+            data: bible,
             adapter: bibleToSceneModel,
             arrangement: arrangement,
             groups: groupsConfig as any,
+            labelColors: labelColors as Record<string, string>,
             constellations: constellationConfig,
             showBookLabels: true,
             showDivisionLabels: false,
@@ -104,9 +119,20 @@ const Treemap = (props: any) => {
             showBackdropStars: true,
             backdropStarsCount: 31000,
             showAtmosphere: false,
+            projection: "blended",
             fitProjection: true,
-            colorMap: coloursConfig,
+
             visuals: {
+                colorBy: [
+                    // Per-book colors (level 3)
+                    ...Object.entries(BOOK_COLORS).map(([key, color]) => ({
+                        when: { bookKey: key, level: 3 },
+                        value: color
+                    })),
+                    { when: { level: 0 }, value: "#38bdf8" },
+                    { when: { level: 1 }, value: "#a3e635" },
+                    { when: { level: 2 }, value: "#ffffff" },
+                ],
                 sizeBy: [
                     { when: { level: 3 }, field: "weight", scale: [2.0, 5.0] }
                 ]
@@ -117,7 +143,7 @@ const Treemap = (props: any) => {
                 animate: true
             }
         };
-    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig, bookBible]);
+    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig]);
 
     const handleSelect = (node: SceneNode) => {
         // Order Reveal Interaction
