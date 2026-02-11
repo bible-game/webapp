@@ -58,6 +58,7 @@ export default function Game(props: any) {
     const [state, setState] = useState({} as any);
     const [confetti, setConfetti] = useState(false);
     const [narrativeHidden, setNarrativeHidden] = useState(true);
+    const [flyToNodeId, setFlyToNodeId] = useState<string | undefined>(undefined);
 
     // FixMe :: double-render, just a dev issue like the treemap?
     useEffect(() => {
@@ -222,6 +223,20 @@ export default function Game(props: any) {
         }
 
         setStars(starResult);
+
+        // --- Add this block to set flyToNodeId ---
+        let guessedNodeId: string | undefined;
+        // Example: If newGuess has bookKey and chapter, construct nodeId
+        if (newGuess.bookKey && newGuess.chapter) {
+            guessedNodeId = `C:${newGuess.bookKey}:${newGuess.chapter}`;
+        } else if (newGuess.bookKey) {
+            guessedNodeId = `B:${newGuess.bookKey}`;
+        }
+        // You might need to adjust this logic based on the actual structure of `newGuess`
+        // and how your StarMap nodes are identified (e.g., "D:New:Paul's Letters" for division)
+        setFlyToNodeId(guessedNodeId);
+        // --- End of new block ---
+
         const state: GameState = {
             stars: starResult,
             guesses: updatedGuesses,
@@ -233,6 +248,10 @@ export default function Game(props: any) {
             lastModified: new Date()
         }
         StateUtil.setGame(state);
+
+        // --- Optional: Reset flyToNodeId after a short delay ---
+        // This is to allow for future flyTo calls. Adjust delay as needed.
+        setTimeout(() => setFlyToNodeId(undefined), 1500); // 1.5 seconds delay
     }
 
     // fixme :: behaviour not correct
@@ -286,7 +305,8 @@ export default function Game(props: any) {
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}
                          narrativeHidden={narrativeHidden}
-                         playing={playing}/>
+                         playing={playing}
+                         flyToNodeId={flyToNodeId}/>
                 
                 <div className="relative z-10 w-full h-full pointer-events-none">
                     <div className="flex flex-col items-center pt-20 w-full pointer-events-none">

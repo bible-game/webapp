@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState, useEffect, useRef } from 'react';
+import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from "react-hot-toast";
 import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON } from "@project-skymap/library";
 import bible from "../../../../../public/bible.json";
@@ -35,6 +35,10 @@ const Treemap = (props: any) => {
     const [constellationConfig, setConstellationConfig] = useState<any>(null);
     const [arrangement, setArrangement] = useState<StarArrangement | null>(null);
     const [groupsConfig, setGroupsConfig] = useState<any>(null);
+    const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
+    const [currentFov, setCurrentFov] = useState(50);
+    const [hierarchyFilter, setHierarchyFilter] = useState<HierarchyFilter | null>(null);
+    const [longPressInfo, setLongPressInfo] = useState<{ node: SceneNode | null; x: number; y: number } | null>(null);
 
     const mapRef = useRef<StarMapHandle>(null);
 
@@ -61,6 +65,30 @@ const Treemap = (props: any) => {
              mapRef.current.setOrderRevealEnabled(true);
         }
         }, [mapRef.current]);
+
+    // Sync Hierarchy Filter
+    useEffect(() => {
+        mapRef.current?.setHierarchyFilter?.(hierarchyFilter);
+    }, [hierarchyFilter]);
+
+    // Fly to node on external trigger (e.g., guess submission)
+    useEffect(() => {
+        console.log("useEffect [flyToNodeId] triggered.");
+        console.log("props.flyToNodeId:", props.flyToNodeId);
+        if (props.flyToNodeId) {
+            console.log("mapRef.current:", mapRef.current);
+            if (mapRef.current) {
+                mapRef.current.flyTo(props.flyToNodeId, 10);
+                console.log(`Called flyTo(${props.flyToNodeId}, 10)`);
+            } else {
+                console.warn("mapRef.current is null or undefined when trying to flyTo.");
+            }
+        }
+    }, [props.flyToNodeId, mapRef.current]);
+
+    const handleLongPress = useCallback((node: SceneNode | null, x: number, y: number) => {
+        setLongPressInfo({ node, x, y });
+    }, []);
     
         // Pre-generate all book colors (moved inside component)
         bible.testaments.forEach(t =>
@@ -74,7 +102,7 @@ const Treemap = (props: any) => {
             return {} as StarMapConfig; // Return an empty config or loading state if data is not ready
         }
 
-        let focusNodeId: string | undefined;
+        let initialFocusNodeId: string | undefined;
 
         // The findBookKey logic can be simplified if we rely on bible and StarMap's internal hierarchy
         // For now, keeping it similar to how it was to maintain existing focus logic
@@ -84,21 +112,23 @@ const Treemap = (props: any) => {
                     for (const b of d.books) {
                         if (b.name === bookName) return b.key;
                     }
-                }
+                    }
             }
             return null;
         };
 
         if (props.bookFound) {
             const key = findBookKey(props.passage.book, bible.testaments); // Use imported bible here
-            if (key) focusNodeId = `B:${key}`;
+            if (key) initialFocusNodeId = `B:${key}`;
         } else if (props.divFound) {
-            focusNodeId = `D:${props.passage.testament}:${props.passage.division}`;
+            initialFocusNodeId = `D:${props.passage.testament}:${props.passage.division}`;
         } else if (props.testFound) {
-            focusNodeId = `T:${props.passage.testament}`;
+            initialFocusNodeId = `T:${props.passage.testament}`;
         }
 
-        console.log("StarMap Config update. BookFound:", !!props.bookFound, "FocusID:", focusNodeId);
+        const currentFocusNodeId = selectedNodeId || initialFocusNodeId;
+
+        console.log("StarMap Config update. BookFound:", !!props.bookFound, "FocusID:", currentFocusNodeId);
 
         return {
             background: "#05060a",
@@ -139,13 +169,14 @@ const Treemap = (props: any) => {
             },
             layout: { mode: "spherical", radius: 500, chapterRingSpacing: 40, algorithm: "phyllotaxis" },
             focus: {
-                nodeId: focusNodeId,
+                nodeId: currentFocusNodeId,
                 animate: true
             }
         };
-    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig]);
+    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig, hierarchyFilter]);
 
     const handleSelect = (node: SceneNode) => {
+        setSelectedNodeId(node.id);
         // Order Reveal Interaction
         if (node && (node.level === 2 || node.level === 3)) {
             const bookId = node.level === 2 ? node.id : node.parent!;
@@ -194,6 +225,8 @@ const Treemap = (props: any) => {
                 config={config}
                 onSelect={handleSelect}
                 onHover={handleHover}
+                onFovChange={setCurrentFov}
+                onLongPress={handleLongPress}
             />
         </div>
     );
