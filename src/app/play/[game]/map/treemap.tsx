@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from "react-hot-toast";
-import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON } from "@project-skymap/library";
+import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON, type HierarchyFilter } from "@project-skymap/library";
 import bible from "../../../../../public/bible.json";
 import labelColors from "../../../../../public/colours.json";
 
