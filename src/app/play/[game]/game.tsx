@@ -4,6 +4,7 @@ import Summary from "@/app/play/[game]/summary";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
+import { HierarchyFilter } from "@project-skymap/library";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
@@ -59,6 +60,7 @@ export default function Game(props: any) {
     const [confetti, setConfetti] = useState(false);
     const [narrativeHidden, setNarrativeHidden] = useState(true);
     const [flyToNodeId, setFlyToNodeId] = useState<string | undefined>(undefined);
+    const [activeHierarchyFilter, setActiveHierarchyFilter] = useState<HierarchyFilter | null>(null);
 
     // FixMe :: double-render, just a dev issue like the treemap?
     useEffect(() => {
@@ -235,7 +237,32 @@ export default function Game(props: any) {
         // You might need to adjust this logic based on the actual structure of `newGuess`
         // and how your StarMap nodes are identified (e.g., "D:New:Paul's Letters" for division)
         setFlyToNodeId(guessedNodeId);
-        // --- End of new block ---
+        // --- Start of new filter calculation block ---
+        const newFilter: HierarchyFilter = {};
+        let matchLevel = "";
+
+        // Assuming newGuess.testament, newGuess.division, newGuess.bookKey, newGuess.chapter
+        // are available and correspond to the selected/guessed values.
+        // The `passage` object holds the ANSWER.
+
+        if (selected.testament === passage.testament) { // Use 'selected' for the guess, 'passage' for the answer
+            newFilter.testament = passage.testament;
+            matchLevel = "testament";
+            if (selected.division === passage.division) {
+                newFilter.division = passage.division;
+                matchLevel = "division";
+                if (selected.book === passage.book) { // Using selected.book for comparison
+                    // Find bookKey from allBooks based on selected.book
+                    const guessedBookKey = allBooks.find((bk: any) => bk.name === selected.book)?.key;
+                    if (guessedBookKey) {
+                        newFilter.bookKey = guessedBookKey;
+                        matchLevel = "book";
+                    }
+                }
+            }
+        }
+        setActiveHierarchyFilter(newFilter);
+        // --- End of new filter calculation block ---
 
         const state: GameState = {
             stars: starResult,
@@ -306,7 +333,8 @@ export default function Game(props: any) {
                          testFound={testamentFound} data={testaments} book={book} device={props.device}
                          narrativeHidden={narrativeHidden}
                          playing={playing}
-                         flyToNodeId={flyToNodeId}/>
+                         flyToNodeId={flyToNodeId}
+                         activeHierarchyFilter={activeHierarchyFilter}/>
                 
                 <div className="relative z-10 w-full h-full pointer-events-none">
                     <div className="flex flex-col items-center pt-20 w-full pointer-events-none">

@@ -71,6 +71,15 @@ const Treemap = (props: any) => {
         mapRef.current?.setHierarchyFilter?.(hierarchyFilter);
     }, [hierarchyFilter]);
 
+    // Update internal hierarchyFilter state when parent prop changes
+    useEffect(() => {
+        if (props.activeHierarchyFilter) {
+            setHierarchyFilter(props.activeHierarchyFilter);
+        } else {
+            setHierarchyFilter(null); // Clear filter if prop is undefined/null
+        }
+    }, [props.activeHierarchyFilter]);
+
     // Fly to node on external trigger (e.g., guess submission)
     useEffect(() => {
         console.log("useEffect [flyToNodeId] triggered.");
@@ -173,7 +182,7 @@ const Treemap = (props: any) => {
                 animate: true
             }
         };
-    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig, hierarchyFilter]);
+    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig]);
 
     const handleSelect = (node: SceneNode) => {
         setSelectedNodeId(node.id);
