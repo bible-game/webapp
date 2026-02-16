@@ -23,6 +23,22 @@ export default function SignUp() {
     const [state, action, pending] = useActionState<SignUpFormState, FormData>(signup, undefined)
     const [isVisible, setIsVisible] = useState(false)
     const toggleVisibility = () => setIsVisible(!isVisible)
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+        confirmPassword: "",
+        firstname: "",
+        lastname: "",
+        church: "",
+    })
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        })
+    }
+
 
     useEffect(() => {
         const games = Array.from(StateUtil.getAllGames().values())
@@ -99,6 +115,8 @@ export default function SignUp() {
                                     label={label}
                                     variant="bordered"
                                     name={name}
+                                    value={formData[name as keyof typeof formData]}
+                                    onChange={handleChange}
                                     startContent={
                                         <Icon className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
                                     }
