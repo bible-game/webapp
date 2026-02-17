@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useActionState, useState } from "react"
+import React, { useActionState, useEffect, useState } from "react"
 import { Form } from "@heroui/form"
 import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
@@ -8,10 +8,13 @@ import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
 import Background from "@/app/background";
 import Link from "next/link"
+import Image from "next/image"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 
 import { logIn } from "@/core/action/auth/log-in"
-import { LogInFormState } from "@/core/model/form/form-definitions"
+import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
+import { inputClassNames, alertClassNames, cardClassName, submitButtonClassName, submitButtonStyle } from "@/core/model/form/form-styles"
+import { useFormValidation } from "@/core/hook/useFormValidation"
 
 /**
  * Log-In Page
@@ -22,42 +25,44 @@ export default function LogIn() {
     const [state, action, pending] = useActionState<LogInFormState, FormData>(logIn, undefined)
     const [isVisible, setIsVisible] = useState(false)
     const toggleVisibility = () => setIsVisible(!isVisible)
-    
-    const inputClassNames = {
-        base: "text-white", // wrapper span
-        label: "!text-indigo-300",
-        input: "text-white placeholder:text-indigo-300",
-        inputWrapper:
-            "bg-white/10 data-[hover=true]:bg-white/15 " +
-            "group-data-[focus=true]:bg-white/20 border border-white/20 " +
-            "group-data-[focus=true]:border-indigo-500 " +
-            "rounded-lg transition-colors",
-        helperWrapper: "pt-1",
-        errorMessage: "text-red-400 text-xs",
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    })
+
+    const { validateField, clearFieldError, getFieldProps, clearAllErrors } = useFormValidation(LogInFormSchema)
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setFormData(prev => ({ ...prev, [name]: value }))
+        clearFieldError(name)
     }
 
-    const alertClassNames = {
-        base: "border-red-400/40 bg-red-500/10 text-red-300 rounded-lg px-3 py-2",
-        content: "text-sm",
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        if (value) {
+            validateField(name, value, formData)
+        }
     }
+
+    // Clear client errors when server state changes
+    useEffect(() => {
+        if (state) {
+            clearAllErrors()
+        }
+    }, [state, clearAllErrors])
 
     return (
         <>
             <Background />
-            <main className="flex items-center justify-center min-h-screen px-4 pt-24 sm:pt-32">
-                <div className="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white">
+            <main className="flex items-center justify-center min-h-screen px-3 sm:px-4 py-12 sm:py-24">
+                <div className={`${cardClassName} max-w-sm text-center`}>
                     <Form
                         action={action}
                         validationErrors={state?.errors}
-                        className="flex flex-col gap-5"
+                        className="auth-form flex flex-col space-y-4"
                     >
-                        {/* Title */}
-                        <div className="text-center mb-2">
-                            <h1 className="text-2xl font-semibold">Log In</h1>
-                            <p className="text-sm text-indigo-300 mt-1">
-                                Welcome back! Continue your scripture journey.
-                            </p>
-                        </div>
+                        <h1 className="text-2xl font-semibold text-indigo-300">Log In</h1>
 
                         {/* Email */}
                         <Input
@@ -66,7 +71,11 @@ export default function LogIn() {
                             variant="bordered"
                             type="email"
                             name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
                             isRequired
+                            {...getFieldProps("email")}
                             startContent={
                                 <Mail className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
                             }
@@ -79,7 +88,11 @@ export default function LogIn() {
                             label="Password"
                             variant="bordered"
                             name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            onBlur={handleBlur}
                             isRequired
+                            {...getFieldProps("password")}
                             startContent={
                                 <Lock className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
                             }
@@ -93,6 +106,12 @@ export default function LogIn() {
                                 </button>
                             }
                         />
+                        <Link
+                            href="/account/forgot-password"
+                            className="text-xs text-indigo-400 hover:text-indigo-300 self-end -mt-2 transition-colors"
+                        >
+                            Forgot password?
+                        </Link>
 
                         {/* Form-level server error */}
                         {state?.errors?.form && state.errors.form.length > 0 && (
@@ -109,24 +128,24 @@ export default function LogIn() {
                         <Button
                             type="submit"
                             disabled={pending}
-                            className="w-full bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white font-medium py-2 rounded-lg transition-all"
+                            className={submitButtonClassName}
+                            style={submitButtonStyle}
                         >
                             {pending ? (
                                 <span className="flex items-center gap-2">
-                  <CircularProgress
-                      aria-label="Checking credentials..."
-                      size="sm"
-                      color="secondary"
-                  />
-                  Checking...
-                </span>
+                                    <CircularProgress
+                                        aria-label="Checking credentials..."
+                                        size="sm"
+                                        color="secondary"
+                                    />
+                                    Checking...
+                                </span>
                             ) : (
                                 "Log In"
                             )}
                         </Button>
 
-                        {/* Footer */}
-                        <p className="text-xs text-center text-indigo-400 mt-2">
+                        <p className="text-xs text-indigo-400">
                             Don&apos;t have an account?{" "}
                             <Link
                                 href="/account/sign-up"

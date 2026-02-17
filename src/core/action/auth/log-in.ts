@@ -1,7 +1,7 @@
 "use server"
 
 import { cookies } from "next/headers"
-import { LogInFormState } from "@/core/model/form/form-definitions"
+import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
 import { redirect } from "next/navigation";
 
 export async function logIn(state: LogInFormState, formData: FormData) {
@@ -26,10 +26,19 @@ export async function logIn(state: LogInFormState, formData: FormData) {
         state.token = undefined
     }
 
-    const body = {
+    const validated = LogInFormSchema.safeParse({
         email: formData.get("email"),
-        password: formData.get("password")
+        password: formData.get("password"),
+    })
+
+    if (!validated.success) {
+        const fieldErrors = validated.error.flatten().fieldErrors
+        state.errors.email = fieldErrors.email ?? []
+        state.errors.password = fieldErrors.password ?? []
+        return state
     }
+
+    const body = validated.data
 
     try {
         const response = await fetch(`${process.env.SVC_USER}/auth/login`, {
@@ -48,7 +57,7 @@ export async function logIn(state: LogInFormState, formData: FormData) {
 
         } else {
             result = await response.json()
-            console.error(`Error when logging in with [Email: ${body.email}, Password: ${body.password}]: ${result.error}`)
+            console.error(`Error when logging in with [Email: ${body.email}]: ${result.error}`)
             switch (response.status) {
                 case 401:
                     state.errors.form.push('The provided username and password don\'t match!')
@@ -56,12 +65,13 @@ export async function logIn(state: LogInFormState, formData: FormData) {
                 default:
                     state.errors.form.push(`An error occurred on our end. Please try again later or reach out for support if this persists.`)
             }
+            return state
         }
     } catch (error: any) {
-        console.error(`Error when logging in with [Email: ${body.email}, Password: ${body.password}]: ${error.message}`)
+        console.error(`Error when logging in with [Email: ${body.email}]: ${error.message}`)
         state!.errors.form.push('An error occurred on our end. Please try again later or reach out for support if this persists.')
+        return state
     }
 
-    // return state
     redirect('/');
 }
