@@ -8,12 +8,13 @@ import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
 import Background from "@/app/background"
 import Link from "next/link"
+import Image from "next/image"
 import { StateUtil } from "@/core/util/state-util"
 import { Mail, Lock, User, Church, Eye, EyeOff } from "lucide-react"
 
 import { signup } from "@/core/action/auth/sign-up"
 import { SignUpFormState, SignUpFormSchema } from "@/core/model/form/form-definitions"
-import { inputClassNames, alertClassNames } from "@/core/model/form/form-styles"
+import { inputClassNames, alertClassNames, cardClassName, submitButtonClassName, submitButtonStyle } from "@/core/model/form/form-styles"
 import { useFormValidation } from "@/core/hook/useFormValidation"
 
 /**
@@ -90,61 +91,60 @@ export default function SignUp() {
         { name: "church", type: "text", label: "Home Church", icon: Church },
     ]
 
+    const renderField = ({ name, type, label, icon: Icon, isPassword, isRequired, description }: {
+        name: string; type: string; label: string;
+        icon: React.ComponentType<{ className?: string; size?: number }>;
+        isPassword?: boolean; isRequired?: boolean; description?: string;
+    }) => (
+        <Input
+            key={name}
+            classNames={inputClassNames}
+            type={isPassword && isVisible ? "text" : type}
+            label={label}
+            variant="bordered"
+            name={name}
+            value={formData[name as keyof typeof formData]}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            isRequired={isRequired}
+            description={description}
+            {...getFieldProps(name)}
+            startContent={
+                <Icon className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
+            }
+            endContent={
+                isPassword ? (
+                    <button
+                        className="focus:outline-none"
+                        type="button"
+                        onClick={toggleVisibility}
+                        aria-label="toggle password visibility"
+                    >
+                        {isVisible ? (
+                            <EyeOff className="text-indigo-300/50 pointer-events-none" size={20} />
+                        ) : (
+                            <Eye className="text-indigo-300/50 pointer-events-none" size={20} />
+                        )}
+                    </button>
+                ) : undefined
+            }
+        />
+    )
+
     return (
         <>
             <Background />
-            <main className="flex items-center justify-center min-h-screen px-4 pt-24 sm:pt-32">
+            <main className="flex items-center justify-center min-h-screen px-3 sm:px-4 py-12 sm:py-24">
                 {!state?.success ? (
-                    <div className="w-full max-w-lg bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white">
+                    <div className={`${cardClassName} max-w-md text-center`}>
                         <Form
                             action={action}
                             validationErrors={state?.errors}
-                            className="flex flex-col gap-4"
+                            className="auth-form flex flex-col space-y-4"
                         >
-                            {/* Title */}
-                            <div className="text-center mb-2">
-                                <h1 className="text-2xl font-semibold">Create an Account</h1>
-                                <p className="text-sm text-indigo-300 mt-1">
-                                    Start tracking your scripture progress
-                                </p>
-                            </div>
+                            <h1 className="text-2xl font-semibold text-indigo-300">Create Account</h1>
 
-                            {/* Input Fields */}
-                            {fields.map(({ name, type, label, icon: Icon, isPassword, isRequired, description }) => (
-                                <Input
-                                    key={name}
-                                    classNames={inputClassNames}
-                                    type={isPassword && isVisible ? "text" : type}
-                                    label={label}
-                                    variant="bordered"
-                                    name={name}
-                                    value={formData[name as keyof typeof formData]}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    isRequired={isRequired}
-                                    description={description}
-                                    {...getFieldProps(name)}
-                                    startContent={
-                                        <Icon className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
-                                    }
-                                    endContent={
-                                        isPassword ? (
-                                            <button
-                                                className="focus:outline-none"
-                                                type="button"
-                                                onClick={toggleVisibility}
-                                                aria-label="toggle password visibility"
-                                            >
-                                                {isVisible ? (
-                                                    <EyeOff className="text-indigo-300/50 pointer-events-none" size={20} />
-                                                ) : (
-                                                    <Eye className="text-indigo-300/50 pointer-events-none" size={20} />
-                                                )}
-                                            </button>
-                                        ) : undefined
-                                    }
-                                />
-                            ))}
+                            {fields.map(renderField)}
 
                             <input type="hidden" name="games" id="games" />
                             <input type="hidden" name="reviews" id="reviews" />
@@ -171,11 +171,11 @@ export default function SignUp() {
                                 />
                             )}
 
-                            {/* Submit Button */}
                             <Button
                                 type="submit"
                                 disabled={pending}
-                                className="w-full bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white font-medium py-2 rounded-lg transition-all mt-2"
+                                className={submitButtonClassName}
+                                style={submitButtonStyle}
                             >
                                 {pending ? (
                                     <span className="flex items-center gap-2">
@@ -191,8 +191,7 @@ export default function SignUp() {
                                 )}
                             </Button>
 
-                            {/* Or login */}
-                            <p className="text-xs text-center text-indigo-400 mt-2">
+                            <p className="text-xs text-indigo-400">
                                 Already have an account?{" "}
                                 <Link
                                     href="/account/log-in"
@@ -204,15 +203,52 @@ export default function SignUp() {
                         </Form>
                     </div>
                 ) : (
-                    <div className="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white space-y-5 text-center">
-                        <h1 className="text-2xl font-semibold">Account Created!</h1>
-                        <p className="text-sm text-indigo-300 mt-1">
+                    <div className={`${cardClassName} max-w-md text-center space-y-5`}>
+                        {/* Animated Checkmark */}
+                        <div className="flex justify-center">
+                            <svg
+                                className="w-20 h-20"
+                                viewBox="0 0 80 80"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <circle
+                                    cx="40"
+                                    cy="40"
+                                    r="36"
+                                    stroke="rgb(129 140 248)"
+                                    strokeWidth="3"
+                                    fill="none"
+                                    style={{
+                                        strokeDasharray: 226,
+                                        strokeDashoffset: 226,
+                                        animation: "circleIn 0.5s ease-out forwards",
+                                    }}
+                                />
+                                <path
+                                    d="M24 42 L35 53 L56 28"
+                                    stroke="rgb(129 140 248)"
+                                    strokeWidth="3.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    fill="none"
+                                    style={{
+                                        strokeDasharray: 50,
+                                        strokeDashoffset: 50,
+                                        animation: "checkIn 0.4s ease-out 0.4s forwards",
+                                    }}
+                                />
+                            </svg>
+                        </div>
+                        <h1 className="text-2xl font-semibold text-indigo-300">Account Created!</h1>
+                        <p className="text-sm text-indigo-300">
                             You can now log in with your new credentials.
                         </p>
                         <Button
                             as={Link}
                             href="/account/log-in"
-                            className="mt-4 p-4 w-full bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white py-2 rounded-lg font-medium transition-all"
+                            className={`${submitButtonClassName} p-4`}
+                            style={submitButtonStyle}
                         >
                             Log In
                         </Button>

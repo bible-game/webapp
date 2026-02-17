@@ -8,11 +8,12 @@ import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
 import Background from "@/app/background";
 import Link from "next/link"
+import Image from "next/image"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 
 import { logIn } from "@/core/action/auth/log-in"
 import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
-import { inputClassNames, alertClassNames } from "@/core/model/form/form-styles"
+import { inputClassNames, alertClassNames, cardClassName, submitButtonClassName, submitButtonStyle } from "@/core/model/form/form-styles"
 import { useFormValidation } from "@/core/hook/useFormValidation"
 
 /**
@@ -54,20 +55,14 @@ export default function LogIn() {
     return (
         <>
             <Background />
-            <main className="flex items-center justify-center min-h-screen px-4 pt-24 sm:pt-32">
-                <div className="w-full max-w-md bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 py-8 shadow-2xl text-white">
+            <main className="flex items-center justify-center min-h-screen px-3 sm:px-4 py-12 sm:py-24">
+                <div className={`${cardClassName} max-w-sm text-center`}>
                     <Form
                         action={action}
                         validationErrors={state?.errors}
-                        className="flex flex-col gap-5"
+                        className="auth-form flex flex-col space-y-4"
                     >
-                        {/* Title */}
-                        <div className="text-center mb-2">
-                            <h1 className="text-2xl font-semibold">Log In</h1>
-                            <p className="text-sm text-indigo-300 mt-1">
-                                Welcome back! Continue your scripture journey.
-                            </p>
-                        </div>
+                        <h1 className="text-2xl font-semibold text-indigo-300">Log In</h1>
 
                         {/* Email */}
                         <Input
@@ -111,6 +106,12 @@ export default function LogIn() {
                                 </button>
                             }
                         />
+                        <Link
+                            href="/account/forgot-password"
+                            className="text-xs text-indigo-400 hover:text-indigo-300 self-end -mt-2 transition-colors"
+                        >
+                            Forgot password?
+                        </Link>
 
                         {/* Form-level server error */}
                         {state?.errors?.form && state.errors.form.length > 0 && (
@@ -127,24 +128,24 @@ export default function LogIn() {
                         <Button
                             type="submit"
                             disabled={pending}
-                            className="w-full bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white font-medium py-2 rounded-lg transition-all"
+                            className={submitButtonClassName}
+                            style={submitButtonStyle}
                         >
                             {pending ? (
                                 <span className="flex items-center gap-2">
-                  <CircularProgress
-                      aria-label="Checking credentials..."
-                      size="sm"
-                      color="secondary"
-                  />
-                  Checking...
-                </span>
+                                    <CircularProgress
+                                        aria-label="Checking credentials..."
+                                        size="sm"
+                                        color="secondary"
+                                    />
+                                    Checking...
+                                </span>
                             ) : (
                                 "Log In"
                             )}
                         </Button>
 
-                        {/* Footer */}
-                        <p className="text-xs text-center text-indigo-400 mt-2">
+                        <p className="text-xs text-indigo-400">
                             Don&apos;t have an account?{" "}
                             <Link
                                 href="/account/sign-up"

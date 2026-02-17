@@ -1,7 +1,7 @@
 export const inputClassNames = {
-    base: "text-white",
-    label: "!text-indigo-300",
-    input: "text-white placeholder:text-indigo-300",
+    base: "text-indigo-300",
+    label: "",
+    input: "!text-indigo-300 placeholder:text-indigo-400/50",
     inputWrapper:
         "bg-white/10 data-[hover=true]:bg-white/15 " +
         "group-data-[focus=true]:bg-white/20 border border-white/20 " +
@@ -20,12 +20,15 @@ export const alertClassNames = {
 
 export const cardClassName =
     "w-full bg-white/5 border border-white/10 backdrop-blur-xl " +
-    "rounded-2xl px-6 py-8 shadow-2xl text-white " +
+    "rounded-2xl px-5 py-6 sm:px-6 sm:py-8 shadow-2xl text-indigo-300 " +
     "shadow-[0_0_60px_-15px_rgba(99,102,241,0.3)]"
 
 export const submitButtonClassName =
-    "w-full bg-gradient-to-r from-indigo-500 to-indigo-700 " +
-    "hover:from-indigo-600 hover:to-indigo-800 " +
-    "text-white font-medium py-2 rounded-lg transition-all " +
+    "w-full " +
+    "!text-white font-medium py-2 rounded-lg transition-all " +
     "hover:shadow-[0_0_24px_-4px_rgba(99,102,241,0.5)] " +
     "hover:scale-[1.01] active:scale-[0.99]"
+
+export const submitButtonStyle = {
+    background: "linear-gradient(to right, #6366f1, #4338ca)",
+}
