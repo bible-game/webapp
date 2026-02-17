@@ -12,7 +12,9 @@ import { StateUtil } from "@/core/util/state-util"
 import { Mail, Lock, User, Church, Eye, EyeOff } from "lucide-react"
 
 import { signup } from "@/core/action/auth/sign-up"
-import { SignUpFormState } from "@/core/model/form/form-definitions"
+import { SignUpFormState, SignUpFormSchema } from "@/core/model/form/form-definitions"
+import { inputClassNames, alertClassNames } from "@/core/model/form/form-styles"
+import { useFormValidation } from "@/core/hook/useFormValidation"
 
 /**
  * Sign-Up Page
@@ -32,13 +34,32 @@ export default function SignUp() {
         church: "",
     })
 
+    const { validateField, clearFieldError, getFieldProps, clearAllErrors } = useFormValidation(SignUpFormSchema)
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        })
+        const { name, value } = e.target
+        setFormData(prev => ({ ...prev, [name]: value }))
+        clearFieldError(name)
+
+        // Re-validate confirmPassword when password changes and confirmPassword has a value
+        if (name === "password" && formData.confirmPassword) {
+            validateField("confirmPassword", formData.confirmPassword, { ...formData, password: value })
+        }
     }
 
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        if (value) {
+            validateField(name, value, formData)
+        }
+    }
+
+    // Clear client errors when server state changes
+    useEffect(() => {
+        if (state) {
+            clearAllErrors()
+        }
+    }, [state, clearAllErrors])
 
     useEffect(() => {
         const games = Array.from(StateUtil.getAllGames().values())
@@ -60,30 +81,12 @@ export default function SignUp() {
         }
     }, [])
 
-    const inputClassNames = {
-        base: "text-white", // wrapper span
-        label: "!text-indigo-300",
-        input: "text-white placeholder:text-indigo-300",
-        inputWrapper:
-            "bg-white/10 data-[hover=true]:bg-white/15 " +
-            "group-data-[focus=true]:bg-white/20 border border-white/20 " +
-            "group-data-[focus=true]:border-indigo-500 " +
-            "rounded-lg transition-colors",
-        helperWrapper: "pt-1",
-        errorMessage: "text-red-400 text-xs",
-    }
-
-    const alertClassNames = {
-        base: "border-red-400/40 bg-red-500/10 text-red-300 rounded-lg px-3 py-2",
-        content: "text-sm",
-    }
-
     const fields = [
-        { name: "email", type: "email", label: "Email", icon: Mail },
-        { name: "password", type: "password", label: "Password", icon: Lock, isPassword: true },
-        { name: "confirmPassword", type: "password", label: "Confirm Password", icon: Lock, isPassword: true },
-        { name: "firstname", type: "text", label: "First Name", icon: User },
-        { name: "lastname", type: "text", label: "Last Name", icon: User },
+        { name: "email", type: "email", label: "Email", icon: Mail, isRequired: true },
+        { name: "password", type: "password", label: "Password", icon: Lock, isPassword: true, isRequired: true, description: "At least 8 characters" },
+        { name: "confirmPassword", type: "password", label: "Confirm Password", icon: Lock, isPassword: true, isRequired: true },
+        { name: "firstname", type: "text", label: "First Name", icon: User, isRequired: true },
+        { name: "lastname", type: "text", label: "Last Name", icon: User, isRequired: true },
         { name: "church", type: "text", label: "Home Church", icon: Church },
     ]
 
@@ -107,7 +110,7 @@ export default function SignUp() {
                             </div>
 
                             {/* Input Fields */}
-                            {fields.map(({ name, type, label, icon: Icon, isPassword }) => (
+                            {fields.map(({ name, type, label, icon: Icon, isPassword, isRequired, description }) => (
                                 <Input
                                     key={name}
                                     classNames={inputClassNames}
@@ -117,6 +120,10 @@ export default function SignUp() {
                                     name={name}
                                     value={formData[name as keyof typeof formData]}
                                     onChange={handleChange}
+                                    onBlur={handleBlur}
+                                    isRequired={isRequired}
+                                    description={description}
+                                    {...getFieldProps(name)}
                                     startContent={
                                         <Icon className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
                                     }
