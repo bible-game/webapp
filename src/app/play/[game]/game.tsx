@@ -20,6 +20,7 @@ import { GameState } from "@/core/model/state/game-state";
 import { toast } from "react-hot-toast";
 import { Button } from "@heroui/button";
 import Link from "next/link";
+import {UuidUtil} from "@/core/util/uuid-util";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -233,6 +234,25 @@ export default function Game(props: any) {
             lastModified: new Date()
         }
         StateUtil.setGame(state);
+
+        if (won || limitReached) {
+            const uuid = UuidUtil.getOrCreate();
+            fetch(`${process.env.SVC_METRICS}/track/completion`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    uuid,
+                    passageId: passage.id,
+                    stars: starResult,
+                    guesses: updatedGuesses.length,
+                    won
+                }),
+            }).catch(error => {
+                console.error(error);
+            });
+        }
     }
 
     // fixme :: behaviour not correct
@@ -301,4 +321,3 @@ export default function Game(props: any) {
         );
     }
 }
-
