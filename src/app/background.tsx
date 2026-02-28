@@ -1,7 +1,7 @@
 import React from "react";
 
 const Background = () => {
-    return <section>
+    return <section className="pointer-events-none">
         <div aria-hidden="true"
              className="fixed hidden dark:md:block dark:opacity-100 -bottom-[20%] -left-[10%]">
             <img

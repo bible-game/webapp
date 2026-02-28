@@ -9,7 +9,7 @@ export default function About() {
 
     const handleCopyEmail = async () => {
         try {
-            await navigator.clipboard.writeText("dev@jrsmth.io");
+            await navigator.clipboard.writeText("hello@bible.game");
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
@@ -54,7 +54,7 @@ export default function About() {
                             className="my-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-medium hover:bg-white/20 transition-colors flex items-center gap-2 relative"
                         >
                             <Mail size={16} />
-                            dev@jrsmth.io
+                            hello@bible.game
                             {copied && (
                                 <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-green-300">
                   Copied!

@@ -11,6 +11,7 @@ import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
 import Treemap from "@/app/play/[game]/map/treemap";
 import moment from "moment/moment";
+import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
 import * as Hammer from 'hammerjs';
 import { Spinner } from "@heroui/react";
@@ -30,13 +31,6 @@ export default function Game(props: any) {
     if (props.game == 'today') {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
-
-    // TODO :: Stanley
-    // getConsentState() => return null;
-    // const consent = GameStatesService.getConsentState();
-    // if (!consent) {
-    //     modal.open()
-    // }
 
     const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
     const passage = data as Passage;
@@ -67,7 +61,7 @@ export default function Game(props: any) {
 
     // FixMe :: double-render, just a dev issue like the treemap?
     useEffect(() => {
-        if (!props.state) {
+        if (!props.state && StateUtil.getConsent()) {
             toast.custom((t) => (
                 <div
                     className={`${
@@ -110,20 +104,20 @@ export default function Game(props: any) {
 
         if (typeof window !== "undefined") {
             (window as any).Hammer = Hammer.default;
-            //// global.d.ts
-            // import type * as HammerType from 'hammerjs';
-            //
-            // declare global {
-            //   interface Window {
-            //     Hammer: typeof HammerType;
-            //   }
-            // }
-            /**
-             * You can tell TypeScript about window.Hammer by augmenting the global Window type. Create a global.d.ts file in your project root (or anywhere under /types, as long as it's included in your tsconfig.json), and add this:
-             */
 
             if (passage) loadState();
         }
+    }, [passage]);
+
+    // Re-sync state from localStorage when returning to the page (bfcache / tab switch)
+    useEffect(() => {
+        function handleVisibilityChange() {
+            if (document.visibilityState === 'visible' && passage) {
+                loadState();
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [passage]);
 
     function loadState() {
@@ -141,6 +135,10 @@ export default function Game(props: any) {
 
     function selectBook(item: string, disabled?: boolean): void {
         if (disabled) return;
+        if (!item) {
+            clearSelection();
+            return;
+        }
 
         selected.book = item;
 
@@ -243,6 +241,13 @@ export default function Game(props: any) {
         selected.division = '';
         selected.book = '';
         selected.chapter = '';
+        setBook('');
+        setChapter('');
+        setHasBook(false);
+        setChapters([]);
+        setMaxChapter(0);
+        setBooks(allBooks);
+        setDivisions(allDivisions);
     }
 
     function isExistingGuess() {
@@ -278,6 +283,7 @@ export default function Game(props: any) {
 
         return (
             <>
+                <PopUp />
                 <Summary passage={passage} playing={playing}/>
                 <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}

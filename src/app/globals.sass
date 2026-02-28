@@ -2,7 +2,19 @@
 @tailwind components
 @tailwind utilities
 
+@keyframes circleIn
+  to
+    stroke-dashoffset: 0
+
+@keyframes checkIn
+  to
+    stroke-dashoffset: 0
+
 @import '@/styles/base.sass'
+
+// Override HeroUI input label colors on auth forms
+.auth-form [data-slot="label"]
+  color: rgb(165, 180, 252) !important
 
 *
   font-family: Inter, serif

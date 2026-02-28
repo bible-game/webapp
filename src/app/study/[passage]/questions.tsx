@@ -29,10 +29,13 @@ export default function Questions(props: QuestionsProps & any) {
 
   const [summary, setSummary] = useState('');
   const [gradingResult, setGradingResult] = useState<{ score: number; message: string } | null>(null);
+  const [isGrading, setIsGrading] = useState(false);
 
   const debouncedGradeSummary = useDebouncedCallback((text: string) => {
+    setIsGrading(true);
     gradeSummary(props.passage, text).then((response) => {
       setGradingResult(response);
+      setIsGrading(false);
     });
   }, 800);
 
@@ -124,8 +127,10 @@ export default function Questions(props: QuestionsProps & any) {
     return cls + ' text-slate-600 opacity-70';
   };
 
+    const allQuestionsAnswered = selectedAnswers.filter(a => a).length === questions.length;
+
   return (
-      <div className="w-full max-w-3xl mx-auto">
+      <div className="w-full max-w-3xl mx-auto pb-24">
         {loading ? (
             <div className="flex justify-center items-center h-64">
               <Spinner color="primary" />
@@ -183,9 +188,12 @@ export default function Questions(props: QuestionsProps & any) {
 
               {/* Summary */}
               <div className="rounded-2xl bg-white/90 ring-1 ring-slate-200 p-4 sm:p-5">
-                <p className="font-medium text-[15px] text-slate-900">
-                  Summarise the passage in your own words
-                </p>
+                <div className="flex justify-between items-center">
+                    <p className="font-medium text-[15px] text-slate-900">
+                      Summarise the passage in your own words
+                    </p>
+                    {isGrading && <Spinner color="primary" size="sm" />}
+                </div>
                 <TextareaAutosize
                     value={summary}
                     onChange={handleSummaryChange}
@@ -196,18 +204,20 @@ export default function Questions(props: QuestionsProps & any) {
                 />
                 {gradingResult && (
                     <div className={`mt-3 p-3 rounded-xl text-sm text-slate-700 ${getScoreTint(gradingResult.score)}`}>
-                      {gradingResult.message}
+                        <span className="font-semibold">Score: {gradingResult.score}/100</span> - {gradingResult.message}
                     </div>
                 )}
               </div>
-              {!stars && (
-                  <Button
-                      onPress={handleSubmit}
-                      className="rounded-xl mt-4 bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white shadow hover:brightness-110"
-                      disabled={submitted}>
-                    Submit
-                  </Button>
-              )}
+                <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-slate-200 p-4">
+                    <div className="max-w-3xl mx-auto flex justify-end">
+                        <Button
+                            onPress={handleSubmit}
+                            className="rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white shadow hover:brightness-110"
+                            disabled={submitted || !allQuestionsAnswered}>
+                            {submitted ? 'Completed' : 'Submit'}
+                        </Button>
+                    </div>
+                </div>
             </>
         )}
       </div>
