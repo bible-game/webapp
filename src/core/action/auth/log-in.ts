@@ -39,7 +39,6 @@ export async function logIn(state: LogInFormState, formData: FormData) {
     }
 
     const body = validated.data
-
     try {
         const response = await fetch(`${process.env.SVC_USER}/auth/login`, {
             method: "POST",

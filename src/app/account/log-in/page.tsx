@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useActionState, useEffect, useState } from "react"
+import React, { useActionState, Suspense, useEffect, useState } from "react"
 import { Form } from "@heroui/form"
 import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
@@ -8,7 +8,6 @@ import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
 import Background from "@/app/background";
 import Link from "next/link"
-import Image from "next/image"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 
 import { logIn } from "@/core/action/auth/log-in"
@@ -51,6 +50,11 @@ export default function LogIn() {
             clearAllErrors()
         }
     }, [state, clearAllErrors])
+
+    const successAlertClassNames = {
+        base: "border-green-400/40 bg-green-500/10 text-green-300 rounded-lg px-3 py-2",
+        content: "text-sm",
+    }
 
     return (
         <>
@@ -108,21 +112,21 @@ export default function LogIn() {
                         />
                         <Link
                             href="/account/forgot-password"
-                            className="text-xs text-indigo-400 hover:text-indigo-300 self-end -mt-2 transition-colors"
+                            className="text-xs text-indigo-400 hover:text-indigo-300 -mt-2 transition-colors"
                         >
                             Forgot password?
                         </Link>
 
-                        {/* Form-level server error */}
-                        {state?.errors?.form && state.errors.form.length > 0 && (
-                            <Alert
-                                hideIcon
-                                variant="bordered"
-                                color="danger"
-                                description={state.errors.form[0]}
-                                classNames={alertClassNames}
-                            />
-                        )}
+                {/* Form-level server error */}
+                {state?.errors?.form && state.errors.form.length > 0 && (
+                    <Alert
+                        hideIcon
+                        variant="bordered"
+                        color="danger"
+                        description={state.errors.form[0]}
+                        classNames={alertClassNames}
+                    />
+                )}
 
                         {/* Submit */}
                         <Button
@@ -145,7 +149,7 @@ export default function LogIn() {
                             )}
                         </Button>
 
-                        <p className="text-xs text-indigo-400">
+                        <p className="text-xs text-center text-indigo-400 mt-2">
                             Don&apos;t have an account?{" "}
                             <Link
                                 href="/account/sign-up"
