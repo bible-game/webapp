@@ -8,9 +8,6 @@ const nextConfig = {
         SVC_USER: process.env.NEXT_PUBLIC_SVC_USER,
         SIGNING_SECRET: process.env.NEXT_PUBLIC_SIGNING_SECRET
     },
-    experimental: {
-        externalDir: true,
-    },
     sassOptions: {
         includePaths: [path.join(__dirname, 'styles')],
     },
