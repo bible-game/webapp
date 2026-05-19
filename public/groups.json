@@ -17,17 +17,17 @@
     { "name": "Day of Atonement", "start": 16, "end": 16 },
     { "name": "Holiness Code", "start": 17, "end": 27 }
   ],
-  "deuteronomy": [
-    { "name": "Historical Review", "start": 1, "end": 4 },
-    { "name": "Covenant Laws", "start": 5, "end": 26 },
-    { "name": "Blessings & Curses", "start": 27, "end": 30 },
-    { "name": "Moses’ Final Acts", "start": 31, "end": 34 }
-  ],
   "numbers": [
     { "name": "Preparation at Sinai", "start": 1, "end": 10 },
     { "name": "Rebellion & Wandering", "start": 11, "end": 20 },
     { "name": "Toward the Promised Land", "start": 21, "end": 25 },
     { "name": "Preparations & Inheritance", "start": 26, "end": 36 }
+  ],
+  "deuteronomy": [
+    { "name": "Historical Review", "start": 1, "end": 4 },
+    { "name": "Covenant Laws", "start": 5, "end": 26 },
+    { "name": "Blessings & Curses", "start": 27, "end": 30 },
+    { "name": "Moses’ Final Acts", "start": 31, "end": 34 }
   ],
   "joshua": [
     { "name": "Entry & Conquest", "start": 1, "end": 12 },

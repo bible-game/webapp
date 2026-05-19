@@ -40,12 +40,15 @@ export class StateUtil {
         const allGames = this.getAllGames();
 
         const thisGame = this.getGame(state.passageId);
+        const createdDate = thisGame.createdDate ?? state.createdDate ?? new Date();
         thisGame.stars = state.stars;
         thisGame.playing = state.playing;
         thisGame.guesses = state.guesses;
         thisGame.passageId = state.passageId;
         thisGame.passageBook = state.passageBook;
         thisGame.passageChapter = state.passageChapter;
+        thisGame.createdDate = createdDate;
+        thisGame.lastModified = state.lastModified ?? new Date();
         allGames.set(state.passageId, thisGame);
 
         StorageUtil.save('games', Array.from(allGames.entries()));

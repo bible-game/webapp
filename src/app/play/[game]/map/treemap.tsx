@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from "react-hot-toast";
-import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON, type HierarchyFilter } from "@project-skymap/library";
+import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON, type HierarchyFilter, type HorizonThemeConfig } from "@project-skymap/library";
 import bible from "../../../../../public/bible.json";
 import labelColors from "../../../../../public/colours.json";
 
@@ -35,6 +35,7 @@ const Treemap = (props: any) => {
     const [constellationConfig, setConstellationConfig] = useState<any>(null);
     const [arrangement, setArrangement] = useState<StarArrangement | null>(null);
     const [groupsConfig, setGroupsConfig] = useState<any>(null);
+    const [horizonPresetData, setHorizonPresetData] = useState<any>(null);
     const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
     const [currentFov, setCurrentFov] = useState(50);
     const [hierarchyFilter, setHierarchyFilter] = useState<HierarchyFilter | null>(null);
@@ -57,6 +58,11 @@ const Treemap = (props: any) => {
           .then(res => res.json())
           .then(data => setGroupsConfig(data))
           .catch(err => console.error("Failed to load groups:", err));
+
+        fetch("/horizons/biblical-presets.v1.json")
+          .then(res => res.json())
+          .then(data => setHorizonPresetData(data))
+          .catch(err => console.error("Failed to load horizons:", err));
     }, []);
 
     // Enable Order Reveal by default
@@ -82,15 +88,9 @@ const Treemap = (props: any) => {
 
     // Fly to node on external trigger (e.g., guess submission)
     useEffect(() => {
-        console.log("useEffect [flyToNodeId] triggered.");
-        console.log("props.flyToNodeId:", props.flyToNodeId);
         if (props.flyToNodeId) {
-            console.log("mapRef.current:", mapRef.current);
             if (mapRef.current) {
                 mapRef.current.flyTo(props.flyToNodeId, 10);
-                console.log(`Called flyTo(${props.flyToNodeId}, 10)`);
-            } else {
-                console.warn("mapRef.current is null or undefined when trying to flyTo.");
             }
         }
     }, [props.flyToNodeId, mapRef.current]);
@@ -105,6 +105,13 @@ const Treemap = (props: any) => {
                 d.books.forEach(b => getBookColor(b.key))
             )
         );
+
+        const selectedHorizonTheme = useMemo(() => {
+            if (!horizonPresetData) return undefined;
+            const themes = (horizonPresetData.themes ?? []) as HorizonThemeConfig[];
+            const defaultId = (horizonPresetData.defaultThemeId ?? "") as string;
+            return themes.find(t => t.id === defaultId) || themes[0];
+        }, [horizonPresetData]);
     
         const config = useMemo<StarMapConfig>(() => {
         if (!arrangement || !groupsConfig || !constellationConfig) {
@@ -137,11 +144,9 @@ const Treemap = (props: any) => {
 
         const currentFocusNodeId = selectedNodeId || initialFocusNodeId;
 
-        console.log("StarMap Config update. BookFound:", !!props.bookFound, "FocusID:", currentFocusNodeId);
-
         return {
             background: "#05060a",
-            camera: { fov: 80, z: 120, lon: 275 * Math.PI / 180 },
+            camera: { lon: 275 * Math.PI / 180, lat: 20 * Math.PI / 180 },
             data: bible,
             adapter: bibleToSceneModel,
             arrangement: arrangement,
@@ -152,12 +157,32 @@ const Treemap = (props: any) => {
             showDivisionLabels: false,
             showChapterLabels: true,
             showGroupLabels: true,
+            labelBehavior: {
+                overlapPaddingPx: 2,
+                reappearDelayMs: 60,
+                classes: {
+                    chapter: { maxFov: 22, maxOverlapPx: 12 },
+                    group: { maxFov: 22, maxOverlapPx: 12 }
+                }
+            },
             showConstellationLines: false,
             showDivisionBoundaries: false,
             showConstellationArt: true,
-            showBackdropStars: true,
-            backdropStarsCount: 31000,
+            constellationBaseOpacity: 40,
+            showBackdropStars: false,
+            backdropStarsCount: 5000,
+            backdropWideFovGain: 0,
+            backdropSizeExponent: 0.2,
+            backdropEnergy: 0.2,
+            starSizeExponent: 4.0,
+            starSizeScale: 6.0,
+            starSizeWeightPercentile: 1.0,
+            starZoomReveal: false,
             showAtmosphere: false,
+            showMoon: false,
+            showSunrise: false,
+            showMilkyWay: false,
+            horizonTheme: selectedHorizonTheme,
             projection: "blended",
             fitProjection: true,
 
@@ -182,7 +207,7 @@ const Treemap = (props: any) => {
                 animate: true
             }
         };
-    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig]);
+    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig, selectedHorizonTheme]);
 
     const handleSelect = (node: SceneNode) => {
         setSelectedNodeId(node.id);
@@ -237,6 +262,58 @@ const Treemap = (props: any) => {
                 onFovChange={setCurrentFov}
                 onLongPress={handleLongPress}
             />
+
+            {/* Long-press info popup */}
+            {longPressInfo && (
+                <div
+                    className="long-press-popup"
+                    style={{
+                        position: 'fixed',
+                        left: Math.min(longPressInfo.x, typeof window !== 'undefined' ? window.innerWidth - 220 : 0),
+                        top: Math.max(longPressInfo.y - 120, 10),
+                        background: 'rgba(10, 15, 25, 0.95)',
+                        border: '1px solid #4fa',
+                        borderRadius: 8,
+                        padding: 12,
+                        minWidth: 200,
+                        maxWidth: 280,
+                        zIndex: 200,
+                        color: '#fff',
+                        fontSize: 13,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                    }}
+                    onClick={() => setLongPressInfo(null)}
+                >
+                    {longPressInfo.node ? (
+                        <>
+                            <div style={{ fontWeight: 'bold', marginBottom: 6, color: '#4fa' }}>
+                                {longPressInfo.node.label}
+                            </div>
+                            {longPressInfo.node.meta && (
+                                <div style={{ fontSize: 11, color: '#aaa', lineHeight: 1.5 }}>
+                                    {(longPressInfo.node.meta as any).testament && (
+                                        <div>Testament: {(longPressInfo.node.meta as any).testament}</div>
+                                    )}
+                                    {(longPressInfo.node.meta as any).division && (
+                                        <div>Division: {(longPressInfo.node.meta as any).division}</div>
+                                    )}
+                                    {(longPressInfo.node.meta as any).book && (
+                                        <div>Book: {(longPressInfo.node.meta as any).book}</div>
+                                    )}
+                                    {(longPressInfo.node.meta as any).chapter && (
+                                        <div>Chapter: {(longPressInfo.node.meta as any).chapter}</div>
+                                    )}
+                                </div>
+                            )}
+                            <div style={{ fontSize: 10, color: '#666', marginTop: 8 }}>
+                                Tap to dismiss
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{ color: '#888' }}>No star selected</div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

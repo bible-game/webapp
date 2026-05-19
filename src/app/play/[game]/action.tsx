@@ -7,7 +7,6 @@ import { toast } from "react-hot-toast";
 import { guess } from "@/core/action/play/guess";
 import { redirect } from "next/navigation";
 import moment from "moment";
-import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
 import React, { useEffect, useRef, useState } from "react";
 import { Star } from "@/app/play/[game]/star";
@@ -83,7 +82,7 @@ const Action = (props: any) => {
         })
 
         return `bible.game
-${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
+${moment(props.date, 'YYYY-MM-DD').format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
