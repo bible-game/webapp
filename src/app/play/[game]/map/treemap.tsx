@@ -2,40 +2,38 @@
 
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from "react-hot-toast";
-import { StarMap, bibleToSceneModel, type StarMapConfig, type SceneNode, type StarArrangement, type StarMapHandle, type BibleJSON, type HierarchyFilter, type HorizonThemeConfig } from "@project-skymap/library";
-import bible from "../../../../../public/bible.json";
+import {
+    StarMap,
+    type ConstellationConfig,
+    type HierarchyFilter,
+    type HorizonThemeConfig,
+    type SceneNode,
+    type StarArrangement,
+    type StarMapConfig,
+    type StarMapHandle,
+} from "@project-skymap/library";
 import labelColors from "../../../../../public/colours.json";
+import {
+    buildModelFromArrangement,
+    buildTriangulatedConstellations,
+    getDefaultHorizonTheme,
+    optimizeArrangementForVisibility,
+} from "./skymap-config";
 
-const BOOK_COLORS: Record<string, string> = {};
-
-// Simple hash-based color generator for books
-function getBookColor(bookKey: string) {
-    if (BOOK_COLORS[bookKey]) return BOOK_COLORS[bookKey];
-
-    let hash = 0;
-    for (let i = 0; i < bookKey.length; i++) {
-        hash = bookKey.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    const h = Math.abs(hash % 360);
-    const s = 60 + (Math.abs(hash >> 8) % 30); // 60-90% saturation
-    const l = 60 + (Math.abs(hash >> 16) % 20); // 60-80% lightness
-
-    const color = `hsl(${h}, ${s}%, ${l}%)`;
-    BOOK_COLORS[bookKey] = color;
-    return color;
-}
-
+type FocusConfig = {
+    focus?: {
+        nodeId?: string | null;
+        animate?: boolean;
+    };
+};
 
 /**
- * StarMap Component for displaying the Bible (replacing FoamTree)
+ * StarMap Component for displaying the Bible
  * @since 1st June 2025
  */
 const Treemap = (props: any) => {
-    const [constellationConfig, setConstellationConfig] = useState<any>(null);
+    const [constellationConfig, setConstellationConfig] = useState<ConstellationConfig | null>(null);
     const [arrangement, setArrangement] = useState<StarArrangement | null>(null);
-    const [groupsConfig, setGroupsConfig] = useState<any>(null);
-    const [horizonPresetData, setHorizonPresetData] = useState<any>(null);
     const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
     const [currentFov, setCurrentFov] = useState(50);
     const [hierarchyFilter, setHierarchyFilter] = useState<HierarchyFilter | null>(null);
@@ -45,96 +43,80 @@ const Treemap = (props: any) => {
 
     useEffect(() => {
         fetch("/constellations.json")
-          .then(res => res.json())
-          .then(data => setConstellationConfig(data))
-          .catch(err => console.error("Failed to load constellations:", err));
-        
-        fetch("/arrangement.json")
-          .then(res => res.json())
-          .then(data => setArrangement(data))
-          .catch(err => console.error("Failed to load arrangement:", err));
-        
-        fetch("/groups.json")
-          .then(res => res.json())
-          .then(data => setGroupsConfig(data))
-          .catch(err => console.error("Failed to load groups:", err));
+            .then((res) => res.json())
+            .then((data) => setConstellationConfig(data))
+            .catch((err) => console.error("Failed to load constellations:", err));
 
-        fetch("/horizons/biblical-presets.v1.json")
-          .then(res => res.json())
-          .then(data => setHorizonPresetData(data))
-          .catch(err => console.error("Failed to load horizons:", err));
+        fetch("/arrangement.json")
+            .then((res) => res.json())
+            .then((data) => setArrangement(data))
+            .catch((err) => console.error("Failed to load arrangement:", err));
     }, []);
 
-    // Enable Order Reveal by default
     useEffect(() => {
-        if (mapRef.current?.setOrderRevealEnabled) {
-             mapRef.current.setOrderRevealEnabled(true);
-        }
-        }, [mapRef.current]);
+        mapRef.current?.setOrderRevealEnabled?.(true);
+    }, []);
 
-    // Sync Hierarchy Filter
     useEffect(() => {
         mapRef.current?.setHierarchyFilter?.(hierarchyFilter);
     }, [hierarchyFilter]);
 
-    // Update internal hierarchyFilter state when parent prop changes
     useEffect(() => {
         if (props.activeHierarchyFilter) {
             setHierarchyFilter(props.activeHierarchyFilter);
-        } else {
-            setHierarchyFilter(null); // Clear filter if prop is undefined/null
+            return;
         }
+        setHierarchyFilter(null);
     }, [props.activeHierarchyFilter]);
 
-    // Fly to node on external trigger (e.g., guess submission)
     useEffect(() => {
         if (props.flyToNodeId) {
-            if (mapRef.current) {
-                mapRef.current.flyTo(props.flyToNodeId, 10);
-            }
+            mapRef.current?.flyTo(props.flyToNodeId, 10);
         }
-    }, [props.flyToNodeId, mapRef.current]);
+    }, [props.flyToNodeId]);
 
     const handleLongPress = useCallback((node: SceneNode | null, x: number, y: number) => {
         setLongPressInfo({ node, x, y });
     }, []);
-    
-        // Pre-generate all book colors (moved inside component)
-        bible.testaments.forEach(t =>
-            t.divisions.forEach(d =>
-                d.books.forEach(b => getBookColor(b.key))
-            )
-        );
 
-        const selectedHorizonTheme = useMemo(() => {
-            if (!horizonPresetData) return undefined;
-            const themes = (horizonPresetData.themes ?? []) as HorizonThemeConfig[];
-            const defaultId = (horizonPresetData.defaultThemeId ?? "") as string;
-            return themes.find(t => t.id === defaultId) || themes[0];
-        }, [horizonPresetData]);
-    
-        const config = useMemo<StarMapConfig>(() => {
-        if (!arrangement || !groupsConfig || !constellationConfig) {
-            return {} as StarMapConfig; // Return an empty config or loading state if data is not ready
+    const selectedHorizonTheme = useMemo<HorizonThemeConfig | undefined>(() => getDefaultHorizonTheme(), []);
+    const displayArrangement = useMemo(
+        () => (arrangement ? optimizeArrangementForVisibility(arrangement, selectedHorizonTheme) : null),
+        [arrangement, selectedHorizonTheme],
+    );
+    const model = useMemo(
+        () => (displayArrangement ? buildModelFromArrangement(displayArrangement) : null),
+        [displayArrangement],
+    );
+    const previewConstellationConfig = useMemo(
+        () => (
+            displayArrangement
+                ? buildTriangulatedConstellations(displayArrangement, constellationConfig)
+                : constellationConfig
+        ),
+        [constellationConfig, displayArrangement],
+    );
+
+    const config = useMemo<(StarMapConfig & FocusConfig) | null>(() => {
+        if (!displayArrangement || !model || !previewConstellationConfig) {
+            return null;
         }
 
         let initialFocusNodeId: string | undefined;
 
-        // The findBookKey logic can be simplified if we rely on bible and StarMap's internal hierarchy
-        // For now, keeping it similar to how it was to maintain existing focus logic
-        const findBookKey = (bookName: string, data: any[]) => {
-            for (const t of data) {
-                for (const d of t.divisions) {
-                    for (const b of d.books) {
-                        if (b.name === bookName) return b.key;
+        const findBookKey = (bookName: string, testaments: any[]) => {
+            for (const testament of testaments) {
+                for (const division of testament.divisions) {
+                    for (const book of division.books) {
+                        if (book.name === bookName) return book.key;
                     }
-                    }
+                }
             }
             return null;
         };
 
         if (props.bookFound) {
-            const key = findBookKey(props.passage.book, bible.testaments); // Use imported bible here
+            const key = findBookKey(props.passage.book, props.data);
             if (key) initialFocusNodeId = `B:${key}`;
         } else if (props.divFound) {
             initialFocusNodeId = `D:${props.passage.testament}:${props.passage.division}`;
@@ -147,37 +129,27 @@ const Treemap = (props: any) => {
         return {
             background: "#05060a",
             camera: { lon: 275 * Math.PI / 180, lat: 20 * Math.PI / 180 },
-            data: bible,
-            adapter: bibleToSceneModel,
-            arrangement: arrangement,
-            groups: groupsConfig as any,
+            model,
+            arrangement: displayArrangement,
             labelColors: labelColors as Record<string, string>,
-            constellations: constellationConfig,
-            showBookLabels: true,
+            constellations: previewConstellationConfig,
+            showBookLabels: false,
             showDivisionLabels: false,
             showChapterLabels: true,
-            showGroupLabels: true,
+            showGroupLabels: false,
             labelBehavior: {
                 overlapPaddingPx: 2,
                 reappearDelayMs: 60,
                 classes: {
                     chapter: { maxFov: 22, maxOverlapPx: 12 },
-                    group: { maxFov: 22, maxOverlapPx: 12 }
-                }
+                },
             },
-            showConstellationLines: false,
+            showConstellationLines: true,
+            constellationLineMode: "focused",
             showDivisionBoundaries: false,
             showConstellationArt: true,
             constellationBaseOpacity: 40,
             showBackdropStars: false,
-            backdropStarsCount: 5000,
-            backdropWideFovGain: 0,
-            backdropSizeExponent: 0.2,
-            backdropEnergy: 0.2,
-            starSizeExponent: 4.0,
-            starSizeScale: 6.0,
-            starSizeWeightPercentile: 1.0,
-            starZoomReveal: false,
             showAtmosphere: false,
             showMoon: false,
             showSunrise: false,
@@ -185,34 +157,32 @@ const Treemap = (props: any) => {
             horizonTheme: selectedHorizonTheme,
             projection: "blended",
             fitProjection: true,
-
-            visuals: {
-                colorBy: [
-                    // Per-book colors (level 3)
-                    ...Object.entries(BOOK_COLORS).map(([key, color]) => ({
-                        when: { bookKey: key, level: 3 },
-                        value: color
-                    })),
-                    { when: { level: 0 }, value: "#38bdf8" },
-                    { when: { level: 1 }, value: "#a3e635" },
-                    { when: { level: 2 }, value: "#ffffff" },
-                ],
-                sizeBy: [
-                    { when: { level: 3 }, field: "weight", scale: [2.0, 5.0] }
-                ]
-            },
-            layout: { mode: "spherical", radius: 500, chapterRingSpacing: 40, algorithm: "phyllotaxis" },
+            starSizeExponent: 3.4,
+            starSizeScale: 1.0,
+            starSizeWeightPercentile: 1.0,
+            starZoomReveal: false,
+            layout: { algorithm: "phyllotaxis", radius: 2000 },
             focus: {
                 nodeId: currentFocusNodeId,
-                animate: true
-            }
+                animate: true,
+            },
         };
-    }, [props.device, props.bookFound, props.divFound, props.testFound, props.passage, constellationConfig, arrangement, groupsConfig, selectedHorizonTheme]);
+    }, [
+        displayArrangement,
+        model,
+        previewConstellationConfig,
+        props.bookFound,
+        props.data,
+        props.divFound,
+        props.passage,
+        props.testFound,
+        selectedHorizonTheme,
+        selectedNodeId,
+    ]);
 
     const handleSelect = (node: SceneNode) => {
         setSelectedNodeId(node.id);
-        // Order Reveal Interaction
-        if (node && (node.level === 2 || node.level === 3)) {
+        if (node.level === 2 || node.level === 3) {
             const bookId = node.level === 2 ? node.id : node.parent!;
             mapRef.current?.setFocusedBook?.(bookId);
         } else {
@@ -220,14 +190,10 @@ const Treemap = (props: any) => {
         }
 
         if (node.level === 3) {
-            // Chapter Selection
-            // Previous logic: props.select(bookKey, chapter)
             const { bookKey, chapter } = node.meta as { bookKey: string; chapter: number };
             props.select(bookKey, chapter);
             toast.success(`${bookKey} ${chapter}`);
         } else if (node.level === 2) {
-            // Book Selection
-            // Previous logic: props.select(bookName, null, false)
             const { book } = node.meta as { book: string };
             props.select(book, null, false);
             toast.success(`${book} 1`);
@@ -236,16 +202,12 @@ const Treemap = (props: any) => {
 
     const handleHover = (node?: SceneNode) => {
         if (node) {
-           // Order Reveal Interaction
-           if (node.level === 2 || node.level === 3) {
-               const bookId = node.level === 2 ? node.id : node.parent!;
-               mapRef.current?.setHoveredBook?.(bookId);
-           } else if (node.level === 2.5) {
-               // Group Label -> get parent book
-               mapRef.current?.setHoveredBook?.(node.parent!);
-           } else {
-               mapRef.current?.setHoveredBook?.(null);
-           }
+            if (node.level === 2 || node.level === 3) {
+                const bookId = node.level === 2 ? node.id : node.parent!;
+                mapRef.current?.setHoveredBook?.(bookId);
+            } else {
+                mapRef.current?.setHoveredBook?.(null);
+            }
         } else {
             mapRef.current?.setHoveredBook?.(null);
         }
@@ -253,18 +215,19 @@ const Treemap = (props: any) => {
 
     return (
         <div className="absolute inset-0 w-full h-full z-0 pointer-events-auto" style={{ background: "#05060a" }} id="treemap">
-             <StarMap
-                ref={mapRef}
-                className="w-full h-full"
-                config={config}
-                onSelect={handleSelect}
-                onHover={handleHover}
-                onFovChange={setCurrentFov}
-                onLongPress={handleLongPress}
-            />
+            {config ? (
+                <StarMap
+                    ref={mapRef}
+                    className="w-full h-full"
+                    config={config}
+                    onSelect={handleSelect}
+                    onHover={handleHover}
+                    onFovChange={setCurrentFov}
+                    onLongPress={handleLongPress}
+                />
+            ) : null}
 
-            {/* Long-press info popup */}
-            {longPressInfo && (
+            {longPressInfo ? (
                 <div
                     className="long-press-popup"
                     style={{
@@ -289,22 +252,22 @@ const Treemap = (props: any) => {
                             <div style={{ fontWeight: 'bold', marginBottom: 6, color: '#4fa' }}>
                                 {longPressInfo.node.label}
                             </div>
-                            {longPressInfo.node.meta && (
+                            {longPressInfo.node.meta ? (
                                 <div style={{ fontSize: 11, color: '#aaa', lineHeight: 1.5 }}>
-                                    {(longPressInfo.node.meta as any).testament && (
+                                    {(longPressInfo.node.meta as any).testament ? (
                                         <div>Testament: {(longPressInfo.node.meta as any).testament}</div>
-                                    )}
-                                    {(longPressInfo.node.meta as any).division && (
+                                    ) : null}
+                                    {(longPressInfo.node.meta as any).division ? (
                                         <div>Division: {(longPressInfo.node.meta as any).division}</div>
-                                    )}
-                                    {(longPressInfo.node.meta as any).book && (
+                                    ) : null}
+                                    {(longPressInfo.node.meta as any).book ? (
                                         <div>Book: {(longPressInfo.node.meta as any).book}</div>
-                                    )}
-                                    {(longPressInfo.node.meta as any).chapter && (
+                                    ) : null}
+                                    {(longPressInfo.node.meta as any).chapter ? (
                                         <div>Chapter: {(longPressInfo.node.meta as any).chapter}</div>
-                                    )}
+                                    ) : null}
                                 </div>
-                            )}
+                            ) : null}
                             <div style={{ fontSize: 10, color: '#666', marginTop: 8 }}>
                                 Tap to dismiss
                             </div>
@@ -313,7 +276,7 @@ const Treemap = (props: any) => {
                         <div style={{ color: '#888' }}>No star selected</div>
                     )}
                 </div>
-            )}
+            ) : null}
         </div>
     );
 };

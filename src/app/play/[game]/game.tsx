@@ -4,7 +4,7 @@ import Summary from "@/app/play/[game]/summary";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
-import { HierarchyFilter } from "@project-skymap/library";
+import type { HierarchyFilter } from "@project-skymap/library";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
@@ -355,4 +355,3 @@ export default function Game(props: any) {
         );
     }
 }
-
