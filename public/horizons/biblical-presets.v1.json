@@ -1,0 +1,118 @@
+{
+  "version": 1,
+  "format": "stellarium-inspired-horizon-presets",
+  "defaultThemeId": "judean_hills",
+  "themes": [
+    {
+      "id": "judean_hills",
+      "label": "Judean Hills",
+      "source": "polygonal",
+      "groundColor": "#1f2418",
+      "horizonLineColor": "#6f8558",
+      "horizonLineThickness": 0,
+      "notes": "Low, rolling ridgeline intended for Bethlehem/Jerusalem mood.",
+      "atmosphere": {
+        "fogVisible": true,
+        "fogBandTopAltDeg": 9,
+        "fogBandBottomAltDeg": -14,
+        "fogIntensity": 0.45,
+        "minimalBrightness": 0.15,
+        "minimalAltitudeDeg": -2
+      },
+      "profile": {
+        "listMode": "azDeg_altDeg",
+        "angleRotateZDeg": 0.0,
+        "points": [
+          { "azDeg": 0, "altDeg": 3.0 },
+          { "azDeg": 30, "altDeg": 4.5 },
+          { "azDeg": 60, "altDeg": 6.2 },
+          { "azDeg": 90, "altDeg": 5.5 },
+          { "azDeg": 120, "altDeg": 4.0 },
+          { "azDeg": 150, "altDeg": 3.2 },
+          { "azDeg": 180, "altDeg": 2.7 },
+          { "azDeg": 210, "altDeg": 3.3 },
+          { "azDeg": 240, "altDeg": 4.9 },
+          { "azDeg": 270, "altDeg": 6.0 },
+          { "azDeg": 300, "altDeg": 4.8 },
+          { "azDeg": 330, "altDeg": 3.5 },
+          { "azDeg": 360, "altDeg": 3.0 }
+        ]
+      }
+    },
+    {
+      "id": "sinai_ridge",
+      "label": "Sinai Ridge",
+      "source": "polygonal",
+      "groundColor": "#241d16",
+      "horizonLineColor": "#a07d5a",
+      "horizonLineThickness": 0,
+      "notes": "Sharper mountain skyline with stronger southern peaks.",
+      "atmosphere": {
+        "fogVisible": true,
+        "fogBandTopAltDeg": 7,
+        "fogBandBottomAltDeg": -18,
+        "fogIntensity": 0.35,
+        "minimalBrightness": 0.12,
+        "minimalAltitudeDeg": -3
+      },
+      "profile": {
+        "listMode": "azDeg_altDeg",
+        "angleRotateZDeg": 12.0,
+        "points": [
+          { "azDeg": 0, "altDeg": 2.0 },
+          { "azDeg": 20, "altDeg": 3.2 },
+          { "azDeg": 45, "altDeg": 7.8 },
+          { "azDeg": 70, "altDeg": 10.4 },
+          { "azDeg": 95, "altDeg": 6.2 },
+          { "azDeg": 120, "altDeg": 3.5 },
+          { "azDeg": 150, "altDeg": 2.6 },
+          { "azDeg": 180, "altDeg": 2.1 },
+          { "azDeg": 210, "altDeg": 3.0 },
+          { "azDeg": 240, "altDeg": 5.5 },
+          { "azDeg": 270, "altDeg": 8.8 },
+          { "azDeg": 300, "altDeg": 6.4 },
+          { "azDeg": 330, "altDeg": 3.6 },
+          { "azDeg": 360, "altDeg": 2.0 }
+        ]
+      }
+    },
+    {
+      "id": "jerusalem_watch",
+      "label": "Jerusalem Watch",
+      "source": "polygonal",
+      "groundColor": "#202018",
+      "horizonLineColor": "#8e8a63",
+      "horizonLineThickness": 0,
+      "notes": "Mixed natural ridge and man-made skyline cues.",
+      "atmosphere": {
+        "fogVisible": true,
+        "fogBandTopAltDeg": 8,
+        "fogBandBottomAltDeg": -12,
+        "fogIntensity": 0.4,
+        "minimalBrightness": 0.14,
+        "minimalAltitudeDeg": -2
+      },
+      "profile": {
+        "listMode": "azDeg_altDeg",
+        "angleRotateZDeg": -8.0,
+        "points": [
+          { "azDeg": 0, "altDeg": 2.8 },
+          { "azDeg": 25, "altDeg": 3.2 },
+          { "azDeg": 50, "altDeg": 3.9 },
+          { "azDeg": 75, "altDeg": 4.4 },
+          { "azDeg": 100, "altDeg": 4.0 },
+          { "azDeg": 125, "altDeg": 3.3 },
+          { "azDeg": 150, "altDeg": 3.1 },
+          { "azDeg": 175, "altDeg": 3.8 },
+          { "azDeg": 200, "altDeg": 4.6 },
+          { "azDeg": 225, "altDeg": 4.2 },
+          { "azDeg": 250, "altDeg": 3.4 },
+          { "azDeg": 275, "altDeg": 2.9 },
+          { "azDeg": 300, "altDeg": 2.6 },
+          { "azDeg": 330, "altDeg": 2.5 },
+          { "azDeg": 360, "altDeg": 2.8 }
+        ]
+      }
+    }
+  ]
+}
