@@ -62,6 +62,133 @@ export default function Game(props: any) {
     const [flyToNodeId, setFlyToNodeId] = useState<string | undefined>(undefined);
     const [activeHierarchyFilter, setActiveHierarchyFilter] = useState<HierarchyFilter | null>(null);
 
+    function getDistanceValue(guess: any): number | undefined {
+        return guess?.distance ?? guess?.closeness?.distance;
+    }
+
+    function getBookByName(bookName?: string) {
+        if (!bookName) return undefined;
+        return allBooks.find((candidate: any) => candidate.name === bookName);
+    }
+
+    function getBookByKey(bookKey?: string) {
+        if (!bookKey) return undefined;
+        return allBooks.find((candidate: any) => candidate.key === bookKey);
+    }
+
+    function getDivisionByName(divisionName?: string) {
+        if (!divisionName) return undefined;
+        return allDivisions.find((candidate: any) => candidate.name === divisionName);
+    }
+
+    function getTestamentByName(testamentName?: string) {
+        if (!testamentName) return undefined;
+        return testaments.find((candidate: any) => candidate.name === testamentName);
+    }
+
+    function getGuessHierarchy(guess: any) {
+        const guessedBook = getBookByKey(guess?.bookKey) ?? getBookByName(guess?.book);
+        const guessedDivision = guessedBook
+            ? allDivisions.find((division: any) => division.books.some((book: any) => book.key === guessedBook.key))
+            : getDivisionByName(guess?.division);
+        const guessedTestament = guessedDivision
+            ? testaments.find((testament: any) => testament.divisions.some((division: any) => division.name === guessedDivision.name))
+            : getTestamentByName(guess?.testament);
+
+        return {
+            testament: guessedTestament?.name,
+            division: guessedDivision?.name,
+            book: guessedBook?.name,
+            bookKey: guessedBook?.key,
+            chapter: guess?.chapter ? String(guess.chapter) : undefined,
+        };
+    }
+
+    function buildHierarchyFilter(guess: any, answer: Passage): HierarchyFilter | null {
+        if (!answer || getDistanceValue(guess) === 0) {
+            return null;
+        }
+
+        const guessed = getGuessHierarchy(guess);
+        const answerBook = getBookByKey(answer.bookKey) ?? getBookByName(answer.book);
+        if (!answerBook) {
+            return null;
+        }
+
+        if (guessed.testament !== answer.testament) {
+            return { testament: answer.testament };
+        }
+
+        if (guessed.division !== answer.division) {
+            return { testament: answer.testament, division: answer.division };
+        }
+
+        return {
+            testament: answer.testament,
+            division: answer.division,
+            bookKey: answerBook.key,
+        };
+    }
+
+    function applyHierarchySelectionState(filter: HierarchyFilter | null) {
+        selected.testament = '';
+        selected.division = '';
+        selected.book = '';
+        selected.chapter = '';
+
+        setBook('');
+        setChapter('');
+        setHasBook(false);
+        setChapters([]);
+        setMaxChapter(0);
+
+        if (!filter) {
+            setDivisions(allDivisions);
+            setBooks(allBooks);
+            return;
+        }
+
+        const filteredTestament = filter.testament ? getTestamentByName(filter.testament) : undefined;
+        const filteredDivisions = filteredTestament ? filteredTestament.divisions : allDivisions;
+        setDivisions(filteredDivisions);
+
+        if (!filter.division) {
+            setBooks(filteredDivisions.flatMap((division: any) => division.books));
+            return;
+        }
+
+        const filteredDivision = getDivisionByName(filter.division);
+        const filteredBooks = filteredDivision?.books ?? [];
+        setBooks(filteredBooks);
+        selected.testament = filter.testament ?? '';
+        selected.division = filter.division;
+
+        if (!filter.bookKey) {
+            return;
+        }
+
+        const filteredBook = getBookByKey(filter.bookKey);
+        if (!filteredBook) {
+            return;
+        }
+
+        selected.book = filteredBook.name;
+        setHasBook(true);
+        setBook(filteredBook.name);
+        setBooks([filteredBook]);
+
+        const nextChapters = [];
+        for (let chapterIndex = 1; chapterIndex <= filteredBook.chapters; chapterIndex++) {
+            nextChapters.push({ name: chapterIndex.toString() });
+        }
+
+        setChapters(nextChapters);
+        setMaxChapter(filteredBook.chapters);
+        const nextChapter = '1';
+        selected.chapter = nextChapter;
+        setChapter(nextChapter);
+    }
+
     // FixMe :: double-render, just a dev issue like the treemap?
     useEffect(() => {
         if (!props.state && StateUtil.getConsent()) {
@@ -122,6 +249,16 @@ export default function Game(props: any) {
         document.addEventListener('visibilitychange', handleVisibilityChange);
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [passage]);
+
+    useEffect(() => {
+        if (!passage) return;
+
+        const latestGuess = guesses[guesses.length - 1];
+        const nextFilter = latestGuess ? buildHierarchyFilter(latestGuess, passage) : null;
+
+        setActiveHierarchyFilter(nextFilter);
+        applyHierarchySelectionState(nextFilter);
+    }, [allBooks, allDivisions, guesses, passage, testaments]);
 
     function loadState() {
         if (props.state)
@@ -189,7 +326,7 @@ export default function Game(props: any) {
     }
 
     function addGuess(newGuess: any) {
-        newGuess.bookKey = allBooks.find((bk: any) => bk.name == selected.book).key;
+        newGuess.bookKey = getBookByName(selected.book)?.key;
         const updatedGuesses = [
             ...guesses,
             newGuess
@@ -214,7 +351,7 @@ export default function Game(props: any) {
         }
 
         let starResult = 0
-        const won = (newGuess.distance == 0);
+        const won = (getDistanceValue(newGuess) == 0);
         const limitReached = (updatedGuesses.length >= 5);
         if (won) {
             setConfetti(true);
@@ -234,35 +371,7 @@ export default function Game(props: any) {
         } else if (newGuess.bookKey) {
             guessedNodeId = `B:${newGuess.bookKey}`;
         }
-        // You might need to adjust this logic based on the actual structure of `newGuess`
-        // and how your StarMap nodes are identified (e.g., "D:New:Paul's Letters" for division)
         setFlyToNodeId(guessedNodeId);
-        // --- Start of new filter calculation block ---
-        const newFilter: HierarchyFilter = {};
-        let matchLevel = "";
-
-        // Assuming newGuess.testament, newGuess.division, newGuess.bookKey, newGuess.chapter
-        // are available and correspond to the selected/guessed values.
-        // The `passage` object holds the ANSWER.
-
-        if (selected.testament === passage.testament) { // Use 'selected' for the guess, 'passage' for the answer
-            newFilter.testament = passage.testament;
-            matchLevel = "testament";
-            if (selected.division === passage.division) {
-                newFilter.division = passage.division;
-                matchLevel = "division";
-                if (selected.book === passage.book) { // Using selected.book for comparison
-                    // Find bookKey from allBooks based on selected.book
-                    const guessedBookKey = allBooks.find((bk: any) => bk.name === selected.book)?.key;
-                    if (guessedBookKey) {
-                        newFilter.bookKey = guessedBookKey;
-                        matchLevel = "book";
-                    }
-                }
-            }
-        }
-        setActiveHierarchyFilter(newFilter);
-        // --- End of new filter calculation block ---
 
         const state: GameState = {
             stars: starResult,
@@ -276,24 +385,12 @@ export default function Game(props: any) {
         }
         StateUtil.setGame(state);
 
-        // --- Optional: Reset flyToNodeId after a short delay ---
-        // This is to allow for future flyTo calls. Adjust delay as needed.
         setTimeout(() => setFlyToNodeId(undefined), 1500); // 1.5 seconds delay
     }
 
     // fixme :: behaviour not correct
     function clearSelection(): void {
-        selected.testament = '';
-        selected.division = '';
-        selected.book = '';
-        selected.chapter = '';
-        setBook('');
-        setChapter('');
-        setHasBook(false);
-        setChapters([]);
-        setMaxChapter(0);
-        setBooks(allBooks);
-        setDivisions(allDivisions);
+        applyHierarchySelectionState(activeHierarchyFilter);
     }
 
     function isExistingGuess() {

@@ -128,7 +128,7 @@ const Treemap = (props: any) => {
 
         return {
             background: "#05060a",
-            camera: { lon: 275 * Math.PI / 180, lat: 20 * Math.PI / 180 },
+            camera: { lon: 42 * Math.PI / 180, lat: 24 * Math.PI / 180 },
             model,
             arrangement: displayArrangement,
             labelColors: labelColors as Record<string, string>,
@@ -147,7 +147,7 @@ const Treemap = (props: any) => {
             showConstellationLines: true,
             constellationLineMode: "focused",
             showDivisionBoundaries: false,
-            showConstellationArt: true,
+            showConstellationArt: false,
             constellationBaseOpacity: 40,
             showBackdropStars: false,
             showAtmosphere: false,
