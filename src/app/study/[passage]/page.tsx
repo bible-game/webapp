@@ -7,6 +7,7 @@ import { getReviewState } from "@/core/action/state/get-state-review";
 import Menu from "@/app/menu";
 import StudyContent from "@/app/study/[passage]/study-content";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
+import PrayerButton from "@/app/study/[passage]/prayer-button";
 
 /**
  * Study Page
@@ -31,6 +32,7 @@ export default async function Study({ params }: { params: Promise<{ passage: str
                         <Menu isPlay={false} info={info} dark={true}/>
                         <StudyContent passage={passage} state={state}/>
                     </div>
+                        <PrayerButton />
                 </main>
             </div>
         </div>
