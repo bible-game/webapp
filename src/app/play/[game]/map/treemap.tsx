@@ -128,7 +128,7 @@ const Treemap = (props: any) => {
 
         return {
             background: "#05060a",
-            camera: { lon: 42 * Math.PI / 180, lat: 24 * Math.PI / 180 },
+            camera: { lon: 42 * Math.PI / 180, lat: 36 * Math.PI / 180 },
             model,
             arrangement: displayArrangement,
             labelColors: labelColors as Record<string, string>,
