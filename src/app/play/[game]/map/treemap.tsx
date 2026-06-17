@@ -35,7 +35,7 @@ const Treemap = (props: any) => {
     const [constellationConfig, setConstellationConfig] = useState<ConstellationConfig | null>(null);
     const [arrangement, setArrangement] = useState<StarArrangement | null>(null);
     const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
-    const [currentFov, setCurrentFov] = useState(50);
+    const [currentFov, setCurrentFov] = useState(60);
     const [hierarchyFilter, setHierarchyFilter] = useState<HierarchyFilter | null>(null);
     const [longPressInfo, setLongPressInfo] = useState<{ node: SceneNode | null; x: number; y: number } | null>(null);
 
