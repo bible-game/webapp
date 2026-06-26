@@ -14,8 +14,11 @@ import {
 } from "@project-skymap/library";
 import labelColors from "../../../../../public/colours.json";
 import {
+    buildPreviewHorizonTheme,
     buildModelFromArrangement,
-    buildTriangulatedConstellations,
+    computeBookRegions,
+    computeDivisionRegions,
+    divisionTriangulationColor,
     getDefaultHorizonTheme,
     optimizeArrangementForVisibility,
 } from "./skymap-config";
@@ -80,6 +83,10 @@ const Treemap = (props: any) => {
     }, []);
 
     const selectedHorizonTheme = useMemo<HorizonThemeConfig | undefined>(() => getDefaultHorizonTheme(), []);
+    const previewHorizonTheme = useMemo<HorizonThemeConfig | undefined>(
+        () => (selectedHorizonTheme ? buildPreviewHorizonTheme(selectedHorizonTheme) : undefined),
+        [selectedHorizonTheme],
+    );
     const displayArrangement = useMemo(
         () => (arrangement ? optimizeArrangementForVisibility(arrangement, selectedHorizonTheme) : null),
         [arrangement, selectedHorizonTheme],
@@ -88,14 +95,31 @@ const Treemap = (props: any) => {
         () => (displayArrangement ? buildModelFromArrangement(displayArrangement) : null),
         [displayArrangement],
     );
-    const previewConstellationConfig = useMemo(
-        () => (
-            displayArrangement
-                ? buildTriangulatedConstellations(displayArrangement, constellationConfig)
-                : constellationConfig
-        ),
-        [constellationConfig, displayArrangement],
+    const divisionColors = useMemo(() => {
+        if (!model) return {};
+        const colors: Record<string, string> = {};
+        for (const node of model.nodes) {
+            if (node.level !== 1) continue;
+            const divisionName = (node.meta?.division as string) ?? node.label;
+            colors[divisionName] = divisionTriangulationColor(divisionName);
+        }
+        return colors;
+    }, [model]);
+    const divisionRegions = useMemo<StarMapConfig["divisionRegions"]>(
+        () => (displayArrangement ? computeDivisionRegions(displayArrangement) : undefined),
+        [displayArrangement],
     );
+    const bookRegions = useMemo<StarMapConfig["bookRegions"]>(
+        () => (displayArrangement ? computeBookRegions(displayArrangement) : undefined),
+        [displayArrangement],
+    );
+    const previewConstellationConfig = useMemo(() => {
+        if (!constellationConfig) return null;
+        const defined = constellationConfig.constellations.filter(
+            (constellation) => (constellation.lineSegments?.length ?? 0) > 0 || (constellation.linePaths?.length ?? 0) > 0,
+        );
+        return { ...constellationConfig, constellations: defined };
+    }, [constellationConfig]);
 
     const config = useMemo<(StarMapConfig & FocusConfig) | null>(() => {
         if (!displayArrangement || !model || !previewConstellationConfig) {
@@ -128,14 +152,20 @@ const Treemap = (props: any) => {
 
         return {
             background: "#05060a",
-            camera: { lon: 42 * Math.PI / 180, lat: 36 * Math.PI / 180 },
+            camera: { lon: 0, lat: Math.PI / 2, fov: 135 },
             model,
             arrangement: displayArrangement,
             labelColors: labelColors as Record<string, string>,
+            divisionColors,
+            divisionRegions,
+            bookRegions,
             constellations: previewConstellationConfig,
-            showBookLabels: false,
-            showDivisionLabels: false,
+            showBookLabels: true,
+            showDivisionLabels: true,
             showChapterLabels: true,
+            showDivisionTint: true,
+            divisionLabelPushFraction: 0.45,
+            divisionLabelHorizonPaddingDeg: 25,
             showGroupLabels: false,
             labelBehavior: {
                 overlapPaddingPx: 2,
@@ -154,11 +184,11 @@ const Treemap = (props: any) => {
             showMoon: false,
             showSunrise: false,
             showMilkyWay: false,
-            horizonTheme: selectedHorizonTheme,
+            horizonTheme: previewHorizonTheme,
             projection: "blended",
             fitProjection: true,
-            starSizeExponent: 3.4,
-            starSizeScale: 1.0,
+            starSizeExponent: 4.0,
+            starSizeScale: 1.25,
             starSizeWeightPercentile: 1.0,
             starZoomReveal: false,
             layout: { algorithm: "phyllotaxis", radius: 2000 },
@@ -169,6 +199,9 @@ const Treemap = (props: any) => {
         };
     }, [
         displayArrangement,
+        divisionColors,
+        divisionRegions,
+        bookRegions,
         model,
         previewConstellationConfig,
         props.bookFound,
@@ -176,6 +209,7 @@ const Treemap = (props: any) => {
         props.divFound,
         props.passage,
         props.testFound,
+        previewHorizonTheme,
         selectedHorizonTheme,
         selectedNodeId,
     ]);

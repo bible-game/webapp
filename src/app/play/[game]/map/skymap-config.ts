@@ -1,8 +1,8 @@
 import type {
-    ConstellationConfig,
     HorizonThemeConfig,
     SceneModel,
     SceneNode,
+    StarMapConfig,
     StarArrangement,
 } from "@project-skymap/library";
 import bibleRaw from "../../../../../public/bible.json";
@@ -87,6 +87,48 @@ export const DEFAULT_HORIZON_THEME_ID = (horizonPresetData.defaultThemeId ?? "")
 
 export function getDefaultHorizonTheme(): HorizonThemeConfig | undefined {
     return HORIZON_THEMES.find((theme) => theme.id === DEFAULT_HORIZON_THEME_ID) ?? HORIZON_THEMES[0];
+}
+
+export type PreviewCustomHorizonDefaults = {
+    fill: "solid" | "radial";
+    groundColor: string;
+    horizonLineColor: string;
+    gradientInnerColor: string;
+    gradientOuterColor: string;
+    gradientRadius: number;
+    gradientIntensity: number;
+};
+
+export const PREVIEW_CUSTOM_HORIZON_DEFAULTS: PreviewCustomHorizonDefaults = {
+    fill: "solid",
+    groundColor: "#040e3e",
+    horizonLineColor: "#2c3358",
+    gradientInnerColor: "#1d2b18",
+    gradientOuterColor: "#020302",
+    gradientRadius: 0.95,
+    gradientIntensity: 1,
+};
+
+export function buildPreviewHorizonTheme(
+    selectedTheme: HorizonThemeConfig,
+    custom: PreviewCustomHorizonDefaults = PREVIEW_CUSTOM_HORIZON_DEFAULTS,
+): HorizonThemeConfig {
+    return {
+        ...selectedTheme,
+        id: `${selectedTheme.id}-preview`,
+        label: `${selectedTheme.label} Preview`,
+        groundColor: custom.groundColor,
+        groundGradient: custom.fill === "radial"
+            ? {
+                type: "radial",
+                innerColor: custom.gradientInnerColor,
+                outerColor: custom.gradientOuterColor,
+                radius: custom.gradientRadius,
+                intensity: custom.gradientIntensity,
+            }
+            : undefined,
+        horizonLineColor: custom.horizonLineColor,
+    };
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -403,125 +445,7 @@ export function buildModelFromArrangement(arrangement: StarArrangement): SceneMo
     return { nodes };
 }
 
-const TRIANGULATION_MAX_EDGE_FACTOR = 2.35;
-
-type TriPoint = {
-    id: string;
-    x: number;
-    y: number;
-};
-
-type TriEdge = {
-    a: string;
-    b: string;
-};
-
-function triangulationKey(a: string, b: string): string {
-    return a < b ? `${a}|${b}` : `${b}|${a}`;
-}
-
-function circumcircleContains(
-    ax: number,
-    ay: number,
-    bx: number,
-    by: number,
-    cx: number,
-    cy: number,
-    px: number,
-    py: number,
-): boolean {
-    const apx = ax - px;
-    const apy = ay - py;
-    const bpx = bx - px;
-    const bpy = by - py;
-    const cpx = cx - px;
-    const cpy = cy - py;
-
-    const det = (apx * apx + apy * apy) * (bpx * cpy - cpx * bpy)
-        - (bpx * bpx + bpy * bpy) * (apx * cpy - cpx * apy)
-        + (cpx * cpx + cpy * cpy) * (apx * bpy - bpx * apy);
-    const orientation = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
-    return orientation > 0 ? det > 1e-9 : det < -1e-9;
-}
-
-function bowyerWatson(points: TriPoint[]): TriEdge[] {
-    if (points.length < 3) return [];
-
-    const xs = points.map((point) => point.x);
-    const ys = points.map((point) => point.y);
-    const minX = Math.min(...xs);
-    const minY = Math.min(...ys);
-    const maxX = Math.max(...xs);
-    const maxY = Math.max(...ys);
-    const dx = maxX - minX || 1;
-    const dy = maxY - minY || 1;
-    const deltaMax = Math.max(dx, dy);
-    const midX = (minX + maxX) / 2;
-    const midY = (minY + maxY) / 2;
-
-    const superA: TriPoint = { id: "__super_a__", x: midX - 20 * deltaMax, y: midY - deltaMax };
-    const superB: TriPoint = { id: "__super_b__", x: midX, y: midY + 20 * deltaMax };
-    const superC: TriPoint = { id: "__super_c__", x: midX + 20 * deltaMax, y: midY - deltaMax };
-
-    let triangles = [{ a: superA, b: superB, c: superC }];
-
-    for (const point of points) {
-        const bad = triangles.filter((triangle) =>
-            circumcircleContains(
-                triangle.a.x,
-                triangle.a.y,
-                triangle.b.x,
-                triangle.b.y,
-                triangle.c.x,
-                triangle.c.y,
-                point.x,
-                point.y,
-            ),
-        );
-
-        const polygon = new Map<string, { a: TriPoint; b: TriPoint; count: number }>();
-        for (const triangle of bad) {
-            const edges = [
-                [triangle.a, triangle.b],
-                [triangle.b, triangle.c],
-                [triangle.c, triangle.a],
-            ] as const;
-
-            for (const [edgeA, edgeB] of edges) {
-                const key = triangulationKey(edgeA.id, edgeB.id);
-                const existing = polygon.get(key);
-                if (existing) {
-                    existing.count += 1;
-                } else {
-                    polygon.set(key, { a: edgeA, b: edgeB, count: 1 });
-                }
-            }
-        }
-
-        triangles = triangles.filter((triangle) => !bad.includes(triangle));
-
-        for (const edge of polygon.values()) {
-            if (edge.count !== 1) continue;
-            triangles.push({ a: edge.a, b: edge.b, c: point });
-        }
-    }
-
-    const edges = new Map<string, TriEdge>();
-    for (const triangle of triangles) {
-        const ids = [triangle.a.id, triangle.b.id, triangle.c.id];
-        if (ids.some((id) => id.startsWith("__super_"))) continue;
-        const pairs = [
-            [triangle.a.id, triangle.b.id],
-            [triangle.b.id, triangle.c.id],
-            [triangle.c.id, triangle.a.id],
-        ] as const;
-        for (const [a, b] of pairs) edges.set(triangulationKey(a, b), { a, b });
-    }
-
-    return [...edges.values()];
-}
-
-function divisionTriangulationColor(divisionName: string): string {
+export function divisionTriangulationColor(divisionName: string): string {
     const key = divisionName.toLowerCase();
     if (key === "the law" || key === "paul's letters") return "#6eaaff";
     if (key === "history" || key === "prophecy") return "#b678ff";
@@ -531,97 +455,109 @@ function divisionTriangulationColor(divisionName: string): string {
     return "#b4bedc";
 }
 
-export function buildTriangulatedConstellations(
-    arrangement: StarArrangement,
-    baseConfig: ConstellationConfig | null,
-): ConstellationConfig | null {
-    if (!baseConfig) return baseConfig;
+const DIVISION_ANGULAR_PADDING_FACTOR = 1.35;
+const DIVISION_ANGULAR_PADDING_MIN_RAD = 0.06;
+const DIVISION_ANGULAR_RADIUS_MIN_RAD = 0.12;
+const DIVISION_ANGULAR_RADIUS_MAX_RAD = 0.9;
 
-    const books = new Map<string, {
-        divisionName: string;
-        points: Array<{ chapterId: string; x: number; y: number }>;
-    }>();
+export function computeDivisionRegions(arrangement: StarArrangement): StarMapConfig["divisionRegions"] {
+    const positionsByDivision = new Map<string, [number, number, number][]>();
 
-    for (const [chapterId, entry] of Object.entries(arrangement)) {
-        if (!chapterId.startsWith("C:") || !entry.position) continue;
-        const chapter = CHAPTER_BY_ID.get(chapterId);
+    for (const [id, entry] of Object.entries(arrangement)) {
+        if (!entry.position) continue;
+        const chapter = CHAPTER_BY_ID.get(id);
         if (!chapter) continue;
 
-        let book = books.get(chapter.bookKey);
-        if (!book) {
-            book = { divisionName: chapter.divisionName, points: [] };
-            books.set(chapter.bookKey, book);
+        const list = positionsByDivision.get(chapter.divisionName) ?? [];
+        list.push(entry.position);
+        positionsByDivision.set(chapter.divisionName, list);
+    }
+
+    const regions: NonNullable<StarMapConfig["divisionRegions"]> = {};
+    for (const [divisionName, positions] of positionsByDivision.entries()) {
+        const mean: [number, number, number] = [0, 0, 0];
+        for (const position of positions) {
+            mean[0] += position[0];
+            mean[1] += position[1];
+            mean[2] += position[2];
         }
-        book.points.push({
-            chapterId,
-            x: entry.position[0],
-            y: entry.position[2],
-        });
+        mean[0] /= positions.length;
+        mean[1] /= positions.length;
+        mean[2] /= positions.length;
+
+        const direction = normalizeVec({ x: mean[0], y: mean[1], z: mean[2] });
+        const directionVec: [number, number, number] = [direction.x, direction.y, direction.z];
+
+        let maxAngle = 0;
+        for (const position of positions) {
+            const positionDirection = normalizeVec({ x: position[0], y: position[1], z: position[2] });
+            const dot = clamp(
+                direction.x * positionDirection.x + direction.y * positionDirection.y + direction.z * positionDirection.z,
+                -1,
+                1,
+            );
+            const angle = Math.acos(dot);
+            if (angle > maxAngle) maxAngle = angle;
+        }
+
+        const angularRadiusRad = Math.min(
+            DIVISION_ANGULAR_RADIUS_MAX_RAD,
+            Math.max(DIVISION_ANGULAR_RADIUS_MIN_RAD, maxAngle * DIVISION_ANGULAR_PADDING_FACTOR + DIVISION_ANGULAR_PADDING_MIN_RAD),
+        );
+
+        regions[divisionName] = { direction: directionVec, angularRadiusRad };
     }
 
-    const lineDataByBookKey = new Map<string, {
-        color: string;
-        lineSegments: Array<{ from: string; to: string; color: string }>;
-    }>();
+    return regions;
+}
 
-    for (const [bookKey, book] of books.entries()) {
-        const pointMap = new Map(book.points.map((point) => [point.chapterId, point] as const));
-        const edgesRaw = book.points.length === 2
-            ? [{ a: book.points[0]!.chapterId, b: book.points[1]!.chapterId }]
-            : bowyerWatson(book.points.map((point) => ({
-                id: point.chapterId,
-                x: point.x,
-                y: point.y,
-            })));
+export function computeBookRegions(arrangement: StarArrangement): StarMapConfig["bookRegions"] {
+    const positionsByBook = new Map<string, [number, number, number][]>();
 
-        const lengths = edgesRaw
-            .map((edge) => {
-                const pointA = pointMap.get(edge.a);
-                const pointB = pointMap.get(edge.b);
-                if (!pointA || !pointB) return Infinity;
-                return Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y);
-            })
-            .filter(Number.isFinite);
+    for (const [id, entry] of Object.entries(arrangement)) {
+        if (!entry.position) continue;
+        const chapter = CHAPTER_BY_ID.get(id);
+        if (!chapter) continue;
 
-        const averageLength = lengths.length > 0
-            ? lengths.reduce((sum, value) => sum + value, 0) / lengths.length
-            : 0;
-        const maxLength = averageLength > 0 ? averageLength * TRIANGULATION_MAX_EDGE_FACTOR : Infinity;
-        const color = divisionTriangulationColor(book.divisionName);
-
-        const lineSegments = edgesRaw
-            .map((edge) => {
-                const pointA = pointMap.get(edge.a);
-                const pointB = pointMap.get(edge.b);
-                if (!pointA || !pointB) return null;
-                const length = Math.hypot(pointA.x - pointB.x, pointA.y - pointB.y);
-                if (length > maxLength) return null;
-                return { from: pointA.chapterId, to: pointB.chapterId, color };
-            })
-            .filter((edge): edge is { from: string; to: string; color: string } => edge !== null);
-
-        lineDataByBookKey.set(bookKey, { color, lineSegments });
+        const list = positionsByBook.get(chapter.bookKey) ?? [];
+        list.push(entry.position);
+        positionsByBook.set(chapter.bookKey, list);
     }
 
-    return {
-        ...baseConfig,
-        constellations: baseConfig.constellations.map((constellation) => {
-            const anchorBookKey = constellation.anchors[0]?.split(":")[1];
-            if (!anchorBookKey) return constellation;
-            const lineData = lineDataByBookKey.get(anchorBookKey);
-            if (!lineData) {
-                return {
-                    ...constellation,
-                    lineSegments: [],
-                    linePaths: [],
-                };
-            }
-            return {
-                ...constellation,
-                lineColor: lineData.color,
-                linePaths: [],
-                lineSegments: lineData.lineSegments,
-            };
-        }),
-    };
+    const regions: NonNullable<StarMapConfig["bookRegions"]> = {};
+    for (const [bookKey, positions] of positionsByBook.entries()) {
+        const mean: [number, number, number] = [0, 0, 0];
+        for (const position of positions) {
+            mean[0] += position[0];
+            mean[1] += position[1];
+            mean[2] += position[2];
+        }
+        mean[0] /= positions.length;
+        mean[1] /= positions.length;
+        mean[2] /= positions.length;
+
+        const direction = normalizeVec({ x: mean[0], y: mean[1], z: mean[2] });
+        const directionVec: [number, number, number] = [direction.x, direction.y, direction.z];
+
+        let maxAngle = 0;
+        for (const position of positions) {
+            const positionDirection = normalizeVec({ x: position[0], y: position[1], z: position[2] });
+            const dot = clamp(
+                direction.x * positionDirection.x + direction.y * positionDirection.y + direction.z * positionDirection.z,
+                -1,
+                1,
+            );
+            const angle = Math.acos(dot);
+            if (angle > maxAngle) maxAngle = angle;
+        }
+
+        const angularRadiusRad = Math.min(
+            DIVISION_ANGULAR_RADIUS_MAX_RAD,
+            Math.max(DIVISION_ANGULAR_RADIUS_MIN_RAD, maxAngle * DIVISION_ANGULAR_PADDING_FACTOR + DIVISION_ANGULAR_PADDING_MIN_RAD),
+        );
+
+        regions[bookKey] = { direction: directionVec, angularRadiusRad };
+    }
+
+    return regions;
 }

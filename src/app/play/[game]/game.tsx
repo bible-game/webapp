@@ -434,18 +434,20 @@ export default function Game(props: any) {
                          activeHierarchyFilter={activeHierarchyFilter}/>
                 
                 <div className="relative z-10 w-full h-full pointer-events-none">
-                    <div className="flex flex-col items-center pt-20 w-full pointer-events-none">
+                    <div className="flex flex-col items-center pt-8 w-full pointer-events-none">
                         <PopUp />
                         <Summary passage={passage} playing={playing}/>
                     </div>
 
-                    <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
-                            isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
-                            addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
-                            selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
-                            state={props.state} passageId={passage.id} bible={props.bible}
-                            selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                    <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
+                    <div className="sm:absolute sm:bottom-4 sm:left-[calc(50%-24rem)] sm:w-[48rem] pointer-events-none sm:flex sm:flex-col sm:gap-2">
+                        <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
+                        <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
+                                isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
+                                addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
+                                selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
+                                state={props.state} passageId={passage.id} bible={props.bible}
+                                selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                    </div>
                     <Confetti fire={confetti}/>
                 </div>
             </div>
