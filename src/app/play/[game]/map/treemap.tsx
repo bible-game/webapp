@@ -166,7 +166,7 @@ const Treemap = (props: any) => {
         return {
             background: "#05060a",
             viewMode: SKYMAP_VIEW_MODE,
-            camera: { lon: 20 * (Math.PI / 180), lat: 40 * (Math.PI / 180), fov: SKYMAP_VIEW_PROFILE.defaultFov },
+            camera: { lon: 20 * (Math.PI / 180), lat: 30 * (Math.PI / 180), fov: SKYMAP_VIEW_PROFILE.defaultFov },
             groundCaptionText: props.passage.summary,
             model,
             arrangement: displayArrangement,

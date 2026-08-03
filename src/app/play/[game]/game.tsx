@@ -28,7 +28,7 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
 const stubGamePassage: Passage = {
     id: 0,
     title: samplePassage.reference,
-    summary: samplePassage.text.split("\n").find(Boolean) ?? samplePassage.reference,
+    summary: "God is love, so believers must love.",
     testament: "",
     division: "",
     book: samplePassage.verses[0].book_name,
@@ -454,11 +454,7 @@ export default function Game(props: any) {
                         <PopUp />
                     </div>
 
-                    <div className="absolute inset-0 flex items-start justify-center pt-24 sm:pt-28 pointer-events-none">
-                        <Summary passage={passage} playing={playing} hidden={!passageVisible}/>
-                    </div>
-
-                    <div className="sm:absolute sm:bottom-20 sm:left-[calc(50%-24rem)] sm:w-[48rem] pointer-events-none sm:flex sm:flex-col sm:gap-2">
+                    <div className="sm:absolute sm:bottom-5 sm:left-[calc(50%-24rem)] sm:w-[48rem] pointer-events-none sm:flex sm:flex-col sm:gap-2">
                         <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
                         <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
                                 isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
