@@ -10,7 +10,7 @@ import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
-import Treemap from "@/app/play/[game]/map/treemap";
+import Treemap, { SKYMAP_MAX_FOV } from "@/app/play/[game]/map/treemap";
 import moment from "moment/moment";
 import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
@@ -21,8 +21,20 @@ import { GameState } from "@/core/model/state/game-state";
 import { toast } from "react-hot-toast";
 import { Button } from "@heroui/button";
 import Link from "next/link";
+import samplePassage from "../../../../public/sample.json";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+const stubGamePassage: Passage = {
+    id: 0,
+    title: samplePassage.reference,
+    summary: samplePassage.text.split("\n").find(Boolean) ?? samplePassage.reference,
+    testament: "",
+    division: "",
+    book: samplePassage.verses[0].book_name,
+    bookKey: samplePassage.verses[0].book_id,
+    chapter: samplePassage.verses[0].chapter.toString(),
+};
 
 /**
  * Game Component
@@ -33,8 +45,9 @@ export default function Game(props: any) {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
 
-    const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
-    const passage = data as Passage;
+    const useStubPassage = process.env.USE_STUB_PASSAGE_RESPONSE === "true";
+    const {data, error, isLoading} = useSWR(useStubPassage ? null : `${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
+    const passage = (useStubPassage ? stubGamePassage : data) as Passage;
 
     const [playing, setPlaying] = useState(true);
     const [guesses, setGuesses] = useState([] as any[]); // question :: apply type?
@@ -61,6 +74,8 @@ export default function Game(props: any) {
     const [narrativeHidden, setNarrativeHidden] = useState(true);
     const [flyToNodeId, setFlyToNodeId] = useState<string | undefined>(undefined);
     const [activeHierarchyFilter, setActiveHierarchyFilter] = useState<HierarchyFilter | null>(null);
+    const [fov, setFov] = useState(SKYMAP_MAX_FOV);
+    const passageVisible = fov >= SKYMAP_MAX_FOV - 0.5;
 
     function getDistanceValue(guess: any): number | undefined {
         return guess?.distance ?? guess?.closeness?.distance;
@@ -419,7 +434,7 @@ export default function Game(props: any) {
         setNarrativeHidden(!narrativeHidden);
     }
 
-    if (isLoading) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
+    if (!useStubPassage && isLoading) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
@@ -431,15 +446,19 @@ export default function Game(props: any) {
                          narrativeHidden={narrativeHidden}
                          playing={playing}
                          flyToNodeId={flyToNodeId}
-                         activeHierarchyFilter={activeHierarchyFilter}/>
-                
+                         activeHierarchyFilter={activeHierarchyFilter}
+                         onFovChange={setFov}/>
+
                 <div className="relative z-10 w-full h-full pointer-events-none">
                     <div className="flex flex-col items-center pt-8 w-full pointer-events-none">
                         <PopUp />
-                        <Summary passage={passage} playing={playing}/>
                     </div>
 
-                    <div className="sm:absolute sm:bottom-4 sm:left-[calc(50%-24rem)] sm:w-[48rem] pointer-events-none sm:flex sm:flex-col sm:gap-2">
+                    <div className="absolute inset-0 flex items-start justify-center pt-24 sm:pt-28 pointer-events-none">
+                        <Summary passage={passage} playing={playing} hidden={!passageVisible}/>
+                    </div>
+
+                    <div className="sm:absolute sm:bottom-20 sm:left-[calc(50%-24rem)] sm:w-[48rem] pointer-events-none sm:flex sm:flex-col sm:gap-2">
                         <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
                         <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
                                 isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}

@@ -11,6 +11,7 @@ import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn from "@/core/util/auth-util";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
 import Menu from "@/app/menu";
+import bibleConfig from "../../../../public/bible.json";
 
 async function get(url: string): Promise<any> {
     const response = await fetch(url, {method: "GET"});
@@ -35,7 +36,9 @@ export default async function Play({params}: { params: Promise<{ game: string }>
     const device = headersList.get('x-device-type');
 
     const { game } = await params;
-    const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
+    const bible = process.env.USE_STUB_PASSAGE_RESPONSE === "true"
+        ? bibleConfig
+        : await get(`${process.env.SVC_PASSAGE}/config/bible`);
 
     const divisions = flatten(bible.testaments, 'divisions');
     const books = flatten(divisions, 'books');

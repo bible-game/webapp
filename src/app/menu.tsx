@@ -38,6 +38,7 @@ import { logOut } from "@/core/action/auth/log-out";
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function Menu(props: any) {
+    const useStubPassage = process.env.USE_STUB_PASSAGE_RESPONSE === "true";
 
     const text = props.dark ? "text-black" : "text-white";
 
@@ -49,7 +50,8 @@ export default function Menu(props: any) {
         statistics: <BarChart fill="currentColor" size={24} />
     };
 
-    const { data, error, isLoading } = useSWR(`${process.env.SVC_PASSAGE}/daily/history`, fetcher);
+    const fallbackDates = [props.date ?? TODAY(getLocalTimeZone()).toString()];
+    const { data, error, isLoading } = useSWR(useStubPassage ? null : `${process.env.SVC_PASSAGE}/daily/history`, fetcher);
     const {isOpen, onOpen, onOpenChange} = useDisclosure();
     let version: string;
     // getVersion().then((appVersion) => version = appVersion); // fixme :: login redirect err
@@ -61,16 +63,16 @@ export default function Menu(props: any) {
         input: ["opacity-85", "ml-2", "text-xs", props.device == 'mobile' ? "hidden" : ""]
     };
 
-    function changeDate(date: string = _.sample(data)): void {
+    function changeDate(date: string = _.sample(data ?? fallbackDates) ?? fallbackDates[0]): void {
         redirect(`/play/${date.split("T")[0]}`);
     }
 
     const stylesNavbar = {
-        base: ["w-full", "sm:w-[48rem]", "bg-transparent", "backdrop-saturate-100", "h-12", "pointer-events-auto"],
+        base: ["w-full", props.isPlay ? "" : "sm:w-[48rem]", "bg-transparent", "backdrop-saturate-100", "h-12", "pointer-events-auto"],
         wrapper: ["px-2"]
     }
 
-    if (isLoading) return <></>
+    if (!useStubPassage && isLoading) return <></>
     else return <Navbar classNames={stylesNavbar}>
             <NavbarContent justify="start">
                 <Dropdown placement="bottom-start">

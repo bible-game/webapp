@@ -6,8 +6,10 @@ import { Chip } from "@nextui-org/chip";
 const Summary = (props: any) => {
     if (props.passage) return (
         <section
-            className={"pointer-events-auto p-1 sm:p-3 sm:h-[52px] " + (!props.playing ? "flex justify-between gap-6 sm:gap-2 px-5" : "text-center")}>
-            <div className={"text-[13px] sm:text-[14px] opacity-80 " + (!props.playing ? "ml-2" : "")}>️️️
+            className={"pointer-events-auto p-4 sm:p-6 max-w-[90vw] sm:max-w-2xl transition-opacity duration-500 "
+                + (props.hidden ? "opacity-0 pointer-events-none " : "opacity-100 ")
+                + (!props.playing ? "flex flex-col items-center gap-3" : "text-center")}>
+            <div className="text-xl sm:text-3xl opacity-80 text-center leading-snug">️️️
                 {props.passage.summary}
             </div>
             <Chip size="sm"

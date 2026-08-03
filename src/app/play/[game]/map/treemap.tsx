@@ -3,10 +3,12 @@
 import React, { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import { toast } from "react-hot-toast";
 import {
+    getViewModeProfile,
     StarMap,
     type ConstellationConfig,
     type HierarchyFilter,
     type HorizonThemeConfig,
+    type PlanetariumViewMode,
     type SceneNode,
     type StarArrangement,
     type StarMapConfig,
@@ -30,6 +32,17 @@ type FocusConfig = {
     };
 };
 
+const SKYMAP_VIEW_MODE: PlanetariumViewMode = "zenith";
+const SKYMAP_VIEW_PROFILE = getViewModeProfile(SKYMAP_VIEW_MODE);
+export const SKYMAP_MAX_FOV = SKYMAP_VIEW_PROFILE.maxFov;
+const ZENITH_HORIZON_TUNING = {
+    groundAlpha: 0,
+    horizonWarp: 0,
+    landscapeOpacity: 0.6,
+    landscapeHeight: 5.0,
+    landscapeSoftness: 0.4,
+};
+
 /**
  * StarMap Component for displaying the Bible
  * @since 1st June 2025
@@ -38,7 +51,7 @@ const Treemap = (props: any) => {
     const [constellationConfig, setConstellationConfig] = useState<ConstellationConfig | null>(null);
     const [arrangement, setArrangement] = useState<StarArrangement | null>(null);
     const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>(undefined);
-    const [currentFov, setCurrentFov] = useState(60);
+    const [currentFov, setCurrentFov] = useState(SKYMAP_VIEW_PROFILE.defaultFov);
     const [hierarchyFilter, setHierarchyFilter] = useState<HierarchyFilter | null>(null);
     const [longPressInfo, setLongPressInfo] = useState<{ node: SceneNode | null; x: number; y: number } | null>(null);
 
@@ -152,7 +165,9 @@ const Treemap = (props: any) => {
 
         return {
             background: "#05060a",
-            camera: { lon: 0, lat: Math.PI / 2, fov: 135 },
+            viewMode: SKYMAP_VIEW_MODE,
+            camera: { lon: 20 * (Math.PI / 180), lat: 40 * (Math.PI / 180), fov: SKYMAP_VIEW_PROFILE.defaultFov },
+            groundCaptionText: props.passage.summary,
             model,
             arrangement: displayArrangement,
             labelColors: labelColors as Record<string, string>,
@@ -161,9 +176,9 @@ const Treemap = (props: any) => {
             bookRegions,
             constellations: previewConstellationConfig,
             showBookLabels: true,
-            showDivisionLabels: true,
+            showDivisionLabels: false,
             showChapterLabels: true,
-            showDivisionTint: true,
+            showDivisionTint: false,
             divisionLabelPushFraction: 0.45,
             divisionLabelHorizonPaddingDeg: 25,
             showGroupLabels: false,
@@ -174,8 +189,8 @@ const Treemap = (props: any) => {
                     chapter: { maxFov: 22, maxOverlapPx: 12 },
                 },
             },
-            showConstellationLines: true,
-            constellationLineMode: "focused",
+            showConstellationLines: false,
+            constellationLineMode: "off",
             showDivisionBoundaries: false,
             showConstellationArt: false,
             constellationBaseOpacity: 40,
@@ -185,8 +200,14 @@ const Treemap = (props: any) => {
             showSunrise: false,
             showMilkyWay: false,
             horizonTheme: previewHorizonTheme,
-            projection: "blended",
             fitProjection: true,
+            zenithHorizonWarp: ZENITH_HORIZON_TUNING.horizonWarp,
+            horizonGroundAlpha: ZENITH_HORIZON_TUNING.groundAlpha,
+            showLandscapeSilhouette: true,
+            landscapeSilhouetteOpacity: ZENITH_HORIZON_TUNING.landscapeOpacity,
+            landscapeSilhouetteHeightDeg: ZENITH_HORIZON_TUNING.landscapeHeight,
+            landscapeSilhouetteSoftness: ZENITH_HORIZON_TUNING.landscapeSoftness,
+            landscapeSilhouetteColor: "#05080d",
             starSizeExponent: 4.0,
             starSizeScale: 1.25,
             starSizeWeightPercentile: 1.0,
@@ -256,7 +277,10 @@ const Treemap = (props: any) => {
                     config={config}
                     onSelect={handleSelect}
                     onHover={handleHover}
-                    onFovChange={setCurrentFov}
+                    onFovChange={(fov: number) => {
+                        setCurrentFov(fov);
+                        props.onFovChange?.(fov);
+                    }}
                     onLongPress={handleLongPress}
                 />
             ) : null}

@@ -88,7 +88,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     }
 
     return <section className="pointer-events-auto">{
-        props.playing ? <section className="sm:panel flex justify-between mt-0 flex-wrap opacity-25 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
+        props.playing ? <section className="sm:panel flex justify-between mt-0 flex-wrap opacity-50 hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                 <Autocomplete
                     className="sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] sm:rounded-l-full pl-4 pr-2 py-1 sm:w-[13.33rem] w-[33%]"
                     inputProps={{
