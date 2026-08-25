@@ -11,10 +11,14 @@
         "C:GEN:1",
         "C:GEN:50"
       ],
-      "center": null,
-      "radius": 1525.36,
-      "rotationDeg": 5,
-      "opacity": 0.01,
+      "center": [
+        -1239.8874389310613,
+        926.866711157206,
+        1266.3321991205944
+      ],
+      "radius": 520,
+      "rotationDeg": 162,
+      "opacity": 0.0075,
       "blend": "additive",
       "zBias": 2,
       "fade": {
@@ -26,32 +30,32 @@
       },
       "lineSegments": [
         {
-          "from": "C:GEN:15",
-          "to": "C:GEN:2",
+          "from": "C:GEN:37",
+          "to": "C:GEN:31",
           "weight": "normal",
           "color": "#6eaaff"
         },
         {
-          "from": "C:GEN:19",
-          "to": "C:GEN:15",
+          "from": "C:GEN:37",
+          "to": "C:GEN:45",
           "weight": "normal",
           "color": "#6eaaff"
         },
         {
-          "from": "C:GEN:15",
-          "to": "C:GEN:25",
+          "from": "C:GEN:37",
+          "to": "C:GEN:7",
           "weight": "normal",
           "color": "#6eaaff"
         },
         {
-          "from": "C:GEN:25",
-          "to": "C:GEN:26",
+          "from": "C:GEN:14",
+          "to": "C:GEN:7",
           "weight": "normal",
           "color": "#6eaaff"
         },
         {
-          "from": "C:GEN:25",
-          "to": "C:GEN:47",
+          "from": "C:GEN:7",
+          "to": "C:GEN:4",
           "weight": "normal",
           "color": "#6eaaff"
         }
@@ -60,7 +64,7 @@
       "linePaths": []
     },
     {
-      "id": "EXODUS",
+      "id": "EXO",
       "title": "Exodus",
       "type": "book",
       "image": "exodus.png",
@@ -68,9 +72,13 @@
         "C:EXO:1",
         "C:EXO:40"
       ],
-      "center": null,
-      "radius": 1000.19,
-      "rotationDeg": 40,
+      "center": [
+        -589.6565228525261,
+        1706.947858242762,
+        859.4383016237496
+      ],
+      "radius": 688.5577460931253,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -81,12 +89,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#6eaaff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "LEVITICUS",
+      "id": "LEV",
       "title": "Leviticus",
       "type": "book",
       "image": "leviticus.png",
@@ -94,9 +102,13 @@
         "C:LEV:1",
         "C:LEV:27"
       ],
-      "center": null,
-      "radius": 1106.77,
-      "rotationDeg": 15,
+      "center": [
+        -277.4935886732031,
+        1898.1420343333643,
+        565.7332637754864
+      ],
+      "radius": 533.2042248114673,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -107,12 +119,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#6eaaff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "NUMBERS",
+      "id": "NUM",
       "title": "Numbers",
       "type": "book",
       "image": "numbers.png",
@@ -120,9 +132,13 @@
         "C:NUM:1",
         "C:NUM:36"
       ],
-      "center": null,
-      "radius": 1000.76,
-      "rotationDeg": 35,
+      "center": [
+        -880.3841140812227,
+        1775.035369656776,
+        272.34766042845484
+      ],
+      "radius": 733.1454933234206,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -133,12 +149,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#6eaaff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "DEUTERONOMY",
+      "id": "DEU",
       "title": "Deuteronomy",
       "type": "book",
       "image": "deuteronomy.png",
@@ -146,9 +162,13 @@
         "C:DEU:1",
         "C:DEU:34"
       ],
-      "center": null,
-      "radius": 1452.73,
-      "rotationDeg": 65,
+      "center": [
+        -1266.745722851498,
+        1326.9502150350745,
+        796.5917401378233
+      ],
+      "radius": 514.3294566292076,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -159,12 +179,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#6eaaff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "JOSHUA",
+      "id": "JOS",
       "title": "Joshua",
       "type": "book",
       "image": "joshua.png",
@@ -172,9 +192,13 @@
         "C:JOS:1",
         "C:JOS:24"
       ],
-      "center": null,
-      "radius": 1185.88,
-      "rotationDeg": -15,
+      "center": [
+        -1587.5857455361884,
+        1116.6122364989017,
+        482.440269744583
+      ],
+      "radius": 1,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -185,6 +209,8 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
+      "lineColor": "#b678ff",
+      "linePaths": [],
       "lineSegments": [
         {
           "from": "C:JOS:7",
@@ -216,12 +242,10 @@
           "weight": "normal",
           "color": "#b678ff"
         }
-      ],
-      "lineColor": "#b678ff",
-      "linePaths": []
+      ]
     },
     {
-      "id": "JUDGES",
+      "id": "JDG",
       "title": "Judges",
       "type": "book",
       "image": "judges.png",
@@ -229,9 +253,13 @@
         "C:JDG:1",
         "C:JDG:21"
       ],
-      "center": null,
-      "radius": 1149.28,
-      "rotationDeg": 15,
+      "center": [
+        -1012.1460378068874,
+        1672.4928896410352,
+        -422.28892035193286
+      ],
+      "radius": 380,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -242,6 +270,8 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
+      "lineColor": "#b678ff",
+      "linePaths": [],
       "lineSegments": [
         {
           "from": "C:JDG:21",
@@ -267,12 +297,10 @@
           "weight": "normal",
           "color": "#b678ff"
         }
-      ],
-      "lineColor": "#b678ff",
-      "linePaths": []
+      ]
     },
     {
-      "id": "RUTH",
+      "id": "RUT",
       "title": "Ruth",
       "type": "book",
       "image": "ruth.png",
@@ -280,9 +308,13 @@
         "C:RUT:1",
         "C:RUT:4"
       ],
-      "center": null,
-      "radius": 432.5,
-      "rotationDeg": -10,
+      "center": [
+        -1275.6592193163074,
+        1529.462723172977,
+        182.85878321155752
+      ],
+      "radius": 268.4621281021644,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -293,12 +325,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "1SAMUEL",
+      "id": "1SA",
       "title": "1 Samuel",
       "type": "book",
       "image": "1samuel.png",
@@ -306,9 +338,13 @@
         "C:1SA:1",
         "C:1SA:31"
       ],
-      "center": null,
-      "radius": 1316.28,
-      "rotationDeg": 30,
+      "center": [
+        -1510.5965501474209,
+        1289.1756568923968,
+        -236.9054418091065
+      ],
+      "radius": 557.5872690791422,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -319,12 +355,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "2SAMUEL",
+      "id": "2SA",
       "title": "2 Samuel",
       "type": "book",
       "image": "2samuel.png",
@@ -332,9 +368,13 @@
         "C:2SA:1",
         "C:2SA:24"
       ],
-      "center": null,
-      "radius": 995.52,
-      "rotationDeg": -25,
+      "center": [
+        -1388.6827344701603,
+        1283.6730537309322,
+        -650.9560308573705
+      ],
+      "radius": 494.72682456501536,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -345,12 +385,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "1KINGS",
+      "id": "1KI",
       "title": "1 Kings",
       "type": "book",
       "image": "1kings.png",
@@ -358,9 +398,13 @@
         "C:1KI:1",
         "C:1KI:22"
       ],
-      "center": null,
-      "radius": 1079.36,
-      "rotationDeg": 10,
+      "center": [
+        -1029.7207373428953,
+        1652.2488200827547,
+        -457.983667417462
+      ],
+      "radius": 430.9869251210602,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -371,12 +415,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "2KINGS",
+      "id": "2KI",
       "title": "2 Kings",
       "type": "book",
       "image": "2kings.png",
@@ -384,9 +428,13 @@
         "C:2KI:1",
         "C:2KI:25"
       ],
-      "center": null,
-      "radius": 1237.87,
-      "rotationDeg": -15,
+      "center": [
+        -820.5317050587787,
+        1823.0886543667343,
+        -55.45700418001987
+      ],
+      "radius": 471.9446500276469,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -397,12 +445,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "1CHRONICLES",
+      "id": "1CH",
       "title": "1 Chronicles",
       "type": "book",
       "image": "1chronicles.png",
@@ -410,9 +458,13 @@
         "C:1CH:1",
         "C:1CH:29"
       ],
-      "center": null,
-      "radius": 1159.61,
-      "rotationDeg": 110,
+      "center": [
+        -597.7759611609112,
+        1863.4604901852904,
+        -412.52745578512304
+      ],
+      "radius": 463.0393978647733,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -423,12 +475,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "2CHRONICLES",
+      "id": "2CH",
       "title": "2 Chronicles",
       "type": "book",
       "image": "2chronicles.png",
@@ -436,9 +488,13 @@
         "C:2CH:1",
         "C:2CH:36"
       ],
-      "center": null,
-      "radius": 850.66,
-      "rotationDeg": -30,
+      "center": [
+        -177.1004601725027,
+        1987.8669534943197,
+        -130.4622635550232
+      ],
+      "radius": 513.40288531884,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -449,12 +505,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "EZRA",
+      "id": "EZR",
       "title": "Ezra",
       "type": "book",
       "image": "ezra.png",
@@ -462,9 +518,13 @@
         "C:EZR:1",
         "C:EZR:10"
       ],
-      "center": null,
-      "radius": 656.27,
-      "rotationDeg": 192,
+      "center": [
+        197.7208080767308,
+        1979.7392520608248,
+        -203.81112801594233
+      ],
+      "radius": 321.54148922295116,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -475,12 +535,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "NEHEMIAH",
+      "id": "NEH",
       "title": "Nehemiah",
       "type": "book",
       "image": "nehemiah.png",
@@ -488,9 +548,13 @@
         "C:NEH:1",
         "C:NEH:13"
       ],
-      "center": null,
-      "radius": 500.31,
-      "rotationDeg": -55,
+      "center": [
+        204.9929043325536,
+        1934.96595491555,
+        -462.4766615636482
+      ],
+      "radius": 335.16478911592617,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -501,12 +565,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "ESTHER",
+      "id": "EST",
       "title": "Esther",
       "type": "book",
       "image": "esther.png",
@@ -514,9 +578,13 @@
         "C:EST:1",
         "C:EST:10"
       ],
-      "center": null,
-      "radius": 568.2,
-      "rotationDeg": 140,
+      "center": [
+        -63.55120490020426,
+        1908.3071461197464,
+        -595.2521150101363
+      ],
+      "radius": 328.3376814639475,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -527,9 +595,9 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#b678ff",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
       "id": "JOB",
@@ -540,9 +608,13 @@
         "C:JOB:1",
         "C:JOB:42"
       ],
-      "center": null,
-      "radius": 1505.06,
-      "rotationDeg": 15,
+      "center": [
+        347.18546378294815,
+        1776.5875880193412,
+        -850.4109570280941
+      ],
+      "radius": 510.6244880158205,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -553,12 +625,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ff6e6e",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "PSALMS",
+      "id": "PSA",
       "title": "Psalms",
       "type": "book",
       "image": "psalms.png",
@@ -566,9 +638,13 @@
         "C:PSA:1",
         "C:PSA:150"
       ],
-      "center": null,
-      "radius": 2241.71,
-      "rotationDeg": 125,
+      "center": [
+        -571.7961861100224,
+        1462.4547544682275,
+        -1238.6586344442555
+      ],
+      "radius": 820,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -579,12 +655,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ff6e6e",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "PROVERBS",
+      "id": "PRO",
       "title": "Proverbs",
       "type": "book",
       "image": "proverbs.png",
@@ -592,9 +668,13 @@
         "C:PRO:1",
         "C:PRO:31"
       ],
-      "center": null,
-      "radius": 1399.66,
-      "rotationDeg": 198,
+      "center": [
+        202.90979703976228,
+        1579.123330207377,
+        -1210.4532714070567
+      ],
+      "radius": 440.13268793488646,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -605,12 +685,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ff6e6e",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "ECCLESIASTES",
+      "id": "ECC",
       "title": "Ecclesiastes",
       "type": "book",
       "image": "ecclesiastes.png",
@@ -618,9 +698,13 @@
         "C:ECC:1",
         "C:ECC:12"
       ],
-      "center": null,
-      "radius": 689.09,
-      "rotationDeg": -12,
+      "center": [
+        303.19465384944493,
+        1271.8435081389762,
+        -1513.435526437072
+      ],
+      "radius": 386.409665057578,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -631,12 +715,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ff6e6e",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "SONGOFSONGS",
+      "id": "SNG",
       "title": "Song of Songs",
       "type": "book",
       "image": "songofsongs.png",
@@ -644,9 +728,13 @@
         "C:SNG:1",
         "C:SNG:8"
       ],
-      "center": null,
-      "radius": 500.26,
-      "rotationDeg": 35,
+      "center": [
+        240.87416057882675,
+        924.4393289160068,
+        -1757.097483328335
+      ],
+      "radius": 442.22315613399854,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -657,12 +745,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ff6e6e",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "ISAIAH",
+      "id": "ISA",
       "title": "Isaiah",
       "type": "book",
       "image": "isaiah.png",
@@ -670,9 +758,13 @@
         "C:ISA:1",
         "C:ISA:66"
       ],
-      "center": null,
-      "radius": 1800.46,
-      "rotationDeg": -40,
+      "center": [
+        917.7876624013144,
+        1137.4436914950863,
+        -1365.242709345837
+      ],
+      "radius": 1,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -683,6 +775,8 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
+      "lineColor": "#6ed692",
+      "linePaths": [],
       "lineSegments": [
         {
           "from": "C:ISA:60",
@@ -708,12 +802,10 @@
           "weight": "normal",
           "color": "#6ed692"
         }
-      ],
-      "lineColor": "#6ed692",
-      "linePaths": []
+      ]
     },
     {
-      "id": "JEREMIAH",
+      "id": "JER",
       "title": "Jeremiah",
       "type": "book",
       "image": "jeremiah.png",
@@ -721,9 +813,13 @@
         "C:JER:1",
         "C:JER:52"
       ],
-      "center": null,
-      "radius": 1451.35,
-      "rotationDeg": 225,
+      "center": [
+        631.2798787231419,
+        1844.1578784373264,
+        -447.8475567833703
+      ],
+      "radius": 694.5336556906598,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -734,12 +830,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#6ed692",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "LAMENTATIONS",
+      "id": "LAM",
       "title": "Lamentations",
       "type": "book",
       "image": "lamentations.png",
@@ -747,9 +843,13 @@
         "C:LAM:1",
         "C:LAM:5"
       ],
-      "center": null,
-      "radius": 614.95,
-      "rotationDeg": 152,
+      "center": [
+        948.044439883869,
+        1513.6423574840624,
+        -900.0547503543168
+      ],
+      "radius": 263.9307675392696,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -760,12 +860,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#6ed692",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "EZEKIEL",
+      "id": "EZK",
       "title": "Ezekiel",
       "type": "book",
       "image": "ezekiel.png",
@@ -773,9 +873,13 @@
         "C:EZK:1",
         "C:EZK:48"
       ],
-      "center": null,
-      "radius": 1396.18,
-      "rotationDeg": 22,
+      "center": [
+        1228.147432546231,
+        1449.1654506922332,
+        -625.7582444123921
+      ],
+      "radius": 560.3655299037687,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -786,12 +890,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#6ed692",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "DANIEL",
+      "id": "DAN",
       "title": "Daniel",
       "type": "book",
       "image": "daniel.png",
@@ -799,9 +903,13 @@
         "C:DAN:1",
         "C:DAN:12"
       ],
-      "center": null,
-      "radius": 898.96,
-      "rotationDeg": -42,
+      "center": [
+        1643.9738696074812,
+        214.99199627951305,
+        1118.5384917755653
+      ],
+      "radius": 380,
+      "rotationDeg": -176,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -812,37 +920,55 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
+      "lineColor": "#6ed692",
+      "linePaths": [],
       "lineSegments": [
         {
-          "from": "C:DAN:12",
-          "to": "C:DAN:6",
+          "from": "C:DAN:3",
+          "to": "C:DAN:2",
           "weight": "normal",
           "color": "#6ed692"
         },
         {
-          "from": "C:DAN:6",
+          "from": "C:DAN:3",
           "to": "C:DAN:4",
           "weight": "normal",
           "color": "#6ed692"
         },
         {
           "from": "C:DAN:4",
+          "to": "C:DAN:7",
+          "weight": "normal",
+          "color": "#6ed692"
+        },
+        {
+          "from": "C:DAN:10",
+          "to": "C:DAN:12",
+          "weight": "normal",
+          "color": "#6ed692"
+        },
+        {
+          "from": "C:DAN:10",
+          "to": "C:DAN:11",
+          "weight": "normal",
+          "color": "#6ed692"
+        },
+        {
+          "from": "C:DAN:7",
           "to": "C:DAN:5",
           "weight": "normal",
           "color": "#6ed692"
         },
         {
-          "from": "C:DAN:4",
-          "to": "C:DAN:1",
+          "from": "C:DAN:7",
+          "to": "C:DAN:10",
           "weight": "normal",
           "color": "#6ed692"
         }
-      ],
-      "lineColor": "#6ed692",
-      "linePaths": []
+      ]
     },
     {
-      "id": "HOSEA",
+      "id": "HOS",
       "title": "Hosea",
       "type": "book",
       "image": "hosea.png",
@@ -850,9 +976,13 @@
         "C:HOS:1",
         "C:HOS:14"
       ],
-      "center": null,
-      "radius": 320.88,
-      "rotationDeg": 40,
+      "center": [
+        1527.8351854134985,
+        1288.5076939406215,
+        -73.94301094981019
+      ],
+      "radius": 396.7307468656267,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -863,22 +993,26 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "JOEL",
+      "id": "JOL",
       "title": "Joel",
       "type": "book",
       "image": "joel.png",
       "anchors": [
         "C:JOL:1",
-        "C:JOL:3"
+        "C:JOL:4"
       ],
-      "center": null,
-      "radius": 411.26,
-      "rotationDeg": -38,
+      "center": [
+        1277.0353710105371,
+        1528.136308725983,
+        -184.33687406839417
+      ],
+      "radius": 219.5023632218039,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -889,12 +1023,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "AMOS",
+      "id": "AMO",
       "title": "Amos",
       "type": "book",
       "image": "amos.png",
@@ -902,9 +1036,13 @@
         "C:AMO:1",
         "C:AMO:9"
       ],
-      "center": null,
-      "radius": 400.22,
-      "rotationDeg": 28,
+      "center": [
+        1164.6465196564743,
+        1621.758764911249,
+        -116.17655824477175
+      ],
+      "radius": 306.99387281406786,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -915,12 +1053,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "OBADIAH",
+      "id": "OBA",
       "title": "Obadiah",
       "type": "book",
       "image": "obadiah.png",
@@ -928,9 +1066,13 @@
         "C:OBA:1",
         "C:OBA:1"
       ],
-      "center": null,
-      "radius": 248.18,
-      "rotationDeg": -45,
+      "center": [
+        1072.9567369406811,
+        1663.9151032760444,
+        -283.1084063454789
+      ],
+      "radius": 160,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -941,12 +1083,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "JONAH",
+      "id": "JON",
       "title": "Jonah",
       "type": "book",
       "image": "jonah.png",
@@ -954,9 +1096,13 @@
         "C:JON:1",
         "C:JON:4"
       ],
-      "center": null,
-      "radius": 381.05,
-      "rotationDeg": 38,
+      "center": [
+        1018.3096406193451,
+        1720.18041016244,
+        -63.44156614617415
+      ],
+      "radius": 251.44284866767777,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -967,12 +1113,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "MICAH",
+      "id": "MIC",
       "title": "Micah",
       "type": "book",
       "image": "micah.png",
@@ -980,9 +1126,13 @@
         "C:MIC:1",
         "C:MIC:7"
       ],
-      "center": null,
-      "radius": 450.68,
-      "rotationDeg": -32,
+      "center": [
+        913.6343801028456,
+        1768.1704961468124,
+        -197.09215116291395
+      ],
+      "radius": 288.8303826570271,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -993,12 +1143,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "NAHUM",
+      "id": "NAM",
       "title": "Nahum",
       "type": "book",
       "image": "nahum.png",
@@ -1006,9 +1156,13 @@
         "C:NAM:1",
         "C:NAM:3"
       ],
-      "center": null,
-      "radius": 275.95,
-      "rotationDeg": 26,
+      "center": [
+        854.7261789967645,
+        1807.007849529812,
+        -64.54293667966054
+      ],
+      "radius": 210.35484791423983,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1019,12 +1173,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "HABAKKUK",
+      "id": "HAB",
       "title": "Habakkuk",
       "type": "book",
       "image": "habakkuk.png",
@@ -1032,9 +1186,13 @@
         "C:HAB:1",
         "C:HAB:3"
       ],
-      "center": null,
-      "radius": 372.73,
-      "rotationDeg": -24,
+      "center": [
+        767.1344202422944,
+        1846.153369450776,
+        -56.76722421490945
+      ],
+      "radius": 265.5211777615148,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1045,12 +1203,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "ZEPHANIAH",
+      "id": "ZEP",
       "title": "Zephaniah",
       "type": "book",
       "image": "zephaniah.png",
@@ -1058,9 +1216,13 @@
         "C:ZEP:1",
         "C:ZEP:3"
       ],
-      "center": null,
-      "radius": 281.51,
-      "rotationDeg": 33,
+      "center": [
+        556.1448304690263,
+        1920.405676093496,
+        -52.39243046909995
+      ],
+      "radius": 233.98186489138573,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1071,12 +1233,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "HAGGAI",
+      "id": "HAG",
       "title": "Haggai",
       "type": "book",
       "image": "haggai.png",
@@ -1084,9 +1246,13 @@
         "C:HAG:1",
         "C:HAG:2"
       ],
-      "center": null,
-      "radius": 345.08,
-      "rotationDeg": -18,
+      "center": [
+        672.4856120149316,
+        1881.997451555414,
+        76.47675445407994
+      ],
+      "radius": 207.24399704811248,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1097,12 +1263,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "ZECHARIAH",
+      "id": "ZEC",
       "title": "Zechariah",
       "type": "book",
       "image": "zechariah.png",
@@ -1110,9 +1276,13 @@
         "C:ZEC:1",
         "C:ZEC:14"
       ],
-      "center": null,
-      "radius": 599.06,
-      "rotationDeg": 110,
+      "center": [
+        818.106300715174,
+        1806.2305645968145,
+        261.21490816262207
+      ],
+      "radius": 392.3751534305307,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1123,22 +1293,26 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "MALACHI",
+      "id": "MAL",
       "title": "Malachi",
       "type": "book",
       "image": "malachi.png",
       "anchors": [
         "C:MAL:1",
-        "C:MAL:4"
+        "C:MAL:3"
       ],
-      "center": null,
-      "radius": 337.61,
-      "rotationDeg": -33,
+      "center": [
+        1094.6300814229023,
+        1663.6707030706812,
+        184.34960425342803
+      ],
+      "radius": 253.0495147432773,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1149,22 +1323,26 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "MATTHEW",
-      "title": "Matthew",
+      "id": "MAT",
+      "title": "Mathew",
       "type": "book",
       "image": "mathew.png",
       "anchors": [
         "C:MAT:1",
         "C:MAT:28"
       ],
-      "center": null,
-      "radius": 1250.98,
-      "rotationDeg": 80,
+      "center": [
+        1358.7533184710082,
+        1424.1441868001489,
+        354.40478939676484
+      ],
+      "radius": 605.7048429209517,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1175,12 +1353,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "MARK",
+      "id": "MRK",
       "title": "Mark",
       "type": "book",
       "image": "mark.png",
@@ -1188,9 +1366,13 @@
         "C:MRK:1",
         "C:MRK:16"
       ],
-      "center": null,
-      "radius": 900.56,
-      "rotationDeg": 60,
+      "center": [
+        1563.6110065924863,
+        1092.8419324318972,
+        600.6805563536641
+      ],
+      "radius": 549.5259192348643,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1201,12 +1383,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "LUKE",
+      "id": "LUK",
       "title": "Luke",
       "type": "book",
       "image": "luke.png",
@@ -1214,9 +1396,13 @@
         "C:LUK:1",
         "C:LUK:24"
       ],
-      "center": null,
-      "radius": 1175.6,
-      "rotationDeg": -90,
+      "center": [
+        1266.377408714924,
+        1245.2569629452737,
+        919.5778134191733
+      ],
+      "radius": 556.573572231509,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1227,12 +1413,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ffd65c",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "JOHN",
+      "id": "JHN",
       "title": "John",
       "type": "book",
       "image": "john.png",
@@ -1240,9 +1426,13 @@
         "C:JHN:1",
         "C:JHN:21"
       ],
-      "center": null,
-      "radius": 1074.02,
-      "rotationDeg": -15,
+      "center": [
+        826.4436830494232,
+        886.5153693939899,
+        1590.9372516148908
+      ],
+      "radius": 360,
+      "rotationDeg": 180,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1253,6 +1443,8 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
+      "lineColor": "#ffd65c",
+      "linePaths": [],
       "lineSegments": [
         {
           "from": "C:JHN:20",
@@ -1266,12 +1458,10 @@
           "weight": "normal",
           "color": "#ffd65c"
         }
-      ],
-      "lineColor": "#ffd65c",
-      "linePaths": []
+      ]
     },
     {
-      "id": "ACTS",
+      "id": "ACT",
       "title": "Acts",
       "type": "book",
       "image": "acts.png",
@@ -1279,9 +1469,13 @@
         "C:ACT:1",
         "C:ACT:28"
       ],
-      "center": null,
-      "radius": 1250.91,
-      "rotationDeg": 170,
+      "center": [
+        166.79852075237787,
+        1382.7909897966279,
+        1435.2934654669339
+      ],
+      "radius": 260,
+      "rotationDeg": -157,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1292,6 +1486,8 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
+      "lineColor": "#6ed692",
+      "linePaths": [],
       "lineSegments": [
         {
           "from": "C:ACT:1",
@@ -1317,12 +1513,10 @@
           "weight": "normal",
           "color": "#6ed692"
         }
-      ],
-      "lineColor": "#6ed692",
-      "linePaths": []
+      ]
     },
     {
-      "id": "ROMANS",
+      "id": "ROM",
       "title": "Romans",
       "type": "book",
       "image": "romans.png",
@@ -1330,450 +1524,12 @@
         "C:ROM:1",
         "C:ROM:16"
       ],
-      "center": null,
-      "radius": 650.83,
-      "rotationDeg": -5,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "1CORINTHIANS",
-      "title": "1 Corinthians",
-      "type": "book",
-      "image": "1corinthians.png",
-      "anchors": [
-        "C:1CO:1",
-        "C:1CO:16"
+      "center": [
+        822.9751625727707,
+        1310.8523979461263,
+        1266.6403880293772
       ],
-      "center": null,
-      "radius": 750.34,
-      "rotationDeg": 10,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "2CORINTHIANS",
-      "title": "2 Corinthians",
-      "type": "book",
-      "image": "2corinthians.png",
-      "anchors": [
-        "C:2CO:1",
-        "C:2CO:13"
-      ],
-      "center": null,
-      "radius": 500.6,
-      "rotationDeg": -15,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "EPHESIANS",
-      "title": "Ephesians",
-      "type": "book",
-      "image": "ephesians.png",
-      "anchors": [
-        "C:EPH:1",
-        "C:EPH:6"
-      ],
-      "center": null,
-      "radius": 524.64,
-      "rotationDeg": -30,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "GALATIANS",
-      "title": "Galatians",
-      "type": "book",
-      "image": "galatians.png",
-      "anchors": [
-        "C:GAL:1",
-        "C:GAL:6"
-      ],
-      "center": null,
-      "radius": 572.18,
-      "rotationDeg": 25,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "PHILIPPIANS",
-      "title": "Philippians",
-      "type": "book",
-      "image": "philippians.png",
-      "anchors": [
-        "C:PHP:1",
-        "C:PHP:4"
-      ],
-      "center": null,
-      "radius": 418.2,
-      "rotationDeg": 5,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "COLOSSIANS",
-      "title": "Colossians",
-      "type": "book",
-      "image": "colossians.png",
-      "anchors": [
-        "C:COL:1",
-        "C:COL:4"
-      ],
-      "center": null,
-      "radius": 384.79,
-      "rotationDeg": 40,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "1THESSALONIANS",
-      "title": "1 Thessalonians",
-      "type": "book",
-      "image": "1thessalonians.png",
-      "anchors": [
-        "C:1TH:1",
-        "C:1TH:5"
-      ],
-      "center": null,
-      "radius": 395.63,
-      "rotationDeg": -25,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "2THESSALONIANS",
-      "title": "2 Thessalonians",
-      "type": "book",
-      "image": "2thessalonians.png",
-      "anchors": [
-        "C:2TH:1",
-        "C:2TH:3"
-      ],
-      "center": null,
-      "radius": 343.88,
-      "rotationDeg": 15,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "1TIMOTHY",
-      "title": "1 Timothy",
-      "type": "book",
-      "image": "1timothy.png",
-      "anchors": [
-        "C:1TI:1",
-        "C:1TI:6"
-      ],
-      "center": null,
-      "radius": 300.63,
-      "rotationDeg": -5,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "2TIMOTHY",
-      "title": "2 Timothy",
-      "type": "book",
-      "image": "2timothy.png",
-      "anchors": [
-        "C:2TI:1",
-        "C:2TI:4"
-      ],
-      "center": null,
-      "radius": 280.33,
-      "rotationDeg": 30,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "TITUS",
-      "title": "Titus",
-      "type": "book",
-      "image": "titus.png",
-      "anchors": [
-        "C:TIT:1",
-        "C:TIT:3"
-      ],
-      "center": null,
-      "radius": 278.81,
-      "rotationDeg": -35,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "PHILEMON",
-      "title": "Philemon",
-      "type": "book",
-      "image": "philemon.png",
-      "anchors": [
-        "C:PHM:1",
-        "C:PHM:1"
-      ],
-      "center": null,
-      "radius": 188.81,
-      "rotationDeg": 20,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "HEBREWS",
-      "title": "Hebrews",
-      "type": "book",
-      "image": "hebrews.png",
-      "anchors": [
-        "C:HEB:1",
-        "C:HEB:13"
-      ],
-      "center": null,
-      "radius": 700.78,
-      "rotationDeg": 115,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#6eaaff",
-      "linePaths": []
-    },
-    {
-      "id": "JAMES",
-      "title": "James",
-      "type": "book",
-      "image": "james.png",
-      "anchors": [
-        "C:JAS:1",
-        "C:JAS:5"
-      ],
-      "center": null,
-      "radius": 392.44,
-      "rotationDeg": 5,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#ff6e6e",
-      "linePaths": []
-    },
-    {
-      "id": "1PETER",
-      "title": "1 Peter",
-      "type": "book",
-      "image": "1peter.png",
-      "anchors": [
-        "C:1PE:1",
-        "C:1PE:5"
-      ],
-      "center": null,
-      "radius": 419.36,
-      "rotationDeg": -28,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#ff6e6e",
-      "linePaths": []
-    },
-    {
-      "id": "2PETER",
-      "title": "2 Peter",
-      "type": "book",
-      "image": "2peter.png",
-      "anchors": [
-        "C:2PE:1",
-        "C:2PE:3"
-      ],
-      "center": null,
-      "radius": 368.26,
-      "rotationDeg": 18,
-      "opacity": 0.01,
-      "blend": "additive",
-      "zBias": 2,
-      "fade": {
-        "zoomInStart": 110,
-        "zoomInEnd": 20,
-        "hoverBoost": 0,
-        "minOpacity": 0.1,
-        "maxOpacity": 0.4
-      },
-      "lineSegments": [],
-      "lineColor": "#ff6e6e",
-      "linePaths": []
-    },
-    {
-      "id": "1JOHN",
-      "title": "1 John",
-      "type": "book",
-      "image": "1john.png",
-      "anchors": [
-        "C:1JN:1",
-        "C:1JN:5"
-      ],
-      "center": null,
-      "radius": 387.44,
+      "radius": 492.2679543977068,
       "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
@@ -1785,6 +1541,518 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "1CO",
+      "title": "1 Corinthians",
+      "type": "book",
+      "image": "1corinthians.png",
+      "anchors": [
+        "C:1CO:1",
+        "C:1CO:16"
+      ],
+      "center": [
+        385.76297634303234,
+        1611.0953785939823,
+        1120.517115958555
+      ],
+      "radius": 477.9464483908832,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "2CO",
+      "title": "2 Corinthians",
+      "type": "book",
+      "image": "2corinthians.png",
+      "anchors": [
+        "C:2CO:1",
+        "C:2CO:13"
+      ],
+      "center": [
+        571.6191723320974,
+        1773.2926333071616,
+        727.1071162359228
+      ],
+      "radius": 496.9700172133139,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "EPH",
+      "title": "Ephesians",
+      "type": "book",
+      "image": "ephesians.png",
+      "anchors": [
+        "C:EPH:1",
+        "C:EPH:6"
+      ],
+      "center": [
+        318.17724895761495,
+        1905.6183887725351,
+        517.0897355563454
+      ],
+      "radius": 299.47139746764395,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "GAL",
+      "title": "Galatians",
+      "type": "book",
+      "image": "galatians.png",
+      "anchors": [
+        "C:GAL:1",
+        "C:GAL:6"
+      ],
+      "center": [
+        264.04348725963087,
+        1815.3641643118297,
+        796.7019441222584
+      ],
+      "radius": 266.79573089711073,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "PHP",
+      "title": "Philippians",
+      "type": "book",
+      "image": "philippians.png",
+      "anchors": [
+        "C:PHP:1",
+        "C:PHP:4"
+      ],
+      "center": [
+        522.4175386012579,
+        1896.3531944808396,
+        361.83487552213336
+      ],
+      "radius": 245.2674493678664,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "COL",
+      "title": "Colossians",
+      "type": "book",
+      "image": "colossians.png",
+      "anchors": [
+        "C:COL:1",
+        "C:COL:4"
+      ],
+      "center": [
+        399.76662830540073,
+        1936.6206781909264,
+        299.4778651196913
+      ],
+      "radius": 228.2828568602677,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "1TH",
+      "title": "1 Thessalonians",
+      "type": "book",
+      "image": "1thessalonians.png",
+      "anchors": [
+        "C:1TH:1",
+        "C:1TH:5"
+      ],
+      "center": [
+        469.0359469567912,
+        1939.9329976131487,
+        129.093939571187
+      ],
+      "radius": 264.0215909231625,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "2TH",
+      "title": "2 Thessalonians",
+      "type": "book",
+      "image": "2thessalonians.png",
+      "anchors": [
+        "C:2TH:1",
+        "C:2TH:3"
+      ],
+      "center": [
+        299.4652427713283,
+        1971.5081731672144,
+        153.21909641680705
+      ],
+      "radius": 222.47862271513927,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "1TI",
+      "title": "1 Timothy",
+      "type": "book",
+      "image": "1timothy.png",
+      "anchors": [
+        "C:1TI:1",
+        "C:1TI:6"
+      ],
+      "center": [
+        39.54235338611954,
+        1980.958324066096,
+        272.4711371905863
+      ],
+      "radius": 294.13888015054204,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "2TI",
+      "title": "2 Timothy",
+      "type": "book",
+      "image": "2timothy.png",
+      "anchors": [
+        "C:2TI:1",
+        "C:2TI:4"
+      ],
+      "center": [
+        253.67909296163637,
+        1965.3256670762096,
+        270.4476661493204
+      ],
+      "radius": 240.4479766574696,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "TIT",
+      "title": "Titus",
+      "type": "book",
+      "image": "titus.png",
+      "anchors": [
+        "C:TIT:1",
+        "C:TIT:3"
+      ],
+      "center": [
+        188.50822875065816,
+        1948.1571116754565,
+        411.2766902240308
+      ],
+      "radius": 227.33737204349688,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "PHM",
+      "title": "Philemon",
+      "type": "book",
+      "image": "philemon.png",
+      "anchors": [
+        "C:PHM:1",
+        "C:PHM:1"
+      ],
+      "center": [
+        155.35069223688947,
+        1924.160443681758,
+        522.9462203629923
+      ],
+      "radius": 160,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "HEB",
+      "title": "Hebrews",
+      "type": "book",
+      "image": "hebrews.png",
+      "anchors": [
+        "C:HEB:1",
+        "C:HEB:13"
+      ],
+      "center": [
+        103.94203869595418,
+        1859.7555385321025,
+        728.3580091485902
+      ],
+      "radius": 402.5176406062611,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#6eaaff",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "JAS",
+      "title": "James",
+      "type": "book",
+      "image": "james.png",
+      "anchors": [
+        "C:JAS:1",
+        "C:JAS:5"
+      ],
+      "center": [
+        44.89782919739525,
+        1700.489024266612,
+        1051.8180751832265
+      ],
+      "radius": 243.3411039351105,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#ff6e6e",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "1PE",
+      "title": "1 Peter",
+      "type": "book",
+      "image": "1peter.png",
+      "anchors": [
+        "C:1PE:1",
+        "C:1PE:5"
+      ],
+      "center": [
+        -98.95333371799988,
+        1582.7890957520433,
+        1218.6003923003325
+      ],
+      "radius": 257.86829921667663,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#ff6e6e",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "2PE",
+      "title": "2 Peter",
+      "type": "book",
+      "image": "2peter.png",
+      "anchors": [
+        "C:2PE:1",
+        "C:2PE:3"
+      ],
+      "center": [
+        -21.54261907505388,
+        1510.8404402152073,
+        1310.304193603037
+      ],
+      "radius": 204.182567782887,
+      "rotationDeg": 0,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#ff6e6e",
+      "linePaths": [],
+      "lineSegments": []
+    },
+    {
+      "id": "1JN",
+      "title": "1 John",
+      "type": "book",
+      "image": "1john.png",
+      "anchors": [
+        "C:1JN:1",
+        "C:1JN:5"
+      ],
+      "center": [
+        -98.41035069491907,
+        1211.3816028531332,
+        1588.3544992050977
+      ],
+      "radius": 90,
+      "rotationDeg": 176,
+      "opacity": 0.01,
+      "blend": "additive",
+      "zBias": 2,
+      "fade": {
+        "zoomInStart": 110,
+        "zoomInEnd": 20,
+        "hoverBoost": 0,
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
+      },
+      "lineColor": "#ff6e6e",
+      "linePaths": [],
       "lineSegments": [
         {
           "from": "C:1JN:5",
@@ -1804,12 +2072,10 @@
           "weight": "normal",
           "color": "#ff6e6e"
         }
-      ],
-      "lineColor": "#ff6e6e",
-      "linePaths": []
+      ]
     },
     {
-      "id": "2JOHN",
+      "id": "2JN",
       "title": "2 John",
       "type": "book",
       "image": "2john.png",
@@ -1817,9 +2083,13 @@
         "C:2JN:1",
         "C:2JN:1"
       ],
-      "center": null,
-      "radius": 137.03,
-      "rotationDeg": -40,
+      "center": [
+        -21.25431675673067,
+        1338.0373830092965,
+        1486.3391994053168
+      ],
+      "radius": 160,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1830,12 +2100,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ff6e6e",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "3JOHN",
+      "id": "3JN",
       "title": "3 John",
       "type": "book",
       "image": "3john.png",
@@ -1843,9 +2113,13 @@
         "C:3JN:1",
         "C:3JN:1"
       ],
-      "center": null,
-      "radius": 146.26,
-      "rotationDeg": 40,
+      "center": [
+        -52.55665883493512,
+        1406.1665358423345,
+        1421.2436353733574
+      ],
+      "radius": 160,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1856,12 +2130,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ff6e6e",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "JUDE",
+      "id": "JUD",
       "title": "Jude",
       "type": "book",
       "image": "jude.png",
@@ -1869,9 +2143,13 @@
         "C:JUD:1",
         "C:JUD:1"
       ],
-      "center": null,
-      "radius": 188.81,
-      "rotationDeg": -10,
+      "center": [
+        -106.58271077141264,
+        1453.216858338442,
+        1369.9638274077045
+      ],
+      "radius": 160,
+      "rotationDeg": 0,
       "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
@@ -1882,12 +2160,12 @@
         "minOpacity": 0.1,
         "maxOpacity": 0.4
       },
-      "lineSegments": [],
       "lineColor": "#ff6e6e",
-      "linePaths": []
+      "linePaths": [],
+      "lineSegments": []
     },
     {
-      "id": "REVELATION",
+      "id": "REV",
       "title": "Revelation",
       "type": "book",
       "image": "revelation.png",
@@ -1895,53 +2173,45 @@
         "C:REV:1",
         "C:REV:22"
       ],
-      "center": null,
-      "radius": 950,
-      "rotationDeg": 100,
-      "opacity": 0.02,
+      "center": [
+        -495.5216449780751,
+        883.3004832234408,
+        1724.598085263767
+      ],
+      "radius": 270,
+      "rotationDeg": -187,
+      "opacity": 0.01,
       "blend": "additive",
       "zBias": 2,
       "fade": {
         "zoomInStart": 110,
         "zoomInEnd": 20,
         "hoverBoost": 0,
-        "minOpacity": 0.2,
-        "maxOpacity": 0.6
+        "minOpacity": 0.1,
+        "maxOpacity": 0.4
       },
+      "lineColor": "#b678ff",
+      "linePaths": [],
       "lineSegments": [
         {
-          "from": "C:REV:1",
-          "to": "C:REV:12",
+          "from": "C:REV:2",
+          "to": "C:REV:16",
           "weight": "normal",
           "color": "#b678ff"
         },
         {
-          "from": "C:REV:12",
-          "to": "C:REV:6",
-          "weight": "normal",
-          "color": "#b678ff"
-        },
-        {
-          "from": "C:REV:6",
-          "to": "C:REV:2",
-          "weight": "normal",
-          "color": "#b678ff"
-        },
-        {
-          "from": "C:REV:6",
-          "to": "C:REV:3",
-          "weight": "normal",
-          "color": "#b678ff"
-        },
-        {
-          "from": "C:REV:12",
+          "from": "C:REV:16",
           "to": "C:REV:22",
           "weight": "normal",
           "color": "#b678ff"
+        },
+        {
+          "from": "C:REV:16",
+          "to": "C:REV:19",
+          "weight": "normal",
+          "color": "#b678ff"
         }
-      ],
-      "lineColor": "#b678ff",
-      "linePaths": []
+      ]
     }
   ]
 }
