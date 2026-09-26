@@ -9,11 +9,10 @@ import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
 import Guesses from "@/app/play/[game]/guesses";
 import Confetti from "@/core/component/confetti";
-import Treemap from "@/app/play/[game]/map/treemap";
+import Gridmap from "@/app/play/[game]/map/gridmap";
 import moment from "moment/moment";
 import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
-import * as Hammer from 'hammerjs';
 import { Spinner } from "@heroui/react";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
@@ -59,7 +58,7 @@ export default function Game(props: any) {
     const [confetti, setConfetti] = useState(false);
     const [narrativeHidden, setNarrativeHidden] = useState(true);
 
-    // FixMe :: double-render, just a dev issue like the treemap?
+    // FixMe :: double-render, just a dev issue like the map?
     useEffect(() => {
         if (!props.state && StateUtil.getConsent()) {
             toast.custom((t) => (
@@ -102,11 +101,7 @@ export default function Game(props: any) {
     useEffect(() => {
         if (confetti) setConfetti(false);
 
-        if (typeof window !== "undefined") {
-            (window as any).Hammer = Hammer.default;
-
-            if (passage) loadState();
-        }
+        if (typeof window !== "undefined" && passage) loadState();
     }, [passage]);
 
     // Re-sync state from localStorage when returning to the page (bfcache / tab switch)
@@ -282,23 +277,28 @@ export default function Game(props: any) {
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
 
         return (
-            <>
+            <div className="fixed inset-0 z-0 overflow-hidden bg-[#0a0b0c] text-[#f2efe8] [font-family:ui-monospace,'SF_Mono',Menlo,Consolas,monospace]">
                 <PopUp />
-                <Summary passage={passage} playing={playing}/>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
+                <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                          testFound={testamentFound} data={testaments} book={book} device={props.device}
                          narrativeHidden={narrativeHidden}
                          playing={playing}/>
-                <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
-                        isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
-                        addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
-                        selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
-                        state={props.state} passageId={passage.id} bible={props.bible}
-                        selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
+
+                <div className="pointer-events-none fixed left-[calc(16px+env(safe-area-inset-left))] right-4 top-[calc(4.75rem+env(safe-area-inset-top))] z-20 sm:left-[calc(24px+env(safe-area-inset-left))] sm:right-auto sm:top-[calc(5.25rem+env(safe-area-inset-top))]">
+                    <Summary passage={passage} playing={playing}/>
+                </div>
+
+                <section className="fixed bottom-[calc(10px+env(safe-area-inset-bottom))] left-[calc(16px+env(safe-area-inset-left))] right-[calc(16px+env(safe-area-inset-right))] z-20 !w-auto bg-[#0a0b0c] px-2 pt-1 pb-0 text-[10px] uppercase leading-[1.9] tracking-[0.16em] sm:bottom-[calc(18px+env(safe-area-inset-bottom))] sm:left-[calc(24px+env(safe-area-inset-left))] sm:right-auto sm:w-[22rem] sm:text-[10px]">
+                    <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
+                    <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
+                            isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
+                            addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
+                            selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
+                            state={props.state} passageId={passage.id} bible={props.bible}
+                            selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                </section>
                 <Confetti fire={confetti}/>
-            </>
+            </div>
         );
     }
 }
-

@@ -1,77 +1,32 @@
 "use client"
 
-import React, { useState } from "react";
-
-enum Closeness {
-    UNKNOWN = 'text-white',
-    VERY_FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-danger-200 to-danger-600',
-    FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-orange-200 to-orange-600',
-    MEDIUM = 'text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600',
-    CLOSE = 'text-transparent bg-clip-text bg-gradient-to-b from-lime-200 to-lime-600',
-    VERY_CLOSE = 'text-transparent bg-clip-text bg-gradient-to-b from-success-200 to-success-600'
-}
+import React, { useMemo } from "react";
 
 const Guess = (props: any) => {
     const formatter = Intl.NumberFormat("en", { notation: "compact" });
 
-    const [colour] = useState(grade(props.closeness));
-    const [passage] = useState(formatPassage(props.book, props.chapter));
-    const [closeness] = useState(formatCloseness(props.closeness));
+    const passage = useMemo(() => formatPassage(props.book, props.chapter), [props.book, props.chapter]);
+    const distance = props.closeness ? parseInt(props.closeness.distance) : null;
+    const found = distance === 0;
 
-    function grade(closeness: any): string {
-        if (closeness) {
-            closeness = Math.abs(parseInt(closeness.distance));
-            // note :: closeness now defined as verse distance; % closeness is ratio to total verses
-
-            if (closeness <= 100) return Closeness.VERY_CLOSE
-            if (closeness <= 500) return Closeness.CLOSE
-            if (closeness <= 2000) return Closeness.MEDIUM
-            if (closeness <= 5000) return Closeness.FAR
-            else return Closeness.VERY_FAR
-        }
-
-        return Closeness.UNKNOWN
-    }
-
-    // TODO :: extra to service-layer and apply to answer chip too!?
     function formatPassage(book: any, chapter: any): string {
-        if (!!book && !!chapter) {
-            switch (book) {
-                // case 'Song of Solomon':
-                //     return `Sg. Solomon ${chapter}`;
-                // case '1 Thessalonians':
-                //     return `1 Thessalon. ${chapter}`;
-                // case '2 Thessalonians':
-                //     return `2 Thessalon ${chapter}`;
-                // case '1 Corinthians':
-                //     return `1 Corinth. ${chapter}`;
-                // case '2 Corinthians':
-                //     return `2 Corinth. ${chapter}`;
-                default:
-                    return `${book.substring(0, book.split(" ").length > 1 ? 4 : 3).toUpperCase()} ${chapter}`
-            }
-        }
-
-        return ""
+        if (!book || !chapter) return "";
+        return `${book.substring(0, book.split(" ").length > 1 ? 4 : 3).toUpperCase()} ${chapter}`;
     }
 
-    function formatCloseness(closeness: any): string {
-        if (!!closeness) {
-            const distance = parseInt(closeness.distance);
-            return distance == 0 ? '🎉' : formatter.format(Math.abs(distance));
-
-        } else return '';
-    }
-
-    return <div className="p-1 justify-between text-white">
-        <div className="sm:flex items-center gap-2">
-            <p className="text-[11px] sm:text-[12px]">{passage}</p>
-            <p className={"text-[11px] sm:text-[12px] sm:flex gap-1 " + colour}>
-                <span>{closeness == '🎉' ? '' : props.closeness.distance.toString().includes('-') ? <>&#9650;</> : <>&#9660;</> }</span>
-                <span>{closeness}</span>
-            </p>
+    return (
+        <div className={"grid h-[26px] grid-cols-[1fr_auto_3.8rem] items-center gap-2 whitespace-nowrap " + (found ? "text-[#f2efe8]" : "text-[#a19d94]")}>
+            <span className="overflow-hidden text-ellipsis text-[10px] uppercase tracking-[0.16em]">
+                {passage}
+            </span>
+            <span className="text-right text-[10px] text-[#5c5954]">
+                {distance === null || found ? "" : distance < 0 ? "▲" : "▼"}
+            </span>
+            <span className="text-right text-[10px] uppercase tracking-[0.16em]">
+                {found ? "Found" : distance === null ? "" : formatter.format(Math.abs(distance))}
+            </span>
         </div>
-    </div>
+    );
 }
 
 export default Guess;

@@ -88,18 +88,19 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
 
-    return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)]">{
-        props.playing ? <section className="sm:panel flex justify-between mt-0 sm:mt-4 flex-wrap">
+    return <section className="!w-full">{
+        props.playing ? <section className="grid !w-full grid-cols-2 gap-2 sm:grid-cols-1">
                 <Autocomplete
-                    className="sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] sm:rounded-l-full pl-4 pr-2 py-1 sm:w-[13.33rem] w-[33%]"
+                    className="w-full text-[10px] uppercase tracking-[0.16em]"
                     inputProps={{
                         classNames: {
-                            inputWrapper: "border-0",
-                            label: "!text-[#ffffff66]",
+                            inputWrapper: "!h-[42px] rounded-none border border-[#7d7a74] bg-[#0a0b0c] shadow-none",
+                            input: "text-[#f2efe8] text-[10px] uppercase tracking-[0.16em]",
+                            label: "!text-[#a19d94] text-[10px] uppercase tracking-[0.16em]",
                         }
                     }}
                     classNames={{
-                        selectorButton: "text-white opacity-40"
+                        selectorButton: "text-[#a19d94] opacity-80"
                     }}
                     defaultItems={props.books}
                     isReadOnly={!!props.bookFound}
@@ -117,10 +118,11 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 </Autocomplete>
                 <NumberInput
                     classNames={{
-                        base: "sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] px-2 pr-2 py-1 !opacity-100",
-                        inputWrapper: "border-0",
-                        label: "!text-[#ffffff66]",
-                        stepperButton: "text-white opacity-40"
+                        base: "w-full text-[10px] uppercase tracking-[0.16em] !opacity-100",
+                        inputWrapper: "!h-[42px] rounded-none border border-[#7d7a74] bg-[#0a0b0c] shadow-none",
+                        input: "text-[#f2efe8] text-[10px] uppercase tracking-[0.16em]",
+                        label: "!text-[#a19d94] text-[10px] uppercase tracking-[0.16em]",
+                        stepperButton: "text-[#a19d94] opacity-80"
                     }}
                     value={props.hasBook ? parseInt(props.chapter) : undefined}
                     maxValue={props.hasBook ? props.maxChapter : undefined}
@@ -130,13 +132,13 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     isDisabled={!props.hasBook}
                     hideStepper={!props.hasBook}
                     variant="bordered"
-                    className="w-[33%] sm:w-[13.33rem]"
+                    className="w-full"
                     endContent={!props.hasBook ? undefined :
-                        <div className={"w-full text-left opacity-50 relative right-[0rem]"}>/ {props.maxChapter} </div>
+                        <div className={"w-full text-left text-[#5c5954] relative right-[0rem]"}>/ {props.maxChapter} </div>
                     }
                 />
                 <Button
-                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-l-none sm:rounded-r-full sm:w-[13.33rem] w-[33%] sm:-ml-[14px]"
+                    className="col-span-2 mt-1 h-[42px] w-full rounded-none border border-[#a19d94] bg-[#0a0b0c] text-[10px] uppercase tracking-[0.2em] text-[#f2efe8] hover:!border-[#f2efe8] hover:!bg-[#0a0b0c] sm:col-span-1"
                     variant="bordered"
                     onPress={() => {
                         if (props.isExistingGuess()) toast.error("You have already guessed this!")
@@ -146,10 +148,10 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                 props.addGuess(guess)
                             })
                         }
-                    }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>
+                    }}>Guess <span className="font-extralight tracking-[0.16em]">({props.guesses.length + 1}/5)</span></Button>
             </section> :
-            <section className="sm:panel flex justify-between sm:mt-4 items-center flex-wrap">
-                <div className="group w-[100%] sm:w-[13.33rem] hidden sm:flex justify-center gap-1 mr-[3px]">
+            <section className="grid !w-full grid-cols-2 items-center gap-2">
+                <div className="group col-span-2 hidden justify-center gap-1 sm:flex">
                     {[...Array(props.stars)].map((_, index: number) => (
                         <Star key={`star-${index}`} filled popping={popping.has(index)} />
                     ))}
@@ -163,7 +165,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 </div>
 
                 <Button
-                    className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-[12px] sm:text-sm  rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
+                    className="h-[42px] w-full rounded-none border border-[#7d7a74] bg-[#0a0b0c] text-[10px] uppercase tracking-[0.16em] text-[#f2efe8] hover:!border-[#f2efe8] hover:!bg-[#0a0b0c]"
                     variant="bordered"
                     onPress={share}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -174,7 +176,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     Share Result
                 </Button>
                 <Button
-                    className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-[12px] sm:text-sm rounded-l-none rounded-r-full w-[50%] sm:w-[13.33rem]"
+                    className="h-[42px] w-full rounded-none border border-[#7d7a74] bg-[#0a0b0c] text-[10px] uppercase tracking-[0.16em] text-[#f2efe8] hover:!border-[#f2efe8] hover:!bg-[#0a0b0c]"
                     variant="bordered"
                     onPress={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`)}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

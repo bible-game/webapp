@@ -1,25 +1,23 @@
 "use client"
 
 import React from "react";
-import { Chip } from "@nextui-org/chip";
 
 const Summary = (props: any) => {
-    if (props.passage) return (
-        <section
-            className={"sm:panel p-1 sm:p-4 sm:h-[66px] " + (!props.playing ? "flex justify-between gap-6 sm:gap-2 px-6" : "text-center")}>
-            <div className={"text-[14px] sm:text-[16px] opacity-80 " + (!props.playing ? "ml-2" : "")}>️️️
-                {props.passage.summary}
+    if (!props.passage) return null;
+
+    return (
+        <section className="pointer-events-auto !w-fit max-w-[calc(100vw-2rem)] bg-[#0a0b0c] px-2 pb-1 text-left sm:max-w-[34rem]">
+            <div className="text-[10px] uppercase leading-[1.9] tracking-[0.22em] text-[#a19d94]">
+                Bible Game
             </div>
-            <Chip size="sm"
-                  variant="solid"
-                  classNames={{
-                      base: `opacity-90 bg-gradient-to-br from-green-100 to-green-300 border border-white/50 h-7 mt-0.5 ${props.playing ? "hidden" : ""}`,
-                      content: "text-black font-medium px-2 py-1 tracking-wide text-center text-[11px]"
-                  }}>
+            <p className="m-0 max-w-[30ch] text-balance text-[17px] leading-[1.35] tracking-0 text-[#f2efe8] sm:text-[20px]">
+                &ldquo;{props.passage.summary}&rdquo;
+            </p>
+            <div className={"mt-1 text-[10px] uppercase leading-[2.2] tracking-[0.22em] text-[#f2efe8] " + (props.playing ? "hidden" : "")}>
                 {props.passage.book + " " + props.passage.chapter}
-            </Chip>
+            </div>
         </section>
-    )
+    );
 }
 
 export default Summary;
