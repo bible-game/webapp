@@ -114,7 +114,7 @@ const BibleGridmap = (props: GridmapProps) => {
             data: gridmapData,
             colours: colours as Record<string, string>,
             colourBy: "item",
-            itemLabels: props.device === "mobile" ? "short" : "full",
+            itemLabels: "full",
             markType: "number",
             markOpacity: props.narrativeHidden ? 0.3 : 0.55,
             numberMinPx: props.device === "mobile" ? 10 : 8,
@@ -151,7 +151,7 @@ const BibleGridmap = (props: GridmapProps) => {
 
     useEffect(() => {
         gridmap.current?.setConfig({
-            itemLabels: props.device === "mobile" ? "short" : "full",
+            itemLabels: "full",
             markOpacity: props.narrativeHidden ? 0.3 : 0.55,
             numberMinPx: props.device === "mobile" ? 10 : 8,
         });
