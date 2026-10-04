@@ -39,54 +39,40 @@ export default function PopUp() {
                 onOpenChange={onOpenChange}
                 backdrop="opaque"
                 placement="bottom"
+                hideCloseButton
                 classNames={{
-                    body: "py-5 md:py-7 text-center md:text-left",
-                    backdrop: "bg-[#060842]/75",
-                    base:
-                        "max-w-[100%] h-min bg-gradient-to-t from-[#0f0a31] to-[#060842] border border-[#ffffff]/25 " +
-                        "shadow-2xl !mb-0 rounded-none !mx-0 px-4",
-                    header: "pt-6 pb-0 w-full text-center md:text-left",
-                    closeButton: "hidden",
-                    footer: "pb-6 md:pb-7 pt-0 flex gap-3 justify-between",
+                    wrapper: "items-end",
+                    backdrop: "bg-black/40",
+                    base: "!m-0 w-full max-w-[40rem] rounded-b-none rounded-t-3xl border border-b-0 border-play-line " +
+                        "bg-play-surface text-play-text shadow-[0_-16px_48px_rgba(0,0,0,0.5)] sm:!mb-4 sm:rounded-3xl sm:border-b",
+                    header: "flex-col items-center gap-3 px-6 pb-0 pt-3",
+                    body: "gap-2 px-6 py-4 text-center text-[15px] leading-[1.5] text-play-muted",
+                    footer: "flex-col gap-3 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-0",
                 }}
             >
                 <ModalContent>
                     {(onClose) => (
                         <>
-                            <ModalHeader className="flex flex-col gap-1">
-                                <span
-                                    className="text-base font-semibold tracking-wide text-[#e5e7ff]">
-                                    The Bible Game
-                                </span>
+                            <ModalHeader>
+                                <span aria-hidden="true" className="h-1 w-10 rounded-full bg-play-line"/>
+                                <span className="text-[18px] font-semibold text-play-text">Welcome to The Bible Game</span>
                             </ModalHeader>
                             <ModalBody>
-                                <p className="text-sm">
-                                    Explore the Bible with a daily passage-guessing game 📖✨
-                                </p>
-                                <p className="text-sm">
-                                    By continuing, you accept that we use cookies to to save your progress.
-                                </p>
+                                <p>Explore the Bible with a daily chapter-guessing game.</p>
+                                <p>We use cookies to save your progress.</p>
                             </ModalBody>
                             <ModalFooter>
-                                <p className="text-[0.7rem] md:text-xs opacity-70 text-left">
-                                    For more details, see our {" "}
-                                    <a href="/about/privacy"
-                                       className="underline underline-offset-2 hover:opacity-100">
-                                        Privacy Policy
-                                    </a>
-                                    {" "} and {" "}
-                                    <a href="/about/cookies"
-                                       className="underline underline-offset-2 hover:opacity-100">
-                                        Cookie Policy
-                                    </a>
-                                    .
-                                </p>
                                 <Button
-                                    color="default"
-                                    className="bg-transparent text-gray-200 border-1 border-gray-300 rounded-none"
+                                    className="h-12 w-full rounded-full bg-play-text text-[16px] font-semibold text-play-bg"
                                     onPress={() => handleChoice(true, onClose)}>
-                                    Accept
+                                    Accept and play
                                 </Button>
+                                <p className="text-center text-[12px] text-play-faint">
+                                    See our{" "}
+                                    <a href="/about/privacy" className="underline underline-offset-2 hover:text-play-text">Privacy Policy</a>
+                                    {" "}and{" "}
+                                    <a href="/about/cookies" className="underline underline-offset-2 hover:text-play-text">Cookie Policy</a>.
+                                </p>
                             </ModalFooter>
                         </>
                     )}

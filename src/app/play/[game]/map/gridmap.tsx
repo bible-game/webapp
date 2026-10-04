@@ -3,6 +3,7 @@
 import { createGridmap, type Gridmap, type GridmapCell, type GridmapData } from "@project-gridmap/library";
 import React, { useEffect, useMemo, useRef } from "react";
 import colours from "./config/colours.json";
+import { playTheme } from "@/core/style/play-theme";
 
 type BibleBook = {
     key: string;
@@ -37,6 +38,8 @@ type GridmapProps = {
     testFound?: boolean;
     narrativeHidden?: boolean;
     playing?: boolean;
+    /** Cell id ("BOOK/chapter") to show as selected, e.g. after stepping chapters outside the map */
+    selection?: string | null;
 };
 
 const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -119,11 +122,11 @@ const BibleGridmap = (props: GridmapProps) => {
             markOpacity: props.narrativeHidden ? 0.3 : 0.55,
             numberMinPx: props.device === "mobile" ? 10 : 8,
             theme: {
-                background: "#0d0e0f", // keep in step with the play page background (game.tsx)
-                text: "#f2efe8",
-                mutedText: "#a19d94",
+                background: playTheme.bg,
+                text: playTheme.text,
+                mutedText: playTheme.muted,
                 faintText: "#5c5954",
-                cellLine: "#2a2c2e",
+                cellLine: playTheme.line,
                 itemLine: "#7d7a74",
                 groupLine: "#aeaaa2",
                 layerLine: "#d9d5cd",
@@ -156,6 +159,11 @@ const BibleGridmap = (props: GridmapProps) => {
             numberMinPx: props.device === "mobile" ? 10 : 8,
         });
     }, [props.device, props.narrativeHidden]);
+
+    useEffect(() => {
+        const map = gridmap.current;
+        if (map && props.selection && map.getSelectedCell()?.id !== props.selection) map.selectCell(props.selection);
+    }, [props.selection]);
 
     useEffect(() => {
         const map = gridmap.current;

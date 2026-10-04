@@ -1,6 +1,7 @@
 import {heroui} from '@heroui/theme';
 import {nextui} from '@nextui-org/theme';
 import type { Config } from "tailwindcss";
+import { playTheme } from "./src/core/style/play-theme";
 
 const config: Config = {
   content: [
@@ -12,6 +13,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        play: playTheme,
+      },
+      fontFamily: {
+        clue: ["Newsreader", "Georgia", "serif"],
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

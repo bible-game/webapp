@@ -13,11 +13,27 @@ import Gridmap from "@/app/play/[game]/map/gridmap";
 import moment from "moment/moment";
 import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
-import { Spinner } from "@heroui/react";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+/** Skeleton of the page (header, clue, guess slots, map frame) while the day's passage loads */
+const Loading = () => (
+    <div aria-busy="true" aria-label="Loading"
+         className="fixed inset-0 z-0 flex h-[100dvh] flex-col bg-play-bg pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex w-full max-w-[40rem] flex-1 animate-pulse flex-col">
+            <div className="flex h-14 items-center justify-center"><div className="h-9 w-32 rounded-full bg-play-surface"/></div>
+            <div className="mx-auto mb-2 mt-2 h-5 w-3/4 rounded-md bg-play-surface"/>
+            <div className="mx-auto mb-4 h-5 w-1/2 rounded-md bg-play-surface"/>
+            <div className="flex gap-1.5 px-4 pb-3">
+                {[...Array(5)].map((_, index) => <div key={index} className="h-9 flex-1 rounded-lg bg-play-surface"/>)}
+            </div>
+            <div className="mx-10 my-6 flex-1 rounded-sm border border-play-line"/>
+            <div className="mx-auto mb-7 h-5 w-48 rounded-md bg-play-surface"/>
+        </div>
+    </div>
+);
 
 /**
  * Game Component
@@ -212,8 +228,13 @@ export default function Game(props: any) {
         // return passage.icon != icon;
     }
 
+    /** Moves the selected chapter back or forward by one, staying within the book */
+    function step(delta: number) {
+        const next = Math.min(Math.max(parseInt(selected.chapter) + delta, 1), maxChapter);
+        if (next) selectChapter(next.toString());
+    }
+
     function select(book: any, chapter: any, isBookKey = true) {
-        console.log(chapter);
         if (isBookKey) {
             const bookName = allBooks.find((bk: any) => bk.key == book).name;
             if (book) selectBook(bookName);
@@ -224,13 +245,14 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
-    if (isLoading) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
+    if (isLoading) return <Loading/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
+        passage.bookKey ||= props.books.find((bk: any) => bk.name == passage.book)?.key;
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
 
         return (
-            <div className="fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-[#0d0e0f] pt-[env(safe-area-inset-top)] text-[#dfdfdf] [font-family:Inter,system-ui,sans-serif]">
+            <div className="fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-play-bg pt-[env(safe-area-inset-top)] text-play-text">
                 <PopUp />
                 <div className="mx-auto flex w-full max-w-[40rem] shrink-0 flex-col">
                     <Header info={props.info} date={props.game}/>
@@ -242,13 +264,15 @@ export default function Game(props: any) {
                         <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                                  testFound={testamentFound} data={testaments} book={book} device={props.device}
                                  narrativeHidden={narrativeHidden}
+                                 selection={hasBook ? `${allBooks.find((bk: any) => bk.name == selected.book)?.key}/${chapter}` : null}
                                  playing={playing}/>
                     </div>
                 </div>
 
-                <section className="mx-auto h-[80px] !w-full max-w-[40rem] shrink-0 pb-[env(safe-area-inset-bottom)]">
+                <section className="mx-auto !w-full max-w-[40rem] shrink-0 pb-[env(safe-area-inset-bottom)]">
                     <Action passage={passage} playing={playing} stars={stars} celebrate={confetti} isExistingGuess={isExistingGuess}
                             date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
+                            step={step} maxChapter={maxChapter}
                             bible={props.bible} chapter={chapter} guesses={guesses}/>
                 </section>
                 <Confetti fire={confetti}/>

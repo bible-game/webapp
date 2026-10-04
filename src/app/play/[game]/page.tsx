@@ -8,6 +8,7 @@ import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn from "@/core/util/auth-util";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
 import { Toaster } from "react-hot-toast";
+import { playTheme } from "@/core/style/play-theme";
 
 async function get(url: string): Promise<any> {
     const response = await fetch(url, {method: "GET"});
@@ -46,8 +47,14 @@ export default async function Play({params}: { params: Promise<{ game: string }>
 
     return (
         <main className="w-full relative z-1">
+            {/* display serif for the daily clue (React hoists this into <head>) */}
+            <link rel="stylesheet" precedence="default"
+                  href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..500&display=swap"/>
             <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
-            <Toaster position="top-center"/>
+            <Toaster position="top-center" toastOptions={{
+                style: { background: playTheme.surface, color: playTheme.text, borderRadius: 12, border: `1px solid ${playTheme.line}`, fontSize: 15 },
+                success: { iconTheme: { primary: playTheme.accent, secondary: playTheme.bg } },
+            }}/>
         </main>
     );
 
