@@ -11,7 +11,14 @@ export const playTheme = {
     text: "#f2efe8",      // primary text, primary button fill
     muted: "#b3aea4",     // secondary text
     faint: "#7a766f",     // tertiary text, disabled
-    accent: "#e9c46a",    // stars, attention dots
+    accent: "#d2b96f",    // stars, attention dots (the map's gold)
+
+    // division colours, as the map draws them (map/config/colours.json); reused for guess closeness
+    teal: "#8fc7ce",
+    purple: "#ac7db3",
+    rose: "#d65f78",
+    green: "#78ad88",
+    gold: "#d2b96f",
 };
 
 export type PlayTheme = typeof playTheme;

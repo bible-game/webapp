@@ -6,7 +6,6 @@ import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
-import { CheckIcon } from "@heroui/shared-icons";
 import Header from "@/app/play/[game]/header";
 import Confetti from "@/core/component/confetti";
 import Gridmap from "@/app/play/[game]/map/gridmap";
@@ -164,18 +163,18 @@ export default function Game(props: any) {
 
         if (selected.book == passage.book) {
             setBook(passage.book);
-            setBookFound(<CheckIcon className="text-lg text-green-200"/>);
+            setBookFound(true);
         }
         if (selected.chapter == passage.chapter) {
             setChapter(passage.chapter);
-            setChapterFound(<CheckIcon className="text-lg text-green-200"/>);
+            setChapterFound(true);
         }
 
         if (selected.testament == passage.testament) {
-            setTestamentFound(<CheckIcon className="text-lg text-green-200"/>);
+            setTestamentFound(true);
         }
         if (selected.division == passage.division) {
-            setDivisionFound(<CheckIcon className="text-lg text-green-200"/>);
+            setDivisionFound(true);
         }
 
         let starResult = 0

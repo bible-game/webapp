@@ -124,12 +124,14 @@ const BibleGridmap = (props: GridmapProps) => {
             theme: {
                 background: playTheme.bg,
                 text: playTheme.text,
-                mutedText: playTheme.muted,
-                faintText: "#5c5954",
+                // testament labels: faint, with the selected testament's label a step brighter (it takes layerLine)
+                mutedText: playTheme.faint,
+                faintText: playTheme.faint,
                 cellLine: playTheme.line,
-                itemLine: "#7d7a74",
-                groupLine: "#aeaaa2",
-                layerLine: "#d9d5cd",
+                itemLine: playTheme.faint,
+                // structure sits beneath the coloured books: division boundaries recede, the testament frame stays legible
+                groupLine: "#5a5650",
+                layerLine: "#8f8a81",
                 font: "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
             },
             labels: {
