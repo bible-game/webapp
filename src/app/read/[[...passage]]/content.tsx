@@ -18,6 +18,7 @@ import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
 import { useQuery } from "@tanstack/react-query";
 import { useDebouncedValue } from '@mantine/hooks';
 import translations from "./translations.json";
+import { ReadingUtil } from "@/core/util/reading-util";
 
 
 const usePassage = (passageKey: string, translation?: string) => {
@@ -30,7 +31,6 @@ const usePassage = (passageKey: string, translation?: string) => {
 
 export default function Content(props: any) {
     const [key, setKey] = useState(props.passageKey ? prettyPassage(Array.isArray(props.passageKey) ? props.passageKey[0] : props.passageKey) : "1 John 4 : 7 - 19");
-    const wordsPerMinute = 160;
     const [audioLoading, setAudioLoading] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [current, setCurrent] = useState("");
@@ -46,10 +46,8 @@ export default function Content(props: any) {
     const { data: passage, isLoading: loading, isError, refetch } = usePassage(debouncedKey, translation);
 
     const readingTime = useMemo(() => {
-        if (passage?.text) {
-            const words = passage?.text.split(" ");
-            return Math.ceil(words.length / wordsPerMinute).toString() + " minutes";
-        }
+        const minutes = ReadingUtil.calcMinutes(passage?.text);
+        if (minutes) return minutes + " minutes";
     }, [passage]);
 
     const selectedValue = useMemo(() => {

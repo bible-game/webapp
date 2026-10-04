@@ -1,8 +1,5 @@
 "use server"
 
-import Background from "@/app/background";
-import { Toaster } from "react-hot-toast";
-
 import React from "react";
 import Game from "@/app/play/[game]/game";
 import { headers } from "next/headers";
@@ -10,7 +7,7 @@ import { GameState } from "@/core/model/state/game-state";
 import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn from "@/core/util/auth-util";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
-import Menu from "@/app/menu";
+import { Toaster } from "react-hot-toast";
 
 async function get(url: string): Promise<any> {
     const response = await fetch(url, {method: "GET"});
@@ -48,14 +45,10 @@ export default async function Play({params}: { params: Promise<{ game: string }>
     }
 
     return (
-        <>
-            <Background/>
-            <main className="w-full relative z-1">
-                <Menu isPlay={true} info={info} date={game} device={device} />
-                <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
-            </main>
-            <Toaster position="bottom-right"/>
-        </>
+        <main className="w-full relative z-1">
+            <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
+            <Toaster position="top-center"/>
+        </main>
     );
 
 }

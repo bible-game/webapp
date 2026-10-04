@@ -2,7 +2,6 @@
 
 import { createGridmap, type Gridmap, type GridmapCell, type GridmapData } from "@project-gridmap/library";
 import React, { useEffect, useMemo, useRef } from "react";
-import { toast } from "react-hot-toast";
 import colours from "./config/colours.json";
 
 type BibleBook = {
@@ -120,7 +119,7 @@ const BibleGridmap = (props: GridmapProps) => {
             markOpacity: props.narrativeHidden ? 0.3 : 0.55,
             numberMinPx: props.device === "mobile" ? 10 : 8,
             theme: {
-                background: "#0a0b0c",
+                background: "#0d0e0f", // keep in step with the play page background (game.tsx)
                 text: "#f2efe8",
                 mutedText: "#a19d94",
                 faintText: "#5c5954",
@@ -137,7 +136,6 @@ const BibleGridmap = (props: GridmapProps) => {
                 const bookKey = String(cell.meta.bookKey ?? cell.itemId);
                 const chapter = String(cell.meta.chapter ?? cell.label);
                 select.current(bookKey, chapter);
-                toast.success(`${cell.itemLabel} ${chapter}`);
             },
         });
 
@@ -196,7 +194,7 @@ const BibleGridmap = (props: GridmapProps) => {
     return (
         <div
             ref={element}
-            className="fixed inset-0 h-[100dvh] w-screen touch-none"
+            className="absolute inset-0 touch-none"
             id="gridmap"
         />
     );

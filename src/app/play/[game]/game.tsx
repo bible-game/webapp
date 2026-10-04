@@ -7,7 +7,7 @@ import { Passage } from "@/core/model/play/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
 import { CheckIcon } from "@heroui/shared-icons";
-import Guesses from "@/app/play/[game]/guesses";
+import Header from "@/app/play/[game]/header";
 import Confetti from "@/core/component/confetti";
 import Gridmap from "@/app/play/[game]/map/gridmap";
 import moment from "moment/moment";
@@ -16,9 +16,6 @@ import { redirect } from "next/navigation";
 import { Spinner } from "@heroui/react";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
-import { toast } from "react-hot-toast";
-import { Button } from "@heroui/button";
-import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -56,47 +53,7 @@ export default function Game(props: any) {
     const [stars, setStars] = useState(0);
     const [state, setState] = useState({} as any);
     const [confetti, setConfetti] = useState(false);
-    const [narrativeHidden, setNarrativeHidden] = useState(true);
-
-    // FixMe :: double-render, just a dev issue like the map?
-    useEffect(() => {
-        if (!props.state && StateUtil.getConsent()) {
-            toast.custom((t) => (
-                <div
-                    className={`${
-                        t.visible ? 'animate-enter' : 'animate-leave'
-                    } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-                >
-                    <div className="flex-1 w-0 p-4">
-                        <div className="flex items-start">
-                            <div className="flex-shrink-0 pt-0.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     strokeWidth="1.25"
-                                     stroke={'black'} className="size-4">
-                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                          d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                </svg>
-                            </div>
-                            <div className="ml-3 flex-1">
-                                <p className="text-sm font-medium text-gray-900">
-                                    Log-in to keep your data safe
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex border-l border-gray-200">
-                        <Button
-                            as={Link}
-                            onPress={() => toast.dismiss()}
-                            href="/account/log-in"
-                            className="bg-white h-full w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            Log In
-                        </Button>
-                    </div>
-                </div>
-            ))
-        }
-    }, [props.state]);
+    const narrativeHidden = true;
 
     useEffect(() => {
         if (confetti) setConfetti(false);
@@ -267,35 +224,32 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
-    function toggleNarrative() {
-        setNarrativeHidden(!narrativeHidden);
-    }
-
     if (isLoading) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
 
         return (
-            <div className="fixed inset-0 z-0 overflow-hidden bg-[#0a0b0c] text-[#f2efe8] [font-family:ui-monospace,'SF_Mono',Menlo,Consolas,monospace]">
+            <div className="fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-[#0d0e0f] pt-[env(safe-area-inset-top)] text-[#dfdfdf] [font-family:Inter,system-ui,sans-serif]">
                 <PopUp />
-                <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
-                         testFound={testamentFound} data={testaments} book={book} device={props.device}
-                         narrativeHidden={narrativeHidden}
-                         playing={playing}/>
-
-                <div className="pointer-events-none fixed left-[calc(16px+env(safe-area-inset-left))] right-4 top-[calc(4.75rem+env(safe-area-inset-top))] z-20 sm:left-[calc(24px+env(safe-area-inset-left))] sm:right-auto sm:top-[calc(5.25rem+env(safe-area-inset-top))]">
-                    <Summary passage={passage} playing={playing}/>
+                <div className="mx-auto flex w-full max-w-[40rem] shrink-0 flex-col">
+                    <Header info={props.info} date={props.game}/>
+                    <Summary passage={passage} playing={playing} guesses={guesses}/>
                 </div>
 
-                <section className="fixed bottom-[calc(10px+env(safe-area-inset-bottom))] left-[calc(16px+env(safe-area-inset-left))] right-[calc(16px+env(safe-area-inset-right))] z-20 !w-auto bg-[#0a0b0c] px-2 pt-1 pb-0 text-[10px] uppercase leading-[1.9] tracking-[0.16em] sm:bottom-[calc(18px+env(safe-area-inset-bottom))] sm:left-[calc(24px+env(safe-area-inset-left))] sm:right-auto sm:w-[22rem] sm:text-[10px]">
-                    <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
-                    <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
-                            isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
-                            addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
-                            selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
-                            state={props.state} passageId={passage.id} bible={props.bible}
-                            selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
+                <div className="mx-auto min-h-0 w-full max-w-[40rem] flex-1">
+                    <div className="relative h-full w-full">
+                        <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
+                                 testFound={testamentFound} data={testaments} book={book} device={props.device}
+                                 narrativeHidden={narrativeHidden}
+                                 playing={playing}/>
+                    </div>
+                </div>
+
+                <section className="mx-auto h-[80px] !w-full max-w-[40rem] shrink-0 pb-[env(safe-area-inset-bottom)]">
+                    <Action passage={passage} playing={playing} stars={stars} celebrate={confetti} isExistingGuess={isExistingGuess}
+                            date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
+                            bible={props.bible} chapter={chapter} guesses={guesses}/>
                 </section>
                 <Confetti fire={confetti}/>
             </div>
