@@ -1,7 +1,7 @@
 "use client"
 
 import Summary from "@/app/play/[game]/summary";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
@@ -14,6 +14,7 @@ import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
+import { ruledOut } from "@/app/play/[game]/ruled-out";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -69,6 +70,9 @@ export default function Game(props: any) {
     const [state, setState] = useState({} as any);
     const [confetti, setConfetti] = useState(false);
     const narrativeHidden = true;
+    // what the guesses so far exclude; the whole map comes back once the game is over
+    const excluded = useMemo(() => playing ? ruledOut(testaments, guesses, passage?.book) : new Map<string, string>(),
+        [testaments, guesses, playing, passage?.book]);
 
     useEffect(() => {
         if (confetti) setConfetti(false);
@@ -227,9 +231,18 @@ export default function Game(props: any) {
         // return passage.icon != icon;
     }
 
-    /** Moves the selected chapter back or forward by one, staying within the book */
+    const cellOf = (chapter: string | number) => `${allBooks.find((bk: any) => bk.name == selected.book)?.key}/${chapter}`;
+
+    /** The nearest chapter in the given direction, within the book, that isn't ruled out (or null) */
+    function nextChapter(delta: number): number | null {
+        let next = parseInt(selected.chapter) + delta;
+        while (next >= 1 && next <= maxChapter && excluded.has(cellOf(next))) next += delta;
+        return next >= 1 && next <= maxChapter ? next : null;
+    }
+
+    /** Moves the selected chapter back or forward, staying within the book and skipping ruled-out chapters */
     function step(delta: number) {
-        const next = Math.min(Math.max(parseInt(selected.chapter) + delta, 1), maxChapter);
+        const next = nextChapter(delta);
         if (next) selectChapter(next.toString());
     }
 
@@ -263,15 +276,16 @@ export default function Game(props: any) {
                         <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                                  testFound={testamentFound} data={testaments} book={book} device={props.device}
                                  narrativeHidden={narrativeHidden}
-                                 selection={hasBook ? `${allBooks.find((bk: any) => bk.name == selected.book)?.key}/${chapter}` : null}
-                                 playing={playing}/>
+                                 selection={hasBook ? cellOf(chapter) : null}
+                                 ruledOut={excluded} playing={playing}/>
                     </div>
                 </div>
 
                 <section className="mx-auto !w-full max-w-[40rem] shrink-0 pb-[env(safe-area-inset-bottom)]">
                     <Action passage={passage} playing={playing} stars={stars} celebrate={confetti} isExistingGuess={isExistingGuess}
                             date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
-                            step={step} maxChapter={maxChapter}
+                            step={step} canStep={(delta: number) => nextChapter(delta) !== null}
+                            ruledOut={hasBook ? excluded.get(cellOf(chapter)) : undefined}
                             bible={props.bible} chapter={chapter} guesses={guesses}/>
                 </section>
                 <Confetti fire={confetti}/>

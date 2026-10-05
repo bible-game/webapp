@@ -118,7 +118,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     }
 
     const guessed = props.hasBook && props.isExistingGuess();
-    const chapter = parseInt(props.chapter) || 1;
+    // a chapter the guesses exclude can't be guessed; the button says why instead
+    const excluded: string | undefined = guessed ? undefined : props.ruledOut;
 
     if (props.playing) return (
         <AnimatePresence mode="wait" initial={false}>
@@ -132,17 +133,22 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     <Help isOpen={help.isOpen} onOpenChange={help.onOpenChange}/>
                 </motion.div> :
                 <motion.div key="guess" {...fade} className="flex h-[76px] items-center gap-2 px-4">
-                    <button type="button" aria-label="Previous chapter" disabled={chapter <= 1}
+                    <button type="button" aria-label="Previous chapter" disabled={!props.canStep(-1)}
                             onClick={() => props.step(-1)} className={stepper}>
                         <MinusIcon className="size-5"/>
                     </button>
-                    <button type="button" disabled={guessed} onClick={submit}
+                    <button type="button" disabled={guessed || !!excluded} onClick={submit}
                             className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-play-text px-5 text-[16px] text-play-bg transition active:scale-[0.98] disabled:bg-play-raised disabled:text-play-faint">
-                        <span className="shrink-0">{guessed ? "Guessed" : "Guess"}</span>
-                        <span className="truncate font-semibold tabular-nums">{props.selected.book} {props.chapter}</span>
-                        {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
+                        {excluded ?
+                            <span className="truncate">{excluded}</span> :
+                            <>
+                                <span className="shrink-0">{guessed ? "Guessed" : "Guess"}</span>
+                                <span className="truncate font-semibold tabular-nums">{props.selected.book} {props.chapter}</span>
+                                {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
+                            </>
+                        }
                     </button>
-                    <button type="button" aria-label="Next chapter" disabled={chapter >= props.maxChapter}
+                    <button type="button" aria-label="Next chapter" disabled={!props.canStep(1)}
                             onClick={() => props.step(1)} className={stepper}>
                         <PlusIcon className="size-5"/>
                     </button>

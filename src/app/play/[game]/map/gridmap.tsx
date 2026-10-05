@@ -4,6 +4,7 @@ import { createGridmap, type Gridmap, type GridmapCell, type GridmapData } from 
 import React, { useEffect, useMemo, useRef } from "react";
 import colours from "./config/colours.json";
 import { playTheme } from "@/core/style/play-theme";
+import type { RuledOut } from "@/app/play/[game]/ruled-out";
 
 type BibleBook = {
     key: string;
@@ -40,7 +41,11 @@ type GridmapProps = {
     playing?: boolean;
     /** Cell id ("BOOK/chapter") to show as selected, e.g. after stepping chapters outside the map */
     selection?: string | null;
+    /** Chapters the guesses exclude, by cell id, with the reason: barely visible on the map, and can't be selected */
+    ruledOut?: RuledOut;
 };
+
+const NONE: RuledOut = new Map();
 
 const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -103,6 +108,7 @@ const BibleGridmap = (props: GridmapProps) => {
     const element = useRef<HTMLDivElement | null>(null);
     const gridmap = useRef<Gridmap | null>(null);
     const select = useRef(props.select);
+    const ruledOut = useRef(props.ruledOut ?? NONE);
     const gridmapData = useMemo(() => buildBibleGridmapData(props.data), [props.data]);
 
     useEffect(() => {
@@ -121,6 +127,8 @@ const BibleGridmap = (props: GridmapProps) => {
             markType: "number",
             markOpacity: props.narrativeHidden ? 0.3 : 0.55,
             numberMinPx: props.device === "mobile" ? 10 : 8,
+            disabledCells: [...ruledOut.current.keys()],
+            disabledOpacity: 0.9,
             theme: {
                 background: playTheme.bg,
                 text: playTheme.text,
@@ -136,6 +144,8 @@ const BibleGridmap = (props: GridmapProps) => {
             },
             labels: {
                 tooltip: (cell: GridmapCell) => `${cell.itemLabel} ${cell.label}`,
+                // tapping a ruled-out chapter says why, instead of selecting it
+                disabled: (cell: GridmapCell) => `${cell.itemLabel} ${cell.label}: ${ruledOut.current.get(cell.id)}`,
             },
             onSelectCell(cell: GridmapCell) {
                 const bookKey = String(cell.meta.bookKey ?? cell.itemId);
@@ -163,6 +173,11 @@ const BibleGridmap = (props: GridmapProps) => {
     }, [props.device, props.narrativeHidden]);
 
     useEffect(() => {
+        ruledOut.current = props.ruledOut ?? NONE;
+        gridmap.current?.setDisabledCells(ruledOut.current.keys());
+    }, [props.ruledOut]);
+
+    useEffect(() => {
         const map = gridmap.current;
         if (map && props.selection && map.getSelectedCell()?.id !== props.selection) map.selectCell(props.selection);
     }, [props.selection]);
@@ -170,6 +185,12 @@ const BibleGridmap = (props: GridmapProps) => {
     useEffect(() => {
         const map = gridmap.current;
         if (!map) return;
+
+        // game over: the whole map, nothing veiled, with the answer marked (below)
+        if (props.playing === false) {
+            map.focusMap();
+            return;
+        }
 
         if (props.bookFound) {
             const bookKey = findBookKey(props.data, props.passage?.book);
@@ -199,7 +220,40 @@ const BibleGridmap = (props: GridmapProps) => {
         props.passage?.division,
         props.passage?.testament,
         props.data,
+        props.playing,
     ]);
+
+    // Once the game is over, the answer is marked so it stands out on the whole map: filled in its book's colour,
+    // with a glowing ring around it that stays visible even when the chapter is only a few pixels wide.
+    const answer = props.playing === false ? `${findBookKey(props.data, props.passage?.book)}/${props.passage?.chapter}` : null;
+    useEffect(() => {
+        const map = gridmap.current;
+        if (!map || !answer) return;
+
+        return map.addLayer(({ ctx, model, camera, rect, toScreenX, toScreenY, colourOf }) => {
+            const cell = model.cells.find((candidate) => candidate.id === answer);
+            if (!cell) return;
+
+            const colour = colourOf(cell, playTheme.text);
+            const ring = 4;
+            ctx.save();
+            ctx.fillStyle = colour;
+            ctx.strokeStyle = colour;
+            ctx.globalAlpha = 0.45;
+            ctx.beginPath();
+            rect(cell);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.lineWidth = 2;
+            ctx.shadowColor = colour;
+            ctx.shadowBlur = 14;
+            ctx.beginPath();
+            ctx.rect(toScreenX(cell.x) - ring, toScreenY(cell.y) - ring,
+                cell.width * camera.k + ring * 2, cell.height * camera.k + ring * 2);
+            ctx.stroke();
+            ctx.restore();
+        });
+    }, [answer]);
 
     return (
         <div
