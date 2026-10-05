@@ -272,12 +272,14 @@ export default function Game(props: any) {
                 </div>
 
                 <div className="mx-auto min-h-0 w-full max-w-[40rem] flex-1">
-                    <div className="relative h-full w-full">
-                        <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
-                                 testFound={testamentFound} data={testaments} book={book} device={props.device}
-                                 narrativeHidden={narrativeHidden}
-                                 selection={hasBook ? cellOf(chapter) : null}
-                                 ruledOut={excluded} playing={playing}/>
+                    <div className="h-full w-full p-3 sm:p-6">
+                        <div className="relative h-full w-full">
+                            <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
+                                     testFound={testamentFound} data={testaments} book={book} device={props.device}
+                                     narrativeHidden={narrativeHidden}
+                                     selection={hasBook ? cellOf(chapter) : null}
+                                     ruledOut={excluded} playing={playing}/>
+                        </div>
                     </div>
                 </div>
 
