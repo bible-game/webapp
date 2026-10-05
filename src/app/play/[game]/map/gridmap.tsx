@@ -129,6 +129,7 @@ const BibleGridmap = (props: GridmapProps) => {
             numberMinPx: props.device === "mobile" ? 10 : 8,
             disabledCells: [...ruledOut.current.keys()],
             disabledOpacity: 0.9,
+            layout: "fit",
             theme: {
                 background: playTheme.bg,
                 text: playTheme.text,
