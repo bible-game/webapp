@@ -3,6 +3,7 @@
 import { createGridmap, type Gridmap, type GridmapCell, type GridmapData } from "@project-gridmap/library";
 import React, { useEffect, useMemo, useRef } from "react";
 import colours from "./config/colours.json";
+import groups from "./config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
 import type { RuledOut } from "@/app/play/[game]/ruled-out";
 
@@ -43,9 +44,17 @@ type GridmapProps = {
     selection?: string | null;
     /** Chapters the guesses exclude, by cell id, with the reason: barely visible on the map, and can't be selected */
     ruledOut?: RuledOut;
+    /** Show each book's named chapter groups (config/groups.json): dotted partitions in the book's colour, with labels on their borders. On unless false */
+    showGroups?: boolean;
 };
 
+type BookGroups = Record<string, Array<{ name: string; start: number; end: number }>>;
+
 const NONE: RuledOut = new Map();
+
+/** The mark on a filled cell (selected, or the answer), dark so it reads against the colour */
+const ANSWER_MARK = "#000000";
+const ANSWER_FONT = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace";
 
 const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -61,6 +70,8 @@ function buildBibleGridmapData(testaments: BibleTestament[]): GridmapData {
                     id: book.key,
                     label: book.name,
                     shortLabel: book.key,
+                    // the library calls a chapter range within a book a section
+                    sections: (groups as BookGroups)[book.name.toLowerCase()]?.map(({ name, start, end }) => ({ label: name, start, end })),
                     meta: {
                         bookName: book.name,
                         division: division.name,
@@ -130,6 +141,7 @@ const BibleGridmap = (props: GridmapProps) => {
             disabledCells: [...ruledOut.current.keys()],
             disabledOpacity: 0.9,
             layout: "fit",
+            showSections: props.showGroups ?? true,
             theme: {
                 background: playTheme.bg,
                 text: playTheme.text,
@@ -141,6 +153,9 @@ const BibleGridmap = (props: GridmapProps) => {
                 // structure sits beneath the coloured books: division boundaries recede, the testament frame stays legible
                 groupLine: "#5a5650",
                 layerLine: "#8f8a81",
+                // chapter groups sit quieter still: hairlines between them, small labels
+                sectionLine: playTheme.line,
+                sectionText: playTheme.faint,
                 font: "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
             },
             labels: {
@@ -172,6 +187,10 @@ const BibleGridmap = (props: GridmapProps) => {
             numberMinPx: props.device === "mobile" ? 10 : 8,
         });
     }, [props.device, props.narrativeHidden]);
+
+    useEffect(() => {
+        gridmap.current?.setConfig({ showSections: props.showGroups ?? true });
+    }, [props.showGroups]);
 
     useEffect(() => {
         ruledOut.current = props.ruledOut ?? NONE;
@@ -224,8 +243,9 @@ const BibleGridmap = (props: GridmapProps) => {
         props.playing,
     ]);
 
-    // Once the game is over, the answer is marked so it stands out on the whole map: filled in its book's colour,
-    // with a glowing ring around it that stays visible even when the chapter is only a few pixels wide.
+    // Once the game is over, the answer is marked so it stands out on the whole map: filled solid in its book's colour
+    // with a dark mark, like a selected chapter, and a glowing ring around it that stays visible even when the chapter
+    // is only a few pixels wide.
     const answer = props.playing === false ? `${findBookKey(props.data, props.passage?.book)}/${props.passage?.chapter}` : null;
     useEffect(() => {
         const map = gridmap.current;
@@ -240,11 +260,24 @@ const BibleGridmap = (props: GridmapProps) => {
             ctx.save();
             ctx.fillStyle = colour;
             ctx.strokeStyle = colour;
-            ctx.globalAlpha = 0.45;
             ctx.beginPath();
             rect(cell);
             ctx.fill();
-            ctx.globalAlpha = 1;
+
+            // the dark mark: the chapter number where the cell is big enough to read it, else a dot
+            const size = Math.min(cell.width, cell.height) * camera.k;
+            ctx.fillStyle = ANSWER_MARK;
+            if (size >= 14) {
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.font = `500 ${Math.min(24, size * 0.6)}px ${ANSWER_FONT}`;
+                ctx.fillText(cell.label, toScreenX(cell.centerX), toScreenY(cell.centerY));
+            } else {
+                ctx.beginPath();
+                ctx.arc(toScreenX(cell.centerX), toScreenY(cell.centerY), Math.max(1.5, size * 0.25), 0, Math.PI * 2);
+                ctx.fill();
+            }
+
             ctx.lineWidth = 2;
             ctx.shadowColor = colour;
             ctx.shadowBlur = 14;
