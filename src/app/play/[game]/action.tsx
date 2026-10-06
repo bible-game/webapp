@@ -23,9 +23,24 @@ import {
 } from "lucide-react";
 import { useDisclosure } from "@heroui/react";
 import Help from "@/app/play/[game]/help";
+import colours from "@/app/play/[game]/map/config/colours.json";
+import groups from "@/app/play/[game]/map/config/groups.json";
+import { playTheme } from "@/core/style/play-theme";
 
 const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.18 } };
 const stepper = "flex size-12 shrink-0 items-center justify-center rounded-full border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
+
+/**
+ * One height for the footer in every state (choosing, guessing, game over), so the map above it never resizes when the
+ * state changes: the game-over footer is the tallest content, and the others are padded to match it.
+ */
+const FOOTER = "h-[136px]";
+
+/** The named chapter group (map/config/groups.json) a chapter falls in, e.g. "Rise of David" */
+function groupOf(book: string, chapter: number): string | undefined {
+    return (groups as Record<string, Array<{ name: string, start: number, end: number }>>)[book.toLowerCase()]
+        ?.find(({ start, end }) => chapter >= start && chapter <= end)?.name;
+}
 
 /** Time left until the next daily chapter (local midnight), as h:mm:ss */
 const Countdown = () => {
@@ -121,10 +136,17 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     // a chapter the guesses exclude can't be guessed; the button says why instead
     const excluded: string | undefined = guessed ? undefined : props.ruledOut;
 
+    // the selected chapter's division colour (the map's own), and the group it falls in
+    const bookKey = props.bible.testaments.flatMap((t: any) => t.divisions).flatMap((d: any) => d.books)
+        .find((bk: any) => bk.name == props.selected.book)?.key;
+    const tint: string = (colours as Record<string, string>)[bookKey] ?? playTheme.text;
+    const group = props.hasBook ? groupOf(props.selected.book, parseInt(props.chapter)) : undefined;
+    const glass = !guessed && !excluded;
+
     if (props.playing) return (
         <AnimatePresence mode="wait" initial={false}>
             {!props.hasBook ?
-                <motion.div key="hint" {...fade} className="flex h-[76px] items-center justify-center gap-2 px-4">
+                <motion.div key="hint" {...fade} className={`flex ${FOOTER} items-center justify-center gap-2 px-4`}>
                     <button type="button" aria-label="How to play" onClick={help.onOpen}
                             className="flex size-11 items-center justify-center rounded-full text-play-muted hover:bg-play-raised hover:text-play-text">
                         <CircleQuestionMarkIcon className="size-5" strokeWidth={1.75}/>
@@ -132,26 +154,39 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     <span className="text-[16px] text-play-muted">Tap the map to choose a chapter</span>
                     <Help isOpen={help.isOpen} onOpenChange={help.onOpenChange}/>
                 </motion.div> :
-                <motion.div key="guess" {...fade} className="flex h-[76px] items-center gap-2 px-4">
-                    <button type="button" aria-label="Previous chapter" disabled={!props.canStep(-1)}
-                            onClick={() => props.step(-1)} className={stepper}>
-                        <MinusIcon className="size-5"/>
-                    </button>
-                    <button type="button" disabled={guessed || !!excluded} onClick={submit}
-                            className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-play-text px-5 text-[16px] text-play-bg transition active:scale-[0.98] disabled:bg-play-raised disabled:text-play-faint">
-                        {excluded ?
-                            <span className="truncate">{excluded}</span> :
-                            <>
-                                <span className="shrink-0">{guessed ? "Guessed" : "Guess"}</span>
-                                <span className="truncate font-semibold tabular-nums">{props.selected.book} {props.chapter}</span>
-                                {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
-                            </>
-                        }
-                    </button>
-                    <button type="button" aria-label="Next chapter" disabled={!props.canStep(1)}
-                            onClick={() => props.step(1)} className={stepper}>
-                        <PlusIcon className="size-5"/>
-                    </button>
+                <motion.div key="guess" {...fade} className={`flex ${FOOTER} flex-col justify-center gap-2.5 px-4`}>
+                    <div className="flex items-center gap-2">
+                        <button type="button" aria-label="Previous chapter" disabled={!props.canStep(-1)}
+                                onClick={() => props.step(-1)} className={stepper}>
+                            <MinusIcon className="size-5"/>
+                        </button>
+                        <button type="button" disabled={guessed || !!excluded} onClick={submit}
+                                style={glass ? {
+                                    "--tint": tint,
+                                    background: `linear-gradient(180deg, rgb(255 255 255 / 0.5) 0%, rgb(255 255 255 / 0.12) 48%, transparent 52%), linear-gradient(135deg, color-mix(in srgb, var(--tint) 70%, white), var(--tint) 55%, color-mix(in srgb, var(--tint) 65%, black))`,
+                                    boxShadow: `inset 0 1px 0 rgb(255 255 255 / 0.65), inset 0 -1px 0 rgb(0 0 0 / 0.25), 0 4px 18px -4px color-mix(in srgb, var(--tint) 70%, transparent)`,
+                                } as React.CSSProperties : undefined}
+                                className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-play-text px-5 text-[16px] font-medium text-play-bg transition active:scale-[0.98] disabled:bg-play-raised disabled:text-play-faint">
+                            {excluded ?
+                                <span className="truncate">{excluded}</span> :
+                                <>
+                                    <span className="shrink-0">{guessed ? "Guessed" : "Guess"}</span>
+                                    <span className="truncate font-semibold tabular-nums">{props.selected.book} {props.chapter}</span>
+                                    {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
+                                </>
+                            }
+                        </button>
+                        <button type="button" aria-label="Next chapter" disabled={!props.canStep(1)}
+                                onClick={() => props.step(1)} className={stepper}>
+                            <PlusIcon className="size-5"/>
+                        </button>
+                    </div>
+                    <p className="min-w-0 text-center leading-tight" aria-label="Where this chapter sits">
+                        <span className="block truncate text-[15px] font-medium" style={{ color: tint }}>{group ?? props.selected.division}</span>
+                        <span className="mt-0.5 block truncate text-[12px] text-play-muted">
+                            {props.selected.testament} · {props.selected.division}
+                        </span>
+                    </p>
                 </motion.div>
             }
         </AnimatePresence>
@@ -162,7 +197,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     const isToday = moment(props.date).isSame(moment(), "day");
 
     return (
-        <motion.section {...fade} className="flex !w-full flex-col gap-3 px-4 pb-3 pt-4">
+        <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-3 px-4`}>
             <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                     <p className="truncate font-clue text-[20px] font-medium leading-tight text-play-text">
