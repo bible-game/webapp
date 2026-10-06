@@ -6,7 +6,7 @@ import Link from "next/link";
 import moment from "moment";
 import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Star } from "@/app/play/[game]/star";
 import { useQuery } from "@tanstack/react-query";
 import { getPassage } from "@/core/action/read/get-passage";
@@ -15,6 +15,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
     ArrowRightIcon,
     BookOpenIcon,
+    CheckIcon,
     CircleQuestionMarkIcon,
     MinusIcon,
     PlusIcon,
@@ -40,6 +41,39 @@ const FOOTER = "h-[136px]";
 function groupOf(book: string, chapter: number): string | undefined {
     return (groups as Record<string, Array<{ name: string, start: number, end: number }>>)[book.toLowerCase()]
         ?.find(({ start, end }) => chapter >= start && chapter <= end)?.name;
+}
+
+/** Font sizes (px) for the passage on the guess button, largest first */
+const PASSAGE_SIZES = [16, 15, 14, 13];
+
+/**
+ * The full passage on the guess button, shrunk a step at a time until it fits the button's width.
+ * Re-measured whenever the button resizes; keyed by passage so a new one starts at the largest size.
+ */
+const Passage = ({ book, chapter }: { book: string, chapter: string }) => {
+    const label = useRef<HTMLSpanElement>(null);
+    const [step, setStep] = useState(0);
+
+    useLayoutEffect(() => {
+        const el = label.current;
+        if (el && step < PASSAGE_SIZES.length - 1 && el.scrollWidth > el.clientWidth) setStep(step + 1);
+    }, [step]);
+
+    useEffect(() => {
+        const button = label.current?.closest("button");
+        if (!button) return;
+
+        const observer = new ResizeObserver(() => setStep(0)); // try the largest size again at the new width
+        observer.observe(button);
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <span ref={label} className="min-w-0 overflow-hidden whitespace-nowrap font-semibold tabular-nums"
+              style={{ fontSize: PASSAGE_SIZES[step] }}>
+            {book} {chapter}
+        </span>
+    );
 }
 
 /** Time left until the next daily chapter (local midnight), as h:mm:ss */
@@ -161,17 +195,18 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                             <MinusIcon className="size-5"/>
                         </button>
                         <button type="button" disabled={guessed || !!excluded} onClick={submit}
+                                aria-label={excluded ? undefined : `${guessed ? "Guessed" : "Guess"} ${props.selected.book} ${props.chapter}`}
                                 style={glass ? {
                                     "--tint": tint,
-                                    background: `linear-gradient(180deg, rgb(255 255 255 / 0.5) 0%, rgb(255 255 255 / 0.12) 48%, transparent 52%), linear-gradient(135deg, color-mix(in srgb, var(--tint) 70%, white), var(--tint) 55%, color-mix(in srgb, var(--tint) 65%, black))`,
-                                    boxShadow: `inset 0 1px 0 rgb(255 255 255 / 0.65), inset 0 -1px 0 rgb(0 0 0 / 0.25), 0 4px 18px -4px color-mix(in srgb, var(--tint) 70%, transparent)`,
+                                    background: `linear-gradient(180deg, rgb(255 255 255 / 0.5) 0%, rgb(255 255 255 / 0.12) 48%, transparent 52%), linear-gradient(135deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint) 60%, color-mix(in srgb, var(--tint) 88%, black))`,
+                                    boxShadow: `inset 0 1px 0 rgb(255 255 255 / 0.65), inset 0 -1px 0 color-mix(in srgb, var(--tint) 70%, black), 0 4px 18px -4px color-mix(in srgb, var(--tint) 70%, transparent)`,
                                 } as React.CSSProperties : undefined}
                                 className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-play-text px-5 text-[16px] font-medium text-play-bg transition active:scale-[0.98] disabled:bg-play-raised disabled:text-play-faint">
                             {excluded ?
                                 <span className="truncate">{excluded}</span> :
                                 <>
-                                    <span className="shrink-0">{guessed ? "Guessed" : "Guess"}</span>
-                                    <span className="truncate font-semibold tabular-nums">{props.selected.book} {props.chapter}</span>
+                                    {guessed ? <CheckIcon className="size-5 shrink-0" strokeWidth={2.25} aria-label="Guessed"/> : null}
+                                    <Passage key={`${props.selected.book} ${props.chapter}`} book={props.selected.book} chapter={props.chapter}/>
                                     {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
                                 </>
                             }
