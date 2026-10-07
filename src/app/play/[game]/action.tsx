@@ -219,12 +219,14 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         </span>
                         {props.signedIn ?
                             <Link href="/stats" aria-label={streak > 0 ? `${streak} day streak, view your statistics` : "View your statistics"}
-                                  className={stepper}>
+                                  className={streak > 0 ?
+                                      "relative flex size-12 shrink-0 items-center justify-center transition active:scale-95" :
+                                      stepper}>
                                 {streak > 0 ?
-                                    <span className="relative flex size-9 items-center justify-center" style={{ color: "#e8955a" }}>
-                                        <FlameIcon className="absolute inset-0 size-9 [filter:drop-shadow(0_0_6px_color-mix(in_srgb,currentColor_45%,transparent))]"
-                                                   fill="currentColor" fillOpacity={0.2} strokeWidth={1.5}/>
-                                        <span className="relative translate-y-[3px] text-[13px] font-bold leading-none tabular-nums">{streak}</span>
+                                    <span className="relative flex size-12 items-center justify-center" style={{ color: "#e8955a" }}>
+                                        <FlameIcon className="absolute inset-0 size-12 [filter:drop-shadow(0_0_8px_color-mix(in_srgb,currentColor_45%,transparent))]"
+                                                   fill="currentColor" fillOpacity={0.22} strokeWidth={1.25}/>
+                                        <span className="relative translate-y-[7px] text-[15px] font-bold leading-none tabular-nums">{streak}</span>
                                     </span> :
                                     <ChartColumnIcon className="size-5" strokeWidth={1.75}/>
                                 }
