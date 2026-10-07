@@ -1,6 +1,5 @@
 "use client"
 
-import { toast } from "react-hot-toast";
 import { guess } from "@/core/action/play/guess";
 import Link from "next/link";
 import moment from "moment";
@@ -8,9 +7,6 @@ import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Star } from "@/app/play/[game]/star";
-import { useQuery } from "@tanstack/react-query";
-import { getPassage } from "@/core/action/read/get-passage";
-import { ReadingUtil } from "@/core/util/reading-util";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     ArrowRightIcon,
@@ -33,9 +29,9 @@ const stepper = "flex size-12 shrink-0 items-center justify-center rounded-full 
 
 /**
  * One height for the footer in every state (choosing, guessing, game over), so the map above it never resizes when the
- * state changes: the game-over footer is the tallest content, and the others are padded to match it.
+ * state changes: the guessing footer is the tallest content (~100px), and the others are padded to match it.
  */
-const FOOTER = "h-[136px]";
+const FOOTER = "h-[112px]";
 
 /** The named chapter group (map/config/groups.json) a chapter falls in, e.g. "Rise of David" */
 function groupOf(book: string, chapter: number): string | undefined {
@@ -45,22 +41,24 @@ function groupOf(book: string, chapter: number): string | undefined {
 
 /** Font sizes (px) for the passage on the guess button, largest first */
 const PASSAGE_SIZES = [16, 15, 14, 13];
+/** ...and on the read link, which starts a size smaller */
+const READ_SIZES = [15, 14, 13, 12];
 
 /**
- * The full passage on the guess button, shrunk a step at a time until it fits the button's width.
+ * The full passage on the guess button (or read link), shrunk a step at a time until it fits the width.
  * Re-measured whenever the button resizes; keyed by passage so a new one starts at the largest size.
  */
-const Passage = ({ book, chapter }: { book: string, chapter: string }) => {
+const Passage = ({ book, chapter, sizes = PASSAGE_SIZES }: { book: string, chapter: string, sizes?: number[] }) => {
     const label = useRef<HTMLSpanElement>(null);
     const [step, setStep] = useState(0);
 
     useLayoutEffect(() => {
         const el = label.current;
-        if (el && step < PASSAGE_SIZES.length - 1 && el.scrollWidth > el.clientWidth) setStep(step + 1);
-    }, [step]);
+        if (el && step < sizes.length - 1 && el.scrollWidth > el.clientWidth) setStep(step + 1);
+    }, [step, sizes.length]);
 
     useEffect(() => {
-        const button = label.current?.closest("button");
+        const button = label.current?.closest("button, a");
         if (!button) return;
 
         const observer = new ResizeObserver(() => setStep(0)); // try the largest size again at the new width
@@ -70,7 +68,7 @@ const Passage = ({ book, chapter }: { book: string, chapter: string }) => {
 
     return (
         <span ref={label} className="min-w-0 overflow-hidden whitespace-nowrap font-semibold tabular-nums"
-              style={{ fontSize: PASSAGE_SIZES[step] }}>
+              style={{ fontSize: sizes[step] }}>
             {book} {chapter}
         </span>
     );
@@ -92,6 +90,8 @@ const Action = (props: any) => {
     const help = useDisclosure();
     // A temporary “pop” on the newest star, only when the game is won now (not when a finished game is reloaded)
     const [popping, setPopping] = useState(false);
+    // true for a moment after the results are copied, so the share button can say so itself
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         if (!props.celebrate || !props.stars) return;
@@ -129,10 +129,16 @@ const Action = (props: any) => {
 
     }
 
+    useEffect(() => {
+        if (!copied) return;
+
+        const t = setTimeout(() => setCopied(false), 1800);
+        return () => clearTimeout(t);
+    }, [copied]);
+
     function share() {
         const resultText = results();
-        navigator.clipboard.writeText(resultText);
-        toast.success("Results copied!");
+        navigator.clipboard.writeText(resultText).then(() => setCopied(true));
 
         // remove? improve? Slack vs Whatsapp vs Discord, etc...
         // const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(resultText)}`;
@@ -150,14 +156,6 @@ ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.dat
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
-
-    const reading = useQuery({
-        queryKey: ['passage', `${props.passage.book}${props.passage.chapter}`, 'web'],
-        queryFn: () => getPassage(`${props.passage.book}${props.passage.chapter}`, 'web'),
-        enabled: !props.playing,
-        staleTime: Infinity,
-    });
-    const minutes = ReadingUtil.calcMinutes(reading.data?.text);
 
     function submit() {
         navigator.vibrate?.(12);
@@ -232,41 +230,44 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     const isToday = moment(props.date).isSame(moment(), "day");
 
     return (
-        <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-3 px-4`}>
-            <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                    <p className="truncate font-clue text-[20px] font-medium leading-tight text-play-text">
-                        {won ?
-                            `Found in ${props.guesses.length}` :
-                            <>The answer was <span className="whitespace-nowrap font-clue">{props.passage.book} {props.passage.chapter}</span></>
-                        }
-                    </p>
-                    <p className="mt-0.5 truncate text-[13px] text-play-muted">
-                        {streak > 0 ? `${calcStreakIcon()} ${streak} day streak` : null}
-                        {streak > 0 && isToday ? " · " : null}
-                        {isToday ? <>Next chapter in <Countdown/></> : null}
-                        {streak <= 0 && !isToday ? "Pick another day from the calendar" : null}
-                    </p>
-                </div>
-                <span className="flex shrink-0 items-center gap-0.5" aria-label={`${props.stars} of 5 stars`}>
+        <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-2.5 px-4`}>
+            <div className="flex min-w-0 flex-col items-center">
+                <span className="flex items-center gap-1" aria-label={`${props.stars} of 5 stars`}>
                     {[...Array(5)].map((_, index: number) =>
                         index < props.stars ?
                             <Star key={`star-${index}`} filled shadow={false} popping={popping && index == props.stars - 1}
-                                  className="!size-5 !text-play-accent"/> :
-                            <StarIcon key={`star-${index}`} className="size-5 text-play-line" fill="currentColor" strokeWidth={0} aria-hidden="true"/>
+                                  className="!size-7 !text-play-accent"/> :
+                            <StarIcon key={`star-${index}`} className="size-7 text-play-line" fill="currentColor" strokeWidth={0} aria-hidden="true"/>
                     )}
                 </span>
+                {!won ?
+                    <p className="mt-1 max-w-full truncate text-[13px] text-play-muted">
+                        The answer was <span className="whitespace-nowrap font-clue text-play-text">{props.passage.book} {props.passage.chapter}</span>
+                    </p> :
+                    isToday ?
+                        <p className="mt-1 text-[13px] text-play-muted">Next chapter in <Countdown/></p> :
+                        null
+                }
             </div>
             <div className="grid grid-cols-2 gap-2">
-                <button type="button" onClick={share}
-                        className="flex h-12 items-center justify-center gap-2 rounded-full bg-play-text text-[15px] font-semibold text-play-bg transition active:scale-[0.98]">
-                    <Share2Icon className="size-4" strokeWidth={2.25}/>Share
+                <button type="button" onClick={share} aria-live="polite"
+                        className="flex h-12 items-center justify-center overflow-hidden rounded-full bg-play-text text-[15px] font-semibold text-play-bg transition active:scale-[0.98]">
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.span key={copied ? "copied" : "share"} {...fade} className="flex items-center gap-2">
+                            {copied ?
+                                <><CheckIcon className="size-4" strokeWidth={2.5}/>Copied!</> :
+                                <>
+                                    <Share2Icon className="size-4" strokeWidth={2.25}/>Share
+                                    {streak > 0 ? <span className="font-normal opacity-70">· {calcStreakIcon()} {streak}</span> : null}
+                                </>
+                            }
+                        </motion.span>
+                    </AnimatePresence>
                 </button>
                 <Link href={`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`}
                       className="flex h-12 min-w-0 items-center justify-center gap-2 rounded-full border border-play-line bg-play-surface px-3 text-[15px] font-semibold text-play-text transition active:scale-[0.98]">
                     <BookOpenIcon className="size-4 shrink-0" strokeWidth={2.25}/>
-                    <span className="truncate">Read {props.passage.book} {props.passage.chapter}</span>
-                    <span className="shrink-0 font-normal text-play-muted">{minutes ? `${minutes}m` : ""}</span>
+                    <Passage key={`${props.passage.book} ${props.passage.chapter}`} book={props.passage.book} chapter={props.passage.chapter} sizes={READ_SIZES}/>
                 </Link>
             </div>
         </motion.section>
