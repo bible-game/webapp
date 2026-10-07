@@ -12,13 +12,18 @@ import {
     ArrowRightIcon,
     BookOpenIcon,
     CheckIcon,
+    ChartColumnIcon,
     CircleQuestionMarkIcon,
+    FlameIcon,
     MinusIcon,
+    MousePointerClickIcon,
+    PointerIcon,
     PlusIcon,
     Share2Icon,
     StarIcon,
+    TriangleAlertIcon,
 } from "lucide-react";
-import { useDisclosure } from "@heroui/react";
+import { Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@heroui/react";
 import Help from "@/app/play/[game]/help";
 import colours from "@/app/play/[game]/map/config/colours.json";
 import groups from "@/app/play/[game]/map/config/groups.json";
@@ -33,6 +38,18 @@ const stepper = "flex size-12 shrink-0 items-center justify-center rounded-full 
  * padding is part of it, so the buttons keep a little room below them.
  */
 const FOOTER = "h-[100px] pb-2";
+
+const MAX_GUESSES = 5;
+
+
+/** A guess's colour by how far off it was, in step with the share text's squares (calcGuessBlocks) */
+function closenessColour(distance: number): string {
+    const d = Math.abs(distance);
+    if (d <= 500)  return playTheme.green;
+    if (d <= 2000) return playTheme.gold;
+    if (d <= 5000) return "#e0894f";
+    return playTheme.rose;
+}
 
 /** The named chapter group (map/config/groups.json) a chapter falls in, e.g. "Rise of David" */
 function groupOf(book: string, chapter: number): string | undefined {
@@ -179,16 +196,74 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     const tint: string = (colours as Record<string, string>)[bookKey] ?? playTheme.text;
     const group = props.hasBook ? groupOf(props.selected.book, parseInt(props.chapter)) : undefined;
     const glass = !guessed && !excluded;
+    const streak = CompletionUtil.calcStreak();
 
     if (props.playing) return (
         <AnimatePresence mode="wait" initial={false}>
             {!props.hasBook ?
-                <motion.div key="hint" {...fade} className={`flex ${FOOTER} items-center justify-center gap-2 px-4`}>
-                    <button type="button" aria-label="How to play" onClick={help.onOpen}
-                            className="flex size-11 items-center justify-center rounded-full text-play-muted hover:bg-play-raised hover:text-play-text">
-                        <CircleQuestionMarkIcon className="size-5" strokeWidth={1.75}/>
-                    </button>
-                    <span className="text-[16px] text-play-muted">Tap the map to choose a chapter</span>
+                <motion.div key="hint" {...fade} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
+                    {/* a ghost of the guess row below, so choosing a chapter fills it in rather than swapping it out */}
+                    <div className="flex items-center gap-2">
+                        <button type="button" aria-label="How to play" onClick={help.onOpen} className={stepper}>
+                            <CircleQuestionMarkIcon className="size-5" strokeWidth={1.75}/>
+                        </button>
+                        <span aria-hidden="true" className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-dashed border-play-line bg-play-surface px-5 text-[16px] text-play-muted">
+                            <span className="flex items-center gap-2 [@media(hover:hover)_and_(pointer:fine)]:hidden">
+                                <PointerIcon className="size-5 shrink-0" strokeWidth={1.75}/>Tap the map
+                            </span>
+                            <span className="hidden items-center gap-2 [@media(hover:hover)_and_(pointer:fine)]:flex">
+                                <MousePointerClickIcon className="size-5 shrink-0" strokeWidth={1.75}/>Click to pick
+                            </span>
+                        </span>
+                        {props.signedIn ?
+                            <Link href="/stats" aria-label={streak > 0 ? `${streak} day streak, view your statistics` : "View your statistics"}
+                                  className={`${stepper} flex-col gap-0.5 leading-none`}>
+                                {streak > 0 ?
+                                    <>
+                                        <FlameIcon className="size-4" fill="currentColor" fillOpacity={0.3} strokeWidth={1.75} style={{ color: "#e8955a" }}/>
+                                        <span className="text-[12px] font-semibold tabular-nums">{streak}</span>
+                                    </> :
+                                    <ChartColumnIcon className="size-5" strokeWidth={1.75}/>
+                                }
+                            </Link> :
+                            <Popover placement="top-end" offset={12} showArrow classNames={{
+                                content: "max-w-[17rem] rounded-2xl border border-play-line bg-play-surface p-3.5 text-play-text shadow-xl",
+                                arrow: "bg-play-surface",
+                            }}>
+                                <PopoverTrigger>
+                                    <button type="button" aria-label="You're not logged in. Show details" className={stepper}
+                                            style={{ color: "#e8b04f", borderColor: "color-mix(in srgb, #e8b04f 40%, transparent)" }}>
+                                        <TriangleAlertIcon className="size-5" strokeWidth={1.75}/>
+                                    </button>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <div className="flex flex-col gap-3">
+                                        <p className="text-[14px] leading-snug">
+                                            <span className="font-semibold">You&apos;re not logged in.</span>{" "}
+                                            <span className="text-play-muted">Your progress is only saved on this device. Log in to keep your streak and stars.</span>
+                                        </p>
+                                        <Link href="/account/log-in"
+                                              className="flex h-10 items-center justify-center rounded-full bg-play-text text-[14px] font-semibold text-play-bg transition active:scale-[0.98]">
+                                            Log in
+                                        </Link>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        }
+                    </div>
+                    <p className="text-center text-[12px] leading-none text-play-muted"
+                       aria-label={`Guess ${Math.min(props.guesses.length + 1, MAX_GUESSES)} of ${MAX_GUESSES}`}>
+                        <span className="mb-1.5 flex items-center justify-center gap-2" aria-hidden="true">
+                            {[...Array(MAX_GUESSES)].map((_, index: number) => {
+                                const guessed = props.guesses[index];
+                                return (
+                                    <span key={index} className={`size-2.5 rounded-full transition-colors ${!guessed && index == props.guesses.length ? "ring-1 ring-play-muted" : ""}`}
+                                          style={{ background: guessed ? closenessColour(guessed.closeness.distance) : playTheme.line }}/>
+                                );
+                            })}
+                        </span>
+                        <span aria-hidden="true">Guess {Math.min(props.guesses.length + 1, MAX_GUESSES)} of {MAX_GUESSES}</span>
+                    </p>
                     <Help isOpen={help.isOpen} onOpenChange={help.onOpenChange}/>
                 </motion.div> :
                 <motion.div key="guess" {...fade} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
