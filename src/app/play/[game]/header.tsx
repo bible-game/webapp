@@ -5,10 +5,8 @@ import moment from "moment";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { I18nProvider } from "@react-aria/i18n";
 import {
     Avatar,
-    DatePicker,
     Drawer,
     DrawerBody,
     DrawerContent,
@@ -20,12 +18,10 @@ import {
     useDisclosure,
 } from "@heroui/react";
 import { Button } from "@heroui/button";
-import { getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
+import DatePicker from "@/app/play/[game]/date-picker";
 import {
     BookOpenIcon,
-    CalendarDaysIcon,
     ChartColumnIcon,
-    ChevronDownIcon,
     LightbulbIcon,
     MenuIcon,
     PlayIcon,
@@ -67,35 +63,7 @@ const Header = (props: any) => {
                 <MenuIcon className="size-6"/>
             </Button>
 
-            <div className="relative flex h-9 items-center gap-2 rounded-full border border-play-line bg-play-surface pl-3 pr-2.5 text-[14px] font-medium tabular-nums text-play-text">
-                <CalendarDaysIcon className="size-4 text-play-muted" aria-hidden="true"/>
-                <span>{formatDate(props.date)}</span>
-                <ChevronDownIcon className="size-4 text-play-muted" aria-hidden="true"/>
-                {props.date == "today" ? null :
-                    <I18nProvider locale="en-GB">
-                        {/* invisible picker laid over the date, so tapping it opens the calendar */}
-                        <DatePicker
-                            aria-label="Choose a date"
-                            className="!absolute inset-0 !w-full opacity-0"
-                            popoverProps={{ classNames: { content: "dark rounded-2xl border border-play-line bg-play-surface p-0" } }}
-                            calendarProps={{ classNames: {
-                                base: "dark bg-play-surface text-play-text rounded-2xl",
-                                headerWrapper: "bg-play-surface",
-                                gridHeader: "bg-play-surface shadow-none",
-                                gridWrapper: "bg-play-surface",
-                                cellButton: "data-[selected=true]:!bg-play-text data-[selected=true]:!text-play-bg",
-                            } }}
-                            classNames={{
-                                inputWrapper: "!h-full w-full p-0",
-                                selectorButton: "!absolute inset-0 !h-full !w-full",
-                                input: "hidden",
-                            }}
-                            value={parseDate(props.date) as any}
-                            maxValue={parseDate(TODAY(getLocalTimeZone()).toString()) as any}
-                            onChange={(value: any) => changeDate(`${value.year}-${String(value.month).padStart(2, '0')}-${String(value.day).padStart(2, '0')}`)}/>
-                    </I18nProvider>
-                }
-            </div>
+            <DatePicker date={props.date} label={formatDate(props.date)} onChange={changeDate}/>
 
             <div className="flex h-11 w-11 items-center justify-center">
                 {props.info ?

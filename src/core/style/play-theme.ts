@@ -13,6 +13,11 @@ export const playTheme = {
     faint: "#7a766f",     // tertiary text, disabled
     accent: "#d2b96f",    // stars, attention dots (the map's gold)
 
+    // day status in the calendar: started / won / lost
+    amber: "#e3a23b",
+    won: "#78ad88",
+    lost: "#d9534f",
+
     // division colours, as the map draws them (map/config/colours.json); reused for guess closeness
     teal: "#8fc7ce",
     purple: "#ac7db3",
