@@ -1,6 +1,7 @@
 "use server"
 
 import React from "react";
+import "../play.sass";
 import Game from "@/app/play/[game]/game";
 import { headers } from "next/headers";
 import { GameState } from "@/core/model/state/game-state";

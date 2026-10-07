@@ -46,7 +46,7 @@ function closenessColour(distance: number): string {
     const d = Math.abs(distance);
     if (d <= 500)  return playTheme.green;
     if (d <= 2000) return playTheme.gold;
-    if (d <= 5000) return "#e0894f";
+    if (d <= 5000) return playTheme.orange;
     return playTheme.rose;
 }
 
@@ -105,17 +105,15 @@ const Countdown = () => {
 
 const glyph = { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeLinecap: "round", strokeLinejoin: "round" } as const;
 
-/** A bare "i" (lucide's Info, minus its circle), for the footer's help button */
 const InfoGlyph = ({ className }: { className?: string }) => (
     <svg {...glyph} strokeWidth={2.5} className={className} aria-hidden="true"><path d="M12 11v6"/><path d="M12 7h.01"/></svg>
 );
 
-/** A bare "!" (lucide's CircleAlert, minus its circle), for the footer's login warning */
 const AlertGlyph = ({ className }: { className?: string }) => (
     <svg {...glyph} strokeWidth={2.5} className={className} aria-hidden="true"><path d="M12 7v6"/><path d="M12 17h.01"/></svg>
 );
 
-/** A half sun on the horizon, rising or setting (lucide's Sunrise, minus the arrow) */
+/** The chosen horizon icon, without the sunrise arrow. */
 const HalfSunIcon = ({ className, strokeWidth = 2, ...rest }: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 3 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth}
          strokeLinecap="round" strokeLinejoin="round" className={className} {...rest}>
@@ -205,7 +203,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
         .find((bk: any) => bk.name == props.selected.book)?.key;
     const tint: string = (colours as Record<string, string>)[bookKey] ?? playTheme.text;
     const group = props.hasBook ? groupOf(props.selected.book, parseInt(props.chapter)) : undefined;
-    const glass = !guessed && !excluded;
+    const ready = !guessed && !excluded;
 
     if (props.playing) return (
         <>
@@ -214,7 +212,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     {/* a ghost of the guess row below, so choosing a chapter fills it in rather than swapping it out */}
                     <div className="flex items-center gap-2">
                         <Help>
-                            <button type="button" aria-label="How to play" className={stepper}
+                            <button type="button" aria-label="How to play" title="How to play" className={stepper}
                                     style={{ color: "#4cc9ff", borderColor: "color-mix(in srgb, #4cc9ff 40%, transparent)" }}>
                                 <InfoGlyph className="size-6"/>
                             </button>
@@ -230,11 +228,11 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         {props.info ?
                             <MyStats info={props.info} bible={props.bible} className={stepper}/> :
                             <Popover placement="top-end" offset={12} showArrow classNames={{
-                                content: "max-w-[17rem] rounded-2xl border border-play-line bg-play-surface p-3.5 text-play-text shadow-xl",
+                                content: "play-ui max-w-[17rem] rounded-lg border border-play-line bg-play-surface p-3.5 text-play-text shadow-xl",
                                 arrow: "bg-play-surface",
                             }}>
                                 <PopoverTrigger>
-                                    <button type="button" aria-label="You're not logged in. Show details" className={stepper}
+                                    <button type="button" aria-label="You're not logged in. Show details" title="Save your progress" className={stepper}
                                             style={{ color: "#e8b04f", borderColor: "color-mix(in srgb, #e8b04f 40%, transparent)" }}>
                                         <AlertGlyph className="size-6"/>
                                     </button>
@@ -276,10 +274,10 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         </button>
                         <button type="button" disabled={guessed || !!excluded} onClick={submit}
                                 aria-label={excluded ? undefined : `${guessed ? "Guessed" : "Guess"} ${props.selected.book} ${props.chapter}`}
-                                style={glass ? {
+                                style={ready ? {
                                     "--tint": tint,
-                                    background: `linear-gradient(180deg, rgb(255 255 255 / 0.5) 0%, rgb(255 255 255 / 0.12) 48%, transparent 52%), linear-gradient(135deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint) 60%, color-mix(in srgb, var(--tint) 88%, black))`,
-                                    boxShadow: `inset 0 1px 0 rgb(255 255 255 / 0.65), inset 0 -1px 0 color-mix(in srgb, var(--tint) 70%, black), 0 4px 18px -4px color-mix(in srgb, var(--tint) 70%, transparent)`,
+                                    background: `linear-gradient(180deg, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0.08) 48%, transparent 52%), linear-gradient(135deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint) 60%, color-mix(in srgb, var(--tint) 88%, black))`,
+                                    boxShadow: `inset 0 1px 0 rgb(255 255 255 / 0.4), inset 0 -1px 0 color-mix(in srgb, var(--tint) 70%, black), 0 3px 12px -4px color-mix(in srgb, var(--tint) 45%, transparent)`,
                                 } as React.CSSProperties : undefined}
                                 className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-play-text px-5 text-[16px] font-medium text-play-bg transition active:scale-[0.98] disabled:bg-play-raised disabled:text-play-faint">
                             {excluded ?

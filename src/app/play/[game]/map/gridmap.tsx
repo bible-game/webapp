@@ -151,8 +151,8 @@ const BibleGridmap = (props: GridmapProps) => {
                 cellLine: playTheme.line,
                 itemLine: playTheme.faint,
                 // structure sits beneath the coloured books: division boundaries recede, the testament frame stays legible
-                groupLine: "#5a5650",
-                layerLine: "#8f8a81",
+                groupLine: "#5a5d63",
+                layerLine: playTheme.faint,
                 // chapter groups sit quieter still: hairlines between them, small labels
                 sectionLine: playTheme.line,
                 sectionText: playTheme.faint,

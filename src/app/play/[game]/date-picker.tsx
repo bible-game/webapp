@@ -68,7 +68,7 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
 
     return (
         <>
-            <button type="button" aria-label="Choose a date" aria-haspopup="dialog" onClick={() => setOpen(true)}
+            <button type="button" aria-label="Choose a date" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}
                     className="flex h-9 items-center gap-2 rounded-full border border-play-line bg-play-surface pl-3 pr-2.5 text-[14px] font-medium tabular-nums text-play-text">
                 <CalendarDaysIcon className="size-4 text-play-muted" aria-hidden="true"/>
                 <span>{props.label}</span>
@@ -76,7 +76,8 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
             </button>
 
             <Modal isOpen={open} onOpenChange={setOpen} placement="bottom" backdrop="blur" hideCloseButton
-                   classNames={{ base: "dark m-0 w-full max-w-[28rem] rounded-b-none rounded-t-3xl border border-play-line bg-play-surface text-play-text sm:m-auto sm:rounded-3xl" }}>
+                   aria-label="Choose a game date"
+                   classNames={{ base: "play-ui dark m-0 w-full max-w-[28rem] rounded-b-none rounded-t-3xl border border-play-line bg-play-surface text-play-text sm:m-auto sm:rounded-3xl" }}>
                 <ModalContent>
                     <ModalBody className="gap-3 px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
                         <div className="flex items-center justify-between">

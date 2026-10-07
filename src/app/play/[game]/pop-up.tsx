@@ -43,8 +43,8 @@ export default function PopUp() {
                 classNames={{
                     wrapper: "items-end",
                     backdrop: "bg-black/40",
-                    base: "!m-0 w-full max-w-[40rem] rounded-b-none rounded-t-3xl border border-b-0 border-play-line " +
-                        "bg-play-surface text-play-text shadow-[0_-16px_48px_rgba(0,0,0,0.5)] sm:!mb-4 sm:rounded-3xl sm:border-b",
+                    base: "play-ui !m-0 w-full max-w-[40rem] rounded-b-none rounded-t-lg border border-b-0 border-play-line " +
+                        "bg-play-surface text-play-text shadow-[0_-16px_48px_rgba(0,0,0,0.5)] sm:!mb-4 sm:rounded-lg sm:border-b",
                     header: "flex-col items-center gap-3 px-6 pb-0 pt-3",
                     body: "gap-2 px-6 py-4 text-center text-[15px] leading-[1.5] text-play-muted",
                     footer: "flex-col gap-3 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-0",

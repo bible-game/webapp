@@ -17,13 +17,13 @@ const examples: { band: Band, passage: string, up: boolean, distance: string, me
  */
 const Help = ({ children }: { children: React.ReactElement }) => (
     <Popover placement="top-start" offset={12} showArrow classNames={{
-        content: "w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-2xl border border-play-line bg-play-surface p-4 text-play-text shadow-xl",
+        content: "play-ui w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-lg border border-play-line bg-play-surface p-4 text-play-text shadow-xl",
         arrow: "bg-play-surface",
     }}>
         <PopoverTrigger>{children}</PopoverTrigger>
         <PopoverContent>
             <div className="flex flex-col gap-3 text-[14px] leading-[1.45]">
-                <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-play-muted">How to Play</p>
+                <p className="text-[14px] font-semibold">How to play</p>
                 <p>Each day, one chapter of the Bible is chosen and summarised. Can you find it?</p>
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
                 <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction:</p>

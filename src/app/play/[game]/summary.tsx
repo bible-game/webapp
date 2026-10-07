@@ -47,7 +47,7 @@ const Summary = (props: any) => {
 
             {expanded ?
                 <button type="button" aria-label="Close summary" onClick={() => setExpanded(false)}
-                        className="absolute inset-x-0 top-0 flex flex-col items-center rounded-b-2xl border-b border-play-line bg-play-bg px-6 pb-4 pt-1 shadow-[0_16px_32px_rgba(0,0,0,0.6)]">
+                        className="absolute inset-x-0 top-0 flex flex-col items-center rounded-b-lg border-b border-play-line bg-play-bg px-6 pb-4 pt-1 shadow-[0_16px_32px_rgba(0,0,0,0.6)]">
                     <p className={text}>{props.passage.summary}</p>
                     <ChevronDownIcon className="mt-1 size-4 rotate-180 text-play-faint" aria-hidden="true"/>
                 </button> : null

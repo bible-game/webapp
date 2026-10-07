@@ -15,13 +15,14 @@ import { redirect } from "next/navigation";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
 import { ruledOut } from "@/app/play/[game]/ruled-out";
+import { MotionConfig, useReducedMotion } from "framer-motion";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 /** Skeleton of the page (header, clue, guess slots, map frame) while the day's passage loads */
 const Loading = () => (
     <div aria-busy="true" aria-label="Loading"
-         className="fixed inset-0 z-0 flex h-[100dvh] flex-col bg-play-bg pt-[env(safe-area-inset-top)]">
+         className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col bg-play-bg pt-[env(safe-area-inset-top)]">
         <div className="mx-auto flex w-full max-w-[40rem] flex-1 animate-pulse flex-col">
             <div className="flex h-14 items-center justify-center"><div className="h-9 w-32 rounded-full bg-play-surface"/></div>
             <div className="mx-auto mb-2 mt-2 h-5 w-3/4 rounded-md bg-play-surface"/>
@@ -40,6 +41,7 @@ const Loading = () => (
  * @since 13th May 2025
  */
 export default function Game(props: any) {
+    const reducedMotion = useReducedMotion();
     if (props.game == 'today') {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
@@ -264,7 +266,8 @@ export default function Game(props: any) {
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
 
         return (
-            <div className="fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-play-bg pt-[env(safe-area-inset-top)] text-play-text">
+            <MotionConfig reducedMotion="user">
+            <div className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-play-bg pt-[env(safe-area-inset-top)] text-play-text">
                 <PopUp />
                 <div className="mx-auto flex w-full max-w-[40rem] shrink-0 flex-col">
                     <Header info={props.info} date={props.game}/>
@@ -290,8 +293,9 @@ export default function Game(props: any) {
                             ruledOut={hasBook ? excluded.get(cellOf(chapter)) : undefined}
                             bible={props.bible} chapter={chapter} guesses={guesses} info={props.info}/>
                 </section>
-                <Confetti fire={confetti}/>
+                <Confetti fire={confetti && !reducedMotion}/>
             </div>
+            </MotionConfig>
         );
     }
 }

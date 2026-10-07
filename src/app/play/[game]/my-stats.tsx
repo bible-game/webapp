@@ -12,19 +12,19 @@ import { Star } from "@/app/play/[game]/star";
 import { playTheme } from "@/core/style/play-theme";
 
 const GREEN = playTheme.green;
-const ORANGE = "#e8955a";
+const ORANGE = playTheme.orange;
 
 const ordinal = (n: number) => {
     const s = ["th", "st", "nd", "rd"], v = n % 100;
     return s[(v - 20) % 10] || s[v] || s[0];
 };
 
-/** One figure in the grid: a tinted icon, a serif number and a quiet label */
+/** One figure in the grid: a tinted icon, a number and a quiet label */
 const Tile = ({ icon, colour, value, label }: { icon: React.ReactNode, colour: string, value: string, label: string }) => (
-    <div className="flex items-center gap-3 rounded-2xl bg-play-raised px-3 py-2.5">
+    <div className="flex items-center gap-3 py-2.5">
         <span className="flex size-5 shrink-0 items-center justify-center" style={{ color: colour }}>{icon}</span>
         <span className="min-w-0 leading-none">
-            <span className="block font-clue text-[22px] font-medium text-play-text lining-nums">{value}</span>
+            <span className="block text-[22px] font-semibold text-play-text tabular-nums">{value}</span>
             <span className="mt-1 block truncate text-[11px] text-play-muted">{label}</span>
         </span>
     </div>
@@ -59,7 +59,7 @@ const MyStats = ({ info, bible, className }: { info: { firstname: string, lastna
 
     return (
         <Popover placement="top-end" offset={12} showArrow classNames={{
-            content: "w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-2xl border border-play-line bg-play-surface p-4 text-play-text shadow-xl",
+            content: "play-ui w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-lg border border-play-line bg-play-surface p-4 text-play-text shadow-xl",
             arrow: "bg-play-surface",
         }}>
             <PopoverTrigger>
@@ -78,14 +78,14 @@ const MyStats = ({ info, bible, className }: { info: { firstname: string, lastna
                 <div className="flex flex-col gap-3.5">
                     <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0 leading-tight">
-                            <p className="truncate font-clue text-[22px] font-medium">{info.firstname} {info.lastname}</p>
+                            <p className="truncate text-[18px] font-semibold">{info.firstname} {info.lastname}</p>
                             <p className="mt-0.5 flex items-center gap-1.5 text-[12px] text-play-muted">
                                 <span className="size-1.5 rounded-full" style={{ background: GREEN }}/>Logged in
                             </p>
                         </div>
                         {place ?
                             <div className="shrink-0 text-right leading-none" style={{ color: GREEN }}>
-                                <p className="font-clue text-[30px] font-medium lining-nums">{place}<sup className="ml-0.5 text-[13px] font-semibold">{ordinal(place)}</sup></p>
+                                <p className="text-[28px] font-semibold tabular-nums">{place}<sup className="ml-0.5 text-[13px] font-semibold">{ordinal(place)}</sup></p>
                                 <p className="mt-1 text-[11px] text-play-muted">of {data?.totalPlayers} players</p>
                             </div> : null
                         }

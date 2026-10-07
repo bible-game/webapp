@@ -69,11 +69,11 @@ const Header = (props: any) => {
                 {props.info ?
                     <Dropdown placement="bottom-end">
                         <DropdownTrigger>
-                            <Avatar as="button" className="size-8 bg-play-raised text-[12px] font-semibold text-play-text ring-1 ring-play-line"
+                            <Avatar as="button" aria-label="Open account menu" className="size-8 bg-play-raised text-[12px] font-semibold text-play-text ring-1 ring-play-line"
                                     name={props.info.firstname[0].toUpperCase() + props.info.lastname[0].toUpperCase()}/>
                         </DropdownTrigger>
-                        <DropdownMenu aria-label="Account" variant="flat">
-                            <DropdownItem key="logout" color="danger" className="text-black"
+                        <DropdownMenu aria-label="Account" variant="flat" className="play-ui bg-play-surface text-play-text">
+                            <DropdownItem key="logout" color="danger" className="text-play-text"
                                           onPress={() => logOut().then(() => window.location.reload())}>Log Out</DropdownItem>
                         </DropdownMenu>
                     </Dropdown> :
@@ -88,7 +88,7 @@ const Header = (props: any) => {
 
             <Drawer isOpen={drawer.isOpen} onOpenChange={drawer.onOpenChange} placement="left" size="full"
                     radius="none" hideCloseButton
-                    classNames={{ base: "bg-play-bg text-play-text" }}>
+                    classNames={{ base: "play-ui bg-play-bg text-play-text" }}>
                 <DrawerContent>
                     {(onClose) => (
                         <>
@@ -96,7 +96,7 @@ const Header = (props: any) => {
                                 <Link href="/" aria-label="Bible Game home">
                                     <Image src="/icon-bright.png" alt="" width={46} height={46}/>
                                 </Link>
-                                <span className="absolute left-1/2 -translate-x-1/2 text-[13px] font-medium uppercase tracking-[0.18em] text-play-muted">
+                                <span className="absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-play-text">
                                     Bible Game
                                 </span>
                                 <Button isIconOnly disableRipple aria-label="Close menu" className={iconButton} onPress={onClose}>
@@ -108,11 +108,11 @@ const Header = (props: any) => {
                                     {links.map(({ key, label, href, icon: Icon }) =>
                                         key == "play" ?
                                             <span key={key} aria-current="page"
-                                                  className="flex h-12 items-center gap-x-4 rounded-xl bg-play-surface px-4 text-play-text">
+                                                  className="flex h-12 items-center gap-x-4 rounded-lg bg-play-surface px-4 text-play-text">
                                                 <Icon className="size-5 text-play-accent"/>{label}
                                             </span> :
                                             <Link key={key} href={href}
-                                                  className="flex h-12 items-center gap-x-4 rounded-xl px-4 text-play-muted hover:bg-play-surface hover:text-play-text">
+                                                  className="flex h-12 items-center gap-x-4 rounded-lg px-4 text-play-muted hover:bg-play-surface hover:text-play-text">
                                                 <Icon className="size-5"/>{label}
                                             </Link>
                                     )}
