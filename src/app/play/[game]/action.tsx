@@ -30,6 +30,8 @@ import groups from "@/app/play/[game]/map/config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
 
 const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.18 } };
+/** The footer's switch between choosing and guessing: no exit and no movement, just a quick fade-in, so it never lags */
+const quick = { initial: { opacity: 0.4 }, animate: { opacity: 1 }, transition: { duration: 0.12 } };
 const stepper = "flex size-12 shrink-0 items-center justify-center rounded-full border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
 
 /**
@@ -199,9 +201,9 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     const streak = CompletionUtil.calcStreak();
 
     if (props.playing) return (
-        <AnimatePresence mode="wait" initial={false}>
+        <>
             {!props.hasBook ?
-                <motion.div key="hint" {...fade} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
+                <motion.div key="hint" {...quick} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
                     {/* a ghost of the guess row below, so choosing a chapter fills it in rather than swapping it out */}
                     <div className="flex items-center gap-2">
                         <button type="button" aria-label="How to play" onClick={help.onOpen} className={stepper}>
@@ -217,12 +219,13 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         </span>
                         {props.signedIn ?
                             <Link href="/stats" aria-label={streak > 0 ? `${streak} day streak, view your statistics` : "View your statistics"}
-                                  className={`${stepper} flex-col gap-0.5 leading-none`}>
+                                  className={stepper}>
                                 {streak > 0 ?
-                                    <>
-                                        <FlameIcon className="size-4" fill="currentColor" fillOpacity={0.3} strokeWidth={1.75} style={{ color: "#e8955a" }}/>
-                                        <span className="text-[12px] font-semibold tabular-nums">{streak}</span>
-                                    </> :
+                                    <span className="relative flex size-9 items-center justify-center" style={{ color: "#e8955a" }}>
+                                        <FlameIcon className="absolute inset-0 size-9 [filter:drop-shadow(0_0_6px_color-mix(in_srgb,currentColor_45%,transparent))]"
+                                                   fill="currentColor" fillOpacity={0.2} strokeWidth={1.5}/>
+                                        <span className="relative translate-y-[3px] text-[13px] font-bold leading-none tabular-nums">{streak}</span>
+                                    </span> :
                                     <ChartColumnIcon className="size-5" strokeWidth={1.75}/>
                                 }
                             </Link> :
@@ -266,7 +269,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     </p>
                     <Help isOpen={help.isOpen} onOpenChange={help.onOpenChange}/>
                 </motion.div> :
-                <motion.div key="guess" {...fade} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
+                <motion.div key="guess" {...quick} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
                     <div className="flex items-center gap-2">
                         <button type="button" aria-label="Previous chapter" disabled={!props.canStep(-1)}
                                 onClick={() => props.step(-1)} className={stepper}>
@@ -302,7 +305,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     </p>
                 </motion.div>
             }
-        </AnimatePresence>
+        </>
     );
 
     const isToday = moment(props.date).isSame(moment(), "day");
