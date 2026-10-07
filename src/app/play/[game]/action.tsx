@@ -13,7 +13,6 @@ import {
     BookOpenIcon,
     CheckIcon,
     CircleQuestionMarkIcon,
-    FlameIcon,
     MinusIcon,
     PlusIcon,
     Share2Icon,
@@ -30,9 +29,10 @@ const stepper = "flex size-12 shrink-0 items-center justify-center rounded-full 
 
 /**
  * One height for the footer in every state (choosing, guessing, game over), so the map above it never resizes when the
- * state changes: the guessing footer is the tallest content, and the others are padded to match it.
+ * state changes: the guessing footer is the tallest content, and the others are centred in the same height. The bottom
+ * padding is part of it, so the buttons keep a little room below them.
  */
-const FOOTER = "h-[100px]";
+const FOOTER = "h-[100px] pb-2";
 
 /** The named chapter group (map/config/groups.json) a chapter falls in, e.g. "Rise of David" */
 function groupOf(book: string, chapter: number): string | undefined {
@@ -89,7 +89,7 @@ const Countdown = () => {
 
 /** A half sun on the horizon, rising or setting (lucide's Sunrise, minus the arrow) */
 const HalfSunIcon = ({ className, strokeWidth = 2, ...rest }: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 3 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth}
          strokeLinecap="round" strokeLinejoin="round" className={className} {...rest}>
         <path d="M12 10V8"/>
         <path d="m4.93 10.93 1.41 1.41"/>
@@ -100,43 +100,6 @@ const HalfSunIcon = ({ className, strokeWidth = 2, ...rest }: React.SVGProps<SVG
         <path d="M16 18a4 4 0 0 0-8 0"/>
     </svg>
 );
-
-/** The glow the stars have, in whatever colour the icon is */
-const GLOW = "[filter:drop-shadow(0_0_6px_color-mix(in_srgb,currentColor_55%,transparent))_drop-shadow(0_0_16px_color-mix(in_srgb,currentColor_25%,transparent))]";
-
-/** A carousel stat: a glowing icon, a serif figure and a quiet label; `dim` when there's nothing to show yet */
-const Stat = ({ icon, value, label, colour, dim = false }: { icon: React.ReactNode, value?: string, label: string, colour: string, dim?: boolean }) => (
-    <span className="flex items-center justify-center gap-2.5 whitespace-nowrap">
-        <span className={`flex shrink-0 items-center ${dim ? "text-play-line" : GLOW}`} style={dim ? undefined : { color: colour }}>{icon}</span>
-        {value ? <span className="font-clue text-[24px] font-medium leading-none text-play-text lining-nums">{value}</span> : null}
-        <span className="text-[14px] text-play-muted">{label}</span>
-    </span>
-);
-
-/** Carousel slides move sideways: in from the right, out to the left */
-const slide = { initial: { opacity: 0, x: 24 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -24 }, transition: { duration: 0.22 } };
-
-/** One line at a time, cross-fading to the next every few seconds (a single slide just sits there) */
-const Carousel = ({ slides }: { slides: Array<{ key: string, node: React.ReactNode }> }) => {
-    const [index, setIndex] = useState(0);
-    const count = slides.length;
-
-    useEffect(() => {
-        if (count < 2) return;
-
-        const t = setInterval(() => setIndex(i => i + 1), 6000);
-        return () => clearInterval(t);
-    }, [count]);
-
-    const current = slides[index % count];
-    return (
-        <div className="flex h-7 w-full items-center justify-center text-[14px] leading-none text-play-muted">
-            <AnimatePresence mode="wait" initial={false}>
-                <motion.div key={current.key} {...slide} className="max-w-full">{current.node}</motion.div>
-            </AnimatePresence>
-        </div>
-    );
-}
 
 const Action = (props: any) => {
     const help = useDisclosure();
@@ -171,18 +134,6 @@ const Action = (props: any) => {
         return guessBlocks;
     }
 
-    function calcStreakIcon(): string {
-        const streak = CompletionUtil.calcStreak();
-
-        if      (streak >= 50) return '💎';
-        else if (streak >= 25) return '🏅';
-        else if (streak >= 10) return '🥈';
-        else if (streak >= 5)  return '🥉';
-        else if (streak >= 0)  return '🔥';
-        else                   return '😵';
-
-    }
-
     useEffect(() => {
         if (!copied) return;
 
@@ -208,7 +159,7 @@ const Action = (props: any) => {
         return `bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
-⭐ ${CompletionUtil.calcStars()} ${CompletionUtil.calcStreak() > 0 ? `${calcStreakIcon()} ${CompletionUtil.calcStreak()} ` : ''}📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
+⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
 
     function submit() {
@@ -240,7 +191,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     <span className="text-[16px] text-play-muted">Tap the map to choose a chapter</span>
                     <Help isOpen={help.isOpen} onOpenChange={help.onOpenChange}/>
                 </motion.div> :
-                <motion.div key="guess" {...fade} className={`flex ${FOOTER} flex-col justify-center gap-2.5 px-4`}>
+                <motion.div key="guess" {...fade} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
                     <div className="flex items-center gap-2">
                         <button type="button" aria-label="Previous chapter" disabled={!props.canStep(-1)}
                                 onClick={() => props.step(-1)} className={stepper}>
@@ -279,15 +230,11 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
         </AnimatePresence>
     );
 
-    const won = props.guesses.some((guess: any) => parseInt(guess.closeness.distance) == 0);
-    const streak = CompletionUtil.calcStreak();
     const isToday = moment(props.date).isSame(moment(), "day");
 
-    const totalStars = CompletionUtil.calcStars();
-    const percentRead = parseFloat(CompletionUtil.calcPercentageCompletion(props.bible, 1));
-    const slides: Array<{ key: string, node: React.ReactNode }> = [
-        { key: "stars", node:
-            <span className="flex items-center gap-1.5" aria-label={`${props.stars} of 5 stars`}>
+    return (
+        <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-3 px-4`}>
+            <span className="flex items-center justify-center gap-1.5" aria-label={`${props.stars} of 5 stars`}>
                 {[...Array(5)].map((_, index: number) =>
                     index < props.stars ?
                         <Star key={`star-${index}`} filled popping={popping && index == props.stars - 1}
@@ -295,27 +242,6 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         <StarIcon key={`star-${index}`} className="size-7 text-play-line" fill="none" strokeWidth={1.5} aria-hidden="true"/>
                 )}
             </span>
-        },
-        { key: "total", node: totalStars > 0 ?
-            <Stat colour={playTheme.accent} value={String(totalStars)} label={totalStars == 1 ? "star in total" : "stars in total"}
-                  icon={<Star filled shadow={false} className="!size-6 !text-current"/>}/> :
-            <Stat dim label="No stars yet" colour={playTheme.accent} icon={<StarIcon className="size-6" fill="none" strokeWidth={1.5}/>}/>
-        },
-        { key: "streak", node: streak > 0 ?
-            <Stat colour="#e8955a" value={String(streak)} label="day streak"
-                  icon={<FlameIcon className="size-6" fill="currentColor" fillOpacity={0.3} strokeWidth={1.75}/>}/> :
-            <Stat dim label="No streak yet, win a day to start one" colour="#e8955a" icon={<FlameIcon className="size-6" strokeWidth={1.5}/>}/>
-        },
-        { key: "read", node: percentRead > 0 ?
-            <Stat colour={playTheme.teal} value={`${percentRead}%`} label="of the Bible read"
-                  icon={<BookOpenIcon className="size-6" fill="currentColor" fillOpacity={0.2} strokeWidth={1.75}/>}/> :
-            <Stat dim label="Nothing read yet" colour={playTheme.teal} icon={<BookOpenIcon className="size-6" strokeWidth={1.5}/>}/>
-        },
-    ];
-
-    return (
-        <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-3 px-4`}>
-            <Carousel slides={slides}/>
             <div className="grid grid-cols-2 gap-2">
                 <button type="button" onClick={share} aria-live="polite" aria-label={shared && !copied && isToday ? "Copy results again" : undefined}
                         className="flex h-12 items-center justify-center overflow-hidden whitespace-nowrap rounded-full bg-play-text px-3 text-[15px] font-semibold text-play-bg transition active:scale-[0.98]">
@@ -324,7 +250,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                             {copied ?
                                 <><CheckIcon className="size-4 shrink-0" strokeWidth={2.5}/>Copied!</> :
                                 shared && isToday ?
-                                    <><HalfSunIcon className="size-[18px] shrink-0" strokeWidth={2.25} aria-label="Next chapter in"/><Countdown/></> :
+                                    <><HalfSunIcon className="size-[22px] shrink-0" strokeWidth={2.25} aria-label="Next chapter in"/><Countdown/></> :
                                     <><Share2Icon className="size-4 shrink-0" strokeWidth={2.25}/>Share</>
                             }
                         </motion.span>
