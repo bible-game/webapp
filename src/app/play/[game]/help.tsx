@@ -1,8 +1,7 @@
 "use client"
 
 import React from "react";
-import { Modal, ModalBody, ModalContent } from "@heroui/react";
-import { ModalHeader } from "@heroui/modal";
+import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
 import { Band, CLOSE, FAR, NEAR } from "@/app/play/[game]/closeness";
 
@@ -13,28 +12,21 @@ const examples: { band: Band, passage: string, up: boolean, distance: string, me
 ];
 
 /**
- * How to Play Modal
+ * How to Play: a popover above whatever trigger it wraps (the footer's info button), in the same style as the login warning's
  * @since 2nd October 2026
  */
-const Help = (props: { isOpen: boolean, onOpenChange: () => void }) => (
-    <Modal
-        isOpen={props.isOpen}
-        onOpenChange={props.onOpenChange}
-        placement="center"
-        radius="lg"
-        classNames={{
-            base: "mx-4 rounded-3xl border border-play-line bg-play-surface text-play-text",
-            backdrop: "bg-black/70",
-            header: "pt-7 text-[13px] font-medium uppercase tracking-[0.18em] text-play-muted",
-            body: "gap-4 pb-7 text-[15px] leading-[1.5]",
-            closeButton: "m-2 rounded-full text-play-text hover:bg-play-raised",
-        }}>
-        <ModalContent>
-            <ModalHeader>How to Play</ModalHeader>
-            <ModalBody>
+const Help = ({ children }: { children: React.ReactElement }) => (
+    <Popover placement="top-start" offset={12} showArrow classNames={{
+        content: "w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-2xl border border-play-line bg-play-surface p-4 text-play-text shadow-xl",
+        arrow: "bg-play-surface",
+    }}>
+        <PopoverTrigger>{children}</PopoverTrigger>
+        <PopoverContent>
+            <div className="flex flex-col gap-3 text-[14px] leading-[1.45]">
+                <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-play-muted">How to Play</p>
                 <p>Each day, one chapter of the Bible is chosen and summarised. Can you find it?</p>
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
-                <p>Each guess shows how many verses away the answer is, and in which direction:</p>
+                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction:</p>
                 <ul className="grid gap-2">
                     {examples.map(({ band, passage, up, distance, meaning }) => {
                         const Arrow = up ? ArrowUpIcon : ArrowDownIcon;
@@ -45,19 +37,19 @@ const Help = (props: { isOpen: boolean, onOpenChange: () => void }) => (
                                     {passage}
                                     <span className="flex items-center gap-0.5 font-medium"><Arrow className="size-3" strokeWidth={2.5}/>{distance}</span>
                                 </span>
-                                <span className="text-[14px] text-play-muted">{meaning}</span>
+                                <span className="text-play-muted">{meaning}</span>
                             </li>
                         );
                     })}
                 </ul>
-                <p className="text-[14px] text-play-muted">
+                <p className="text-play-muted">
                     <ArrowUpIcon className="inline size-3.5 align-[-2px]" strokeWidth={2.5}/> the answer is later in the Bible,{" "}
                     <ArrowDownIcon className="inline size-3.5 align-[-2px]" strokeWidth={2.5}/> earlier.
                 </p>
-                <p className="text-[14px] text-play-faint">Feedback? hello@bible.game</p>
-            </ModalBody>
-        </ModalContent>
-    </Modal>
+                <p className="text-[13px] text-play-faint">Feedback? hello@bible.game</p>
+            </div>
+        </PopoverContent>
+    </Popover>
 );
 
 export default Help;

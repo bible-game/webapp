@@ -12,19 +12,16 @@ import {
     ArrowRightIcon,
     BookOpenIcon,
     CheckIcon,
-    ChartColumnIcon,
-    CircleQuestionMarkIcon,
-    FlameIcon,
     MinusIcon,
     MousePointerClickIcon,
     PointerIcon,
     PlusIcon,
     Share2Icon,
     StarIcon,
-    TriangleAlertIcon,
 } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger, useDisclosure } from "@heroui/react";
+import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import Help from "@/app/play/[game]/help";
+import MyStats from "@/app/play/[game]/my-stats";
 import colours from "@/app/play/[game]/map/config/colours.json";
 import groups from "@/app/play/[game]/map/config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
@@ -106,6 +103,18 @@ const Countdown = () => {
     return <span className="tabular-nums">{`${Math.floor(left.asHours())}:${String(left.minutes()).padStart(2, "0")}:${String(left.seconds()).padStart(2, "0")}`}</span>;
 }
 
+const glyph = { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeLinecap: "round", strokeLinejoin: "round" } as const;
+
+/** A bare "i" (lucide's Info, minus its circle), for the footer's help button */
+const InfoGlyph = ({ className }: { className?: string }) => (
+    <svg {...glyph} strokeWidth={2.5} className={className} aria-hidden="true"><path d="M12 11v6"/><path d="M12 7h.01"/></svg>
+);
+
+/** A bare "!" (lucide's CircleAlert, minus its circle), for the footer's login warning */
+const AlertGlyph = ({ className }: { className?: string }) => (
+    <svg {...glyph} strokeWidth={2.5} className={className} aria-hidden="true"><path d="M12 7v6"/><path d="M12 17h.01"/></svg>
+);
+
 /** A half sun on the horizon, rising or setting (lucide's Sunrise, minus the arrow) */
 const HalfSunIcon = ({ className, strokeWidth = 2, ...rest }: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 3 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth}
@@ -121,7 +130,6 @@ const HalfSunIcon = ({ className, strokeWidth = 2, ...rest }: React.SVGProps<SVG
 );
 
 const Action = (props: any) => {
-    const help = useDisclosure();
     // A temporary “pop” on the newest star, only when the game is won now (not when a finished game is reloaded)
     const [popping, setPopping] = useState(false);
     // true for a moment after the results are copied, so the share button can say so itself
@@ -198,7 +206,6 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     const tint: string = (colours as Record<string, string>)[bookKey] ?? playTheme.text;
     const group = props.hasBook ? groupOf(props.selected.book, parseInt(props.chapter)) : undefined;
     const glass = !guessed && !excluded;
-    const streak = CompletionUtil.calcStreak();
 
     if (props.playing) return (
         <>
@@ -206,9 +213,12 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 <motion.div key="hint" {...quick} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
                     {/* a ghost of the guess row below, so choosing a chapter fills it in rather than swapping it out */}
                     <div className="flex items-center gap-2">
-                        <button type="button" aria-label="How to play" onClick={help.onOpen} className={stepper}>
-                            <CircleQuestionMarkIcon className="size-5" strokeWidth={1.75}/>
-                        </button>
+                        <Help>
+                            <button type="button" aria-label="How to play" className={stepper}
+                                    style={{ color: "#4cc9ff", borderColor: "color-mix(in srgb, #4cc9ff 40%, transparent)" }}>
+                                <InfoGlyph className="size-6"/>
+                            </button>
+                        </Help>
                         <span aria-hidden="true" className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-dashed border-play-line bg-play-surface px-5 text-[16px] text-play-muted">
                             <span className="flex items-center gap-2 [@media(hover:hover)_and_(pointer:fine)]:hidden">
                                 <PointerIcon className="size-5 shrink-0" strokeWidth={1.75}/>Tap the map
@@ -217,20 +227,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                 <MousePointerClickIcon className="size-5 shrink-0" strokeWidth={1.75}/>Click to pick
                             </span>
                         </span>
-                        {props.signedIn ?
-                            <Link href="/stats" aria-label={streak > 0 ? `${streak} day streak, view your statistics` : "View your statistics"}
-                                  className={streak > 0 ?
-                                      "relative flex size-12 shrink-0 items-center justify-center transition active:scale-95" :
-                                      stepper}>
-                                {streak > 0 ?
-                                    <span className="relative flex size-12 items-center justify-center" style={{ color: "#e8955a" }}>
-                                        <FlameIcon className="absolute inset-0 size-12 [filter:drop-shadow(0_0_8px_color-mix(in_srgb,currentColor_45%,transparent))]"
-                                                   fill="currentColor" fillOpacity={0.22} strokeWidth={1.25}/>
-                                        <span className="relative translate-y-[7px] text-[15px] font-bold leading-none tabular-nums">{streak}</span>
-                                    </span> :
-                                    <ChartColumnIcon className="size-5" strokeWidth={1.75}/>
-                                }
-                            </Link> :
+                        {props.info ?
+                            <MyStats info={props.info} bible={props.bible} className={stepper}/> :
                             <Popover placement="top-end" offset={12} showArrow classNames={{
                                 content: "max-w-[17rem] rounded-2xl border border-play-line bg-play-surface p-3.5 text-play-text shadow-xl",
                                 arrow: "bg-play-surface",
@@ -238,7 +236,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                 <PopoverTrigger>
                                     <button type="button" aria-label="You're not logged in. Show details" className={stepper}
                                             style={{ color: "#e8b04f", borderColor: "color-mix(in srgb, #e8b04f 40%, transparent)" }}>
-                                        <TriangleAlertIcon className="size-5" strokeWidth={1.75}/>
+                                        <AlertGlyph className="size-6"/>
                                     </button>
                                 </PopoverTrigger>
                                 <PopoverContent>
@@ -269,7 +267,6 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         </span>
                         <span aria-hidden="true">Guess {Math.min(props.guesses.length + 1, MAX_GUESSES)} of {MAX_GUESSES}</span>
                     </p>
-                    <Help isOpen={help.isOpen} onOpenChange={help.onOpenChange}/>
                 </motion.div> :
                 <motion.div key="guess" {...quick} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
                     <div className="flex items-center gap-2">
