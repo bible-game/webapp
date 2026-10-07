@@ -13,6 +13,7 @@ import {
     BookOpenIcon,
     CheckIcon,
     CircleQuestionMarkIcon,
+    FlameIcon,
     MinusIcon,
     PlusIcon,
     Share2Icon,
@@ -29,9 +30,9 @@ const stepper = "flex size-12 shrink-0 items-center justify-center rounded-full 
 
 /**
  * One height for the footer in every state (choosing, guessing, game over), so the map above it never resizes when the
- * state changes: the guessing footer is the tallest content (~100px), and the others are padded to match it.
+ * state changes: the guessing footer is the tallest content, and the others are padded to match it.
  */
-const FOOTER = "h-[112px]";
+const FOOTER = "h-[100px]";
 
 /** The named chapter group (map/config/groups.json) a chapter falls in, e.g. "Rise of David" */
 function groupOf(book: string, chapter: number): string | undefined {
@@ -86,12 +87,65 @@ const Countdown = () => {
     return <span className="tabular-nums">{`${Math.floor(left.asHours())}:${String(left.minutes()).padStart(2, "0")}:${String(left.seconds()).padStart(2, "0")}`}</span>;
 }
 
+/** A half sun on the horizon, rising or setting (lucide's Sunrise, minus the arrow) */
+const HalfSunIcon = ({ className, strokeWidth = 2, ...rest }: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth}
+         strokeLinecap="round" strokeLinejoin="round" className={className} {...rest}>
+        <path d="M12 10V8"/>
+        <path d="m4.93 10.93 1.41 1.41"/>
+        <path d="M2 18h2"/>
+        <path d="M20 18h2"/>
+        <path d="m19.07 10.93-1.41 1.41"/>
+        <path d="M22 22H2"/>
+        <path d="M16 18a4 4 0 0 0-8 0"/>
+    </svg>
+);
+
+/** The glow the stars have, in whatever colour the icon is */
+const GLOW = "[filter:drop-shadow(0_0_6px_color-mix(in_srgb,currentColor_55%,transparent))_drop-shadow(0_0_16px_color-mix(in_srgb,currentColor_25%,transparent))]";
+
+/** A carousel stat: a glowing icon, a serif figure and a quiet label; `dim` when there's nothing to show yet */
+const Stat = ({ icon, value, label, colour, dim = false }: { icon: React.ReactNode, value?: string, label: string, colour: string, dim?: boolean }) => (
+    <span className="flex items-center justify-center gap-2.5 whitespace-nowrap">
+        <span className={`flex shrink-0 items-center ${dim ? "text-play-line" : GLOW}`} style={dim ? undefined : { color: colour }}>{icon}</span>
+        {value ? <span className="font-clue text-[24px] font-medium leading-none text-play-text lining-nums">{value}</span> : null}
+        <span className="text-[14px] text-play-muted">{label}</span>
+    </span>
+);
+
+/** Carousel slides move sideways: in from the right, out to the left */
+const slide = { initial: { opacity: 0, x: 24 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -24 }, transition: { duration: 0.22 } };
+
+/** One line at a time, cross-fading to the next every few seconds (a single slide just sits there) */
+const Carousel = ({ slides }: { slides: Array<{ key: string, node: React.ReactNode }> }) => {
+    const [index, setIndex] = useState(0);
+    const count = slides.length;
+
+    useEffect(() => {
+        if (count < 2) return;
+
+        const t = setInterval(() => setIndex(i => i + 1), 6000);
+        return () => clearInterval(t);
+    }, [count]);
+
+    const current = slides[index % count];
+    return (
+        <div className="flex h-7 w-full items-center justify-center text-[14px] leading-none text-play-muted">
+            <AnimatePresence mode="wait" initial={false}>
+                <motion.div key={current.key} {...slide} className="max-w-full">{current.node}</motion.div>
+            </AnimatePresence>
+        </div>
+    );
+}
+
 const Action = (props: any) => {
     const help = useDisclosure();
     // A temporary “pop” on the newest star, only when the game is won now (not when a finished game is reloaded)
     const [popping, setPopping] = useState(false);
     // true for a moment after the results are copied, so the share button can say so itself
     const [copied, setCopied] = useState(false);
+    // once the results have been shared, the button settles on the countdown (today's game only) instead of "Share"
+    const [shared, setShared] = useState(false);
 
     useEffect(() => {
         if (!props.celebrate || !props.stars) return;
@@ -138,7 +192,7 @@ const Action = (props: any) => {
 
     function share() {
         const resultText = results();
-        navigator.clipboard.writeText(resultText).then(() => setCopied(true));
+        navigator.clipboard.writeText(resultText).then(() => { setCopied(true); setShared(true); });
 
         // remove? improve? Slack vs Whatsapp vs Discord, etc...
         // const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(resultText)}`;
@@ -154,7 +208,7 @@ const Action = (props: any) => {
         return `bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
 ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
-⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
+⭐ ${CompletionUtil.calcStars()} ${CompletionUtil.calcStreak() > 0 ? `${calcStreakIcon()} ${CompletionUtil.calcStreak()} ` : ''}📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
 
     function submit() {
@@ -229,37 +283,49 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     const streak = CompletionUtil.calcStreak();
     const isToday = moment(props.date).isSame(moment(), "day");
 
+    const totalStars = CompletionUtil.calcStars();
+    const percentRead = parseFloat(CompletionUtil.calcPercentageCompletion(props.bible, 1));
+    const slides: Array<{ key: string, node: React.ReactNode }> = [
+        { key: "stars", node:
+            <span className="flex items-center gap-1.5" aria-label={`${props.stars} of 5 stars`}>
+                {[...Array(5)].map((_, index: number) =>
+                    index < props.stars ?
+                        <Star key={`star-${index}`} filled popping={popping && index == props.stars - 1}
+                              className="!size-7 !text-play-accent"/> :
+                        <StarIcon key={`star-${index}`} className="size-7 text-play-line" fill="none" strokeWidth={1.5} aria-hidden="true"/>
+                )}
+            </span>
+        },
+        { key: "total", node: totalStars > 0 ?
+            <Stat colour={playTheme.accent} value={String(totalStars)} label={totalStars == 1 ? "star in total" : "stars in total"}
+                  icon={<Star filled shadow={false} className="!size-6 !text-current"/>}/> :
+            <Stat dim label="No stars yet" colour={playTheme.accent} icon={<StarIcon className="size-6" fill="none" strokeWidth={1.5}/>}/>
+        },
+        { key: "streak", node: streak > 0 ?
+            <Stat colour="#e8955a" value={String(streak)} label="day streak"
+                  icon={<FlameIcon className="size-6" fill="currentColor" fillOpacity={0.3} strokeWidth={1.75}/>}/> :
+            <Stat dim label="No streak yet, win a day to start one" colour="#e8955a" icon={<FlameIcon className="size-6" strokeWidth={1.5}/>}/>
+        },
+        { key: "read", node: percentRead > 0 ?
+            <Stat colour={playTheme.teal} value={`${percentRead}%`} label="of the Bible read"
+                  icon={<BookOpenIcon className="size-6" fill="currentColor" fillOpacity={0.2} strokeWidth={1.75}/>}/> :
+            <Stat dim label="Nothing read yet" colour={playTheme.teal} icon={<BookOpenIcon className="size-6" strokeWidth={1.5}/>}/>
+        },
+    ];
+
     return (
-        <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-2.5 px-4`}>
-            <div className="flex min-w-0 flex-col items-center">
-                <span className="flex items-center gap-1" aria-label={`${props.stars} of 5 stars`}>
-                    {[...Array(5)].map((_, index: number) =>
-                        index < props.stars ?
-                            <Star key={`star-${index}`} filled shadow={false} popping={popping && index == props.stars - 1}
-                                  className="!size-7 !text-play-accent"/> :
-                            <StarIcon key={`star-${index}`} className="size-7 text-play-line" fill="currentColor" strokeWidth={0} aria-hidden="true"/>
-                    )}
-                </span>
-                {!won ?
-                    <p className="mt-1 max-w-full truncate text-[13px] text-play-muted">
-                        The answer was <span className="whitespace-nowrap font-clue text-play-text">{props.passage.book} {props.passage.chapter}</span>
-                    </p> :
-                    isToday ?
-                        <p className="mt-1 text-[13px] text-play-muted">Next chapter in <Countdown/></p> :
-                        null
-                }
-            </div>
+        <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-3 px-4`}>
+            <Carousel slides={slides}/>
             <div className="grid grid-cols-2 gap-2">
-                <button type="button" onClick={share} aria-live="polite"
-                        className="flex h-12 items-center justify-center overflow-hidden rounded-full bg-play-text text-[15px] font-semibold text-play-bg transition active:scale-[0.98]">
+                <button type="button" onClick={share} aria-live="polite" aria-label={shared && !copied && isToday ? "Copy results again" : undefined}
+                        className="flex h-12 items-center justify-center overflow-hidden whitespace-nowrap rounded-full bg-play-text px-3 text-[15px] font-semibold text-play-bg transition active:scale-[0.98]">
                     <AnimatePresence mode="wait" initial={false}>
-                        <motion.span key={copied ? "copied" : "share"} {...fade} className="flex items-center gap-2">
+                        <motion.span key={copied ? "copied" : shared && isToday ? "countdown" : "share"} {...fade} className="flex items-center gap-2">
                             {copied ?
-                                <><CheckIcon className="size-4" strokeWidth={2.5}/>Copied!</> :
-                                <>
-                                    <Share2Icon className="size-4" strokeWidth={2.25}/>Share
-                                    {streak > 0 ? <span className="font-normal opacity-70">· {calcStreakIcon()} {streak}</span> : null}
-                                </>
+                                <><CheckIcon className="size-4 shrink-0" strokeWidth={2.5}/>Copied!</> :
+                                shared && isToday ?
+                                    <><HalfSunIcon className="size-[18px] shrink-0" strokeWidth={2.25} aria-label="Next chapter in"/><Countdown/></> :
+                                    <><Share2Icon className="size-4 shrink-0" strokeWidth={2.25}/>Share</>
                             }
                         </motion.span>
                     </AnimatePresence>
