@@ -5,16 +5,16 @@ import { divisionStops, gradients, HEIGHT, morphCells, rounded, WIDTH } from "@/
 import { MorphTiming, useMosaicMorph } from "@/app/home/use-mosaic-morph";
 
 /**
- * A Latin cross laid as a mosaic of glowing cells, like the stained-glass logo, which now and then becomes that logo's
- * "B" and returns. Cells are tinted through the map's divisions in canonical order (Law → Gospels) with a white neon
- * core; the halo behind turns slowly through the same colours. Renders the cross on the server; the morph runs after.
+ * The logo's stained-glass "B", laid as a mosaic of glowing cells, which keeps becoming a Latin cross and returning.
+ * Cells are tinted through the map's divisions in canonical order (Law → Gospels) with a white neon core; the halo
+ * behind turns slowly through the same colours. Renders the B on the server; the morph runs after.
  */
 
 /** One layer of cells; each cell is wrapped so its entrance (CSS) and shape (the morph) never contend */
 function Cells({ className, ...paint }: { className?: string } & React.SVGProps<SVGPathElement>) {
     return <g className={className}>
         {morphCells.map((cell, k) => <g key={k} className="glowing-cross-cell" style={{ animationDelay: `${cell.entrance}ms` }}>
-            <path data-cell={k} d={rounded(cell.cross)} opacity={cell.extra ? 0 : 1} strokeLinejoin="round" {...paint}/>
+            <path data-cell={k} d={rounded(cell.b)} strokeLinejoin="round" {...paint}/>
         </g>)}
     </g>;
 }
@@ -25,7 +25,7 @@ export default function GlowingCross({ height = 120, timing }: { height?: number
     useMosaicMorph(root, timing);
 
     const width = height * WIDTH / HEIGHT;
-    const [x1, y1, x2, y2] = gradients.cross;
+    const [x1, y1, x2, y2] = gradients.b;
     const stops = (opacity: number) => divisionStops.map((colour, k) =>
         <stop key={colour + k} offset={k / (divisionStops.length - 1)} stopColor={colour} stopOpacity={opacity}/>);
 

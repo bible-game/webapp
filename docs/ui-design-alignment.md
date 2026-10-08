@@ -122,24 +122,25 @@ navigation. Existing submission and success flows remain.
 ### 6. Home and Information
 
 Home opens on a deliberately quiet first screen: a small glowing emblem, the tagline
-("Explore the Bible with a daily passage guessing game"), a single "Play today's
-chapter" button, and a gently bouncing "How it works" cue at the screen's foot.
+set quietly in the reading serif ("Explore the Bible" light and muted, then "with a
+daily passage guessing game" smaller and fainter, close beneath the emblem), a
+single "Play today's chapter" button, and a gently bouncing "How it works" cue at the screen's foot.
 
-The emblem (`home/glowing-cross.tsx`) is always in motion, morphing between a mosaic
-Latin cross and the logo's stained-glass "B". The cross is a jittered lattice of cells;
+The emblem (`home/glowing-cross.tsx`) is always in motion. It opens and rests on the
+logo's stained-glass "B", which becomes a mosaic Latin cross and returns. The cross is a jittered lattice of cells;
 the B is the logo cell for cell, traced from `public/icon-bright.png` (`home/mosaic.ts`).
 Each cell drifts and reshapes into its partner in a wave out from the centre, and the
-B's ten extra cells divide out of their nearest cross cells (`home/use-mosaic-morph.ts`:
+B's ten extra cells fold into their nearest cross cells (`home/use-mosaic-morph.ts`:
 3s on each shape, 2.2s to change). The cells are tinted through the map's divisions in
 canonical order with a white neon core; the colours run down the cross and across the
 B. Behind it a blurred ring of the division colours turns slowly and a soft white light
 breathes. Only the cells' shapes, opacity, scale, and rotation animate; the morph pauses
-off-screen and in hidden tabs, and reduced motion leaves the cross still.
+off-screen and in hidden tabs, and reduced motion leaves the B still.
 
 "How it works" follows the life of a day's game in five steps (clue, map, guesses, read
 and study, progress), illustrated with Play's own guess tiles, a sketch of the map, and
 example Statistics figures; Read, Study, and Statistics are reached from these steps.
-The cross, drawn as a static image, is the site's share image (`opengraph-image.tsx`).
+The cross, drawn as a static image, is still the site's share image (`opengraph-image.tsx`).
 
 The shared header holds only the menu and account controls; Play, Read, and Study put
 their own title in its centre. The name and logo appear in the menu drawer. About, Privacy, and Cookies use shared navigation and readable, unframed content.

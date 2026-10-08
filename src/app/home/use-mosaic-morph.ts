@@ -5,7 +5,7 @@ import { gradients, lerpCell, morphCells, rounded } from "@/app/home/mosaic";
 
 export type MorphTiming = { holdCross: number; holdB: number; morph: number };
 
-/** Always in motion: a short rest on each shape, then on to the other */
+/** Always in motion: a short rest on each shape, then on to the other; the B comes first */
 export const defaultTiming: MorphTiming = { holdCross: 3_000, holdB: 3_000, morph: 2_200 };
 
 const CELL_SHARE = 0.6; // of the morph window that each cell spends moving; the rest staggers them outwards
@@ -14,7 +14,8 @@ const clamp = (t: number) => Math.min(1, Math.max(0, t));
 
 /**
  * Drives the emblem between cross and B, writing straight to the SVG: each cell's paths (one per layer, marked
- * `data-cell`) and the colour gradients' endpoints. Pauses off-screen and in hidden tabs; still under reduced motion.
+ * `data-cell`) and the colour gradients' endpoints. Starts on the B, as rendered. Pauses off-screen and in hidden
+ * tabs; under reduced motion the B stays still.
  */
 export function useMosaicMorph(root: RefObject<HTMLElement | null>, timing: MorphTiming = defaultTiming) {
     useEffect(() => {
@@ -39,12 +40,12 @@ export function useMosaicMorph(root: RefObject<HTMLElement | null>, timing: Morp
             });
         };
 
-        // Phases: hold the cross, morph to B, hold the B, morph back
+        // Phases (0 is the cross, 1 the B): hold the B, morph to the cross, hold the cross, morph back
         const phases = [
-            { duration: timing.holdCross },
-            { duration: timing.morph, from: 0, to: 1 },
             { duration: timing.holdB },
             { duration: timing.morph, from: 1, to: 0 },
+            { duration: timing.holdCross },
+            { duration: timing.morph, from: 0, to: 1 },
         ];
         let phase = 0, elapsed = 0, last = 0;
         let frame = 0, timer: ReturnType<typeof setTimeout> | undefined, running = false;

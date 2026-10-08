@@ -12,8 +12,8 @@ export default function Landing(props: any) {
         <main>
             <section className="home-hero">
                 <GlowingCross/>
-                <h1 className="home-hero-text mx-auto max-w-[17rem] text-[18px] leading-relaxed text-ui-muted">
-                    Explore the Bible with a daily passage guessing game
+                <h1 className="home-hero-text home-tagline">
+                    Explore the Bible <em>with a daily passage guessing game</em>
                 </h1>
                 <div className="home-hero-actions">
                     <Link href="/play/today" className="ui-button ui-primary h-12 w-full max-w-[18rem] !rounded-full text-[15px]">

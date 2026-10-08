@@ -198,16 +198,17 @@ function pair(): MorphCell[] {
         }
     }
 
-    const centre = centroid(crossCells.flatMap(cell => cell));
-    const entrance = (cell: Point[]) => { const [x, y] = centroid(cell); return Math.round(Math.hypot(x - centre[0], y - 28) * 14); };
+    // The B is drawn first, so its cells light up outward from its middle
+    const centre = centroid(bCells.flatMap(cell => cell));
+    const entrance = (cell: Point[]) => { const [x, y] = centroid(cell); return Math.round(Math.hypot(x - centre[0], y - centre[1]) * 14); };
     const stagger = (i: number) => Math.min(1, Math.hypot(from[i][0] - 0.5, from[i][1] - 0.3) / 0.75);
     const seed = (cell: Point[]): Point[] => { const c = centroid(cell); return cell.map(([x, y]) => [c[0] + (x - c[0]) * 0.15, c[1] + (y - c[1]) * 0.15]); };
 
-    const cells: MorphCell[] = match.map((j, i) => ({ cross: crossCells[i], b: align(crossCells[i], bCells[j]), extra: false, entrance: entrance(crossCells[i]), stagger: stagger(i) }));
+    const cells: MorphCell[] = match.map((j, i) => ({ cross: crossCells[i], b: align(crossCells[i], bCells[j]), extra: false, entrance: entrance(bCells[j]), stagger: stagger(i) }));
     bCells.forEach((cell, j) => {
         if (taken.has(j)) return;
         const parent = from.reduce((best, _, i) => distance(i, j) < distance(best, j) ? i : best, 0);
-        cells.push({ cross: seed(crossCells[parent]), b: align(crossCells[parent], cell), extra: true, entrance: entrance(crossCells[parent]), stagger: Math.min(1, stagger(parent) + 0.15) });
+        cells.push({ cross: seed(crossCells[parent]), b: align(crossCells[parent], cell), extra: true, entrance: entrance(cell), stagger: Math.min(1, stagger(parent) + 0.15) });
     });
     return cells;
 }
