@@ -16,7 +16,7 @@ type Props = {
 const label = "mb-2 block text-[12px] font-medium text-[var(--reader-muted)]";
 
 /**
- * Text settings: translation, typeface, size, spacing, and focus
+ * Text settings: translation, typeface, size, and spacing
  * @since 8th October 2026
  */
 export default function TypeSheet({ open, onOpenChange, settings, update }: Props) {
@@ -81,16 +81,6 @@ export default function TypeSheet({ open, onOpenChange, settings, update }: Prop
                     <svg aria-hidden viewBox="0 0 20 20" className="size-5 text-[var(--reader-muted)]"><path d="M4 4h12M4 16h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                 </label>
             </section>
-
-            <button type="button" role="switch" aria-checked={settings.focus}
-                    onClick={() => update({ focus: !settings.focus })}
-                    className="flex min-h-12 items-center justify-between gap-4 text-left">
-                <span>
-                    <span className="block text-[15px]">Focus</span>
-                    <span className="block text-[13px] text-[var(--reader-muted)]">Dim the verses around the one you&apos;re reading</span>
-                </span>
-                <span aria-hidden className="reader-switch" />
-            </button>
         </ReaderSheet>
     );
 }

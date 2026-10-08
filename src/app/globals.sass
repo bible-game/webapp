@@ -201,9 +201,9 @@ body
   color: var(--reader-text)
   text-wrap: pretty
   [data-v]
-    transition: opacity 250ms ease
-  &.is-focus [data-v]:not([data-active])
-    opacity: 0.38
+    transition: opacity 400ms ease
+    &:not([data-lit])
+      opacity: 0.6
   sup
     margin-right: 1px
     font-family: Inter, system-ui, sans-serif
@@ -214,20 +214,21 @@ body
     color: var(--reader-accent)
     opacity: 0.75
 
+// Two lines tall, seated on the paragraph's top edge
 .drop-cap
   float: left
-  margin: 0.06em 0.04em 0 0
+  margin: 0.08em 0.06em 0 0
   // Room for serifs that overhang the glyph box, which background-clip would cut
   padding-right: 0.06em
   font-family: var(--font-reading), Georgia, serif
-  font-size: calc(var(--reader-leading) * 3em - 0.2em)
+  font-size: calc(var(--reader-leading) * 2em - 0.15em)
   font-weight: 500
-  line-height: 0.82
+  line-height: 0.85
   background: linear-gradient(180deg, var(--reader-gold), var(--reader-accent))
   -webkit-background-clip: text
   background-clip: text
   color: transparent
-  filter: drop-shadow(0 0 8px rgba(227, 162, 59, 0.35))
+  filter: drop-shadow(0 0 6px rgba(227, 162, 59, 0.3))
 
 .reader-primary
   border-color: transparent !important
@@ -312,31 +313,6 @@ body
     border-color: var(--reader-accent)
     color: var(--reader-text)
     box-shadow: inset 0 0 0 1px var(--reader-accent), var(--reader-glow)
-
-.reader-switch
-  position: relative
-  width: 44px
-  height: 26px
-  flex-shrink: 0
-  border-radius: 999px
-  background: rgba(235, 227, 213, 0.16)
-  transition: background 200ms
-  &::after
-    content: ""
-    position: absolute
-    top: 3px
-    left: 3px
-    width: 20px
-    height: 20px
-    border-radius: 50%
-    background: var(--reader-text)
-    transition: transform 200ms
-  [aria-checked="true"] > &
-    background: var(--reader-accent)
-    box-shadow: var(--reader-glow)
-    &::after
-      transform: translateX(18px)
-      background: #1a1408
 
 .reader-field
   min-height: 48px

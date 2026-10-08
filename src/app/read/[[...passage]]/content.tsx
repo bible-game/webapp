@@ -14,7 +14,7 @@ import TypeSheet from "@/app/read/[[...passage]]/type-sheet";
 import ContentsSheet from "@/app/read/[[...passage]]/contents-sheet";
 import { useReadAction } from "@/app/read/[[...passage]]/readaction";
 import { useReaderSettings } from "@/app/read/[[...passage]]/use-reader-settings";
-import { useActiveVerse } from "@/app/read/[[...passage]]/use-active-verse";
+import { useLitVerses } from "@/app/read/[[...passage]]/use-lit-verses";
 import { getPassage } from "@/core/action/read/get-passage";
 import { getAudio } from "@/core/action/read/get-audio";
 import { findBook } from "@/core/model/bible/books";
@@ -47,7 +47,7 @@ export default function Content(props: any) {
 
     const translation = translations[settings.translation as keyof typeof translations] ?? translations.web;
     const { data: passage, isLoading: loading, isError, refetch } = usePassage(key, translation.abbr);
-    const activeVerse = useActiveVerse(proseRef, [passage]);
+    const lit = useLitVerses(proseRef, [passage, settings.size, settings.leading, settings.font]);
 
     const readingTime = useMemo(() => {
         const minutes = ReadingUtil.calcMinutes(passage?.text);
@@ -141,7 +141,7 @@ export default function Content(props: any) {
     const verses = passage?.verses?.map((verse: any, i: number) => {
         const text = verse.text.trim();
         return (
-            <span key={verse.verse} id={`v${verse.verse}`} data-v={verse.verse} data-active={activeVerse === String(verse.verse) || undefined}>
+            <span key={verse.verse} id={`v${verse.verse}`} data-v={verse.verse} data-lit={lit.has(String(verse.verse)) || undefined}>
                 {i === 0 ? (
                     <><sup className="sr-only">{verse.verse}</sup><span aria-hidden className="drop-cap">{text[0]}</span>{text.slice(1)}</>
                 ) : (
@@ -173,7 +173,7 @@ export default function Content(props: any) {
                 <ScrollProgress />
             </div>
 
-            <main className="app-page !pb-48">
+            <main className="app-page !pb-36">
                 <section className="mx-auto w-full max-w-[40rem]">
                     {loading ? (
                         <div className="reading-skeleton" role="status" aria-label="Loading passage">
@@ -189,8 +189,8 @@ export default function Content(props: any) {
                     ) : passage?.verses ? (
                         <>
                             <Context passageKey={key} context="before" />
-                            <article className="my-5">
-                                <p ref={proseRef} className={`reading-prose ${settings.focus ? "is-focus" : ""}`}>
+                            <article className="mb-5 mt-7">
+                                <p ref={proseRef} className="reading-prose">
                                     {verses}
                                 </p>
                             </article>
@@ -220,9 +220,6 @@ export default function Content(props: any) {
             </main>
 
             <ReaderToolbar
-                book={book}
-                chapter={chapter}
-                onChapter={(n) => book && goTo(`${book.name} ${n}`)}
                 onType={() => setSheet("type")}
                 onContents={() => setSheet("contents")}
                 audio={{ src: audioSrc, loading: audioLoading, onListen: playAudio, onClose: closeAudio }}

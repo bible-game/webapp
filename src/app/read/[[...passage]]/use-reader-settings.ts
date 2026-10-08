@@ -7,7 +7,6 @@ export type ReaderSettings = {
     font: ReadingFont;
     size: number;
     leading: number;
-    focus: boolean;
     translation: string;
 };
 
@@ -15,7 +14,6 @@ export const DEFAULT_READER_SETTINGS: ReaderSettings = {
     font: "newsreader",
     size: 19,
     leading: 1.65,
-    focus: true,
     translation: "web",
 };
 

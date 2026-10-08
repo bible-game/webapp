@@ -20,7 +20,7 @@ their purpose, consistency, legibility, and fit with Bible Game.
 | Page chrome | Neutral charcoal, solid surfaces, restrained borders. Values live in `src/core/style/ui-theme.ts`; Play extends these with its division palette. |
 | Colour | Preserve the map's teal, purple, rose, green, and gold division colours. Use colour for book identity, progress, or feedback. |
 | Primary action | During play, use the selected book's colour with a dimensional highlight and restrained glow. Other primary actions use a high-contrast fill. |
-| Typography | Inter for navigation, controls, labels, and numbers; Newsreader (self-hosted via `next/font`, `--font-reading`) for the clue and passages; monospace for the map. Keep serif display text tied to reading content. |
+| Typography | Inter for navigation, controls, labels, and numbers; Newsreader (self-hosted via `next/font`, `--font-reading`) for the clue and passages, with optional reader faces in `reading-fonts.ts`; monospace for the map. Keep serif display text tied to reading content. |
 | Letter spacing | Normal spacing for UI text. Avoid decorative, widely spaced uppercase headings. |
 | Corners | 8px on tiles, menus, popovers, and sheets; retain the calendar's softer 24px corners. Circles for icon controls and days; pills for the existing compact action row and date control. |
 | Spacing | Use 4px increments, principally 8/12/16/24px. Keep related controls together and use space or borders to divide sections. |
@@ -45,7 +45,7 @@ rendered outside the page container by HeroUI.
 ## Follow-up Review
 
 - Read has been refined (see below); review Study next, followed by Statistics, Account, and the information pages.
-- The reader keeps a light passage surface within dark navigation chrome as a deliberate task-specific variant.
+- Read uses a dark, warm reader variant (see below). Study's passage drawer still uses the light `.reading-surface` and should be reconsidered in the Study review.
 - The map library handles its own canvas interaction and accessibility. A full keyboard and screen-reader gameplay audit needs separate work, including a way to select chapters without relying on canvas gestures.
 
 ## Implemented Alignment
@@ -60,15 +60,25 @@ and background gradient have been replaced. Migrated controls use HeroUI.
 
 ### 2. Read
 
-Read opens on the scripture. The passage is a Newsreader title; tapping it edits
-the reference in place (Enter commits, Escape cancels). One non-wrapping row
-beneath carries the translation abbreviation, reading time, and an icon-only
-Listen control. Verses flow as a single serif paragraph (19px, 1.65 leading) with
-small inline verse numbers, inside a 40rem reading column. Context before and
-after is a quiet disclosure, with the summary set as muted sans commentary.
-Mark as read reflects saved read state, and Study sits beside it. Audio plays in
-a bottom bar that stays reachable while scrolling. Loading shows a text skeleton,
-and failed or unrecognised passages offer a retry or a way to change passage.
+Read is a dark, warm reading room: a deliberate task-specific variant inspired by
+editorial reading apps. Its tokens live under `.reader` in `globals.sass`: warm
+off-white text, a soft amber wash at the top, and the `uiTheme` amber and gold
+for accents, with a restrained glow on progress and active controls.
+
+The shared header carries the passage title and translation in its centre, which
+open Contents. A glowing line along its lower edge shows progress through the
+chapter. Verses flow as one serif paragraph with amber verse numbers and a
+two-line gold initial. Dimming is gentle: verses within the reading band of the
+screen stay fully lit, and only those beyond it soften to 60%. Everything in view
+is lit at the top and the end of the page.
+
+A bottom toolbar holds four controls: Text, Contents, Listen, and Mark as read.
+It tucks away while reading down and returns on scroll up or at the end. The audio
+player sits above the controls while open. The Text sheet sets translation,
+typeface (Newsreader, Literata, EB Garamond, Inter), size, and line spacing,
+remembered per browser. The Contents sheet offers passage search and a book list
+with chapter grids that mark the current and read chapters. The address follows
+the passage, and the chapter ends with the next chapter and Study.
 
 ### 3. Study
 

@@ -5,12 +5,8 @@ import { Spinner } from "@heroui/react";
 import { CheckCircle2, Circle, HeadphonesIcon, ListIcon } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
-import { Book } from "@/core/model/bible/books";
 
 type Props = {
-    book?: Book;
-    chapter: number;
-    onChapter: (chapter: number) => void;
     onType: () => void;
     onContents: () => void;
     audio: { src?: string; loading: boolean; onListen: () => void; onClose: () => void };
@@ -19,15 +15,12 @@ type Props = {
 };
 
 /**
- * Reader toolbar: progress through the book, and the reading controls
+ * Reader toolbar: the reading controls, and the audio player while listening
  * @since 8th October 2026
  */
 export default function ReaderToolbar(props: Props) {
-    const { book, chapter, audio } = props;
-    const [scrub, setScrub] = useState(chapter);
+    const { audio } = props;
     const [hidden, setHidden] = useState(false);
-
-    useEffect(() => setScrub(chapter), [chapter]);
 
     // Tuck away while reading down the page; return on scroll up or at the end
     useEffect(() => {
@@ -44,10 +37,6 @@ export default function ReaderToolbar(props: Props) {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    const total = book?.chapters ?? 1;
-    const commit = () => {
-        if (scrub !== chapter) props.onChapter(scrub);
-    };
     const visible = !hidden || !!audio.src;
 
     return (
@@ -57,30 +46,7 @@ export default function ReaderToolbar(props: Props) {
         >
             <Toaster position="top-center" />
             <div className="mx-auto max-w-[43rem] px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-6 sm:px-6">
-                {audio.src ? (
-                    <AudioPlayer src={audio.src} onClose={audio.onClose} />
-                ) : total > 1 ? (
-                    <div className="flex items-center gap-4 px-1">
-                        <input
-                            type="range"
-                            aria-label={`Chapter of ${book?.name}`}
-                            aria-valuetext={`Chapter ${scrub} of ${total}`}
-                            min={1}
-                            max={total}
-                            step={1}
-                            value={scrub}
-                            onChange={(e) => setScrub(parseInt(e.target.value, 10))}
-                            onPointerUp={commit}
-                            onKeyUp={commit}
-                            onBlur={commit}
-                            className="reader-range"
-                            style={{ "--fill": `${((scrub - 1) / (total - 1)) * 100}%` } as React.CSSProperties}
-                        />
-                        <span className="min-w-[3.5rem] text-right text-[12px] tabular-nums text-[var(--reader-muted)]">
-                            {scrub} / {total}
-                        </span>
-                    </div>
-                ) : null}
+                {audio.src ? <AudioPlayer src={audio.src} onClose={audio.onClose} /> : null}
 
                 <nav aria-label="Reading controls" className="mt-1 grid grid-cols-4 justify-items-center">
                     <button type="button" className="ui-icon reader-tool" aria-label="Text settings" onClick={props.onType}>
