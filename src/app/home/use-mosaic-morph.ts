@@ -1,7 +1,7 @@
 "use client";
 
 import { RefObject, useEffect } from "react";
-import { gradients, lerpCell, morphCells, rounded } from "@/app/home/mosaic";
+import { gradients, lerpCell, morphCells, rounded } from "@/core/style/mosaic";
 
 export type MorphTiming = { holdCross: number; holdB: number; morph: number };
 

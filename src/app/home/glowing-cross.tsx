@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { divisionStops, gradients, HEIGHT, morphCells, rounded, WIDTH } from "@/app/home/mosaic";
+import { divisionStops, gradients, HEIGHT, morphCells, rounded, WIDTH } from "@/core/style/mosaic";
 import { MorphTiming, useMosaicMorph } from "@/app/home/use-mosaic-morph";
 
 /**

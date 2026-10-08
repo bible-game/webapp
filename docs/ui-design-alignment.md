@@ -143,7 +143,17 @@ example Statistics figures; Read, Study, and Statistics are reached from these s
 The cross, drawn as a static image, is still the site's share image (`opengraph-image.tsx`).
 
 The shared header holds only the menu and account controls; Play, Read, and Study put
-their own title in its centre. The name and logo appear in the menu drawer. About, Privacy, and Cookies use shared navigation and readable, unframed content.
+their own title in its centre. The name and logo appear in the menu drawer.
+
+The menu drawer (`core/component/app-header.tsx`) shares the page's 16px gutter. Its
+header carries the logo as a crisp SVG (`core/component/logo-mark.tsx`, drawn from the
+same traced cells as Home's emblem, so no dark square), the centred name, and Close.
+The four destinations are two-line rows (name and a short description) with their
+icons in a division colour: Play green, Read teal, Study purple, Statistics gold. The
+current destination is tinted in its colour with a restrained glow. At the foot sit the
+account (Log in with the gold dot when signed out; initials, name, and Log out when
+signed in), then About, Privacy, and Cookies with GitHub and Discord as icons. Rows
+rise in a short stagger as it opens. About, Privacy, and Cookies use shared navigation and readable, unframed content.
 The information pages retain their existing policy text.
 
 ## Review Process

@@ -479,6 +479,34 @@ input:-webkit-autofill:focus
   overflow: hidden
   text-align: center
 
+// Menu drawer: destinations in their division colour (`--tone`); the current one tinted with a restrained glow
+.drawer-row
+  animation: drawer-rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both
+
+.drawer-link
+  display: flex
+  min-height: 56px
+  align-items: center
+  gap: 16px
+  padding: 8px 12px
+  border: 1px solid transparent
+  border-radius: 8px
+  color: var(--ui-text)
+  transition: background-color 0.15s
+  svg
+    color: var(--tone)
+  &:hover
+    background: var(--ui-surface)
+  &[aria-current="page"]
+    border-color: color-mix(in srgb, var(--tone) 40%, transparent)
+    background: color-mix(in srgb, var(--tone) 12%, transparent)
+    box-shadow: 0 0 18px color-mix(in srgb, var(--tone) 18%, transparent)
+
+@keyframes drawer-rise
+  from
+    opacity: 0
+    transform: translateY(6px)
+
 // The tagline, set quietly in the reading serif beneath the emblem: a light line, then a smaller, fainter one
 .home-tagline
   margin-top: -16px

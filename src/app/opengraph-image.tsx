@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { crossCells, divisionStops, HEIGHT, rounded, WIDTH } from "@/app/home/mosaic";
+import { crossCells, divisionStops, HEIGHT, rounded, WIDTH } from "@/core/style/mosaic";
 import { uiTheme } from "@/core/style/ui-theme";
 
 export const alt = "Bible Game: a glowing mosaic cross in the colours of the Bible's divisions";
