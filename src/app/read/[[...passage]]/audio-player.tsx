@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Play, Pause, Volume2, VolumeX, X, Download } from "lucide-react";
 
 export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => void }) {
@@ -70,98 +70,72 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
     };
 
     return (
-        <div
-            role="region"
-            aria-label="Audio player"
-            className="fixed inset-x-0 bottom-0 z-40 border-t border-[#ced2d7] bg-[#f7f8f9]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
-        >
+        <div role="region" aria-label="Audio player" className="flex items-center gap-2">
             <audio ref={audioRef} src={src} preload="metadata" />
-            <div className="mx-auto flex max-w-[43rem] items-center gap-2 px-4 py-2 sm:px-6">
-                {/* Play / Pause */}
-                <button
-                    onClick={toggle}
-                    className="ui-icon bg-[#25272b] !text-[#f7f8f9]"
-                    aria-label={isPlaying ? "Pause" : "Play"}
-                >
-                    {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
-                </button>
+            <button
+                onClick={toggle}
+                className="ui-icon reader-glow-fill !text-[#1a1408]"
+                aria-label={isPlaying ? "Pause" : "Play"}
+            >
+                {isPlaying ? <Pause className="size-5" /> : <Play className="size-5 translate-x-px" />}
+            </button>
 
-                {/* Timeline */}
-                <div className="min-w-[100px] flex-1">
-                    <input
-                        type="range"
-                        aria-label="Playback position"
-                        min={0}
-                        max={duration || 0}
-                        step={0.1}
-                        value={Math.min(time, duration || 0)}
-                        onChange={(e) => seek(parseFloat(e.target.value))}
-                        className="block w-full accent-[#25272b]"
-                    />
-                    <div className="flex items-center justify-between text-xs tabular-nums text-[#68717c]">
-                        <span>{fmt(time)}</span>
-                        <span>{fmt(duration)}</span>
-                    </div>
-                </div>
-
-                {/* Volume (desktop) */}
-                <div className="hidden sm:flex items-center gap-2">
-                    <button
-                        onClick={() => setVol(volume ? 0 : 1)}
-                        className="ui-icon"
-                        aria-label={volume ? "Mute" : "Unmute"}
-                    >
-                        {volume ? <Volume2 className="size-5" /> : <VolumeX className="size-5" />}
-                    </button>
-                    <input
-                        type="range"
-                        aria-label="Volume"
-                        min={0}
-                        max={1}
-                        step={0.05}
-                        value={volume}
-                        onChange={(e) => setVol(parseFloat(e.target.value))}
-                        className="w-20 accent-[#25272b]"
-                    />
-                </div>
-
-                {/* Speed / Download / Close */}
-                <div className="flex items-center">
-                    <select
-                        value={rate}
-                        onChange={(e) => setPlayback(parseFloat(e.target.value))}
-                        className="min-h-11 rounded-lg bg-transparent px-1 text-sm tabular-nums"
-                        aria-label="Playback speed"
-                    >
-                        {[0.75, 1, 1.25, 1.5].map((r) => (
-                            <option key={r} value={r}>{r}×</option>
-                        ))}
-                    </select>
-
-                    <a
-                        href={src}
-                        download
-                        className="ui-icon !hidden sm:!inline-flex"
-                        aria-label="Download audio"
-                    >
-                        <Download className="size-4" />
-                    </a>
-
-                    {onClose && (
-                        <button
-                            onClick={() => {
-                                const a = audioRef.current;
-                                if (a) a.pause();
-                                onClose();
-                            }}
-                            className="ui-icon"
-                            aria-label="Close player"
-                        >
-                            <X className="size-5" />
-                        </button>
-                    )}
+            <div className="min-w-0 flex-1">
+                <input
+                    type="range"
+                    aria-label="Playback position"
+                    min={0}
+                    max={duration || 0}
+                    step={0.1}
+                    value={Math.min(time, duration || 0)}
+                    onChange={(e) => seek(parseFloat(e.target.value))}
+                    className="reader-range"
+                    style={{ "--fill": `${duration ? (time / duration) * 100 : 0}%` } as React.CSSProperties}
+                />
+                <div className="flex items-center justify-between text-[11px] tabular-nums text-[var(--reader-muted)]">
+                    <span>{fmt(time)}</span>
+                    <span>{fmt(duration)}</span>
                 </div>
             </div>
+
+            <div className="hidden sm:flex items-center">
+                <button
+                    onClick={() => setVol(volume ? 0 : 1)}
+                    className="ui-icon"
+                    aria-label={volume ? "Mute" : "Unmute"}
+                >
+                    {volume ? <Volume2 className="size-5" /> : <VolumeX className="size-5" />}
+                </button>
+            </div>
+
+            <select
+                value={rate}
+                onChange={(e) => setPlayback(parseFloat(e.target.value))}
+                className="min-h-11 rounded-lg bg-transparent px-1 text-sm tabular-nums text-[var(--reader-text)]"
+                aria-label="Playback speed"
+            >
+                {[0.75, 1, 1.25, 1.5].map((r) => (
+                    <option key={r} value={r} className="bg-ui-surface">{r}×</option>
+                ))}
+            </select>
+
+            <a href={src} download className="ui-icon !hidden sm:!inline-flex" aria-label="Download audio">
+                <Download className="size-4" />
+            </a>
+
+            {onClose && (
+                <button
+                    onClick={() => {
+                        const a = audioRef.current;
+                        if (a) a.pause();
+                        onClose();
+                    }}
+                    className="ui-icon"
+                    aria-label="Close player"
+                >
+                    <X className="size-5" />
+                </button>
+            )}
         </div>
     );
 }

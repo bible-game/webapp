@@ -85,8 +85,8 @@ const Context = (props: any) => {
             itemClasses={{
                 trigger: "min-h-11 py-2 gap-2 justify-start",
                 titleWrapper: "flex-none",
-                title: "text-[#555b64] text-[14px] font-medium",
-                indicator: "text-[#68717c] -rotate-90 data-[open=true]:rotate-0",
+                title: "text-[var(--reader-muted)] text-[14px] font-medium",
+                indicator: "text-[var(--reader-accent)] -rotate-90 data-[open=true]:rotate-0",
                 content: "pt-1 pb-3",
             }}
             onSelectionChange={toggle}
@@ -95,14 +95,14 @@ const Context = (props: any) => {
             <AccordionItem key="1" aria-label={title} indicator={<ChevronDown className="size-4" />} className="flex flex-col gap-2" title={title}>
                 {loading ? (<Spinner color="default" size="sm" />) : (
                     <>
-                        <p className="border-l-2 border-[#ced2d7] pl-3 text-[15px] leading-[1.6] text-[#555b64]">{context}</p>
+                        <p className="border-l-2 border-[#e3a23b]/40 pl-3 text-[15px] leading-[1.6] text-[var(--reader-muted)]">{context}</p>
                         <div className="-mr-2 mt-1 flex justify-end">
-                            <Button isIconOnly aria-label="Helpful context" className="ui-icon bg-transparent"
+                            <Button isIconOnly aria-label="Helpful context" className="ui-icon bg-transparent text-[var(--reader-muted)]"
                                 onPress={handlePositiveSubmit}>
                                 <ThumbsUp className="size-5" />
                             </Button>
 
-                            <Button isIconOnly aria-label="Unhelpful context" className="ui-icon bg-transparent"
+                            <Button isIconOnly aria-label="Unhelpful context" className="ui-icon bg-transparent text-[var(--reader-muted)]"
                                 onPress={() => updateModalOpen(true)}>
                                 <ThumbsDown className="size-5" />
                             </Button>

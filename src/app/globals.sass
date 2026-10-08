@@ -25,7 +25,7 @@
     margin: 0
   button, input, select, textarea
     font: inherit
-  button, a, input, select, textarea, [tabindex]
+  button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])
     &:focus-visible
       outline: 2px solid var(--ui-text)
       outline-offset: 3px
@@ -139,18 +139,71 @@ body
   --ui-muted: #555b64
   --ui-faint: #68717c
 
-.reading-title
+// Read: a dark, warm reading room
+.reader, .reader-sheet
+  --reader-text: #ebe3d5
+  --reader-muted: #a39b8e
+  --reader-accent: #e3a23b
+  --reader-gold: #d2b96f
+  --reader-glow: 0 0 10px rgba(227, 162, 59, 0.55)
+  --reader-font: var(--font-reading), Georgia, serif
+  --reader-size: 19px
+  --reader-leading: 1.65
+  color: var(--reader-text)
+
+.reader
+  position: relative
+  isolation: isolate
+  background: #0c0c0d
+  &::before
+    content: ""
+    position: fixed
+    inset: 0
+    z-index: -1
+    pointer-events: none
+    background: radial-gradient(120% 60% at 50% -10%, rgba(227, 162, 59, 0.11), transparent 60%)
+  .ui-button
+    border-color: rgba(235, 227, 213, 0.14)
+    background: rgba(235, 227, 213, 0.05)
+    color: var(--reader-text)
+    &:hover
+      background: rgba(235, 227, 213, 0.1)
+
+.reader-header
+  position: sticky
+  top: 0
+  z-index: 30
+  background: rgba(12, 12, 13, 0.96)
+  backdrop-filter: blur(14px)
+  -webkit-backdrop-filter: blur(14px)
+
+.reader-title
   font-family: var(--font-reading), Georgia, serif
-  font-size: 28px
+  font-size: 17px
   font-weight: 500
-  line-height: 1.2
+  line-height: 1.25
+  color: var(--reader-text)
+
+.reader-progress
+  position: absolute
+  inset: auto 0 0 0
+  height: 2px
+  background: rgba(235, 227, 213, 0.06)
+  div
+    height: 100%
+    background: linear-gradient(90deg, var(--reader-accent), var(--reader-gold))
+    box-shadow: var(--reader-glow)
 
 .reading-prose
-  font-family: var(--font-reading), Georgia, serif
-  font-size: 19px
-  line-height: 1.65
-  color: #25272b
+  font-family: var(--reader-font)
+  font-size: var(--reader-size)
+  line-height: var(--reader-leading)
+  color: var(--reader-text)
   text-wrap: pretty
+  [data-v]
+    transition: opacity 250ms ease
+  &.is-focus [data-v]:not([data-active])
+    opacity: 0.38
   sup
     margin-right: 1px
     font-family: Inter, system-ui, sans-serif
@@ -158,7 +211,170 @@ body
     font-variant-numeric: tabular-nums
     line-height: 0
     vertical-align: super
-    color: var(--ui-faint)
+    color: var(--reader-accent)
+    opacity: 0.75
+
+.drop-cap
+  float: left
+  margin: 0.06em 0.04em 0 0
+  // Room for serifs that overhang the glyph box, which background-clip would cut
+  padding-right: 0.06em
+  font-family: var(--font-reading), Georgia, serif
+  font-size: calc(var(--reader-leading) * 3em - 0.2em)
+  font-weight: 500
+  line-height: 0.82
+  background: linear-gradient(180deg, var(--reader-gold), var(--reader-accent))
+  -webkit-background-clip: text
+  background-clip: text
+  color: transparent
+  filter: drop-shadow(0 0 8px rgba(227, 162, 59, 0.35))
+
+.reader-primary
+  border-color: transparent !important
+  background: linear-gradient(180deg, var(--reader-gold), var(--reader-accent)) !important
+  color: #1a1408 !important
+  box-shadow: var(--reader-glow)
+
+.reader-glow-fill
+  background: linear-gradient(180deg, var(--reader-gold), var(--reader-accent))
+  box-shadow: var(--reader-glow)
+
+.reader-toolbar
+  background: linear-gradient(180deg, transparent, #0c0c0d 24px)
+  color: var(--reader-muted)
+
+.reader-tool
+  color: var(--reader-muted)
+  &:hover
+    color: var(--reader-text)
+  &[data-on]
+    color: var(--reader-accent)
+    filter: drop-shadow(0 0 6px rgba(227, 162, 59, 0.6))
+
+.reader-range
+  display: block
+  width: 100%
+  height: 24px
+  background: transparent
+  appearance: none
+  -webkit-appearance: none
+  cursor: pointer
+  &::-webkit-slider-runnable-track
+    height: 2px
+    border-radius: 2px
+    background: linear-gradient(90deg, var(--reader-accent) var(--fill, 0%), rgba(235, 227, 213, 0.16) var(--fill, 0%))
+  &::-moz-range-track
+    height: 2px
+    background: rgba(235, 227, 213, 0.16)
+  &::-moz-range-progress
+    height: 2px
+    background: var(--reader-accent)
+  &::-webkit-slider-thumb
+    -webkit-appearance: none
+    width: 14px
+    height: 14px
+    margin-top: -6px
+    border-radius: 50%
+    background: var(--reader-accent)
+    box-shadow: var(--reader-glow)
+  &::-moz-range-thumb
+    width: 14px
+    height: 14px
+    border: 0
+    border-radius: 50%
+    background: var(--reader-accent)
+    box-shadow: var(--reader-glow)
+
+.reader-chip
+  min-height: 40px
+  padding: 0 14px
+  border: 1px solid rgba(235, 227, 213, 0.14)
+  border-radius: 999px
+  font-size: 13px
+  font-weight: 600
+  color: var(--reader-muted)
+  &[aria-checked="true"]
+    border-color: var(--reader-accent)
+    color: var(--reader-accent)
+    box-shadow: var(--reader-glow)
+
+.reader-tile
+  display: flex
+  min-height: 76px
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: 6px
+  border: 1px solid rgba(235, 227, 213, 0.12)
+  border-radius: 8px
+  color: var(--reader-muted)
+  &[aria-checked="true"]
+    border-color: var(--reader-accent)
+    color: var(--reader-text)
+    box-shadow: inset 0 0 0 1px var(--reader-accent), var(--reader-glow)
+
+.reader-switch
+  position: relative
+  width: 44px
+  height: 26px
+  flex-shrink: 0
+  border-radius: 999px
+  background: rgba(235, 227, 213, 0.16)
+  transition: background 200ms
+  &::after
+    content: ""
+    position: absolute
+    top: 3px
+    left: 3px
+    width: 20px
+    height: 20px
+    border-radius: 50%
+    background: var(--reader-text)
+    transition: transform 200ms
+  [aria-checked="true"] > &
+    background: var(--reader-accent)
+    box-shadow: var(--reader-glow)
+    &::after
+      transform: translateX(18px)
+      background: #1a1408
+
+.reader-field
+  min-height: 48px
+  padding: 0 14px
+  border: 1px solid rgba(235, 227, 213, 0.14)
+  border-radius: 8px
+  background: rgba(235, 227, 213, 0.04)
+  &:focus-within
+    border-color: var(--reader-accent)
+
+.reader-chapter
+  position: relative
+  display: flex
+  aspect-ratio: 1
+  min-height: 44px
+  align-items: center
+  justify-content: center
+  border-radius: 50%
+  font-size: 14px
+  font-variant-numeric: tabular-nums
+  color: var(--reader-text)
+  &:hover
+    background: rgba(235, 227, 213, 0.08)
+  &[data-read]::after
+    content: ""
+    position: absolute
+    bottom: 6px
+    width: 4px
+    height: 4px
+    border-radius: 50%
+    background: var(--reader-accent)
+  &[aria-current="page"]
+    background: var(--reader-accent)
+    color: #1a1408
+    font-weight: 600
+    box-shadow: var(--reader-glow)
+    &::after
+      background: #1a1408
 
 .reading-skeleton
   span
@@ -166,7 +382,7 @@ body
     height: 14px
     margin: 14px 0
     border-radius: 4px
-    background: var(--ui-raised)
+    background: rgba(235, 227, 213, 0.08)
     animation: reading-pulse 1.4s ease-in-out infinite
 
 @keyframes reading-pulse

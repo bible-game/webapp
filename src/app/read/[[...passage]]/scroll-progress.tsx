@@ -2,35 +2,29 @@
 
 import React, { useEffect, useState } from 'react';
 
-interface Props {
-    containerRef?: React.RefObject<HTMLDivElement>;
-    className?: string;
-    height?: number;
-}
-
-export default function ScrollProgress(props: Props) {
-    const { containerRef, className = '', height = 6 } = props;
+/** Progress through the page, drawn as a glowing line along the bottom of its container */
+export default function ScrollProgress() {
     const [scrollProgress, setScrollProgress] = useState(0);
 
     useEffect(() => {
         const handleScroll = () => {
-            const target = containerRef?.current || document.documentElement;
-            const { scrollTop, scrollHeight, clientHeight } = target;
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
             const totalHeight = scrollHeight - clientHeight;
-            const progress = totalHeight > 0 ? (scrollTop / totalHeight) * 100 : 0;
-            setScrollProgress(progress);
+            setScrollProgress(totalHeight > 0 ? (scrollTop / totalHeight) * 100 : 0);
         };
 
-        const target = containerRef?.current || window;
-        target.addEventListener('scroll', handleScroll);
-        return () => target.removeEventListener('scroll', handleScroll);
-    }, [containerRef]);
+        handleScroll();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('resize', handleScroll);
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('resize', handleScroll);
+        };
+    }, []);
 
     return (
-        <div
-            aria-hidden
-            className={`fixed top-0 left-0 ${className}`}
-            style={{ width: `${scrollProgress}%`, height: `${height}px`, zIndex: 50 }}
-        />
+        <div aria-hidden className="reader-progress">
+            <div style={{ width: `${scrollProgress}%` }} />
+        </div>
     );
 }
