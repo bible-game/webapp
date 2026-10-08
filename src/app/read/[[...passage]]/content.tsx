@@ -1,8 +1,7 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
-import { Input } from "@heroui/input";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { getPassage } from "@/core/action/read/get-passage";
 import { Spinner } from "@heroui/react";
@@ -13,10 +12,9 @@ import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
 import { Button } from "@heroui/react";
 import { getAudio } from "@/core/action/read/get-audio";
 import Link from "next/link";
-import { ChevronDown, BookOpenText, SearchIcon, XIcon, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
+import { ChevronDown, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
 import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
 import { useQuery } from "@tanstack/react-query";
-import { useDebouncedValue } from '@mantine/hooks';
 import translations from "./translations.json";
 import { ReadingUtil } from "@/core/util/reading-util";
 
@@ -26,11 +24,13 @@ const usePassage = (passageKey: string, translation?: string) => {
         queryKey: ['passage', passageKey, translation],
         queryFn: () => getPassage(passageKey, translation),
         staleTime: Infinity,
+        enabled: !!passageKey,
     });
 }
 
 export default function Content(props: any) {
     const [key, setKey] = useState(props.passageKey ? prettyPassage(Array.isArray(props.passageKey) ? props.passageKey[0] : props.passageKey) : "1 John 4 : 7 - 19");
+    const [draft, setDraft] = useState<string | null>(null);
     const [audioLoading, setAudioLoading] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [current, setCurrent] = useState("");
@@ -39,30 +39,28 @@ export default function Content(props: any) {
 
     function prettyPassage(passage: string): string {
         return passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ");
-    } []
-    const [debouncedKey] = useDebouncedValue(key, 400);
+    }
 
-
-    const { data: passage, isLoading: loading, isError, refetch } = usePassage(debouncedKey, translation);
+    const { data: passage, isLoading: loading, isError, refetch } = usePassage(key, translation);
 
     const readingTime = useMemo(() => {
         const minutes = ReadingUtil.calcMinutes(passage?.text);
-        if (minutes) return minutes + " minutes";
+        if (minutes) return minutes + " min";
     }, [passage]);
 
     const selectedValue = useMemo(() => {
         const selectedTranslation = Array.from(selectedTranslations)[0];
-        return translations[selectedTranslation as keyof typeof translations] || selectedTranslation;
+        return translations[selectedTranslation as keyof typeof translations];
     }, [selectedTranslations]);
 
-
     const verses = passage?.verses ? (
-        passage.verses.map((verse: any) => (
-            <div key={verse.verse} className="my-6 grid grid-cols-[auto,1fr] gap-3 items-start">
-                <div className="text-[#68717c] text-[12px] pt-1">{verse.verse}</div>
-                <div className="text-[#25272b] text-[16px] leading-[1.85]">{verse.text}</div>
-            </div>
-        ))
+        <p className="reading-prose">
+            {passage.verses.map((verse: any) => (
+                <span key={verse.verse} id={`v${verse.verse}`}>
+                    <sup>{verse.verse}</sup>{verse.text.trim()}{" "}
+                </span>
+            ))}
+        </p>
     ) : null;
 
     function split(passageKey: any): {
@@ -107,6 +105,7 @@ export default function Content(props: any) {
         }
     }
 
+
     function playAudio(): void {
         if (key) {
             setAudioLoading(true);
@@ -122,122 +121,127 @@ export default function Content(props: any) {
         }
     }
 
-    const handleSearchChange = (key: string) => {
-        setKey(key);
+    function commitDraft(): void {
+        if (draft !== null && draft.trim()) setKey(draft.trim());
+        setDraft(null);
     }
 
     const splitKey = useMemo(() => (key ? split(key) : { book: "", chapter: "", verseStart: undefined, verseEnd: undefined }), [key]);
 
+    const title = useMemo(() => {
+        if (!splitKey.book) return key;
+        const verses = splitKey.verseStart
+            ? `:${splitKey.verseStart}${splitKey.verseEnd ? `–${splitKey.verseEnd}` : ""}`
+            : "";
+        return `${splitKey.book} ${splitKey.chapter}${verses}`;
+    }, [key, splitKey]);
+
     return (
-        <section className="w-full">
+        <section className={`mx-auto w-full max-w-[40rem] ${playing ? "pb-28" : ""}`}>
             <ScrollProgress
                 className="bg-[#555b64]"
                 height={3}
             />
 
-            {/* Toolbar */}
-            <div className="mb-6 sm:mb-8">
-                <div className="flex flex-col gap-3">
-                    <div className="relative">
-                        <Input
-                            aria-label="Passage"
-                            variant="bordered"
-                            radius="sm"
-                            size="lg"
-                            value={key}
-                            startContent={<SearchIcon className="size-5 text-slate-400" />}
-                            endContent={
-                                key ? (
-                                    <button
-                                        aria-label="Clear"
-                                        className="ui-icon"
-                                        onClick={() => setKey("")}
-                                    >
-                                        <XIcon className="size-4" />
-                                    </button>
-                                ) : null
-                            }
-                            classNames={{
-                                inputWrapper: ["!bg-transparent border-[#ced2d7] min-h-12"],
-                                input: ["!text-[#25272b] text-[18px] font-medium"],
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === "Escape") setKey("");
-                            }}
-                            onValueChange={handleSearchChange}
-                        />
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            {/* Passage header */}
+            <header className="mb-3 sm:mb-6">
+                <h1 className="m-0">
+                    {draft === null ? (
+                        <button
+                            type="button"
+                            aria-label={`Passage: ${title}. Change passage`}
+                            className="reading-title -mx-1 inline-flex min-h-12 max-w-full items-center gap-2 rounded-lg px-1 text-left text-[#25272b] hover:bg-[#eef0f2]"
+                            onClick={() => setDraft(key)}
+                        >
+                            <span className="truncate">{title}</span>
+                            <ChevronDown aria-hidden className="size-5 shrink-0 text-[#68717c]" />
+                        </button>
+                    ) : (
+                        <form onSubmit={(e) => { e.preventDefault(); commitDraft(); }}>
+                            <input
+                                aria-label="Passage"
+                                autoFocus
+                                enterKeyHint="go"
+                                placeholder="e.g. John 3:16"
+                                className="reading-title min-h-12 w-full rounded-lg border border-[#ced2d7] bg-white px-3 text-[#25272b] outline-none focus:border-[#555b64]"
+                                value={draft}
+                                onFocus={(e) => e.currentTarget.select()}
+                                onChange={(e) => setDraft(e.target.value)}
+                                onBlur={commitDraft}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Escape") setDraft(null);
+                                }}
+                            />
+                        </form>
+                    )}
+                </h1>
 
-                        <span className="inline-flex items-center gap-1 text-[#555b64] px-1 py-1">
-                            <BookOpenText className="size-4" />
-                            {readingTime}
-                        </span>
-
-
-                        <span className="inline-flex items-center gap-1">
-                            <Dropdown classNames={{ content: "rounded-lg bg-ui-surface text-ui-text border border-ui-line max-w-[calc(100vw-2rem)]" }}>
-                                <DropdownTrigger className="bg-slate-100">
-                                    <Button className="ui-button">
-                                        {selectedValue.name}
-                                        <ChevronDown />
-                                    </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu
-                                    disallowEmptySelection
-                                    aria-label="Bible translation selection"
-                                    selectedKeys={selectedTranslations}
-                                    selectionMode="single"
-                                    variant="flat"
-                                    onSelectionChange={(keys) => {
-                                        const newSelectedTranslations = new Set(keys as Set<string>);
-                                        setSelectedTranslations(newSelectedTranslations);
-                                        if (key) {
-                                            const newSelected = Array.from(newSelectedTranslations)[0];
-                                            const newSelectedTranslation = translations[newSelected as keyof typeof translations];
-                                            setTranslation(newSelectedTranslation.abbr);
-                                            // getPassage(key, newSelectedTranslation.abbr).then((response: any) => {
-                                            //   setPassage(response);
-                                            //   calculateReadingTime(response);
-                                            //   setLoading(false);
-                                            // });
-                                        }
-                                    }}
-                                >
-                                    {Object.entries(translations).map(([key, translation]) => (
-                                        <DropdownItem className="text-ui-text" key={key}>{translation.name}</DropdownItem>
-                                    ))}
-                                </DropdownMenu>
-                            </Dropdown>
-                        </span>
-
-                        {playing ? null : (
+                <div className="mt-1 flex items-center gap-1 whitespace-nowrap text-sm text-[#555b64]">
+                    <Dropdown classNames={{ content: "rounded-lg bg-ui-surface text-ui-text border border-ui-line max-w-[calc(100vw-2rem)]" }}>
+                        <DropdownTrigger>
                             <Button
-                                onPress={playAudio}
-                                className="ui-button"
-                                color="default"
+                                aria-label={`Translation: ${selectedValue.name}`}
+                                className="ui-button -ml-3 min-w-0 !border-transparent !bg-transparent px-3 uppercase hover:!bg-[#eef0f2]"
                             >
-                                {audioLoading ? (
-                                    <Spinner color="primary" size="sm" />
-                                ) : (
-                                    <>
-                                        <HeadphonesIcon className="size-4" /> Listen
-                                    </>
-                                )}
+                                {selectedValue.abbr}
+                                <ChevronDown className="size-4" />
                             </Button>
-                        )}
-                    </div>
-                    {playing ? (
-                        <AudioPlayer src={current} onClose={() => setPlaying(false)} />
+                        </DropdownTrigger>
+                        <DropdownMenu
+                            disallowEmptySelection
+                            aria-label="Bible translation selection"
+                            selectedKeys={selectedTranslations}
+                            selectionMode="single"
+                            variant="flat"
+                            onSelectionChange={(keys) => {
+                                const newSelectedTranslations = new Set(keys as Set<string>);
+                                setSelectedTranslations(newSelectedTranslations);
+                                const newSelected = Array.from(newSelectedTranslations)[0];
+                                setTranslation(translations[newSelected as keyof typeof translations].abbr);
+                            }}
+                        >
+                            {Object.entries(translations).map(([key, translation]) => (
+                                <DropdownItem className="text-ui-text" key={key}>{translation.name}</DropdownItem>
+                            ))}
+                        </DropdownMenu>
+                    </Dropdown>
+
+                    {readingTime ? (
+                        <>
+                            <span aria-hidden className="-ml-2 mr-1">·</span>
+                            <span>{readingTime}</span>
+                        </>
                     ) : null}
+
+                    {playing ? null : (
+                        <Button
+                            isIconOnly
+                            onPress={playAudio}
+                            aria-label="Listen to passage"
+                            isDisabled={audioLoading}
+                            className="ui-icon ml-auto -mr-2 bg-transparent"
+                        >
+                            {audioLoading ? (
+                                <Spinner color="default" size="sm" />
+                            ) : (
+                                <HeadphonesIcon className="size-5" />
+                            )}
+                        </Button>
+                    )}
                 </div>
-            </div>
+            </header>
+
+            {playing ? (
+                <AudioPlayer src={current} onClose={() => setPlaying(false)} />
+            ) : null}
 
             {/* Reading area */}
             <div>
                 {loading ? (
-                    <div className="flex justify-center py-24">
-                        <Spinner color="primary" />
+                    <div className="reading-skeleton" role="status" aria-label="Loading passage">
+                        {[96, 88, 92, 70, 94, 84, 60].map((width, i) => (
+                            <span key={i} style={{ width: `${width}%` }} />
+                        ))}
                     </div>
                 ) : isError ? (
                     <div role="alert" className="flex flex-col items-start gap-3 py-8">
@@ -248,12 +252,12 @@ export default function Content(props: any) {
 
                     <div>
                         <Context passageKey={key} context="before" />
-                        <article className="mt-6 sm:mt-8">
+                        <article className="my-4">
                             {verses}
                         </article>
                         <Context passageKey={key} context="after" />
 
-                        <div className="mt-8 flex flex-wrap gap-3 border-t border-[#ced2d7] pt-6">
+                        <div className="mt-10 grid grid-cols-2 gap-3 sm:flex">
                             <ReadAction
                                 state={props.state}
                                 book={splitKey.book}
@@ -265,14 +269,20 @@ export default function Content(props: any) {
                                 as={Link}
                                 href={`/study/${splitKey.book.replace(/\s/g, "")}${splitKey.chapter
                                     }`}
+                                aria-label={`Study ${splitKey.book} ${splitKey.chapter}`}
                                 className="ui-button"
                             >
                                 <GraduationCapIcon className="size-4" />
-                                Study {splitKey.book} {splitKey.chapter}
+                                Study
                             </Button>
                         </div>
                     </div>
-                ) : null}
+                ) : (
+                    <div role="alert" className="flex flex-col items-start gap-3 py-8 text-[#555b64]">
+                        <p>No passage found for “{key}”. Try a reference like John 3:16.</p>
+                        <button type="button" className="ui-button" onClick={() => setDraft(key)}>Change passage</button>
+                    </div>
+                )}
             </div>
         </section>
     );

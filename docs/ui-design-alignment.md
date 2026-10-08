@@ -20,7 +20,7 @@ their purpose, consistency, legibility, and fit with Bible Game.
 | Page chrome | Neutral charcoal, solid surfaces, restrained borders. Values live in `src/core/style/ui-theme.ts`; Play extends these with its division palette. |
 | Colour | Preserve the map's teal, purple, rose, green, and gold division colours. Use colour for book identity, progress, or feedback. |
 | Primary action | During play, use the selected book's colour with a dimensional highlight and restrained glow. Other primary actions use a high-contrast fill. |
-| Typography | Inter for navigation, controls, labels, and numbers; Newsreader for the clue; monospace for the map. Keep serif display text tied to reading content. |
+| Typography | Inter for navigation, controls, labels, and numbers; Newsreader (self-hosted via `next/font`, `--font-reading`) for the clue and passages; monospace for the map. Keep serif display text tied to reading content. |
 | Letter spacing | Normal spacing for UI text. Avoid decorative, widely spaced uppercase headings. |
 | Corners | 8px on tiles, menus, popovers, and sheets; retain the calendar's softer 24px corners. Circles for icon controls and days; pills for the existing compact action row and date control. |
 | Spacing | Use 4px increments, principally 8/12/16/24px. Keep related controls together and use space or borders to divide sections. |
@@ -44,10 +44,9 @@ rendered outside the page container by HeroUI.
 
 ## Follow-up Review
 
-- Review Read first, followed by Study, Statistics, Account, and the information pages.
+- Read has been refined (see below); review Study next, followed by Statistics, Account, and the information pages.
 - The reader keeps a light passage surface within dark navigation chrome as a deliberate task-specific variant.
 - The map library handles its own canvas interaction and accessibility. A full keyboard and screen-reader gameplay audit needs separate work, including a way to select chapters without relying on canvas gestures.
-- Newsreader currently loads from Google Fonts. Consider self-hosting it in the shared foundation once this type pairing is agreed.
 
 ## Implemented Alignment
 
@@ -61,9 +60,15 @@ and background gradient have been replaced. Migrated controls use HeroUI.
 
 ### 2. Read
 
-Read uses shared navigation above an explicit light reading surface. Passage search,
-translation menus, audio controls, context, and reading actions use neutral controls.
-Verse spacing and reading progress remain. A failed passage request has a retry state.
+Read opens on the scripture. The passage is a Newsreader title; tapping it edits
+the reference in place (Enter commits, Escape cancels). One non-wrapping row
+beneath carries the translation abbreviation, reading time, and an icon-only
+Listen control. Verses flow as a single serif paragraph (19px, 1.65 leading) with
+small inline verse numbers, inside a 40rem reading column. Context before and
+after is a quiet disclosure, with the summary set as muted sans commentary.
+Mark as read reflects saved read state, and Study sits beside it. Audio plays in
+a bottom bar that stays reachable while scrolling. Loading shows a text skeleton,
+and failed or unrecognised passages offer a retry or a way to change passage.
 
 ### 3. Study
 

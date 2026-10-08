@@ -46,9 +46,6 @@ export default async function Play({params}: { params: Promise<{ game: string }>
 
     return (
         <main className="w-full relative z-1">
-            {/* display serif for the daily clue (React hoists this into <head>) */}
-            <link rel="stylesheet" precedence="default"
-                  href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400..500&display=swap"/>
             <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
         </main>
     );

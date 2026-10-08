@@ -20,7 +20,7 @@ const config: Config = {
         ui: uiTheme,
       },
       fontFamily: {
-        clue: ["Newsreader", "Georgia", "serif"],
+        clue: ["var(--font-reading)", "Georgia", "serif"],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

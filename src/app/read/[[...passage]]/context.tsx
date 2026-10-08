@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Accordion, AccordionItem, Spinner, Button, Modal, ModalContent, Textarea, Chip } from "@heroui/react";
 import { getPostContext } from "@/core/action/read/get-postcontext";
 import { getPreContext } from "@/core/action/read/get-precontext";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronDown, ThumbsDown, ThumbsUp } from "lucide-react";
 import { postFeedback } from "@/core/action/read/post-feedback";
 import toast from "react-hot-toast";
 
@@ -22,7 +22,7 @@ const FEEDBACK_OPTIONS: FeedbackOption[] = [
 const Context = (props: any) => {
     const [context, setContext] = useState("");
     const [loading, setLoading] = useState(false);
-    const [title] = useState(props.context == "before" ? "Pre‑Context" : "Post‑Context");
+    const [title] = useState(props.context == "before" ? "What comes before" : "What comes next");
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
     const [comment, setComment] = useState("");
@@ -81,16 +81,22 @@ const Context = (props: any) => {
 
     return (
         <Accordion
-            className="border-y border-[#ced2d7] px-0"
-            itemClasses={{ title: "text-[#25272b] text-[14px] font-medium", indicator: "text-[#555b64]" }}
+            className="px-0"
+            itemClasses={{
+                trigger: "min-h-11 py-2 gap-2 justify-start",
+                titleWrapper: "flex-none",
+                title: "text-[#555b64] text-[14px] font-medium",
+                indicator: "text-[#68717c] -rotate-90 data-[open=true]:rotate-0",
+                content: "pt-1 pb-3",
+            }}
             onSelectionChange={toggle}
             isCompact
         >
-            <AccordionItem key="1" aria-label="context" className="flex flex-col gap-2" title={title}>
-                {loading ? (<Spinner color="secondary" />) : (
+            <AccordionItem key="1" aria-label={title} indicator={<ChevronDown className="size-4" />} className="flex flex-col gap-2" title={title}>
+                {loading ? (<Spinner color="default" size="sm" />) : (
                     <>
-                        <p className="text-sm leading-6 text-[#555b64]">{context}</p>
-                        <div className="flex gap-2 justify-end">
+                        <p className="border-l-2 border-[#ced2d7] pl-3 text-[15px] leading-[1.6] text-[#555b64]">{context}</p>
+                        <div className="-mr-2 mt-1 flex justify-end">
                             <Button isIconOnly aria-label="Helpful context" className="ui-icon bg-transparent"
                                 onPress={handlePositiveSubmit}>
                                 <ThumbsUp className="size-5" />

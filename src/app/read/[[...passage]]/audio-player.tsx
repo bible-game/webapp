@@ -70,9 +70,13 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
     };
 
     return (
-        <div className="mt-2 border-y border-[#ced2d7] py-3">
+        <div
+            role="region"
+            aria-label="Audio player"
+            className="fixed inset-x-0 bottom-0 z-40 border-t border-[#ced2d7] bg-[#f7f8f9]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur"
+        >
             <audio ref={audioRef} src={src} preload="metadata" />
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="mx-auto flex max-w-[43rem] items-center gap-2 px-4 py-2 sm:px-6">
                 {/* Play / Pause */}
                 <button
                     onClick={toggle}
@@ -92,9 +96,9 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
                         step={0.1}
                         value={Math.min(time, duration || 0)}
                         onChange={(e) => seek(parseFloat(e.target.value))}
-                        className="w-full accent-[#25272b]"
+                        className="block w-full accent-[#25272b]"
                     />
-                    <div className="mt-1 flex items-center justify-between text-xs text-slate-500">
+                    <div className="flex items-center justify-between text-xs tabular-nums text-[#68717c]">
                         <span>{fmt(time)}</span>
                         <span>{fmt(duration)}</span>
                     </div>
@@ -122,11 +126,11 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
                 </div>
 
                 {/* Speed / Download / Close */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center">
                     <select
                         value={rate}
                         onChange={(e) => setPlayback(parseFloat(e.target.value))}
-                        className="min-h-11 rounded-lg border border-[#ced2d7] bg-transparent px-2 text-sm"
+                        className="min-h-11 rounded-lg bg-transparent px-1 text-sm tabular-nums"
                         aria-label="Playback speed"
                     >
                         {[0.75, 1, 1.25, 1.5].map((r) => (
@@ -137,7 +141,7 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
                     <a
                         href={src}
                         download
-                        className="ui-icon"
+                        className="ui-icon !hidden sm:!inline-flex"
                         aria-label="Download audio"
                     >
                         <Download className="size-4" />

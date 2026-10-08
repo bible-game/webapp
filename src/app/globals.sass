@@ -139,6 +139,40 @@ body
   --ui-muted: #555b64
   --ui-faint: #68717c
 
+.reading-title
+  font-family: var(--font-reading), Georgia, serif
+  font-size: 28px
+  font-weight: 500
+  line-height: 1.2
+
+.reading-prose
+  font-family: var(--font-reading), Georgia, serif
+  font-size: 19px
+  line-height: 1.65
+  color: #25272b
+  text-wrap: pretty
+  sup
+    margin-right: 1px
+    font-family: Inter, system-ui, sans-serif
+    font-size: 11px
+    font-variant-numeric: tabular-nums
+    line-height: 0
+    vertical-align: super
+    color: var(--ui-faint)
+
+.reading-skeleton
+  span
+    display: block
+    height: 14px
+    margin: 14px 0
+    border-radius: 4px
+    background: var(--ui-raised)
+    animation: reading-pulse 1.4s ease-in-out infinite
+
+@keyframes reading-pulse
+  50%
+    opacity: 0.5
+
 .auth-page
   display: flex
   justify-content: center
