@@ -139,43 +139,33 @@ body
   --ui-muted: #555b64
   --ui-faint: #68717c
 
-// Read: a dark, warm reading room
+// Read: the app's charcoal, accented in the colour of the passage's division (as on Play's map)
 .reader, .reader-sheet
-  --reader-text: #ebe3d5
-  --reader-muted: #a39b8e
-  --reader-accent: #e3a23b
-  --reader-gold: #d2b96f
-  --reader-glow: 0 0 10px rgba(227, 162, 59, 0.55)
+  --reader-text: var(--ui-text)
+  --reader-muted: var(--ui-muted)
+  --reader-accent: var(--division, var(--ui-muted))
+  --reader-on-accent: var(--ui-bg)
+  --reader-line: rgba(242, 243, 244, 0.14)
+  --reader-glow: 0 0 10px color-mix(in srgb, var(--reader-accent) 55%, transparent)
   --reader-font: var(--font-reading), Georgia, serif
   --reader-size: 19px
   --reader-leading: 1.65
   color: var(--reader-text)
 
 .reader
-  position: relative
-  isolation: isolate
-  background: #0c0c0d
-  &::before
-    content: ""
-    position: fixed
-    inset: 0
-    z-index: -1
-    pointer-events: none
-    background: radial-gradient(120% 60% at 50% -10%, rgba(227, 162, 59, 0.11), transparent 60%)
+  background: var(--ui-bg)
   .ui-button
-    border-color: rgba(235, 227, 213, 0.14)
-    background: rgba(235, 227, 213, 0.05)
+    border-color: var(--reader-line)
+    background: rgba(242, 243, 244, 0.05)
     color: var(--reader-text)
     &:hover
-      background: rgba(235, 227, 213, 0.1)
+      background: rgba(242, 243, 244, 0.1)
 
 .reader-header
   position: sticky
   top: 0
   z-index: 30
-  background: rgba(12, 12, 13, 0.96)
-  backdrop-filter: blur(14px)
-  -webkit-backdrop-filter: blur(14px)
+  background: var(--ui-bg)
 
 .reader-title
   font-family: var(--font-reading), Georgia, serif
@@ -184,14 +174,34 @@ body
   line-height: 1.25
   color: var(--reader-text)
 
+// The passage, which reads as the title until tapped, then edits in place
+.reader-passage
+  width: min(60vw, 18rem)
+  min-height: 40px
+  padding: 0 12px
+  border: 1px solid transparent
+  border-radius: 8px
+  background: transparent
+  text-align: center
+  text-overflow: ellipsis
+  outline: none
+  transition: background 150ms, border-color 150ms
+  &:hover
+    background: rgba(242, 243, 244, 0.05)
+  &:focus
+    border-color: var(--reader-accent)
+    background: rgba(242, 243, 244, 0.06)
+  &::placeholder
+    color: var(--reader-muted)
+
 .reader-progress
   position: absolute
   inset: auto 0 0 0
   height: 2px
-  background: rgba(235, 227, 213, 0.06)
+  background: rgba(242, 243, 244, 0.06)
   div
     height: 100%
-    background: linear-gradient(90deg, var(--reader-accent), var(--reader-gold))
+    background: var(--reader-accent)
     box-shadow: var(--reader-glow)
 
 .reading-prose
@@ -212,36 +222,38 @@ body
     line-height: 0
     vertical-align: super
     color: var(--reader-accent)
-    opacity: 0.75
 
-// Two lines tall, seated on the paragraph's top edge
+// Two lines tall. Solid colour with a text-shadow glow, in a box that wholly
+// contains the glyph, so no browser can clip it.
 .drop-cap
   float: left
-  margin: 0.08em 0.06em 0 0
-  // Room for serifs that overhang the glyph box, which background-clip would cut
-  padding-right: 0.06em
+  // Cap top level with the first line's capitals, baseline on the second line's;
+  // the negative bottom margin keeps the third line from wrapping around it
+  margin: 0.085em 0.08em -0.2em 0
   font-family: var(--font-reading), Georgia, serif
-  font-size: calc(var(--reader-leading) * 2em - 0.15em)
+  font-size: calc(var(--reader-leading) * 2em + 0.2em)
   font-weight: 500
-  line-height: 0.85
-  background: linear-gradient(180deg, var(--reader-gold), var(--reader-accent))
-  -webkit-background-clip: text
-  background-clip: text
-  color: transparent
-  filter: drop-shadow(0 0 6px rgba(227, 162, 59, 0.3))
+  line-height: 1
+  color: var(--reader-accent)
+  text-shadow: 0 0 14px color-mix(in srgb, var(--reader-accent) 40%, transparent)
 
 .reader-primary
   border-color: transparent !important
-  background: linear-gradient(180deg, var(--reader-gold), var(--reader-accent)) !important
-  color: #1a1408 !important
+  background: var(--reader-accent) !important
+  color: var(--reader-on-accent) !important
   box-shadow: var(--reader-glow)
 
+.reader-done
+  border-color: color-mix(in srgb, var(--reader-accent) 60%, transparent) !important
+  background: color-mix(in srgb, var(--reader-accent) 12%, transparent) !important
+  color: var(--reader-accent) !important
+
 .reader-glow-fill
-  background: linear-gradient(180deg, var(--reader-gold), var(--reader-accent))
+  background: var(--reader-accent)
   box-shadow: var(--reader-glow)
 
 .reader-toolbar
-  background: linear-gradient(180deg, transparent, #0c0c0d 24px)
+  background: linear-gradient(180deg, transparent, var(--ui-bg) 24px)
   color: var(--reader-muted)
 
 .reader-tool
@@ -250,7 +262,7 @@ body
     color: var(--reader-text)
   &[data-on]
     color: var(--reader-accent)
-    filter: drop-shadow(0 0 6px rgba(227, 162, 59, 0.6))
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--reader-accent) 60%, transparent))
 
 .reader-range
   display: block
@@ -263,10 +275,10 @@ body
   &::-webkit-slider-runnable-track
     height: 2px
     border-radius: 2px
-    background: linear-gradient(90deg, var(--reader-accent) var(--fill, 0%), rgba(235, 227, 213, 0.16) var(--fill, 0%))
+    background: linear-gradient(90deg, var(--reader-accent) var(--fill, 0%), rgba(242, 243, 244, 0.16) var(--fill, 0%))
   &::-moz-range-track
     height: 2px
-    background: rgba(235, 227, 213, 0.16)
+    background: rgba(242, 243, 244, 0.16)
   &::-moz-range-progress
     height: 2px
     background: var(--reader-accent)
@@ -286,19 +298,6 @@ body
     background: var(--reader-accent)
     box-shadow: var(--reader-glow)
 
-.reader-chip
-  min-height: 40px
-  padding: 0 14px
-  border: 1px solid rgba(235, 227, 213, 0.14)
-  border-radius: 999px
-  font-size: 13px
-  font-weight: 600
-  color: var(--reader-muted)
-  &[aria-checked="true"]
-    border-color: var(--reader-accent)
-    color: var(--reader-accent)
-    box-shadow: var(--reader-glow)
-
 .reader-tile
   display: flex
   min-height: 76px
@@ -306,7 +305,7 @@ body
   align-items: center
   justify-content: center
   gap: 6px
-  border: 1px solid rgba(235, 227, 213, 0.12)
+  border: 1px solid var(--reader-line)
   border-radius: 8px
   color: var(--reader-muted)
   &[aria-checked="true"]
@@ -317,40 +316,11 @@ body
 .reader-field
   min-height: 48px
   padding: 0 14px
-  border: 1px solid rgba(235, 227, 213, 0.14)
+  border: 1px solid var(--reader-line)
   border-radius: 8px
-  background: rgba(235, 227, 213, 0.04)
+  background: rgba(242, 243, 244, 0.04)
   &:focus-within
     border-color: var(--reader-accent)
-
-.reader-chapter
-  position: relative
-  display: flex
-  aspect-ratio: 1
-  min-height: 44px
-  align-items: center
-  justify-content: center
-  border-radius: 50%
-  font-size: 14px
-  font-variant-numeric: tabular-nums
-  color: var(--reader-text)
-  &:hover
-    background: rgba(235, 227, 213, 0.08)
-  &[data-read]::after
-    content: ""
-    position: absolute
-    bottom: 6px
-    width: 4px
-    height: 4px
-    border-radius: 50%
-    background: var(--reader-accent)
-  &[aria-current="page"]
-    background: var(--reader-accent)
-    color: #1a1408
-    font-weight: 600
-    box-shadow: var(--reader-glow)
-    &::after
-      background: #1a1408
 
 .reading-skeleton
   span
@@ -358,7 +328,7 @@ body
     height: 14px
     margin: 14px 0
     border-radius: 4px
-    background: rgba(235, 227, 213, 0.08)
+    background: rgba(242, 243, 244, 0.08)
     animation: reading-pulse 1.4s ease-in-out infinite
 
 @keyframes reading-pulse

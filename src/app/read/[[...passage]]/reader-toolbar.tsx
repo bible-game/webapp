@@ -2,16 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { Spinner } from "@heroui/react";
-import { CheckCircle2, Circle, HeadphonesIcon, ListIcon } from "lucide-react";
+import { ChevronUp, HeadphonesIcon } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
 
 type Props = {
     onType: () => void;
-    onContents: () => void;
+    translation: string;
+    onTranslation: () => void;
     audio: { src?: string; loading: boolean; onListen: () => void; onClose: () => void };
-    read: boolean;
-    onRead: () => void;
 };
 
 /**
@@ -48,12 +47,14 @@ export default function ReaderToolbar(props: Props) {
             <div className="mx-auto max-w-[43rem] px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-6 sm:px-6">
                 {audio.src ? <AudioPlayer src={audio.src} onClose={audio.onClose} /> : null}
 
-                <nav aria-label="Reading controls" className="mt-1 grid grid-cols-4 justify-items-center">
+                <nav aria-label="Reading controls" className="mt-1 grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-4 px-2">
                     <button type="button" className="ui-icon reader-tool" aria-label="Text settings" onClick={props.onType}>
                         <span aria-hidden className="text-[17px] font-medium tracking-tight">Aa</span>
                     </button>
-                    <button type="button" className="ui-icon reader-tool" aria-label="Contents" onClick={props.onContents}>
-                        <ListIcon className="size-5" />
+                    <button type="button" className="reader-tool mx-auto flex min-h-11 min-w-0 max-w-full items-center gap-1.5 rounded-full px-3 text-[13px] font-medium"
+                            aria-label={`Translation: ${props.translation}. Change translation`} onClick={props.onTranslation}>
+                        <span className="truncate">{props.translation}</span>
+                        <ChevronUp aria-hidden className="size-4 shrink-0" />
                     </button>
                     <button
                         type="button"
@@ -64,17 +65,7 @@ export default function ReaderToolbar(props: Props) {
                         disabled={audio.loading}
                         onClick={audio.src ? audio.onClose : audio.onListen}
                     >
-                        {audio.loading ? <Spinner size="sm" color="warning" /> : <HeadphonesIcon className="size-5" />}
-                    </button>
-                    <button
-                        type="button"
-                        className="ui-icon reader-tool"
-                        aria-label={props.read ? "Marked as read" : "Mark as read"}
-                        aria-pressed={props.read}
-                        data-on={props.read || undefined}
-                        onClick={props.onRead}
-                    >
-                        {props.read ? <CheckCircle2 className="size-5" /> : <Circle className="size-5" />}
+                        {audio.loading ? <Spinner size="sm" color="default" /> : <HeadphonesIcon className="size-5" />}
                     </button>
                 </nav>
             </div>

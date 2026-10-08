@@ -1,10 +1,9 @@
 "use client"
 
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import ReaderSheet from "@/app/read/[[...passage]]/reader-sheet";
 import { ReaderSettings } from "@/app/read/[[...passage]]/use-reader-settings";
 import { READING_FONTS, ReadingFont } from "@/core/style/reading-fonts";
-import translations from "./translations.json";
 
 type Props = {
     open: boolean;
@@ -16,41 +15,12 @@ type Props = {
 const label = "mb-2 block text-[12px] font-medium text-[var(--reader-muted)]";
 
 /**
- * Text settings: translation, typeface, size, and spacing
+ * Text settings: typeface, size, and spacing
  * @since 8th October 2026
  */
 export default function TypeSheet({ open, onOpenChange, settings, update }: Props) {
-    const translation = translations[settings.translation as keyof typeof translations];
-    const chipsRef = useRef<HTMLDivElement>(null);
-
-    // Bring the chosen translation into view, as the row scrolls sideways on phones
-    useEffect(() => {
-        if (!open) return;
-        const t = setTimeout(() => {
-            const row = chipsRef.current;
-            const chip = row?.querySelector<HTMLElement>('[aria-checked="true"]');
-            if (row && chip) row.scrollLeft = chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2;
-        }, 50);
-        return () => clearTimeout(t);
-    }, [open]);
-
     return (
         <ReaderSheet open={open} onOpenChange={onOpenChange} title="Text">
-            <section>
-                <span className={label}>Translation</span>
-                <div ref={chipsRef} role="radiogroup" aria-label="Translation" className="relative -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 [scrollbar-width:none]">
-                    {Object.entries(translations).map(([key, t]) => (
-                        <button key={key} type="button" role="radio" aria-checked={settings.translation === key}
-                                aria-label={t.name} title={t.name}
-                                onClick={() => update({ translation: key })}
-                                className="reader-chip shrink-0 uppercase">
-                            {t.abbr}
-                        </button>
-                    ))}
-                </div>
-                <p className="mt-2 text-[13px] text-[var(--reader-muted)]">{translation?.name}</p>
-            </section>
-
             <section>
                 <span className={label}>Typeface</span>
                 <div role="radiogroup" aria-label="Typeface" className="grid grid-cols-4 gap-2">

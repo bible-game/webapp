@@ -17,7 +17,7 @@ export default function ReaderSheet(props: Props) {
     return (
         <Modal isOpen={props.open} onOpenChange={props.onOpenChange} placement="bottom" backdrop="blur" scrollBehavior="inside"
                classNames={{
-                   base: `reader-sheet dark m-0 w-full max-w-[34rem] rounded-b-none rounded-t-3xl border border-ui-line bg-[#161514] text-[var(--reader-text)] sm:m-auto sm:rounded-3xl ${props.className ?? ""}`,
+                   base: `reader-sheet dark m-0 w-full max-w-[34rem] rounded-b-none rounded-t-3xl border border-ui-line bg-ui-surface text-[var(--reader-text)] sm:m-auto sm:rounded-3xl ${props.className ?? ""}`,
                    closeButton: "top-3 right-3 size-11 text-[var(--reader-muted)] hover:bg-ui-raised",
                }}>
             <ModalContent>

@@ -74,7 +74,7 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
             <audio ref={audioRef} src={src} preload="metadata" />
             <button
                 onClick={toggle}
-                className="ui-icon reader-glow-fill !text-[#1a1408]"
+                className="ui-icon reader-glow-fill !text-[var(--reader-on-accent)]"
                 aria-label={isPlaying ? "Pause" : "Play"}
             >
                 {isPlaying ? <Pause className="size-5" /> : <Play className="size-5 translate-x-px" />}

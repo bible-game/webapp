@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
 import { StateUtil } from "@/core/util/state-util";
 import { post } from "@/core/action/http/post";
 import getReadKey, { ReadState } from "@/core/model/state/read-state";
@@ -33,16 +32,6 @@ export function useReadAction(props: ReadPassage) {
 
         if (props.state) {
             post(`${process.env.SVC_USER}/state/read`, state).then();
-        }
-
-        if (verseStart) {
-            if (verseEnd) {
-                toast.success(`${props.book} ${chapter} : ${verseStart} - ${verseEnd}`);
-            } else {
-                toast.success(`${props.book} ${chapter} : ${verseStart}`);
-            }
-        } else {
-            toast.success(`${props.book} ${chapter}`);
         }
     }
 

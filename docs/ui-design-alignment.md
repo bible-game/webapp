@@ -45,7 +45,7 @@ rendered outside the page container by HeroUI.
 ## Follow-up Review
 
 - Read has been refined (see below); review Study next, followed by Statistics, Account, and the information pages.
-- Read uses a dark, warm reader variant (see below). Study's passage drawer still uses the light `.reading-surface` and should be reconsidered in the Study review.
+- Read uses Play's charcoal with division-coloured accents (see below). Study's passage drawer still uses the light `.reading-surface` and should be reconsidered in the Study review.
 - The map library handles its own canvas interaction and accessibility. A full keyboard and screen-reader gameplay audit needs separate work, including a way to select chapters without relying on canvas gestures.
 
 ## Implemented Alignment
@@ -60,25 +60,29 @@ and background gradient have been replaced. Migrated controls use HeroUI.
 
 ### 2. Read
 
-Read is a dark, warm reading room: a deliberate task-specific variant inspired by
-editorial reading apps. Its tokens live under `.reader` in `globals.sass`: warm
-off-white text, a soft amber wash at the top, and the `uiTheme` amber and gold
-for accents, with a restrained glow on progress and active controls.
+Read shares Play's charcoal (`--ui-bg`) and neutral text, and takes its accent
+from the division of the passage being read, using the map's colours
+(`map/config/colours.json` via `divisionColour` in `core/model/bible/books.ts`):
+1 John is rose, Isaiah green, and so on. The accent is set as `--division` on the
+root so the sheets share it, and glows are derived from it with `color-mix`.
 
-The shared header carries the passage title and translation in its centre, which
-open Contents. A glowing line along its lower edge shows progress through the
-chapter. Verses flow as one serif paragraph with amber verse numbers and a
-two-line gold initial. Dimming is gentle: verses within the reading band of the
-screen stay fully lit, and only those beyond it soften to 60%. Everything in view
-is lit at the top and the end of the page.
+The shared header carries just the passage, as an input that reads as the title:
+tap to edit in place, Enter or tapping away to go, Escape to revert. A glowing line
+along its lower edge shows progress through the chapter. Verses flow as one serif
+paragraph with accented verse numbers and a two-line initial in the division
+colour. Dimming is gentle: verses within the reading band of the screen stay fully
+lit, and only those beyond it soften to 60%. Everything in view is lit at the top
+and the end of the page.
 
-A bottom toolbar holds four controls: Text, Contents, Listen, and Mark as read.
-It tucks away while reading down and returns on scroll up or at the end. The audio
-player sits above the controls while open. The Text sheet sets translation,
-typeface (Newsreader, Literata, EB Garamond, Inter), size, and line spacing,
-remembered per browser. The Contents sheet offers passage search and a book list
-with chapter grids that mark the current and read chapters. The address follows
-the passage, and the chapter ends with the next chapter and Study.
+A bottom toolbar holds Text (typeface, size, spacing), the translation's name in
+the centre, which opens a searchable list of translations, and Listen. It tucks
+away while reading down and returns on scroll up or at the end; the audio player
+sits above it while open. Settings are remembered per browser, and the address
+follows the passage.
+
+The chapter ends with Mark as read and Study. Mark as read confirms in its own
+label, as Play's share button does, then stays disabled as Read, with a tooltip
+saying the passage is already tracked; Study then takes the primary style.
 
 ### 3. Study
 

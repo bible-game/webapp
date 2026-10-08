@@ -5,21 +5,21 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { bcv_parser } from "bible-passage-reference-parser/esm/bcv_parser";
 import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
-import { ArrowRight, GraduationCapIcon } from "lucide-react";
+import { GraduationCapIcon } from "lucide-react";
 import AppHeader from "@/core/component/app-header";
 import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
 import Context from "@/app/read/[[...passage]]/context";
 import ReaderToolbar from "@/app/read/[[...passage]]/reader-toolbar";
 import TypeSheet from "@/app/read/[[...passage]]/type-sheet";
-import ContentsSheet from "@/app/read/[[...passage]]/contents-sheet";
-import { useReadAction } from "@/app/read/[[...passage]]/readaction";
+import TranslationSheet from "@/app/read/[[...passage]]/translation-sheet";
+import MarkReadButton from "@/app/read/[[...passage]]/mark-read-button";
 import { useReaderSettings } from "@/app/read/[[...passage]]/use-reader-settings";
+import { useReadAction } from "@/app/read/[[...passage]]/readaction";
 import { useLitVerses } from "@/app/read/[[...passage]]/use-lit-verses";
 import { getPassage } from "@/core/action/read/get-passage";
 import { getAudio } from "@/core/action/read/get-audio";
-import { findBook } from "@/core/model/bible/books";
+import { divisionColour, findBook } from "@/core/model/bible/books";
 import { READING_FONTS } from "@/core/style/reading-fonts";
-import { ReadingUtil } from "@/core/util/reading-util";
 import translations from "./translations.json";
 
 
@@ -36,7 +36,11 @@ export default function Content(props: any) {
     const [key, setKey] = useState(props.passageKey ? prettyPassage(Array.isArray(props.passageKey) ? props.passageKey[0] : props.passageKey) : "1 John 4 : 7 - 19");
     const [audioLoading, setAudioLoading] = useState(false);
     const [audioSrc, setAudioSrc] = useState<string | undefined>();
-    const [sheet, setSheet] = useState<"type" | "contents" | null>(null);
+    const [sheet, setSheet] = useState<"type" | "translation" | null>(null);
+    // the passage being typed in the header, while it has focus
+    const [draft, setDraft] = useState<string | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+    const cancelled = useRef(false);
     const [settings, updateSettings] = useReaderSettings();
     const proseRef = useRef<HTMLParagraphElement>(null);
 
@@ -48,11 +52,6 @@ export default function Content(props: any) {
     const translation = translations[settings.translation as keyof typeof translations] ?? translations.web;
     const { data: passage, isLoading: loading, isError, refetch } = usePassage(key, translation.abbr);
     const lit = useLitVerses(proseRef, [passage, settings.size, settings.leading, settings.font]);
-
-    const readingTime = useMemo(() => {
-        const minutes = ReadingUtil.calcMinutes(passage?.text);
-        if (minutes) return minutes + " min";
-    }, [passage]);
 
     function split(passageKey: any): {
         book: string;
@@ -101,6 +100,16 @@ export default function Content(props: any) {
     const chapter = Number(splitKey.chapter) || 1;
     const { read, markRead } = useReadAction({ ...splitKey, state: props.state });
 
+    // Accent the page in the colour of the passage's division, as on Play's map.
+    // Set on the root so the sheets, which render outside the page, share it.
+    const accent = divisionColour(book);
+    useEffect(() => {
+        const root = document.documentElement.style;
+        if (accent) root.setProperty("--division", accent);
+        else root.removeProperty("--division");
+        return () => { root.removeProperty("--division"); };
+    }, [accent]);
+
     const title = useMemo(() => {
         if (!splitKey.book) return key;
         const verses = splitKey.verseStart
@@ -120,6 +129,13 @@ export default function Content(props: any) {
         closeAudio();
         setKey(passageKey);
         window.scrollTo({ top: 0 });
+    }
+
+    function commitDraft(): void {
+        const next = draft?.trim();
+        if (!cancelled.current && next && next !== title) goTo(next);
+        cancelled.current = false;
+        setDraft(null);
     }
 
     function playAudio(): void {
@@ -151,8 +167,6 @@ export default function Content(props: any) {
         );
     });
 
-    const nextChapter = book && chapter < book.chapters ? chapter + 1 : undefined;
-
     return (
         <div style={{
             "--reader-font": READING_FONTS[settings.font]?.family,
@@ -162,12 +176,18 @@ export default function Content(props: any) {
             <div className="reader-header">
                 <div className="app-header">
                     <AppHeader info={props.info}>
-                        <button type="button" onClick={() => setSheet("contents")}
-                                aria-label={`${title}, ${translation.name}. Open contents`}
-                                className="flex min-w-0 max-w-[60vw] flex-col items-center rounded-lg px-3 py-1 hover:bg-white/5">
-                            <span className="reader-title truncate">{title}</span>
-                            <span className="truncate text-[11px] text-[var(--reader-muted)]">{translation.name}</span>
-                        </button>
+                        <form role="search" onSubmit={(e) => { e.preventDefault(); inputRef.current?.blur(); }}>
+                            <input ref={inputRef} aria-label="Passage" placeholder="e.g. John 3:16"
+                                   enterKeyHint="go" autoComplete="off" autoCorrect="off" spellCheck={false}
+                                   className="reader-title reader-passage"
+                                   value={draft ?? title}
+                                   onFocus={() => setDraft(title)}
+                                   onChange={(e) => setDraft(e.target.value)}
+                                   onBlur={commitDraft}
+                                   onKeyDown={(e) => {
+                                       if (e.key === "Escape") { cancelled.current = true; e.currentTarget.blur(); }
+                                   }} />
+                        </form>
                     </AppHeader>
                 </div>
                 <ScrollProgress />
@@ -197,14 +217,10 @@ export default function Content(props: any) {
                             <Context passageKey={key} context="after" />
 
                             <div className="mt-10 grid grid-cols-2 gap-3 sm:flex">
-                                {nextChapter ? (
-                                    <button type="button" className="ui-button reader-primary" onClick={() => goTo(`${book!.name} ${nextChapter}`)}>
-                                        {book!.name} {nextChapter}
-                                        <ArrowRight className="size-4" />
-                                    </button>
-                                ) : null}
+                                <MarkReadButton read={read} onMark={markRead} />
+                                {/* once the passage is read, studying it is the next step, so Study takes the lead */}
                                 <Link href={`/study/${splitKey.book.replace(/\s/g, "")}${chapter}`}
-                                      aria-label={`Study ${title}`} className="ui-button">
+                                      aria-label={`Study ${title}`} className={`ui-button ${read ? "reader-primary" : ""}`}>
                                     <GraduationCapIcon className="size-4" />
                                     Study
                                 </Link>
@@ -213,7 +229,7 @@ export default function Content(props: any) {
                     ) : (
                         <div role="alert" className="flex flex-col items-start gap-3 py-8 text-[var(--reader-muted)]">
                             <p>No passage found for “{key}”. Try a reference like John 3:16.</p>
-                            <button type="button" className="ui-button" onClick={() => setSheet("contents")}>Choose a passage</button>
+                            <button type="button" className="ui-button" onClick={() => inputRef.current?.focus()}>Change passage</button>
                         </div>
                     )}
                 </section>
@@ -221,16 +237,15 @@ export default function Content(props: any) {
 
             <ReaderToolbar
                 onType={() => setSheet("type")}
-                onContents={() => setSheet("contents")}
+                translation={translation.name}
+                onTranslation={() => setSheet("translation")}
                 audio={{ src: audioSrc, loading: audioLoading, onListen: playAudio, onClose: closeAudio }}
-                read={read}
-                onRead={markRead}
             />
 
             <TypeSheet open={sheet === "type"} onOpenChange={(open) => setSheet(open ? "type" : null)}
                        settings={settings} update={updateSettings} />
-            <ContentsSheet open={sheet === "contents"} onOpenChange={(open) => setSheet(open ? "contents" : null)}
-                           book={book} chapter={chapter} readingTime={readingTime} onGo={goTo} />
+            <TranslationSheet open={sheet === "translation"} onOpenChange={(open) => setSheet(open ? "translation" : null)}
+                              selected={settings.translation} onSelect={(translation) => updateSettings({ translation })} />
         </div>
     );
 }

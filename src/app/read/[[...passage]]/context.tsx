@@ -95,7 +95,7 @@ const Context = (props: any) => {
             <AccordionItem key="1" aria-label={title} indicator={<ChevronDown className="size-4" />} className="flex flex-col gap-2" title={title}>
                 {loading ? (<Spinner color="default" size="sm" />) : (
                     <>
-                        <p className="border-l-2 border-[#e3a23b]/40 pl-3 text-[15px] leading-[1.6] text-[var(--reader-muted)]">{context}</p>
+                        <p className="border-l-2 border-[color-mix(in_srgb,var(--reader-accent)_45%,transparent)] pl-3 text-[15px] leading-[1.6] text-[var(--reader-muted)]">{context}</p>
                         <div className="-mr-2 mt-1 flex justify-end">
                             <Button isIconOnly aria-label="Helpful context" className="ui-icon bg-transparent text-[var(--reader-muted)]"
                                 onPress={handlePositiveSubmit}>
