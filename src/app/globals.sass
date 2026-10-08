@@ -466,15 +466,16 @@ input:-webkit-autofill,
 input:-webkit-autofill:focus
   transition: background-color 0s 600000s, color 0s 600000s !important
 
-// Leaves the top of "How it works" in view, inviting a scroll
+// Fills the first screen; a bouncing cue at its foot invites a scroll to "How it works"
 .home-hero
+  position: relative
   display: flex
-  min-height: max(520px, calc(100dvh - 56px - env(safe-area-inset-top) - 140px))
+  min-height: max(520px, calc(100dvh - 56px - env(safe-area-inset-top)))
   flex-direction: column
   align-items: center
   justify-content: center
   gap: 40px
-  padding: 24px 16px 16px
+  padding: 24px 16px calc(96px + env(safe-area-inset-bottom))
   overflow: hidden
   text-align: center
 
@@ -489,7 +490,24 @@ input:-webkit-autofill:focus
   gap: 4px
   animation-delay: 1.3s
 
+.home-hero-cue
+  position: absolute
+  bottom: calc(12px + env(safe-area-inset-bottom))
+  display: flex
+  min-height: 44px
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  padding: 4px 16px
+  color: var(--ui-faint)
+  font-size: 13px
+  font-weight: 500
+  animation: hero-fade 1s ease-out 2s both, hero-bob 2.4s ease-in-out 3s infinite
+  &:hover
+    color: var(--ui-text)
+
 .home-more
+  scroll-margin-top: 16px
   padding-top: 24px
   animation: hero-fade 1s ease-out 1.6s both
 
@@ -579,6 +597,10 @@ input:-webkit-autofill:focus
   from
     opacity: 0
     transform: translateY(10px)
+
+@keyframes hero-bob
+  50%
+    translate: 0 6px
 
 @keyframes hero-fade
   from

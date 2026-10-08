@@ -5,8 +5,8 @@ import { gradients, lerpCell, morphCells, rounded } from "@/app/home/mosaic";
 
 export type MorphTiming = { holdCross: number; holdB: number; morph: number };
 
-/** The cross is the resting state; the B appears for a while, then gives way to the cross again */
-export const defaultTiming: MorphTiming = { holdCross: 10_000, holdB: 6_000, morph: 3_000 };
+/** Always in motion: a short rest on each shape, then on to the other */
+export const defaultTiming: MorphTiming = { holdCross: 3_000, holdB: 3_000, morph: 2_200 };
 
 const CELL_SHARE = 0.6; // of the morph window that each cell spends moving; the rest staggers them outwards
 const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;

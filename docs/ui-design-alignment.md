@@ -121,27 +121,28 @@ navigation. Existing submission and success flows remain.
 
 ### 6. Home and Information
 
-Home opens on a hero around a small glowing cross (`home/glowing-cross.tsx`):
-an SVG Latin cross laid as a mosaic of cells, like the stained-glass logo, tinted
-through the map's divisions in canonical order (teal Law to gold Gospels) with a
-white neon core. Every so often the cross becomes the stained-glass "B" of the logo and
-returns (`home/mosaic.ts`, `home/use-mosaic-morph.ts`): each cell drifts and reshapes
-into its place in the B, in a wave out from the centre, while the colours swing from
-running down the cross to running across the B. The cross rests for 10s, the B for 6s,
-and each change takes 3s; the B's extra cells divide out of their nearest cross cells.
-The morph pauses off-screen and in hidden tabs. Behind it a blurred ring of the division colours turns slowly and a
-soft white light breathes where the beams meet; only opacity, scale, and rotation
-animate, and reduced motion leaves the cross still. Beneath it sit the title, the tagline
-("Explore the Bible with a daily passage guessing game"), the main action, and quiet
-links to Read, Study, and Statistics. The main action follows today's game
-(`home/today-action.tsx`): play it, continue it with the guesses left, or see the
-result with a countdown to the next chapter. The hero stops short of the screen's
-foot so "How it works" shows beneath it: four steps (clue, map, guesses, read and
-study), illustrated with Play's own guess tiles and a sketch of the map. The same
-cross, drawn as a static image, is the site's share image (`opengraph-image.tsx`).
+Home opens on a deliberately quiet first screen: a small glowing emblem, the tagline
+("Explore the Bible with a daily passage guessing game"), a single "Play today's
+chapter" button, and a gently bouncing "How it works" cue at the screen's foot.
 
-The shared header shows only the logo in its centre; the name appears in the menu
-drawer and on Home. About, Privacy, and Cookies use shared navigation and readable, unframed content.
+The emblem (`home/glowing-cross.tsx`) is always in motion, morphing between a mosaic
+Latin cross and the logo's stained-glass "B". The cross is a jittered lattice of cells;
+the B is the logo cell for cell, traced from `public/icon-bright.png` (`home/mosaic.ts`).
+Each cell drifts and reshapes into its partner in a wave out from the centre, and the
+B's ten extra cells divide out of their nearest cross cells (`home/use-mosaic-morph.ts`:
+3s on each shape, 2.2s to change). The cells are tinted through the map's divisions in
+canonical order with a white neon core; the colours run down the cross and across the
+B. Behind it a blurred ring of the division colours turns slowly and a soft white light
+breathes. Only the cells' shapes, opacity, scale, and rotation animate; the morph pauses
+off-screen and in hidden tabs, and reduced motion leaves the cross still.
+
+"How it works" follows the life of a day's game in five steps (clue, map, guesses, read
+and study, progress), illustrated with Play's own guess tiles, a sketch of the map, and
+example Statistics figures; Read, Study, and Statistics are reached from these steps.
+The cross, drawn as a static image, is the site's share image (`opengraph-image.tsx`).
+
+The shared header holds only the menu and account controls; Play, Read, and Study put
+their own title in its centre. The name and logo appear in the menu drawer. About, Privacy, and Cookies use shared navigation and readable, unframed content.
 The information pages retain their existing policy text.
 
 ## Review Process

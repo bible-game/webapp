@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { BookOpenIcon, LightbulbIcon } from "lucide-react";
+import { BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon, StarIcon } from "lucide-react";
 import { Guesses } from "@/app/play/[game]/guess";
 import { playTheme } from "@/core/style/play-theme";
 
@@ -46,6 +46,13 @@ function MiniMap() {
     </svg>;
 }
 
+// An example of the figures on Statistics
+const figures = [
+    { label: "Stars", value: 42, icon: StarIcon, colour: "text-play-gold" },
+    { label: "Day streak", value: 9, icon: FlameIcon, colour: "text-ui-orange" },
+    { label: "Bible seen", value: "4%", icon: BookOpenIcon, colour: "text-play-teal" },
+];
+
 const panel = "flex items-center justify-center rounded-lg border border-ui-line bg-ui-surface px-4 py-6";
 
 const steps: { title: string; detail: string; art: React.ReactNode }[] = [
@@ -70,6 +77,19 @@ const steps: { title: string; detail: string; art: React.ReactNode }[] = [
         art: <div className="flex gap-3">
             <Link href="/read" className="ui-button flex-1"><BookOpenIcon className="size-4 text-play-teal"/>Read</Link>
             <Link href="/study" className="ui-button flex-1"><LightbulbIcon className="size-4 text-play-purple"/>Study</Link>
+        </div>,
+    },
+    {
+        title: "Watch your progress grow",
+        detail: "Collect stars, keep your streak going, and see how much of the Bible you've explored.",
+        art: <div className="grid gap-3">
+            <dl className={`${panel} grid grid-cols-3 gap-2 text-center`}>
+                {figures.map(({ label, value, icon: Icon, colour }) => <div key={label} className="flex flex-col-reverse">
+                    <dt className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-ui-muted"><Icon className={`size-3.5 ${colour}`}/>{label}</dt>
+                    <dd className="text-[22px] font-semibold tabular-nums">{value}</dd>
+                </div>)}
+            </dl>
+            <Link href="/stats" className="ui-button"><ChartColumnIcon className="size-4 text-play-gold"/>Statistics</Link>
         </div>,
     },
 ];

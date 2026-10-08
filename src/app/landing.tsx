@@ -1,16 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronDownIcon, PlayIcon } from "lucide-react";
 import Menu from "@/app/menu";
 import GlowingCross from "@/app/home/glowing-cross";
 import HowItWorks from "@/app/home/how-it-works";
-import TodayAction from "@/app/home/today-action";
-
-const destinations = [
-    { name: "Read", href: "/read" },
-    { name: "Study", href: "/study" },
-    { name: "Statistics", href: "/stats" },
-];
 
 export default function Landing(props: any) {
     return <div className="min-h-dvh">
@@ -18,19 +12,18 @@ export default function Landing(props: any) {
         <main>
             <section className="home-hero">
                 <GlowingCross/>
-                <div className="home-hero-text">
-                    <h1 className="text-[30px] font-semibold leading-tight">Bible Game</h1>
-                    <p className="mx-auto mt-3 max-w-[17rem] text-[16px] leading-relaxed text-ui-muted">
-                        Explore the Bible with a daily passage guessing game
-                    </p>
-                </div>
+                <h1 className="home-hero-text mx-auto max-w-[17rem] text-[18px] leading-relaxed text-ui-muted">
+                    Explore the Bible with a daily passage guessing game
+                </h1>
                 <div className="home-hero-actions">
-                    <TodayAction state={props.state}/>
-                    <nav aria-label="More ways to explore" className="flex items-center gap-1 text-[14px] text-ui-muted">
-                        {destinations.map(({ name, href }) => <Link key={href} href={href}
-                            className="rounded-full px-3 py-3 hover:text-ui-text">{name}</Link>)}
-                    </nav>
+                    <Link href="/play/today" className="ui-button ui-primary h-12 w-full max-w-[18rem] !rounded-full text-[15px]">
+                        <PlayIcon className="size-[18px]" strokeWidth={2}/>Play today&apos;s chapter
+                    </Link>
                 </div>
+                <a href="#how-it-works" className="home-hero-cue">
+                    How it works
+                    <ChevronDownIcon className="size-5" aria-hidden="true"/>
+                </a>
             </section>
             <div className="app-page home-more">
                 <HowItWorks/>
