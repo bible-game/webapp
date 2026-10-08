@@ -466,6 +466,131 @@ input:-webkit-autofill,
 input:-webkit-autofill:focus
   transition: background-color 0s 600000s, color 0s 600000s !important
 
+.home-hero
+  position: relative
+  display: flex
+  min-height: calc(100dvh - 56px - env(safe-area-inset-top))
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: 40px
+  padding: 24px 16px calc(80px + env(safe-area-inset-bottom))
+  overflow: hidden
+  text-align: center
+
+.home-hero-text, .home-hero-actions
+  animation: hero-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 1.1s both
+
+.home-hero-actions
+  display: flex
+  width: 100%
+  flex-direction: column
+  align-items: center
+  gap: 8px
+  animation-delay: 1.3s
+
+.home-hero-cue
+  position: absolute
+  bottom: calc(16px + env(safe-area-inset-bottom))
+  display: flex
+  width: 44px
+  height: 44px
+  align-items: center
+  justify-content: center
+  border-radius: 50%
+  color: var(--ui-faint)
+  animation: hero-fade 1s ease-out 2.2s both, hero-bob 2.8s ease-in-out 3.2s infinite
+  &:hover
+    color: var(--ui-text)
+
+.glowing-cross
+  position: relative
+  flex-shrink: 0
+  isolation: isolate
+
+.glowing-cross-spectrum, .glowing-cross-core
+  position: absolute
+  z-index: -1
+  top: 46%
+  left: 50%
+  translate: -50% -50%
+  border-radius: 50%
+  pointer-events: none
+
+// The division colours turning slowly behind the cross
+.glowing-cross-spectrum
+  width: 280px
+  height: 280px
+  background: conic-gradient(#8fc7ce, #ac7db3, #d65f78, #78ad88, #d2b96f, #8fc7ce)
+  filter: blur(36px) saturate(1.5)
+  opacity: 0.42
+  mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.35), #000 50%, transparent)
+  will-change: rotate
+  animation: hero-glow-in 2s ease-out 0.5s both, hero-turn 40s linear infinite
+
+// Warm white light where the beams meet
+.glowing-cross-core
+  top: 32%
+  width: 150px
+  height: 150px
+  background: radial-gradient(closest-side, rgba(255, 252, 245, 0.2), rgba(255, 252, 245, 0.06) 55%, transparent)
+  will-change: scale, opacity
+  animation: hero-glow-in 1.6s ease-out 0.3s both, hero-breathe 7s ease-in-out 1.9s infinite
+
+.glowing-cross-art
+  position: absolute
+  top: -6.25%
+  left: -10%
+  width: 120%
+  height: 112.5%
+  overflow: visible
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.18))
+
+.glowing-cross-cells path, .glowing-cross-filament path
+  animation: hero-cell-in 0.9s ease-out both
+
+.glowing-cross-filament
+  opacity: 0.3
+
+.glowing-cross-bloom
+  animation: hero-bloom 2s ease-out 0.2s both
+
+@keyframes hero-cell-in
+  from
+    opacity: 0
+
+@keyframes hero-bloom
+  from
+    opacity: 0
+  to
+    opacity: 0.95
+
+@keyframes hero-glow-in
+  from
+    opacity: 0
+
+@keyframes hero-turn
+  to
+    rotate: 360deg
+
+@keyframes hero-breathe
+  50%
+    opacity: 0.65
+    scale: 0.9
+
+@keyframes hero-rise
+  from
+    opacity: 0
+    transform: translateY(10px)
+
+@keyframes hero-fade
+  from
+    opacity: 0
+
+@keyframes hero-bob
+  50%
+    translate: 0 4px
+
 @media (max-width: 440px)
   .app-page
     padding-left: 16px

@@ -121,8 +121,15 @@ navigation. Existing submission and success flows remain.
 
 ### 6. Home and Information
 
-Home is a compact index of the four main destinations, with the Bible Game mark.
-About, Privacy, and Cookies use shared navigation and readable, unframed content.
+Home opens on a full-height hero around a small glowing cross (`home/glowing-cross.tsx`):
+an SVG Latin cross laid as a mosaic of cells, like the stained-glass logo, tinted
+through the map's divisions in canonical order (teal Law to gold Gospels) with a
+white neon core. Behind it a blurred ring of the division colours turns slowly and a
+soft white light breathes where the beams meet; only opacity, scale, and rotation
+animate, and reduced motion leaves it still. Beneath it sit the title, John 8:12 in
+the reading serif, a high-contrast "Play today's chapter" button, and quiet links to
+Read, Study, and Statistics. The index of destinations and the footer follow below
+the fold. About, Privacy, and Cookies use shared navigation and readable, unframed content.
 The information pages retain their existing policy text.
 
 ## Review Process
