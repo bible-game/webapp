@@ -542,7 +542,8 @@ input:-webkit-autofill:focus
   overflow: visible
   filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.18))
 
-.glowing-cross-cells path, .glowing-cross-filament path
+// Cells light up outward from where the beams meet; their shapes are then the morph's (use-mosaic-morph.ts)
+.glowing-cross-cell
   animation: hero-cell-in 0.9s ease-out both
 
 .glowing-cross-filament

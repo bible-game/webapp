@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { cells, divisionStops, HEIGHT, WIDTH } from "@/app/home/glowing-cross";
+import { crossCells, divisionStops, HEIGHT, rounded, WIDTH } from "@/app/home/mosaic";
 import { uiTheme } from "@/core/style/ui-theme";
 
 export const alt = "Bible Game: a glowing mosaic cross in the colours of the Bible's divisions";
@@ -12,7 +12,7 @@ export const contentType = "image/png";
 function crossSvg(): string {
     const stops = divisionStops.map((colour, k) => `<stop offset="${k / (divisionStops.length - 1)}" stop-color="${colour}"/>`).join("");
     const fills = divisionStops.map((colour, k) => `<stop offset="${k / (divisionStops.length - 1)}" stop-color="${colour}" stop-opacity="0.22"/>`).join("");
-    const paths = (extra: string) => cells.map(cell => `<path d="${cell.d}" ${extra}/>`).join("");
+    const paths = (extra: string) => crossCells.map(cell => `<path d="${rounded(cell)}" ${extra}/>`).join("");
     const halo = divisionStops.map((colour, k) => {
         const angle = (k / divisionStops.length) * Math.PI * 2 - Math.PI / 2;
         return `<circle cx="${30 + Math.cos(angle) * 30}" cy="${40 + Math.sin(angle) * 30}" r="30" fill="${colour}" opacity="0.5"/>`;

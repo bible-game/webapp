@@ -124,9 +124,14 @@ navigation. Existing submission and success flows remain.
 Home opens on a hero around a small glowing cross (`home/glowing-cross.tsx`):
 an SVG Latin cross laid as a mosaic of cells, like the stained-glass logo, tinted
 through the map's divisions in canonical order (teal Law to gold Gospels) with a
-white neon core. Behind it a blurred ring of the division colours turns slowly and a
+white neon core. Every so often the cross becomes the stained-glass "B" of the logo and
+returns (`home/mosaic.ts`, `home/use-mosaic-morph.ts`): each cell drifts and reshapes
+into its place in the B, in a wave out from the centre, while the colours swing from
+running down the cross to running across the B. The cross rests for 10s, the B for 6s,
+and each change takes 3s; the B's extra cells divide out of their nearest cross cells.
+The morph pauses off-screen and in hidden tabs. Behind it a blurred ring of the division colours turns slowly and a
 soft white light breathes where the beams meet; only opacity, scale, and rotation
-animate, and reduced motion leaves it still. Beneath it sit the title, the tagline
+animate, and reduced motion leaves the cross still. Beneath it sit the title, the tagline
 ("Explore the Bible with a daily passage guessing game"), the main action, and quiet
 links to Read, Study, and Statistics. The main action follows today's game
 (`home/today-action.tsx`): play it, continue it with the guesses left, or see the
