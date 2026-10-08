@@ -1,10 +1,10 @@
 export default function CookiePolicy() {
     return (
-        <main className="min-h-screen text-[#e8ecff] sm:mx-[5%] md:mx-[15%]">
-            <div className="w-full mx-auto px-6 md:px-12 py-12">
-                <h1 className="text-2xl font-extrabold tracking-wide mb-8">Cookie Policy</h1>
+        <main className="app-page">
+            <div className="w-full">
+                <h1 className="text-[24px] font-semibold mb-8">Cookie Policy</h1>
 
-                <section className="bg-white/5 border border-white/15 rounded-2xl shadow-lg p-7 text-[#adb3d6] space-y-4">
+                <section className="legal-content space-y-4">
                     <p>Last updated: {new Date().getFullYear()}</p>
 
                     <p>
@@ -13,7 +13,7 @@ export default function CookiePolicy() {
                         policy explains what we use and why.
                     </p>
 
-                    <h2 className="text-lg font-bold tracking-wide mt-6 mb-2 text-[#e8ecff]">
+                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         1. What Are Cookies?
                     </h2>
                     <p>
@@ -21,11 +21,11 @@ export default function CookiePolicy() {
                         storage for certain features such as progress tracking.
                     </p>
 
-                    <h2 className="text-lg font-bold tracking-wide mt-6 mb-2 text-[#e8ecff]">
+                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         2. Types of Cookies We Use
                     </h2>
 
-                    <h3 className="font-semibold text-[#e8ecff]">A. Essential Cookies (Required)</h3>
+                    <h3 className="font-semibold text-ui-text">A. Essential Cookies (Required)</h3>
                     <p>These enable core gameplay:</p>
                     <ul className="list-disc list-inside space-y-1">
                         <li>Saving progress</li>
@@ -33,19 +33,19 @@ export default function CookiePolicy() {
                         <li>Security & performance</li>
                     </ul>
 
-                    <h3 className="font-semibold text-[#e8ecff] mt-4">B. Functional Cookies (Optional)</h3>
+                    <h3 className="font-semibold text-ui-text mt-4">B. Functional Cookies (Optional)</h3>
                     <p>Enhance the experience:</p>
                     <ul className="list-disc list-inside space-y-1">
                         <li>Remember settings</li>
                         <li>Improve load times</li>
                     </ul>
 
-                    <h3 className="font-semibold text-[#e8ecff] mt-4">C. Analytics Cookies (Optional)</h3>
+                    <h3 className="font-semibold text-ui-text mt-4">C. Analytics Cookies (Optional)</h3>
                     <p>
                         If enabled, we collect anonymous usage data to help improve the game.
                     </p>
 
-                    <h2 className="text-lg font-bold tracking-wide mt-6 mb-2 text-[#e8ecff]">
+                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         3. Local Storage
                     </h2>
                     <p>
@@ -53,7 +53,7 @@ export default function CookiePolicy() {
                         progression, and other gameplay features. It stays on your device.
                     </p>
 
-                    <h2 className="text-lg font-bold tracking-wide mt-6 mb-2 text-[#e8ecff]">
+                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         4. Third-Party Services
                     </h2>
                     <p>We may use:</p>
@@ -62,7 +62,7 @@ export default function CookiePolicy() {
                         <li>Optional analytics tools</li>
                     </ul>
 
-                    <h2 className="text-lg font-bold tracking-wide mt-6 mb-2 text-[#e8ecff]">
+                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         5. Managing Your Preferences
                     </h2>
                     <ul className="list-disc list-inside space-y-1">
@@ -75,7 +75,7 @@ export default function CookiePolicy() {
                         </li>
                     </ul>
 
-                    <h2 className="text-lg font-bold tracking-wide mt-6 mb-2 text-[#e8ecff]">
+                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         6. Clearing Cookies
                     </h2>
                     <p>You can clear cookies via your browser settings:</p>
@@ -85,12 +85,12 @@ export default function CookiePolicy() {
                         <li>Firefox: Settings → Privacy & Security</li>
                     </ul>
 
-                    <h2 className="text-lg font-bold tracking-wide mt-6 mb-2 text-[#e8ecff]">
+                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         7. Changes
                     </h2>
                     <p>This policy may be updated as the project evolves.</p>
 
-                    <h2 className="text-lg font-bold tracking-wide mt-6 mb-2 text-[#e8ecff]">
+                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         8. Contact
                     </h2>
                     <p>

@@ -41,23 +41,30 @@ export default function StudyPicker(props: any) {
     }
 
     return (
-        <section className="w-full max-w-3xl mx-auto px-6 pb-4 sm:pb-10">
+        <section className="w-full pb-8">
             <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1, duration: 0.6 }}
-                className="bg-white/5 border border-white/10 rounded-2xl p-5 sm:p-6 shadow-lg">
+                className="w-full">
                 {/* Testament filter */}
                 <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <div className="flex items-center gap-2">
+                    <div role="group" aria-label="Testament" className="flex flex-wrap items-center gap-1 rounded-lg bg-ui-surface p-1">
                         {(["ALL", "OT", "NT"] as const).map((t) => (
                             <button
                                 key={t}
-                                onClick={() => setTestament(t)}
-                                className={`px-3 py-1.5 rounded-xl text-sm border transition ${
+                                aria-pressed={testament === t}
+                                onClick={() => {
+                                    setTestament(t);
+                                    if (t !== "ALL" && BOOKS.find(b => b.name === book)?.testament !== t) {
+                                        setBook(BOOKS.find(b => b.testament === t)!.name);
+                                        setChapter(1);
+                                    }
+                                }}
+                                className={`min-h-10 px-3 py-2 rounded-md text-sm transition ${
                                     testament === t
-                                        ? "bg-white/20 border-white/30"
-                                        : "bg-white/5 border-white/10 hover:border-white/20"
+                                        ? "bg-ui-raised text-ui-text"
+                                        : "text-ui-muted hover:text-ui-text"
                                 }`}
                             >
                                 {t === "ALL" ? "All" : t === "OT" ? "Old Testament" : "New Testament"}
@@ -67,20 +74,21 @@ export default function StudyPicker(props: any) {
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleRandom}
-                            className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm bg-white/10 border border-white/10 hover:bg-white/20 transition">
+                            className="ui-button">
                             <Shuffle size={16} /> Random
                         </button>
                     </div>
                 </div>
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <label className="flex flex-col gap-2">
-                        <span className="text-xs uppercase tracking-wide text-[#adb3d6]">Book</span>
+                        <span className="text-sm text-ui-muted">Book</span>
                         <select
+                            aria-label="Book"
                             value={book}
                             onChange={(e) => setBook(e.target.value)}
-                            className="bg-transparent border border-white/15 rounded-xl px-3 py-2 outline-none focus:border-white/30">
+                            className="ui-field">
                             {filteredBooks.map((b) => (
-                                <option key={b.name} value={b.name} className="bg-[#0a0e2a]">
+                                <option key={b.name} value={b.name} className="bg-ui-surface">
                                     {b.name}
                                 </option>
                             ))}
@@ -88,13 +96,14 @@ export default function StudyPicker(props: any) {
                     </label>
 
                     <label className="flex flex-col gap-2">
-                        <span className="text-xs uppercase tracking-wide text-[#adb3d6]">Chapter</span>
+                        <span className="text-sm text-ui-muted">Chapter</span>
                         <select
+                            aria-label="Chapter"
                             value={chapter}
                             onChange={(e) => setChapter(parseInt(e.target.value, 10))}
-                            className="bg-transparent border border-white/15 rounded-xl px-3 py-2 outline-none focus:border-white/30">
+                            className="ui-field">
                             {Array.from({ length: maxChapters }, (_, i) => i + 1).map((c) => (
-                                <option key={c} value={c} className="bg-[#0a0e2a]">
+                                <option key={c} value={c} className="bg-ui-surface">
                                     {c}
                                 </option>
                             ))}
@@ -105,7 +114,7 @@ export default function StudyPicker(props: any) {
                         <div className="flex gap-2">
                             <button
                                 onClick={() => handleGo()}
-                                className="px-4 py-2 rounded-xl bg-white/20 border border-white/20 hover:bg-white/30 transition flex items-center gap-2">
+                                className="ui-button ui-primary">
                                 Open study <ArrowRight className="inline -mt-1" size={16} />
                             </button>
                         </div>

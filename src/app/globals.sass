@@ -2,6 +2,8 @@
 @tailwind components
 @tailwind utilities
 
+@import '@/styles/font.sass'
+
 @keyframes circleIn
   to
     stroke-dashoffset: 0
@@ -10,127 +12,172 @@
   to
     stroke-dashoffset: 0
 
-@import '@/styles/base.sass'
+@layer base
+  html
+    background: var(--ui-bg)
+    color: var(--ui-text)
+    color-scheme: dark
+    font-family: Inter, system-ui, sans-serif
+    letter-spacing: 0
+  body
+    min-width: 320px
+    min-height: 100dvh
+    margin: 0
+  button, input, select, textarea
+    font: inherit
+  button, a, input, select, textarea, [tabindex]
+    &:focus-visible
+      outline: 2px solid var(--ui-text)
+      outline-offset: 3px
+  button:disabled
+    cursor: default
 
-// Override HeroUI input label colors on auth forms
-.auth-form [data-slot="label"]
-  color: rgb(165, 180, 252) !important
+body
+  background: var(--ui-bg)
+  color: var(--ui-text)
 
-*
-  font-family: Inter, serif
-  letter-spacing: .25px
-  margin: 0
+.study-toolbar
+  .ui-button
+    padding: 8px
+    gap: 4px
+    font-size: 12px
+    white-space: nowrap
+  svg
+    width: 16px
+    height: 16px
+    flex-shrink: 0
+  @media (min-width: 640px)
+    .ui-button
+      padding: 8px 12px
+      gap: 8px
+      font-size: 14px
 
-html
-  color: $white !important
-  background: linear-gradient(45deg, $violet 0%, $cove 100%)
-  height: 100%
-  overflow-x: hidden
+.app-header
+  width: 100%
+  max-width: 64rem
+  margin: 0 auto
+  padding-top: env(safe-area-inset-top)
 
-  display: flex
+.app-page
+  width: 100%
+  max-width: 48rem
+  margin: 0 auto
+  padding: 24px 24px max(48px, env(safe-area-inset-bottom))
+
+.page-heading
+  margin-bottom: 24px
+  h1
+    font-size: 24px
+    font-weight: 600
+    line-height: 1.3
+  p
+    margin-top: 8px
+    color: var(--ui-muted)
+    font-size: 14px
+    line-height: 1.5
+
+.ui-button
+  display: inline-flex
+  min-height: 44px
   align-items: center
   justify-content: center
+  gap: 8px
+  padding: 8px 16px
+  border: 1px solid var(--ui-line)
+  border-radius: 8px
+  background: var(--ui-surface)
+  color: var(--ui-text)
+  font-size: 14px
+  font-weight: 600
+  transition: background-color 150ms
+  &:hover
+    background: var(--ui-raised)
+  &:disabled
+    opacity: .45
 
-  body
-    background: none
+.ui-primary
+  background: var(--ui-text)
+  color: var(--ui-bg)
+  border-color: transparent
+  &:hover
+    background: #dfe1e4
 
-main
-  height: 100vh
+.ui-icon
+  display: inline-flex
+  width: 44px
+  height: 44px
+  flex-shrink: 0
+  align-items: center
+  justify-content: center
+  border-radius: 50%
+  color: var(--ui-muted)
+  &:hover
+    background: var(--ui-raised)
+    color: var(--ui-text)
+  &:disabled
+    opacity: .4
 
-  section
-    width: $panel-width
+.ui-field
+  width: 100%
+  min-height: 48px
+  padding: 10px 12px
+  border: 1px solid var(--ui-line)
+  border-radius: 8px
+  background: var(--ui-surface)
+  color: var(--ui-text)
+  font-size: 16px
 
-    #selection
-      position: absolute
+.reading-surface
+  background: #f7f8f9
+  color: #25272b
+  color-scheme: light
+  --ui-bg: #f7f8f9
+  --ui-surface: #eef0f2
+  --ui-raised: #e3e6e9
+  --ui-line: #ced2d7
+  --ui-text: #25272b
+  --ui-muted: #555b64
+  --ui-faint: #68717c
 
-  h1
-    font-size: 14px
-    margin: 2rem 0 1rem 1rem
+.auth-page
+  display: flex
+  justify-content: center
+  width: 100%
+  padding: 40px 24px 64px
 
-  @responsive
-    .panel
-      @include panel
-      line-height: 2rem
+.auth-form
+  width: 100%
+  [data-slot="label"]
+    color: var(--ui-muted) !important
 
-  ul, li
-    list-style-type: none
+.legal-content
+  color: var(--ui-muted)
+  font-size: 15px
+  line-height: 1.75
+  h2, h3
+    color: var(--ui-text)
+  h2
+    margin-top: 32px
+    margin-bottom: 12px
+    font-size: 18px
+    font-weight: 600
+  h3
+    margin-top: 20px
+  ul
+    list-style: disc
+    padding-left: 20px
 
-/** Mobile Styling */
-@media only screen and (max-width: 440px)
-  main
-    height: 100vh
-    width: 75vw
-    position: relative
-
-    top: $safe-area-inset-top
-
-    section
-      width: $panel-width-mobile
-
-// Required to override text styling when using browser's autofill. Source: https://stackoverflow.com/a/68240841
-// Question: is there a better way?
 input:-webkit-autofill,
 input:-webkit-autofill:focus
   transition: background-color 0s 600000s, color 0s 600000s !important
 
-.hero-card
-  background: rgba($violet, 0.2)
-  border-radius: 0.75rem
-  padding: 1rem
-  margin-bottom: 1.5rem
-  text-align: center
-  color: $white
+@media (max-width: 440px)
+  .app-page
+    padding-left: 16px
+    padding-right: 16px
 
-  h2
-    font-size: 1.4rem
-    margin-bottom: 0.4rem
-    color: $white
-
-  p
-    font-size: 0.9rem
-    margin-bottom: 1rem
-    opacity: 0.8
-
-  position: relative // Added for positioning the close button
-
-  .close-button
-    position: absolute
-    top: 0.5rem
-    right: 0.5rem
-    background: none
-    border: none
-    color: $white
-    font-size: 1rem
-    cursor: pointer
-    padding: 0.25rem
-    line-height: 1
-    opacity: 0.7
-    &:hover
-      opacity: 1
-
-  .hero-actions
-    display: flex
-    justify-content: center
-    gap: 0.75rem
-
-    .button
-      padding: 0.6rem 1.2rem
-      border-radius: 0.4rem
-      text-decoration: none
-      font-weight: bold
-      transition: background-color 0.3s ease
-
-      &.primary
-        background-color: $white
-        color: $violet
-
-        &:hover
-          background-color: darken($white, 10%)
-
-      &.secondary
-        background-color: transparent
-        border: 1px solid $white
-        color: $white
-
-        &:hover
-          background-color: rgba($white, 0.1)
+@media (prefers-reduced-motion: reduce)
+  *, *::before, *::after
+    animation-duration: 0.01ms !important
+    animation-iteration-count: 1 !important
+    transition-duration: 0.01ms !important

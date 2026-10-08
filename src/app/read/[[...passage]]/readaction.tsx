@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@nextui-org/react";
+import { Button } from "@heroui/react";
 import React from "react";
 import { toast, Toaster } from "react-hot-toast";
 import { StateUtil } from "@/core/util/state-util";
@@ -42,7 +42,7 @@ const ReadAction = (props: any) => {
             <Button
                 onPress={tickRead}
                 aria-label="Mark as read"
-                className="rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white shadow hover:brightness-110">
+                className="ui-button ui-primary">
                 <CheckCircle2 className="size-4" />
                 <span className="ml-1">Tick Read</span>
             </Button>

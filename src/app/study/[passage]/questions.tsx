@@ -4,7 +4,7 @@ import React, {useEffect, useState} from 'react';
 import {getStudy, Question} from '@/core/action/study/get-study';
 import moment from 'moment';
 import {Spinner} from '@heroui/react';
-import {Button} from '@nextui-org/react';
+import {Button} from '@heroui/react';
 import TextareaAutosize from 'react-textarea-autosize';
 import {gradeSummary} from '@/core/action/study/grade-summary';
 import {useDebouncedCallback} from 'use-debounce';
@@ -102,9 +102,9 @@ export default function Questions(props: QuestionsProps & any) {
   };
 
   const getScoreTint = (score: number) => {
-    if (score > 60) return 'bg-emerald-50 ring-1 ring-emerald-200';
-    if (score > 40) return 'bg-amber-50 ring-1 ring-amber-200';
-    return 'bg-rose-50 ring-1 ring-rose-200';
+    if (score > 60) return 'bg-ui-won/10 ring-1 ring-ui-won/40';
+    if (score > 40) return 'bg-ui-amber/10 ring-1 ring-ui-amber/40';
+    return 'bg-ui-lost/10 ring-1 ring-ui-lost/40';
   };
 
   const isCorrect = (q: any, option: string) => option === q.correct;
@@ -112,19 +112,19 @@ export default function Questions(props: QuestionsProps & any) {
 
   const optionClass = (q: any, qIndex: number, option: string) => {
     // Base
-    let cls = 'w-full p-3 sm:p-3.5 rounded-xl border text-sm transition hover:border-slate-300 bg-white/90';
-    cls += ' peer-checked:ring-1 peer-checked:ring-indigo-600 peer-checked:border-indigo-300';
+    let cls = 'w-full p-3 sm:p-3.5 rounded-lg border border-ui-line text-sm transition bg-ui-surface';
+    cls += ' peer-checked:ring-1 peer-checked:ring-ui-muted peer-checked:border-ui-muted peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-ui-text peer-focus-visible:outline-offset-2';
 
-    if (!submitted) return cls + ' text-slate-700';
+    if (!submitted) return cls + ' text-ui-text cursor-pointer hover:bg-ui-raised';
 
     // After submit: show correct/incorrect tints
     if (isCorrect(q, option)) {
-      return cls + ' border-emerald-300 bg-gradient-to-r from-emerald-100 to-emerald-50 text-emerald-900';
+      return cls + ' !border-ui-won/60 !bg-ui-won/10 text-ui-won';
     }
     if (isChosen(qIndex, option)) {
-      return cls + ' border-rose-300 bg-gradient-to-r from-rose-100 to-rose-50 text-rose-900';
+      return cls + ' !border-ui-lost/60 !bg-ui-lost/10 text-ui-lost';
     }
-    return cls + ' text-slate-600 opacity-70';
+    return cls + ' text-ui-muted';
   };
 
     const allQuestionsAnswered = selectedAnswers.filter(a => a).length === questions.length;
@@ -140,28 +140,22 @@ export default function Questions(props: QuestionsProps & any) {
               {questions.map((q: any, qi: number) => (
                   <div
                       key={qi}
-                      className={`mb-6 rounded-2xl bg-white/90 ring-1 ring-slate-200 overflow-hidden transition ${
-                          submitted
-                              ? isCorrect(q, selectedAnswers[qi])
-                                  ? 'ring-emerald-200 bg-emerald-50'
-                                  : 'ring-rose-200 bg-rose-50'
-                              : 'hover:ring-slate-300'
-                      }`}
+                      className="mb-8 border-b border-ui-line pb-6"
                   >
-                    <div className="px-4 sm:px-5 py-3 sm:py-4 flex items-start gap-2">
+                    <div className="pb-4 flex items-start gap-2">
                       {submitted ? (
                           isCorrect(q, selectedAnswers[qi]) ? (
-                              <CheckCircle2 className="mt-0.5 size-5 text-emerald-600" />
+                              <CheckCircle2 className="mt-0.5 size-5 text-ui-won" />
                           ) : (
-                              <XCircle className="mt-0.5 size-5 text-rose-600" />
+                              <XCircle className="mt-0.5 size-5 text-ui-lost" />
                           )
                       ) : (
-                          <HelpCircle className="mt-0.5 size-5 text-slate-400" />
+                          <HelpCircle className="mt-0.5 size-5 text-ui-faint" />
                       )}
-                      <p className="font-medium text-[15px] text-slate-900">{q.content}</p>
+                      <p className="font-medium text-[15px] text-ui-text">{q.content}</p>
                     </div>
 
-                    <div className="px-4 sm:px-5 pb-4 sm:pb-5 space-y-2">
+                    <div className="space-y-2">
                       {[q.optionOne, q.optionTwo, q.optionThree].map((option: string, oi: number) => (
                           <div key={oi} className="flex items-center">
                             <input
@@ -171,7 +165,7 @@ export default function Questions(props: QuestionsProps & any) {
                                 value={option}
                                 checked={selectedAnswers[qi] === option}
                                 onChange={() => handleOptionChange(qi, option)}
-                                className="hidden peer"
+                                className="sr-only peer"
                                 disabled={submitted}
                             />
                             <label
@@ -187,9 +181,9 @@ export default function Questions(props: QuestionsProps & any) {
               ))}
 
               {/* Summary */}
-              <div className="rounded-2xl bg-white/90 ring-1 ring-slate-200 p-4 sm:p-5">
+              <div className="py-2">
                 <div className="flex justify-between items-center">
-                    <p className="font-medium text-[15px] text-slate-900">
+                    <p className="font-medium text-[15px] text-ui-text">
                       Summarise the passage in your own words
                     </p>
                     {isGrading && <Spinner color="primary" size="sm" />}
@@ -198,21 +192,22 @@ export default function Questions(props: QuestionsProps & any) {
                     value={summary}
                     onChange={handleSummaryChange}
                     minRows={4}
-                    className="mt-3 w-full px-3 py-2 rounded-xl bg-white ring-1 ring-slate-200 focus:ring-indigo-300 focus:outline-none text-sm text-slate-800"
+                    aria-label="Passage summary"
+                    className="ui-field mt-3 text-sm"
                     placeholder="Example: Paul encourages the church to value unity within diversity. He explains that spiritual gifts come from the same Spirit and are given to help the whole church. Using the metaphor of the human body, he teaches that each member is essential, no matter their role..."
                     disabled={submitted}
                 />
                 {gradingResult && (
-                    <div className={`mt-3 p-3 rounded-xl text-sm text-slate-700 ${getScoreTint(gradingResult.score)}`}>
+                    <div className={`mt-3 p-3 rounded-lg text-sm text-ui-text ${getScoreTint(gradingResult.score)}`}>
                         <span className="font-semibold">Score: {gradingResult.score}/100</span> - {gradingResult.message}
                     </div>
                 )}
               </div>
-                <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-slate-200 p-4">
+                <div className="fixed bottom-0 left-0 right-0 bg-ui-bg border-t border-ui-line px-4 pt-3 pb-[max(12px,env(safe-area-inset-bottom))]">
                     <div className="max-w-3xl mx-auto flex justify-end">
                         <Button
                             onPress={handleSubmit}
-                            className="rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white shadow hover:brightness-110"
+                            className="ui-button ui-primary"
                             disabled={submitted || !allQuestionsAnswered}>
                             {submitted ? 'Completed' : 'Submit'}
                         </Button>

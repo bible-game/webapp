@@ -3,7 +3,6 @@
 import { Toaster } from "react-hot-toast";
 import React from "react";
 import Menu from "@/app/menu";
-import Background from "@/app/background";
 import StatsContent from "@/app/stats/stats-content";
 import LoginPrompt from "@/app/stats/login-prompt";
 import Leaderboard from "@/app/stats/leaderboard";
@@ -61,34 +60,21 @@ export default async function Stats() {
 
     return (
         <>
-            <Background/>
-            <main className="w-full flex justify-center">
-                <div className="w-[100vw] sm:w-min">
-                    <Menu isStats={true} info={info} />
-                    <section className="mx-4 sm:mx-0 w-[80vw] sm:w-full left-[5%] sm:left-0 relative">
-                        <div className="flex gap-12 items-center">
-                            <div className="flex flex-col">
-                                <div className="flex gap-2">
-                                    {displayName && <h1 className="text-[1.5rem] mx-0">{`${displayName}'s`}</h1>}
-                                    <h1 className="text-[1.5rem] mx-0">Statistics</h1>
-                                </div>
-                                {rank.rank && rank.totalPlayers && (
-                                    <p className="text-xs text-white-500 opacity-60 font-extralight -translate-y-3">
-                                        <span>{rank.rank}</span><sup>{getOrdinalSuffix(rank.rank)}</sup><span> of {rank.totalPlayers}</span>
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                        {!info && <LoginPrompt/>}
-                        <Leaderboard leaders={leaders} currentUserId={userId}/>
-                        <StatsContent
-                            bible={bible}
-                            gameState={gameState}
-                            readState={readState}
-                            reviewState={reviewState}
-                        />
-                    </section>
-                </div>
+            <Menu info={info}/>
+            <main className="app-page">
+                <header className="page-heading">
+                    <h1>Statistics</h1>
+                    {displayName && <p>{displayName}</p>}
+                    {rank.rank && rank.totalPlayers && (
+                        <p className="text-[13px] text-ui-muted">
+                            <span>{rank.rank}</span><sup>{getOrdinalSuffix(rank.rank)}</sup><span> of {rank.totalPlayers}</span>
+                        </p>
+                    )}
+                </header>
+                {!info && <LoginPrompt/>}
+                <StatsContent bible={bible} gameState={gameState} readState={readState} reviewState={reviewState}>
+                    <Leaderboard leaders={leaders} currentUserId={userId}/>
+                </StatsContent>
             </main>
             <Toaster position="bottom-right"/>
         </>

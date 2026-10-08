@@ -6,7 +6,7 @@ import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
 import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
-import Background from "@/app/background";
+
 import Link from "next/link"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 
@@ -58,15 +58,14 @@ export default function LogIn() {
 
     return (
         <>
-            <Background />
-            <main className="flex items-center justify-center min-h-screen px-3 sm:px-4 py-12 sm:py-24">
+            <main className="auth-page">
                 <div className={`${cardClassName} max-w-sm text-center`}>
                     <Form
                         action={action}
                         validationErrors={state?.errors}
                         className="auth-form flex flex-col space-y-4"
                     >
-                        <h1 className="text-2xl font-semibold text-indigo-300">Log In</h1>
+                        <h1 className="text-2xl font-semibold text-ui-text">Log In</h1>
 
                         {/* Email */}
                         <Input
@@ -81,7 +80,7 @@ export default function LogIn() {
                             isRequired
                             {...getFieldProps("email")}
                             startContent={
-                                <Mail className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
+                                <Mail className="text-ui-faint pointer-events-none flex-shrink-0" size={20} />
                             }
                         />
 
@@ -98,21 +97,21 @@ export default function LogIn() {
                             isRequired
                             {...getFieldProps("password")}
                             startContent={
-                                <Lock className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
+                                <Lock className="text-ui-faint pointer-events-none flex-shrink-0" size={20} />
                             }
                             endContent={
-                                <button className="focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
+                                <button className="ui-icon" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
                                     {isVisible ? (
-                                        <EyeOff className="text-indigo-300/50 pointer-events-none" size={20} />
+                                        <EyeOff className="text-ui-faint pointer-events-none" size={20} />
                                     ) : (
-                                        <Eye className="text-indigo-300/50 pointer-events-none" size={20} />
+                                        <Eye className="text-ui-faint pointer-events-none" size={20} />
                                     )}
                                 </button>
                             }
                         />
                         <Link
                             href="/account/forgot-password"
-                            className="text-xs text-indigo-400 hover:text-indigo-300 -mt-2 transition-colors"
+                            className="text-xs text-ui-muted hover:text-ui-text -mt-2 transition-colors"
                         >
                             Forgot password?
                         </Link>
@@ -149,11 +148,11 @@ export default function LogIn() {
                             )}
                         </Button>
 
-                        <p className="text-xs text-center text-indigo-400 mt-2">
+                        <p className="text-xs text-center text-ui-muted mt-2">
                             Don&apos;t have an account?{" "}
                             <Link
                                 href="/account/sign-up"
-                                className="underline hover:text-indigo-300 font-medium">
+                                className="underline hover:text-ui-text font-medium">
                                 Sign Up
                             </Link>
                         </p>

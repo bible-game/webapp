@@ -18,26 +18,26 @@ export default function About() {
     };
 
     return (
-        <main className="min-h-screen text-[#e8ecff] sm:mx-[5%] md:mx-[15%]">
+        <main className="app-page">
             {/* Outer container for header + explanation + vision */}
-            <div className="w-full mx-auto px-6 md:px-12 py-12">
+            <div className="w-full">
                 {/* Header */}
-                <header className="flex items-center gap-4 mb-8 justify-between">
-                    <div className="sm:flex gap-4">
-                        <div className="w-12 h-12 rounded-xl border border-white/15 bg-gradient-to-b from-[#1a1f3f] to-[#0f1430] shadow-lg grid place-items-center overflow-hidden">
+                <header className="flex flex-col items-start gap-6 mb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="size-12 grid place-items-center shrink-0">
                             <img src="/icon-nobg.png" alt="Bible Game icon" className="w-8 h-8" />
                         </div>
-                        <div className="hidden sm:block">
-                            <div className="font-extrabold text-xl tracking-wide">Bible Game</div>
-                            <div className="text-sm text-[#adb3d6]">
+                        <div className="min-w-0">
+                            <h1 className="text-[24px] font-semibold">About Bible Game</h1>
+                            <div className="text-sm text-ui-muted">
                                 A daily Bible passage guessing game
                             </div>
                         </div>
                     </div>
-                    <div className="sm:flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                         <Link
                             href="/play/today"
-                            className="my-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-medium hover:bg-white/20 transition-colors flex items-center gap-2"
+                            className="ui-button"
                         >
                             <Play size={16} /> Play
                         </Link>
@@ -45,13 +45,13 @@ export default function About() {
                             href="https://github.com/bible-game"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="my-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-medium hover:bg-white/20 transition-colors flex items-center gap-2"
+                            className="ui-button"
                         >
                             <Github size={16} /> GitHub
                         </a>
                         <button
                             onClick={handleCopyEmail}
-                            className="my-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm font-medium hover:bg-white/20 transition-colors flex items-center gap-2 relative"
+                            className="ui-button relative"
                         >
                             <Mail size={16} />
                             hello@bible.game
@@ -66,13 +66,12 @@ export default function About() {
 
                 {/* Explanation */}
                 <section className="w-full mb-10">
-                    <h2 className="text-lg font-bold tracking-wide mb-3">Explanation</h2>
-                    <div className="bg-white/5 border border-white/15 rounded-2xl shadow-lg p-7">
+                    <h2 className="text-lg font-bold tracking-normal mb-3">Explanation</h2>
+                    <div className="legal-content">
                         <h3 className="inline-block pb-1 relative font-bold text-lg md:text-xl">
                             See the Bible Like Never Before
-                            <span className="absolute bottom-0 left-0 right-0 h-[3px] rounded-full bg-gradient-conic from-sky-400 via-green-300 via-yellow-300 via-red-400 to-sky-400 opacity-90" />
                         </h3>
-                        <p className="mt-4 text-[#adb3d6] leading-relaxed">
+                        <p className="mt-4 text-ui-muted leading-relaxed">
                             Bible Game sits in the family of Worldle-style games (think Versle, Lordle, etc).
                             The twist is <em>how</em> the Bible is displayed: a star-map view
                             that helps you memorise where books and events live in relation to each other.
@@ -88,7 +87,7 @@ export default function About() {
                             ].map((pill) => (
                                 <span
                                     key={pill}
-                                    className="text-xs text-blue-100 px-3 py-1.5 rounded-full bg-blue-400/10 border border-blue-400/25 backdrop-blur-sm"
+                                    className="text-xs text-ui-muted"
                                 >
                   {pill}
                 </span>
@@ -99,8 +98,8 @@ export default function About() {
 
                 {/* Vision */}
                 <section className="w-full mb-10">
-                    <h2 className="text-lg font-bold tracking-wide mb-3">Vision</h2>
-                    <div className="bg-white/5 border border-white/15 rounded-2xl shadow-lg p-6 text-[#adb3d6] space-y-4">
+                    <h2 className="text-lg font-bold tracking-normal mb-3">Vision</h2>
+                    <div className="legal-content space-y-4">
                         <p>
                             Studying the Bible is central to Christian life, but it can be hard to see
                             the structure—how books relate, where stories sit, and how the grand narrative
@@ -119,27 +118,27 @@ export default function About() {
 
             {/* Edge-to-edge GIF Hero */}
             <section className="relative w-full mb-10">
-                <div className="inset-0 bg-black/05 flex flex-col items-center justify-end text-center px-4 mb-12">
-                    <h2 className="text-2xl md:text-4xl font-extrabold tracking-wide">
+                <div className="flex flex-col gap-2 mb-6">
+                    <h2 className="text-[20px] font-semibold">
                         See the Bible Like Never Before
                     </h2>
-                    <p className="mt-3 text-sm md:text-lg text-[#e0e6ff] max-w-2xl">
+                    <p className="mt-3 text-sm md:text-lg text-ui-muted max-w-2xl">
                         Build a mental map of Scripture while playing a fun daily guessing game.
                     </p>
                 </div>
                 <img
-                    src="/bible-game.gif"
+                    src="/gameplay.png"
                     alt="Bible Game gameplay preview"
-                    className="w-full h-[320px] md:h-[480px] object-cover"
+                    className="w-full h-auto object-contain"
                 />
             </section>
 
             {/* Gameplay + Footer inside container */}
-            <div className="w-full mx-auto px-6 md:px-12">
+            <div className="w-full">
                 <section className="w-full">
-                    <h2 className="text-lg font-bold tracking-wide mb-3">Gameplay</h2>
-                    <div className="bg-white/5 border border-white/15 rounded-2xl shadow-lg p-6">
-                        <ul className="list-disc list-inside text-[#adb3d6] space-y-2">
+                    <h2 className="text-lg font-bold tracking-normal mb-3">Gameplay</h2>
+                    <div className="legal-content">
+                        <ul className="list-disc list-inside text-ui-muted space-y-2">
                             <li>A random Bible chapter is chosen each day and summarised in a short sentence.</li>
                             <li>
                                 Guess by clicking the map or using the dropdowns.
@@ -159,7 +158,7 @@ export default function About() {
                 </section>
 
                 <footer
-                    className="mt-14 py-4 border-t border-dashed border-white/20 text-sm text-[#adb3d6] flex justify-between flex-wrap gap-2">
+                    className="mt-14 py-4 border-t border-ui-line text-sm text-ui-muted flex justify-between flex-wrap gap-2">
                     <span>© {new Date().getFullYear()} Bible Game</span>
                     <span>Made for curious readers and visual learners.</span>
                 </footer>

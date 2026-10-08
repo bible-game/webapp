@@ -70,28 +70,29 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
     };
 
     return (
-        <div className="mt-2 bg-white/90 backdrop-blur-sm ring-1 ring-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm">
+        <div className="mt-2 border-y border-[#ced2d7] py-3">
             <audio ref={audioRef} src={src} preload="metadata" />
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2">
                 {/* Play / Pause */}
                 <button
                     onClick={toggle}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white shadow hover:brightness-110"
+                    className="ui-icon bg-[#25272b] !text-[#f7f8f9]"
                     aria-label={isPlaying ? "Pause" : "Play"}
                 >
                     {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
                 </button>
 
                 {/* Timeline */}
-                <div className="flex-1">
+                <div className="min-w-[100px] flex-1">
                     <input
                         type="range"
+                        aria-label="Playback position"
                         min={0}
                         max={duration || 0}
                         step={0.1}
                         value={Math.min(time, duration || 0)}
                         onChange={(e) => seek(parseFloat(e.target.value))}
-                        className="w-full accent-indigo-600"
+                        className="w-full accent-[#25272b]"
                     />
                     <div className="mt-1 flex items-center justify-between text-xs text-slate-500">
                         <span>{fmt(time)}</span>
@@ -103,19 +104,20 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
                 <div className="hidden sm:flex items-center gap-2">
                     <button
                         onClick={() => setVol(volume ? 0 : 1)}
-                        className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+                        className="ui-icon"
                         aria-label={volume ? "Mute" : "Unmute"}
                     >
                         {volume ? <Volume2 className="size-5" /> : <VolumeX className="size-5" />}
                     </button>
                     <input
                         type="range"
+                        aria-label="Volume"
                         min={0}
                         max={1}
                         step={0.05}
                         value={volume}
                         onChange={(e) => setVol(parseFloat(e.target.value))}
-                        className="w-20 accent-indigo-600"
+                        className="w-20 accent-[#25272b]"
                     />
                 </div>
 
@@ -124,7 +126,7 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
                     <select
                         value={rate}
                         onChange={(e) => setPlayback(parseFloat(e.target.value))}
-                        className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm text-slate-700"
+                        className="min-h-11 rounded-lg border border-[#ced2d7] bg-transparent px-2 text-sm"
                         aria-label="Playback speed"
                     >
                         {[0.75, 1, 1.25, 1.5].map((r) => (
@@ -135,7 +137,7 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
                     <a
                         href={src}
                         download
-                        className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+                        className="ui-icon"
                         aria-label="Download audio"
                     >
                         <Download className="size-4" />
@@ -148,7 +150,7 @@ export function AudioPlayer({ src, onClose }: { src: string; onClose?: () => voi
                                 if (a) a.pause();
                                 onClose();
                             }}
-                            className="p-2 rounded-lg hover:bg-slate-100 text-slate-600"
+                            className="ui-icon"
                             aria-label="Close player"
                         >
                             <X className="size-5" />

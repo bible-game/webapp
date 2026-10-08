@@ -6,7 +6,7 @@ import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
 import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
-import Background from "@/app/background"
+
 import Link from "next/link"
 import Image from "next/image"
 import { StateUtil } from "@/core/util/state-util"
@@ -110,20 +110,20 @@ export default function SignUp() {
             description={description}
             {...getFieldProps(name)}
             startContent={
-                <Icon className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
+                <Icon className="text-ui-faint pointer-events-none flex-shrink-0" size={20} />
             }
             endContent={
                 isPassword ? (
                     <button
-                        className="focus:outline-none"
+                        className="ui-icon"
                         type="button"
                         onClick={toggleVisibility}
                         aria-label="toggle password visibility"
                     >
                         {isVisible ? (
-                            <EyeOff className="text-indigo-300/50 pointer-events-none" size={20} />
+                            <EyeOff className="text-ui-faint pointer-events-none" size={20} />
                         ) : (
-                            <Eye className="text-indigo-300/50 pointer-events-none" size={20} />
+                            <Eye className="text-ui-faint pointer-events-none" size={20} />
                         )}
                     </button>
                 ) : undefined
@@ -133,8 +133,7 @@ export default function SignUp() {
 
     return (
         <>
-            <Background />
-            <main className="flex items-center justify-center min-h-screen px-3 sm:px-4 py-12 sm:py-24">
+            <main className="auth-page">
                 {!state?.success ? (
                     <div className={`${cardClassName} max-w-md text-center`}>
                         <Form
@@ -142,7 +141,7 @@ export default function SignUp() {
                             validationErrors={state?.errors}
                             className="auth-form flex flex-col space-y-4"
                         >
-                            <h1 className="text-2xl font-semibold text-indigo-300">Create Account</h1>
+                            <h1 className="text-2xl font-semibold text-ui-text">Create Account</h1>
 
                             {fields.map(renderField)}
 
@@ -191,11 +190,11 @@ export default function SignUp() {
                                 )}
                             </Button>
 
-                            <p className="text-xs text-indigo-400">
+                            <p className="text-xs text-ui-muted">
                                 Already have an account?{" "}
                                 <Link
                                     href="/account/log-in"
-                                    className="underline hover:text-indigo-300 font-medium"
+                                    className="underline hover:text-ui-text font-medium"
                                 >
                                     Log in
                                 </Link>
@@ -216,7 +215,7 @@ export default function SignUp() {
                                     cx="40"
                                     cy="40"
                                     r="36"
-                                    stroke="rgb(129 140 248)"
+                                    stroke="currentColor"
                                     strokeWidth="3"
                                     fill="none"
                                     style={{
@@ -227,7 +226,7 @@ export default function SignUp() {
                                 />
                                 <path
                                     d="M24 42 L35 53 L56 28"
-                                    stroke="rgb(129 140 248)"
+                                    stroke="currentColor"
                                     strokeWidth="3.5"
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
@@ -240,8 +239,8 @@ export default function SignUp() {
                                 />
                             </svg>
                         </div>
-                        <h1 className="text-2xl font-semibold text-indigo-300">Account Created!</h1>
-                        <p className="text-sm text-indigo-300">
+                        <h1 className="text-2xl font-semibold text-ui-text">Account Created!</h1>
+                        <p className="text-sm text-ui-text">
                             You can now log in with your new credentials.
                         </p>
                         <Button

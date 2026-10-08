@@ -29,7 +29,7 @@ export default function ScrollProgress(props: Props) {
     return (
         <div
             aria-hidden
-            className={`fixed top-0 left-0 bg-gradient-to-r from-indigo-600 to-violet-600 ${className}`}
+            className={`fixed top-0 left-0 ${className}`}
             style={{ width: `${scrollProgress}%`, height: `${height}px`, zIndex: 50 }}
         />
     );

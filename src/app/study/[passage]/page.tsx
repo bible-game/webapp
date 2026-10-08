@@ -23,16 +23,11 @@ export default async function Study({ params }: { params: Promise<{ passage: str
     }
 
     return (
-        <div className="bg-white absolute top-0 left-0 w-full h-full">
-            <div className="flex justify-center">
-                <main
-                    className="bg-gradient-to-b from-white via-slate-50 to-indigo-50/30 w-full text-black relative overflow-auto pb-[12rem] flex justify-center">
-                    <div className="w-full sm:w-min">
-                        <Menu isPlay={false} info={info} dark={true}/>
-                        <StudyContent passage={passage} state={state}/>
-                    </div>
-                </main>
-            </div>
+        <div className="min-h-dvh">
+            <Menu info={info}/>
+            <main className="app-page">
+                <StudyContent passage={passage} state={state}/>
+            </main>
         </div>
     );
 }

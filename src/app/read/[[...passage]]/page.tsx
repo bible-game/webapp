@@ -24,15 +24,13 @@ export default async function Read({params}: { params: Promise<{ passage: string
     }
 
     return (
-            <div className="bg-white absolute top-0 left-0 w-full h-full">
-                <div className="flex justify-center">
-                    <main className="bg-white h-min w-full text-black relative overflow-auto pb-[12rem] flex justify-center">
-                        <div className="w-full sm:w-min">
-                            <Menu isPlay={false} info={info} dark={true} />
-                            <Content passageKey={passage} state={state} />
-                        </div>
-                    </main>
+        <div className="min-h-dvh">
+            <Menu info={info}/>
+            <main className="reading-surface min-h-[calc(100dvh-56px)] w-full">
+                <div className="app-page">
+                    <Content passageKey={passage} state={state}/>
                 </div>
-            </div>
+            </main>
+        </div>
     );
 }
