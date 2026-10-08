@@ -19,7 +19,8 @@ import { useReadAction } from "@/app/read/[[...passage]]/readaction";
 import { useLitVerses } from "@/app/read/[[...passage]]/use-lit-verses";
 import { getPassage } from "@/core/action/read/get-passage";
 import { getAudio } from "@/core/action/read/get-audio";
-import { divisionColour, findBook } from "@/core/model/bible/books";
+import { findBook } from "@/core/model/bible/books";
+import { useDivisionAccent } from "@/core/hook/use-division-accent";
 import { READING_FONTS } from "@/core/style/reading-fonts";
 import { ReadingUtil } from "@/core/util/reading-util";
 import translations from "./translations.json";
@@ -99,15 +100,7 @@ export default function Content(props: any) {
     const chapter = Number(splitKey.chapter) || 1;
     const { read, markRead } = useReadAction({ ...splitKey, state: props.state });
 
-    // Accent the page in the colour of the passage's division, as on Play's map.
-    // Set on the root so the sheets, which render outside the page, share it.
-    const accent = divisionColour(book);
-    useEffect(() => {
-        const root = document.documentElement.style;
-        if (accent) root.setProperty("--division", accent);
-        else root.removeProperty("--division");
-        return () => { root.removeProperty("--division"); };
-    }, [accent]);
+    useDivisionAccent(book);
 
     const title = useMemo(() => {
         if (!splitKey.book) return key;

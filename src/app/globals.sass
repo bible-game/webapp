@@ -127,20 +127,8 @@ body
   color: var(--ui-text)
   font-size: 16px
 
-.reading-surface
-  background: #f7f8f9
-  color: #25272b
-  color-scheme: light
-  --ui-bg: #f7f8f9
-  --ui-surface: #eef0f2
-  --ui-raised: #e3e6e9
-  --ui-line: #ced2d7
-  --ui-text: #25272b
-  --ui-muted: #555b64
-  --ui-faint: #68717c
-
 // Read: the app's charcoal, accented in the colour of the passage's division (as on Play's map)
-.reader, .reader-sheet
+.reader, .reader-sheet, .study
   --reader-text: var(--ui-text)
   --reader-muted: var(--ui-muted)
   --reader-accent: var(--division, var(--ui-muted))
@@ -314,8 +302,12 @@ body
   border: 1px solid var(--reader-line)
   border-radius: 8px
   background: rgba(242, 243, 244, 0.04)
+  // The field shows focus itself, as a 2px accent edge, so it needs no outline too
   &:focus-within
     border-color: var(--reader-accent)
+    box-shadow: 0 0 0 1px var(--reader-accent)
+  &:focus-visible, & :focus-visible
+    outline: none
 
 .reader-chapter
   position: relative
@@ -345,6 +337,89 @@ body
     box-shadow: var(--reader-glow)
     &::after
       background: var(--reader-on-accent)
+
+// Study: an answer, as a lettered card; selected takes the division colour
+.study-option
+  display: flex
+  width: 100%
+  min-height: 56px
+  align-items: center
+  gap: 12px
+  padding: 10px 14px
+  border: 1px solid var(--reader-line)
+  border-radius: 8px
+  background: var(--ui-surface)
+  color: var(--reader-text)
+  font-size: 15px
+  line-height: 1.4
+  text-align: left
+  transition: border-color 150ms, background 150ms, box-shadow 150ms
+  &:hover
+    background: var(--ui-raised)
+  .badge
+    display: grid
+    width: 32px
+    height: 32px
+    flex-shrink: 0
+    place-items: center
+    border-radius: 50%
+    background: var(--ui-raised)
+    font-size: 13px
+    font-weight: 600
+  &[aria-checked="true"]
+    border-color: var(--reader-accent)
+    background: color-mix(in srgb, var(--reader-accent) 8%, var(--ui-surface))
+    box-shadow: var(--reader-glow)
+    .badge
+      background: var(--reader-accent)
+      color: var(--reader-on-accent)
+  // Review states: colour plus icon and label, never colour alone
+  &[data-result="right"]
+    border-color: color-mix(in srgb, var(--ui-won) 60%, transparent)
+    background: color-mix(in srgb, var(--ui-won) 10%, var(--ui-surface))
+    color: var(--ui-won)
+  &[data-result="wrong"]
+    border-color: color-mix(in srgb, var(--ui-lost) 60%, transparent)
+    background: color-mix(in srgb, var(--ui-lost) 10%, var(--ui-surface))
+    color: var(--ui-lost)
+
+// Study: a book, tinted by its division
+.book-chip
+  display: flex
+  min-height: 48px
+  align-items: center
+  justify-content: center
+  padding: 0 8px
+  border: 1px solid color-mix(in srgb, var(--chip) 35%, transparent)
+  border-radius: 8px
+  background: color-mix(in srgb, var(--chip) 10%, transparent)
+  color: var(--chip)
+  font-size: 14px
+  font-weight: 500
+  text-align: center
+  line-height: 1.2
+  transition: background 150ms
+  &:hover
+    background: color-mix(in srgb, var(--chip) 18%, transparent)
+
+// Study: a chapter; studied ones are tinted, with their stars beneath
+.study-chapter
+  display: flex
+  aspect-ratio: 1
+  min-height: 48px
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  border-radius: 50%
+  color: var(--ui-text)
+  font-size: 15px
+  font-variant-numeric: tabular-nums
+  &:hover
+    background: rgba(242, 243, 244, 0.08)
+  &[data-studied]
+    background: color-mix(in srgb, var(--chip) 16%, transparent)
+    color: var(--chip)
+    font-weight: 600
 
 .reading-skeleton
   span

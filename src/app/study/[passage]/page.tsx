@@ -4,7 +4,6 @@ import React from "react";
 import isLoggedIn from "@/core/util/auth-util";
 import { ReviewState } from "@/core/model/state/review-state";
 import { getReviewState } from "@/core/action/state/get-state-review";
-import Menu from "@/app/menu";
 import StudyContent from "@/app/study/[passage]/study-content";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
 
@@ -22,12 +21,5 @@ export default async function Study({ params }: { params: Promise<{ passage: str
         state = await getReviewState();
     }
 
-    return (
-        <div className="min-h-dvh">
-            <Menu info={info}/>
-            <main className="app-page">
-                <StudyContent passage={passage} state={state}/>
-            </main>
-        </div>
-    );
+    return <StudyContent passage={passage} state={state} info={info}/>;
 }

@@ -44,8 +44,8 @@ rendered outside the page container by HeroUI.
 
 ## Follow-up Review
 
-- Read has been refined (see below); review Study next, followed by Statistics, Account, and the information pages.
-- Read uses Play's charcoal with division-coloured accents (see below). Study's passage drawer still uses the light `.reading-surface` and should be reconsidered in the Study review.
+- Read and Study have been refined (see below); review Statistics next, followed by Account and the information pages.
+- Read and Study use Play's charcoal with division-coloured accents (see below).
 - The map library handles its own canvas interaction and accessibility. A full keyboard and screen-reader gameplay audit needs separate work, including a way to select chapters without relying on canvas gestures.
 
 ## Implemented Alignment
@@ -88,10 +88,24 @@ saying the passage is already tracked; Study then takes the primary style.
 
 ### 3. Study
 
-Study uses compact headings, segmented testament filters, shared inputs, and
-unframed question groups. Selected and graded answers have clear outlines and
-status colours. Radios support keyboard selection. The passage drawer uses HeroUI
-for focus management and dismissal. Changing testament keeps the chosen book valid.
+Study shares Read's charcoal and division-coloured accent (`useDivisionAccent`).
+
+The home lists your latest studies (stars and date) above a grid of books, each
+tinted in its division's colour, with an Old/New filter and search. Choosing a book
+shows its chapters, with studied chapters tinted and starred. Random opens a study
+within the current filter.
+
+A study runs one step at a time: four questions, then a summary. The header carries
+the passage and "Question n of 5", with the progress line beneath. Questions are set
+in Newsreader; answers are lettered cards in a radio group (arrow keys move the
+choice), and the selected card takes the division colour. A pill Next (and Back)
+sit in a fixed footer. The summary is graded live, as before. The passage opens in
+Read's dark bottom sheet.
+
+Once submitted, the study opens on its result: the stars, a row of figures (stars,
+correct answers, summary score), and an answers review in a raised panel. Right and
+wrong answers use the app's green and red, always with an icon and a label, and the
+model summary follows yours. The API has no per-question explanations.
 
 ### 4. Statistics
 

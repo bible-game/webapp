@@ -1,5 +1,6 @@
-import { Drawer, DrawerBody, DrawerContent, DrawerHeader, Spinner } from "@heroui/react";
+import { Spinner } from "@heroui/react";
 import useSWR from "swr";
+import ReaderSheet from "@/app/read/[[...passage]]/reader-sheet";
 
 const fetcher = async (url: string) => {
     const response = await fetch(url);
@@ -7,24 +8,19 @@ const fetcher = async (url: string) => {
     return response.json();
 };
 
-export function PassageViewer({ id, title, open, onClose }: {
-    id: string;
+/** The passage being studied, in a sheet over the study, set as on Read */
+export function PassageViewer({ title, open, onClose }: {
     title: string;
     open: boolean;
     onClose: () => void;
 }) {
     const { data, error, isLoading } = useSWR(open ? `${process.env.SVC_BIBLE}/${title}` : null, fetcher);
 
-    return <Drawer id={id} isOpen={open} onOpenChange={value => { if (!value) onClose(); }}
-        placement="right" size="lg" aria-label={title}
-        classNames={{ base: "bg-ui-surface text-ui-text rounded-none border-l border-ui-line", closeButton: "text-ui-muted hover:bg-ui-raised" }}>
-        <DrawerContent>
-            <DrawerHeader className="pr-14 text-[18px] font-semibold">{title}</DrawerHeader>
-            <DrawerBody className="reading-surface px-6 py-6">
-                {isLoading ? <div className="flex justify-center py-12"><Spinner aria-label="Loading passage"/></div> :
-                    error || !data ? <p role="alert">Unable to load this passage.</p> :
-                    <p className="whitespace-pre-wrap text-[16px] leading-[1.85]">{data.text}</p>}
-            </DrawerBody>
-        </DrawerContent>
-    </Drawer>;
+    return (
+        <ReaderSheet open={open} onOpenChange={(value) => { if (!value) onClose(); }} title={title} className="max-h-[85dvh]">
+            {isLoading ? <div className="flex justify-center py-12"><Spinner color="default" aria-label="Loading passage"/></div> :
+                error || !data ? <p role="alert" className="text-ui-muted">Unable to load this passage.</p> :
+                    <p className="reading-prose whitespace-pre-wrap">{data.text}</p>}
+        </ReaderSheet>
+    );
 }
