@@ -174,25 +174,20 @@ body
   line-height: 1.25
   color: var(--reader-text)
 
-// The passage, which reads as the title until tapped, then edits in place
+// The passage title, which opens the passage sheet
 .reader-passage
-  width: min(60vw, 18rem)
-  min-height: 40px
-  padding: 0 12px
-  border: 1px solid transparent
+  display: flex
+  max-width: min(64vw, 20rem)
+  min-height: 44px
+  align-items: center
+  gap: 6px
+  padding: 0 10px
   border-radius: 8px
-  background: transparent
-  text-align: center
-  text-overflow: ellipsis
-  outline: none
-  transition: background 150ms, border-color 150ms
+  transition: background 150ms
   &:hover
-    background: rgba(242, 243, 244, 0.05)
-  &:focus
-    border-color: var(--reader-accent)
     background: rgba(242, 243, 244, 0.06)
-  &::placeholder
-    color: var(--reader-muted)
+  .reader-title
+    font-size: 21px
 
 .reader-progress
   position: absolute
@@ -321,6 +316,35 @@ body
   background: rgba(242, 243, 244, 0.04)
   &:focus-within
     border-color: var(--reader-accent)
+
+.reader-chapter
+  position: relative
+  display: flex
+  aspect-ratio: 1
+  min-height: 44px
+  align-items: center
+  justify-content: center
+  border-radius: 50%
+  font-size: 14px
+  font-variant-numeric: tabular-nums
+  color: var(--reader-text)
+  &:hover
+    background: rgba(242, 243, 244, 0.08)
+  &[data-read]::after
+    content: ""
+    position: absolute
+    bottom: 6px
+    width: 4px
+    height: 4px
+    border-radius: 50%
+    background: var(--reader-accent)
+  &[aria-current="page"]
+    background: var(--reader-accent)
+    color: var(--reader-on-accent)
+    font-weight: 600
+    box-shadow: var(--reader-glow)
+    &::after
+      background: var(--reader-on-accent)
 
 .reading-skeleton
   span

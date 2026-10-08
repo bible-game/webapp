@@ -5,13 +5,14 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { bcv_parser } from "bible-passage-reference-parser/esm/bcv_parser";
 import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
-import { GraduationCapIcon } from "lucide-react";
+import { ChevronDown, GraduationCapIcon } from "lucide-react";
 import AppHeader from "@/core/component/app-header";
 import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
 import Context from "@/app/read/[[...passage]]/context";
 import ReaderToolbar from "@/app/read/[[...passage]]/reader-toolbar";
 import TypeSheet from "@/app/read/[[...passage]]/type-sheet";
 import TranslationSheet from "@/app/read/[[...passage]]/translation-sheet";
+import PassageSheet from "@/app/read/[[...passage]]/passage-sheet";
 import MarkReadButton from "@/app/read/[[...passage]]/mark-read-button";
 import { useReaderSettings } from "@/app/read/[[...passage]]/use-reader-settings";
 import { useReadAction } from "@/app/read/[[...passage]]/readaction";
@@ -20,6 +21,7 @@ import { getPassage } from "@/core/action/read/get-passage";
 import { getAudio } from "@/core/action/read/get-audio";
 import { divisionColour, findBook } from "@/core/model/bible/books";
 import { READING_FONTS } from "@/core/style/reading-fonts";
+import { ReadingUtil } from "@/core/util/reading-util";
 import translations from "./translations.json";
 
 
@@ -36,11 +38,7 @@ export default function Content(props: any) {
     const [key, setKey] = useState(props.passageKey ? prettyPassage(Array.isArray(props.passageKey) ? props.passageKey[0] : props.passageKey) : "1 John 4 : 7 - 19");
     const [audioLoading, setAudioLoading] = useState(false);
     const [audioSrc, setAudioSrc] = useState<string | undefined>();
-    const [sheet, setSheet] = useState<"type" | "translation" | null>(null);
-    // the passage being typed in the header, while it has focus
-    const [draft, setDraft] = useState<string | null>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
-    const cancelled = useRef(false);
+    const [sheet, setSheet] = useState<"type" | "translation" | "passage" | null>(null);
     const [settings, updateSettings] = useReaderSettings();
     const proseRef = useRef<HTMLParagraphElement>(null);
 
@@ -52,6 +50,7 @@ export default function Content(props: any) {
     const translation = translations[settings.translation as keyof typeof translations] ?? translations.web;
     const { data: passage, isLoading: loading, isError, refetch } = usePassage(key, translation.abbr);
     const lit = useLitVerses(proseRef, [passage, settings.size, settings.leading, settings.font]);
+    const minutes = ReadingUtil.calcMinutes(passage?.text);
 
     function split(passageKey: any): {
         book: string;
@@ -131,13 +130,6 @@ export default function Content(props: any) {
         window.scrollTo({ top: 0 });
     }
 
-    function commitDraft(): void {
-        const next = draft?.trim();
-        if (!cancelled.current && next && next !== title) goTo(next);
-        cancelled.current = false;
-        setDraft(null);
-    }
-
     function playAudio(): void {
         if (!key) return;
         setAudioLoading(true);
@@ -176,18 +168,11 @@ export default function Content(props: any) {
             <div className="reader-header">
                 <div className="app-header">
                     <AppHeader info={props.info}>
-                        <form role="search" onSubmit={(e) => { e.preventDefault(); inputRef.current?.blur(); }}>
-                            <input ref={inputRef} aria-label="Passage" placeholder="e.g. John 3:16"
-                                   enterKeyHint="go" autoComplete="off" autoCorrect="off" spellCheck={false}
-                                   className="reader-title reader-passage"
-                                   value={draft ?? title}
-                                   onFocus={() => setDraft(title)}
-                                   onChange={(e) => setDraft(e.target.value)}
-                                   onBlur={commitDraft}
-                                   onKeyDown={(e) => {
-                                       if (e.key === "Escape") { cancelled.current = true; e.currentTarget.blur(); }
-                                   }} />
-                        </form>
+                        <button type="button" onClick={() => setSheet("passage")}
+                                aria-label={`${title}. Change passage`} className="reader-passage">
+                            <span className="reader-title truncate">{title}</span>
+                            <ChevronDown aria-hidden className="size-4 shrink-0 text-[var(--reader-muted)]" />
+                        </button>
                     </AppHeader>
                 </div>
                 <ScrollProgress />
@@ -208,7 +193,15 @@ export default function Content(props: any) {
                         </div>
                     ) : passage?.verses ? (
                         <>
-                            <Context passageKey={key} context="before" />
+                            {/* the reading time shares the line with the context before, on the right */}
+                            <div className="relative">
+                                <Context passageKey={key} context="before" />
+                                {minutes ? (
+                                    <span className="pointer-events-none absolute right-0 top-0 flex h-11 items-center text-[13px] tabular-nums text-[var(--reader-muted)]">
+                                        {minutes} min read
+                                    </span>
+                                ) : null}
+                            </div>
                             <article className="mb-5 mt-7">
                                 <p ref={proseRef} className="reading-prose">
                                     {verses}
@@ -229,7 +222,7 @@ export default function Content(props: any) {
                     ) : (
                         <div role="alert" className="flex flex-col items-start gap-3 py-8 text-[var(--reader-muted)]">
                             <p>No passage found for “{key}”. Try a reference like John 3:16.</p>
-                            <button type="button" className="ui-button" onClick={() => inputRef.current?.focus()}>Change passage</button>
+                            <button type="button" className="ui-button" onClick={() => setSheet("passage")}>Change passage</button>
                         </div>
                     )}
                 </section>
@@ -244,6 +237,8 @@ export default function Content(props: any) {
 
             <TypeSheet open={sheet === "type"} onOpenChange={(open) => setSheet(open ? "type" : null)}
                        settings={settings} update={updateSettings} />
+            <PassageSheet open={sheet === "passage"} onOpenChange={(open) => setSheet(open ? "passage" : null)}
+                          title={title} book={book} chapter={chapter} onGo={goTo} />
             <TranslationSheet open={sheet === "translation"} onOpenChange={(open) => setSheet(open ? "translation" : null)}
                               selected={settings.translation} onSelect={(translation) => updateSettings({ translation })} />
         </div>

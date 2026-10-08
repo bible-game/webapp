@@ -66,9 +66,11 @@ from the division of the passage being read, using the map's colours
 1 John is rose, Isaiah green, and so on. The accent is set as `--division` on the
 root so the sheets share it, and glows are derived from it with `color-mix`.
 
-The shared header carries just the passage, as an input that reads as the title:
-tap to edit in place, Enter or tapping away to go, Escape to revert. A glowing line
-along its lower edge shows progress through the chapter. Verses flow as one serif
+The shared header carries just the passage title, larger than other header text,
+as a button. It opens a deliberately small passage sheet: a search to go to any
+reference, and the current book's chapters (current filled, read ones dotted).
+A glowing line along the header's lower edge shows progress through the chapter.
+The estimated reading time sits on the right of the "What comes before" line. Verses flow as one serif
 paragraph with accented verse numbers and a two-line initial in the division
 colour. Dimming is gentle: verses within the reading band of the screen stay fully
 lit, and only those beyond it soften to 60%. Everything in view is lit at the top
