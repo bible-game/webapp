@@ -121,15 +121,22 @@ navigation. Existing submission and success flows remain.
 
 ### 6. Home and Information
 
-Home opens on a full-height hero around a small glowing cross (`home/glowing-cross.tsx`):
+Home opens on a hero around a small glowing cross (`home/glowing-cross.tsx`):
 an SVG Latin cross laid as a mosaic of cells, like the stained-glass logo, tinted
 through the map's divisions in canonical order (teal Law to gold Gospels) with a
 white neon core. Behind it a blurred ring of the division colours turns slowly and a
 soft white light breathes where the beams meet; only opacity, scale, and rotation
-animate, and reduced motion leaves it still. Beneath it sit the title, John 8:12 in
-the reading serif, a high-contrast "Play today's chapter" button, and quiet links to
-Read, Study, and Statistics. The index of destinations and the footer follow below
-the fold. About, Privacy, and Cookies use shared navigation and readable, unframed content.
+animate, and reduced motion leaves it still. Beneath it sit the title, the tagline
+("Explore the Bible with a daily passage guessing game"), the main action, and quiet
+links to Read, Study, and Statistics. The main action follows today's game
+(`home/today-action.tsx`): play it, continue it with the guesses left, or see the
+result with a countdown to the next chapter. The hero stops short of the screen's
+foot so "How it works" shows beneath it: four steps (clue, map, guesses, read and
+study), illustrated with Play's own guess tiles and a sketch of the map. The same
+cross, drawn as a static image, is the site's share image (`opengraph-image.tsx`).
+
+The shared header shows only the logo in its centre; the name appears in the menu
+drawer and on Home. About, Privacy, and Cookies use shared navigation and readable, unframed content.
 The information pages retain their existing policy text.
 
 ## Review Process

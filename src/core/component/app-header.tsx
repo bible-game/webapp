@@ -30,8 +30,8 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
             <Button isIconOnly disableRipple aria-label="Open menu" title="Open menu" className={iconButton} onPress={drawer.onOpen}>
                 <MenuIcon className="size-6"/>
             </Button>
-            {children ?? <Link href="/" className="flex items-center gap-2 text-[15px] font-semibold" aria-label="Bible Game home">
-                <Image src="/icon-bright.png" alt="" width={28} height={28}/>Bible Game
+            {children ?? <Link href="/" className="flex h-11 w-11 items-center justify-center rounded-full" aria-label="Bible Game home" title="Bible Game">
+                <Image src="/icon-bright.png" alt="" width={30} height={30}/>
             </Link>}
             <div className="flex h-11 w-11 items-center justify-center">
                 {info ? <Dropdown placement="bottom-end" classNames={{ content: "rounded-lg bg-ui-surface border border-ui-line text-ui-text" }}>

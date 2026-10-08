@@ -466,15 +466,15 @@ input:-webkit-autofill,
 input:-webkit-autofill:focus
   transition: background-color 0s 600000s, color 0s 600000s !important
 
+// Leaves the top of "How it works" in view, inviting a scroll
 .home-hero
-  position: relative
   display: flex
-  min-height: calc(100dvh - 56px - env(safe-area-inset-top))
+  min-height: max(520px, calc(100dvh - 56px - env(safe-area-inset-top) - 140px))
   flex-direction: column
   align-items: center
   justify-content: center
   gap: 40px
-  padding: 24px 16px calc(80px + env(safe-area-inset-bottom))
+  padding: 24px 16px 16px
   overflow: hidden
   text-align: center
 
@@ -486,22 +486,18 @@ input:-webkit-autofill:focus
   width: 100%
   flex-direction: column
   align-items: center
-  gap: 8px
+  gap: 4px
   animation-delay: 1.3s
 
-.home-hero-cue
-  position: absolute
-  bottom: calc(16px + env(safe-area-inset-bottom))
-  display: flex
-  width: 44px
-  height: 44px
-  align-items: center
-  justify-content: center
-  border-radius: 50%
-  color: var(--ui-faint)
-  animation: hero-fade 1s ease-out 2.2s both, hero-bob 2.8s ease-in-out 3.2s infinite
-  &:hover
-    color: var(--ui-text)
+.home-more
+  padding-top: 24px
+  animation: hero-fade 1s ease-out 1.6s both
+
+.mini-map-found
+  filter: drop-shadow(0 0 4px #ac7db3)
+  animation: hero-breathe 2.4s ease-in-out infinite
+  transform-box: fill-box
+  transform-origin: center
 
 .glowing-cross
   position: relative
@@ -586,10 +582,6 @@ input:-webkit-autofill:focus
 @keyframes hero-fade
   from
     opacity: 0
-
-@keyframes hero-bob
-  50%
-    translate: 0 4px
 
 @media (max-width: 440px)
   .app-page

@@ -9,8 +9,8 @@ import { playTheme } from "@/core/style/play-theme";
 
 type Point = [number, number];
 
-const WIDTH = 60;
-const HEIGHT = 96;
+export const WIDTH = 60;
+export const HEIGHT = 96;
 const xs = [0, 11, 22, 30, 38, 49, 60];
 const ys = [0, 10, 20, 28, 36, 46, 56, 66, 76, 86, 96];
 const STEM = [22, 38];
@@ -79,7 +79,7 @@ function rounded(points: Point[], radius: number): string {
 }
 
 // Clockwise in screen space, so the inset moves inwards
-const cells = xs.slice(0, -1).flatMap((_, i) => ys.slice(0, -1).map((_, j) => [i, j])).filter(([i, j]) => inside(i, j)).map(([i, j]) => {
+export const cells = xs.slice(0, -1).flatMap((_, i) => ys.slice(0, -1).map((_, j) => [i, j])).filter(([i, j]) => inside(i, j)).map(([i, j]) => {
     const corners: Point[] = [vertex(i, j), vertex(i + 1, j), vertex(i + 1, j + 1), vertex(i, j + 1)];
     const cx = corners.reduce((sum, p) => sum + p[0], 0) / 4, cy = corners.reduce((sum, p) => sum + p[1], 0) / 4;
     return { key: `${i}-${j}`, d: rounded(inset(corners, GAP), CORNER), delay: Math.round(Math.hypot(cx - CENTRE[0], cy - CENTRE[1]) * 14) };
