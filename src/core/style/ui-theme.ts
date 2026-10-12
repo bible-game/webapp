@@ -12,9 +12,11 @@ export const uiTheme = {
     faint: "#93979e",
     /** Stars (the reward) only; it overlaps the gold region by design */
     accent: "#d2b96f",
-    amber: "#e3a23b",
-    won: "#78ad88",
-    lost: "#ed8581",
+    /** Status: success, warning and error (currently the map's green, gold and rose). Closeness is the traffic light of these. */
+    success: "#78ad88",
+    warning: "#d2b96f",
+    error: "#d65f78",
+    /** The streak flame, and the fourth step between warning and error */
     orange: "#e8955a",
     /** Utility: help */
     help: "#4cc9ff",

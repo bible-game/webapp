@@ -291,7 +291,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     <p className="min-w-0 text-center leading-tight" aria-label="Where this chapter sits">
                         <span className="block truncate text-[15px] font-medium" style={{ color: tint }}>{group ?? props.selected.division}</span>
                         <span className="mt-0.5 block truncate text-[12px] text-play-muted">
-                            {props.selected.testament} · {props.selected.division}
+                            {props.selected.testament}, {props.selected.division}
                         </span>
                     </p>
                 </motion.div>

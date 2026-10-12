@@ -20,7 +20,7 @@ their purpose, consistency, legibility, and fit with Bible Game.
 | Element | Rule |
 | --- | --- |
 | Page chrome | Neutral charcoal, solid surfaces, restrained borders. Values live in `src/core/style/ui-theme.ts`; Play extends these with its division palette. |
-| Colour | Colour means region: the map's teal, purple, rose, green and gold mark the book on screen and nothing else. Guess closeness is brightness (`light-1` to `light-3`), not hue; only the found chapter takes its region colour. Utility colours: `help` (blue) and `notice` (yellow). See `look-and-feel.md`. |
+| Colour | Colour means region: the map's teal, purple, rose, green and gold mark the book on screen. Guess closeness is the exception: a traffic light of the status colours `success`, `warning` and `error`, which are separate from the region hues (the found chapter is a solid `success`). Utility colours: `help` (blue) and `notice` (yellow). See `look-and-feel.md`. |
 | Primary action | When the screen has a book (Play's guess button, the end screen's Read link, Read's Mark as read), the action takes that book's region colour with a dimensional highlight and restrained glow. Otherwise it is a high-contrast white fill. |
 | Typography | IBM Plex Sans for navigation, controls, labels and page titles (including the Home tagline); IBM Plex Mono for addresses (guess tiles, book codes, distances) and the map's labels; Literata for scripture (the clue, passages, quiz questions), exposed as `--font-reading`. Optional reader faces live in `reading-fonts.ts`. |
 | Letter spacing | Normal spacing for UI text. Avoid decorative, widely spaced uppercase headings. |

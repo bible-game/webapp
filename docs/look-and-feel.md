@@ -8,7 +8,7 @@ Bible Game is a map, and the interface is the equipment you use to read it. The 
 
 ## Four ideas
 
-**Place: colour means region.** The five division hues (teal, purple, rose, green, gold) are wayfinding, not decoration. A screen has at most one region colour: the colour of the book you are in. Play, Read, Study and the Study book chips take it from the book on screen. Screens with no book (Home, Log In, Statistics) are neutral. All five colours appear together only where the whole territory is visible: the map, its legend and coverage.
+**Place: colour means region.** The five division hues (teal, purple, rose, green, gold) are wayfinding, not decoration. A screen has at most one region colour: the colour of the book you are in. Play, Read, Study and the Study book chips are filled in their division colour. Screens with no book (Home, Log In, Statistics) are neutral. All five colours appear together only where the whole territory is visible: the map, its legend and coverage.
 
 **Address: everything has a coordinate.** Short book codes (`MAT 5`, `40.MAT`) are how the interface names a place in the map, the guess row and the share result. Full names ("Numbers 9") are for prose. Distances are readings: signed, in verses, in tabular figures. Numbers are the data, so they are set carefully and never used as ornament.
 
@@ -20,7 +20,7 @@ Bible Game is a map, and the interface is the equipment you use to read it. The 
 
 | Question | Decision |
 | --- | --- |
-| Closeness | Shown as how brightly a slot is lit, not as a hue. Region colour appears only on the found chapter. Closeness no longer reuses the division hues. |
+| Closeness | A traffic light in the status colours: `ui/success` (Close), `ui/warning` (Near), `ui/error` (Far). The found chapter is a solid `ui/success`. Decided 13 October 2026, after the brightness-only version was tried and dropped: the steps were too subtle to read. This is the one place colour does not mean region. |
 | Primary action | Takes the region colour when the screen has a book (Select on Play, Mark as read on Read). Otherwise it is a high-contrast white fill. |
 | Home tagline | Interface sans, not serif. Serif is reserved for scripture. |
 | Shape | One small radius, 8px, on every rectangular control, panel and chip. Sheets use 16px. Circles only for avatars, dots and calendar days. No pills. |
@@ -35,22 +35,22 @@ Bible Game is a map, and the interface is the equipment you use to read it. The 
 | Surfaces | `ui/bg`, `ui/surface`, `ui/raised`, `ui/line` | Ground, panels, selected or hover, 1px lines. Neutral charcoal. |
 | Text | `ui/text`, `ui/muted`, `ui/faint` | Primary, secondary, placeholder. |
 | Regions | `play/teal`, `play/purple`, `play/rose`, `play/green`, `play/gold` | The book's division. Never decorative. |
-| Light | `light/1`, `light/2`, `light/3` | `ui/text` at 8%, 18% and 34%. The brightness steps for closeness and selection. |
+| Light | `light/1`, `light/2`, `light/3` | `ui/text` at 8%, 18% and 34%. The brightness steps for hover, selected and current states, and quiz answers. |
 | Utility | `ui/help`, `ui/notice`, `ui/accent` (stars) | Help, not-logged-in notice, star reward. |
-| Feedback | `ui/won`, `ui/lost` | Reserved for small marks (a tick or cross) only. Neither is used as a fill, because green and red overlap the region hues. |
+| Status | `ui/success`, `ui/warning`, `ui/error` | Named separately from the region hues so they can diverge, but currently the same sage green, gold and rose as the map (the original traffic light, kept after a brighter set was tried and rejected as ugly). Success is Close guesses, the found chapter and "logged in"; warning is Near guesses; error is Far guesses and form errors. `ui/orange` is the streak flame and the fourth dot step. |
 
 ### Closeness slots
 
 | State | Fill | Text | Edge |
 | --- | --- | --- | --- |
 | Empty | none | n/a | dashed `ui/line` |
-| Far | `light/1` | `ui/faint` | `ui/line` |
-| Near | `light/2` | `ui/muted` | `ui/line` |
-| Close | `light/3` | `ui/text` | `ui/line` |
-| Found | the chapter's region colour | `ui/bg` | none |
+| Far | `closeness/far-fill` (`ui/error` at 14%) | `ui/error` | `closeness/far-edge` (45%) |
+| Near | `closeness/near-fill` (`ui/warning` at 14%) | `ui/warning` | `closeness/near-edge` (45%) |
+| Close | `closeness/close-fill` (`ui/success` at 14%) | `ui/success` | `closeness/close-edge` (45%) |
+| Found | solid `ui/success` | `ui/bg` | `ui/success` |
 | Answer (lost game) | `light/1` | `ui/text` | `ui/text` |
 
-Distance bands are unchanged: up to 500 verses is Close, up to 2,000 is Near, beyond is Far.
+Distance bands: up to 500 verses is Close, up to 2,000 is Near, beyond is Far. The guess counter's dots add a fourth step (`ui/orange`, up to 5,000 verses), in step with the share text's squares.
 
 ## Typography
 
@@ -95,7 +95,7 @@ The lit map. The rest of the interface stays disciplined so the map, and the emb
 ## Implementation notes (for the code pass)
 
 - `ui-theme.ts`: add the light levels, `help` and `notice`; stop using `accent` for anything but stars.
-- `closeness.ts` and `guess.tsx`: replace tinted hue bands with the light levels above; keep the distance thresholds.
+- `closeness.ts`: tinted traffic-light bands, plus a solid green for the found chapter.
 - `layout.tsx` and `globals.sass`: swap the fonts; reduce radii to 8 and 16; remove pills.
 - Headings: serif only on scripture-bound text; page titles and the Home tagline move to the sans.
 - Statistics: keep the current layout (figures, leaderboard, per-book completion). Restyle the per-book bars as rows of coverage cells in the book's region colour, as in the Figma wireframe.

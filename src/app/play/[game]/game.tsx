@@ -99,7 +99,8 @@ export default function Game(props: any) {
 
         if (passage) {
             const state = StateUtil.getGame(passage.id);
-            setGuesses(state.guesses)
+            // guesses saved by the user service (or before keys were stored) carry only the book's name; the tiles need its key for the region colour
+            setGuesses(state.guesses.map((g: any) => g.bookKey ? g : { ...g, bookKey: props.books.find((bk: any) => bk.name == g.book)?.key }))
             setStars(state.stars || 0)
             setPlaying(state.playing)
             setState(state);

@@ -209,13 +209,14 @@ body
 
 // Two lines tall. Solid colour with a text-shadow glow, in a box that wholly
 // contains the glyph, so no browser can clip it.
+// Sized and placed from Literata's metrics (cap height 0.73em, ascent 1.18em, descent 0.31em), as a function of the
+// leading L: the cap spans from the first line's capitals to the second line's baseline, so it is L/0.73 + 1 body
+// ems tall, and its box (line-height 1, baseline 0.935em down) starts 0.2192L - 0.5 body ems below the line top.
 .drop-cap
   float: left
-  // Cap top level with the first line's capitals, baseline on the second line's;
-  // the negative bottom margin keeps the third line from wrapping around it
-  margin: 0.085em 0.08em -0.2em 0
+  margin: calc((0.2192 * var(--reader-leading) - 0.5) / (var(--reader-leading) / 0.73 + 1) * 1em) 0.08em 0 0
   font-family: var(--font-reading), Georgia, serif
-  font-size: calc(var(--reader-leading) * 2em + 0.2em)
+  font-size: calc((var(--reader-leading) / 0.73 + 1) * 1em)
   font-weight: 500
   line-height: 1
   color: var(--reader-accent)
@@ -378,27 +379,26 @@ body
     background: var(--ui-light-1)
     color: var(--ui-faint)
     > svg
-      color: var(--ui-lost)
+      color: var(--ui-error)
 
-// Study: a book, with its division as a coloured key edge (the legend key); the rest stays neutral
+// Study: a book, filled in its division colour with dark text (the map's legend key)
 .book-chip
   display: flex
   min-height: 48px
   align-items: center
   justify-content: center
-  padding: 0 8px 0 12px
-  border: 1px solid var(--ui-line)
+  padding: 0 8px
+  border: 1px solid var(--chip)
   border-radius: 8px
-  background: var(--ui-surface)
-  box-shadow: inset 4px 0 0 var(--chip)
-  color: var(--ui-text)
+  background: var(--chip)
+  color: var(--ui-bg)
   font-size: 14px
-  font-weight: 500
+  font-weight: 600
   text-align: center
   line-height: 1.2
-  transition: background 150ms
+  transition: filter 150ms
   &:hover
-    background: var(--ui-raised)
+    filter: brightness(1.1)
 
 // Study: a chapter; studied ones are tinted, with their stars beneath
 .study-chapter

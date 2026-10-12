@@ -18,9 +18,9 @@ const FORMAT = "YYYY-MM-DD";
 
 /** Colours of each day status: green completed (won), red lost, amber started */
 const statusStyle: Record<Status, string> = {
-    won: "bg-play-won/25 text-play-won ring-1 ring-play-won/60",
-    lost: "bg-play-lost/25 text-play-lost ring-1 ring-play-lost/60",
-    started: "bg-play-amber/25 text-play-amber ring-1 ring-play-amber/60",
+    won: "bg-play-success/25 text-play-success ring-1 ring-play-success/60",
+    lost: "bg-play-error/25 text-play-error ring-1 ring-play-error/60",
+    started: "bg-play-warning/25 text-play-warning ring-1 ring-play-warning/60",
 };
 
 function statusOf(state?: GameState): Status | undefined {

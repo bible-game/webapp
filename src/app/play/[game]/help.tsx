@@ -3,14 +3,13 @@
 import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { ArrowDownIcon, ArrowUpIcon, PartyPopperIcon } from "lucide-react";
-import { Band, CLOSE, FAR, NEAR, foundBand } from "@/app/play/[game]/closeness";
-import { playTheme } from "@/core/style/play-theme";
+import { Band, CLOSE, FAR, FOUND, NEAR } from "@/app/play/[game]/closeness";
 
 const examples: { band: Band, passage: string, up: boolean, distance?: string, meaning: string }[] = [
     { band: CLOSE, passage: "ACT 14", up: false, distance: "300", meaning: "Within 500 verses" },
     { band: NEAR, passage: "ROM 2", up: true, distance: "1.2K", meaning: "Within 2,000 verses" },
     { band: FAR, passage: "NUM 31", up: false, distance: "28K", meaning: "Further away" },
-    { band: foundBand(playTheme.teal), passage: "NUM 9", up: false, meaning: "Found, in its region's colour" },
+    { band: FOUND, passage: "NUM 9", up: false, meaning: "Found it" },
 ];
 
 /**
@@ -28,7 +27,7 @@ const Help = ({ children }: { children: React.ReactElement }) => (
                 <p className="text-[14px] font-semibold">How to play</p>
                 <p>Each day, one chapter of the Bible is chosen and summarised. Can you find it?</p>
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
-                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. The closer the guess, the brighter its tile:</p>
+                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. Green is close, yellow is nearer, red is far:</p>
                 <ul className="grid gap-2">
                     {examples.map(({ band, passage, up, distance, meaning }) => {
                         const Arrow = up ? ArrowUpIcon : ArrowDownIcon;

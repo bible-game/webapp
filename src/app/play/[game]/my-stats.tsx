@@ -11,7 +11,7 @@ import { StateUtil } from "@/core/util/state-util";
 import { Star } from "@/app/play/[game]/star";
 import { playTheme } from "@/core/style/play-theme";
 
-const GREEN = playTheme.green;
+const SUCCESS = playTheme.success;
 const ORANGE = playTheme.orange;
 
 const ordinal = (n: number) => {
@@ -64,7 +64,7 @@ const MyStats = ({ info, bible, className }: { info: { firstname: string, lastna
         }}>
             <PopoverTrigger>
                 <button type="button" aria-label={place ? `You're ${place}${ordinal(place)} of ${data?.totalPlayers}. Show your statistics` : "Show your statistics"}
-                        className={className} style={{ color: GREEN, borderColor: `color-mix(in srgb, ${GREEN} 40%, transparent)` }}>
+                        className={className} style={{ color: SUCCESS, borderColor: `color-mix(in srgb, ${SUCCESS} 40%, transparent)` }}>
                     {place ?
                         <span className="flex items-start leading-none">
                             <span className="text-[17px] font-bold tabular-nums">{place}</span>
@@ -80,11 +80,11 @@ const MyStats = ({ info, bible, className }: { info: { firstname: string, lastna
                         <div className="min-w-0 leading-tight">
                             <p className="truncate text-[18px] font-semibold">{info.firstname} {info.lastname}</p>
                             <p className="mt-0.5 flex items-center gap-1.5 text-[12px] text-play-muted">
-                                <span className="size-1.5 rounded-full" style={{ background: GREEN }}/>Logged in
+                                <span className="size-1.5 rounded-full" style={{ background: SUCCESS }}/>Logged in
                             </p>
                         </div>
                         {place ?
-                            <div className="shrink-0 text-right leading-none" style={{ color: GREEN }}>
+                            <div className="shrink-0 text-right leading-none" style={{ color: SUCCESS }}>
                                 <p className="text-[28px] font-semibold tabular-nums">{place}<sup className="ml-0.5 text-[13px] font-semibold">{ordinal(place)}</sup></p>
                                 <p className="mt-1 text-[11px] text-play-muted">of {data?.totalPlayers} players</p>
                             </div> : null

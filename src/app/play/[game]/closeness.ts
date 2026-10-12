@@ -1,48 +1,42 @@
-import colours from "@/app/play/[game]/map/config/colours.json";
 import { playTheme } from "@/core/style/play-theme";
 
 /**
- * Closeness bands for a guess, shown as how brightly its slot is lit (see docs/look-and-feel.md): Far 8%, Near 18% and
- * Close 34% starlight. Colour is reserved for place, so only the found chapter takes a region colour.
- * `fill` is the slot, `edge` its outline and `text` the label, arrow and distance.
+ * Closeness bands for a guess, matching the share-result emoji (🟩 ≤ 500, 🟨 ≤ 2,000, 🟥 beyond).
+ * Tiles are tinted rather than filled: `fill` is the tint, `edge` the outline and `text` the label, arrow and distance.
  * @since 2nd October 2026
  */
 export type Band = { fill: string, edge: string, text: string };
 
-export const FAR: Band = { fill: playTheme["light-1"], edge: playTheme.line, text: playTheme.faint };
-export const NEAR: Band = { fill: playTheme["light-2"], edge: playTheme.line, text: playTheme.muted };
-export const CLOSE: Band = { fill: playTheme["light-3"], edge: playTheme.line, text: playTheme.text };
+const tint = (hex: string): Band => ({ fill: `${hex}24`, edge: `${hex}73`, text: hex });
+
+// the status colours, not the map's region hues, so a guess never reads as a place
+export const CLOSE: Band = tint(playTheme.success);
+export const NEAR: Band = tint(playTheme.warning);
+export const FAR: Band = tint(playTheme.error);
+
+/** The found chapter: the success colour, filled solid so a win stands apart from a near miss */
+export const FOUND: Band = { fill: playTheme.success, edge: playTheme.success, text: playTheme.bg };
 
 /** The missed answer, shown after the guesses when the game is lost: outlined in white so it stands out most */
-export const ANSWER: Band = { fill: playTheme["light-1"], edge: playTheme.text, text: playTheme.text };
-
-/** The found chapter, lit in its own region colour */
-export function foundBand(colour: string): Band {
-    return { fill: colour, edge: colour, text: playTheme.bg };
-}
-
-/** The region colour of a guess's book (the map's own) */
-export function regionColour(guess: any): string {
-    return (colours as Record<string, string>)[guess?.bookKey] ?? playTheme.text;
-}
+export const ANSWER: Band = { fill: `${playTheme.text}1a`, edge: playTheme.text, text: playTheme.text };
 
 export function distanceOf(guess: any): number {
-    return parseInt(guess?.closeness?.distance);
+    return parseInt(guess?.distance ?? guess?.closeness?.distance);
 }
 
 export function bandOf(guess: any): Band {
     const distance = Math.abs(distanceOf(guess));
-    if (distance === 0) return foundBand(regionColour(guess));
+    if (distance === 0) return FOUND;
     if (distance <= 500) return CLOSE;
     if (distance <= 2000) return NEAR;
     return FAR;
 }
 
-/** One colour for a guess where a whole slot will not fit (the guess counter's dots): the same brightness ramp, or the region when found */
+/** One colour for a guess where a whole slot will not fit (the guess counter's dots): one step finer than the tiles, in step with the share text's squares */
 export function lightOf(guess: any): string {
     const distance = Math.abs(distanceOf(guess));
-    if (distance === 0) return regionColour(guess);
-    if (distance <= 500) return playTheme.text;
-    if (distance <= 2000) return playTheme.muted;
-    return playTheme.faint;
+    if (distance <= 500) return playTheme.success;
+    if (distance <= 2000) return playTheme.warning;
+    if (distance <= 5000) return playTheme.orange;
+    return playTheme.error;
 }
