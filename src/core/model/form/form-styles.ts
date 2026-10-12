@@ -2,7 +2,8 @@ import { uiTheme } from "@/core/style/ui-theme";
 
 export const inputClassNames = {
     base: "text-ui-text",
-    label: "!text-ui-muted",
+    // the required mark is a notice (gold), not an error
+    label: "!text-ui-muted after:!text-ui-notice",
     input: "!text-ui-text text-[16px] placeholder:text-ui-faint",
     inputWrapper: "!bg-ui-surface data-[hover=true]:!bg-ui-raised border border-ui-line group-data-[focus=true]:border-ui-muted rounded-lg min-h-14 transition-colors",
     helperWrapper: "pt-1",

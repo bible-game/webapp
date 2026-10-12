@@ -91,7 +91,7 @@ export default function ForgotPassword() {
                                 )}
                             </Button>
 
-                            <p className="text-xs text-center text-ui-muted mt-2">
+                            <p className="text-xs text-ui-muted mt-2">
                                 Remembered your password?{" "}
                                 <Link
                                     href="/account/log-in"

@@ -5,6 +5,7 @@ import Link from "next/link";
 import moment from "moment";
 import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
+import { DivisionUtil } from "@/core/util/division-util";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Star } from "@/app/play/[game]/star";
 import { AnimatePresence, motion } from "framer-motion";
@@ -286,9 +287,9 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         </button>
                     </div>
                     <p className="min-w-0 text-center leading-tight" aria-label="Where this chapter sits">
-                        <span className="block truncate text-[15px] font-medium" style={{ color: tint }}>{group ?? props.selected.division}</span>
+                        <span className="block truncate text-[15px] font-medium" style={{ color: tint }}>{group ?? DivisionUtil.sentenceCase(props.selected.division)}</span>
                         <span className="mt-0.5 block truncate text-[12px] text-play-muted">
-                            {props.selected.testament}, {props.selected.division}
+                            {DivisionUtil.place(props.selected.division, props.selected.testament)}
                         </span>
                     </p>
                 </motion.div>

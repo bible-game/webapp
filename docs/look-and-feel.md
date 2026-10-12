@@ -62,7 +62,7 @@ Distance bands: up to 500 verses is Close, up to 2,000 is Near, beyond is Far. T
 | The chart | IBM Plex Sans | Everything that is interface: page titles (Study, Statistics), buttons, labels, the Home tagline. |
 | Addresses | IBM Plex Mono | Book codes, chapter numbers, step numbers (`01`–`05`) and distances, so figures line up. Map labels use the same face. |
 
-One scale: 12, 14, 16, 18, 20, 22, 24 and 32, plus 72 for the drop cap. Headings keep normal letter spacing. No all-caps eyebrows.
+One scale: 12, 14, 16, 18, 20, 22, 24 and 32. The drop cap is two lines tall, in the reader's chosen typeface: its foot sits on the second line's baseline and it rises 0.2em above the first line's capitals, so it reads with the first line (64px beside 18px scripture in Figma; computed from each face's metrics in code). Headings keep normal letter spacing. No all-caps eyebrows.
 
 ## Shape, spacing, icons
 

@@ -155,6 +155,9 @@ export default function Content(props: any) {
     return (
         <div style={{
             "--reader-font": READING_FONTS[settings.font]?.family,
+            "--reader-cap": READING_FONTS[settings.font]?.cap,
+            "--reader-ascent": READING_FONTS[settings.font]?.ascent,
+            "--reader-descent": READING_FONTS[settings.font]?.descent,
             "--reader-size": `${settings.size}px`,
             "--reader-leading": settings.leading,
         } as React.CSSProperties}>

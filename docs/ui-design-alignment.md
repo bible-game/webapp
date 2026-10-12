@@ -196,3 +196,14 @@ Implemented from the refined Figma (see `look-and-feel.md`, Glow and Region key)
 Checked at 375px against the mock passage service: Play (welcome, select),
 Study quiz, Statistics, Home and How it works, Read, Forgot password.
 The leaderboard and logged-in states need the user service (:8082), which was off.
+
+Follow-up: required-field asterisks use `ui-notice` (gold), as in Figma. The Read drop cap
+now takes the reader's chosen typeface and is sized and placed from that face's metrics
+(`reading-fonts.ts`), so it spans from the first line's cap height to the second line's
+baseline in Literata, Newsreader, Garamond and Plex Sans at every size and spacing
+(measured within 1px), and the third line always runs the full width.
+
+Follow-up: the drop cap rises 0.2em above the first line (`--dc-rise`), foot still on the second
+line's baseline (measured: 4–5px rise, 0px at the foot, in every typeface). Play's subline reads
+"Paul's letters, New Testament" (`DivisionUtil`, shared with Statistics). Sign up and Log in forms
+and their footnote links are left-aligned, as in Figma.

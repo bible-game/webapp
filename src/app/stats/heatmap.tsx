@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { CompletionUtil } from "@/core/util/completion-util";
+import { DivisionUtil } from "@/core/util/division-util";
 import colours from "@/app/play/[game]/map/config/colours.json";
 import { playTheme } from "@/core/style/play-theme";
 
@@ -28,9 +29,6 @@ const verseColor = (verse: any) => {
 };
 
 const CELLS = 10;
-
-/** A division's name in sentence case ("Major Prophets" → "Major prophets"); "the Law" keeps its capital */
-const sentenceCase = (name: string) => name.split(" ").map((word, i) => i === 0 || word === "Law" ? word : word.toLowerCase()).join(" ");
 
 const Heatmap = (props: Readonly<Props>) => {
     const [expandedBook, setExpandedBook] = useState<string | null>(null);
@@ -95,7 +93,7 @@ const Heatmap = (props: Readonly<Props>) => {
                             {/* the region key: a 4px edge in the division's colour, like the map's legend */}
                             <h4 className="mb-2 border-l-4 pl-2 text-[13px] font-medium leading-4 text-ui-muted"
                                 style={{ borderColor: group.books[0]?.region }}>
-                                {sentenceCase(group.name)}
+                                {DivisionUtil.sentenceCase(group.name)}
                             </h4>
                             <div className="space-y-0.5">
                                 {group.books.map((book: any) => {

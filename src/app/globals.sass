@@ -136,6 +136,10 @@ body
   --reader-on-accent: var(--ui-bg)
   --reader-line: rgba(242, 243, 244, 0.14)
   --reader-font: var(--font-reading), Georgia, serif
+  // Literata's metrics, for the drop cap (reading-fonts.ts sets them per typeface)
+  --reader-cap: 0.73
+  --reader-ascent: 1.177
+  --reader-descent: 0.308
   --reader-size: 19px
   --reader-leading: 1.65
   color: var(--reader-text)
@@ -205,16 +209,26 @@ body
     vertical-align: super
     color: var(--reader-accent)
 
-// Two lines tall, a flat solid colour, in a box that wholly
-// contains the glyph, so no browser can clip it.
-// Sized and placed from Literata's metrics (cap height 0.73em, ascent 1.18em, descent 0.31em), as a function of the
-// leading L: the cap spans from the first line's capitals to the second line's baseline, so it is L/0.73 + 1 body
-// ems tall, and its box (line-height 1, baseline 0.935em down) starts 0.2192L - 0.5 body ems below the line top.
+// Two lines tall, a flat solid colour, in the reader's own typeface: its foot sits on the second line's baseline and
+// its top rises a little (--dc-rise) above the first line's capitals, so it reads as the start of the first line rather
+// than sinking towards the second or third. Sized and placed from the face's metrics (--reader-cap, -ascent, -descent,
+// set per typeface in reading-fonts.ts) and the leading L, all in body ems:
+// - scale: the capital is cap + L + rise body ems tall, so the cap is (cap + L + rise) / cap body ems
+// - top: the first line's cap height sits L/2 + half - cap down its line, where half = (ascent - descent) / 2; in the
+//   cap's own box (line-height 1) its capital starts scale * (1/2 + half - cap) down, so the float moves by the difference,
+//   less the rise
+// - bottom: the float ends a quarter-line short of two lines (so sub-pixel rounding never reaches the third line),
+//   so the third line always runs the full width
+// Horizontally it hangs slightly into the margin and keeps a narrow gap, to offset the capitals' side bearings.
 .drop-cap
+  --dc-rise: 0.2
+  --dc-half: calc((var(--reader-ascent) - var(--reader-descent)) / 2)
+  --dc-scale: calc(1 + (var(--reader-leading) + var(--dc-rise)) / var(--reader-cap))
+  --dc-top: calc(var(--reader-leading) / 2 + var(--dc-half) - var(--reader-cap) - var(--dc-rise) - var(--dc-scale) * (0.5 + var(--dc-half) - var(--reader-cap)))
   float: left
-  margin: calc((0.2192 * var(--reader-leading) - 0.5) / (var(--reader-leading) / 0.73 + 1) * 1em) 0.08em 0 0
-  font-family: var(--font-reading), Georgia, serif
-  font-size: calc((var(--reader-leading) / 0.73 + 1) * 1em)
+  margin: calc(var(--dc-top) / var(--dc-scale) * 1em) 0.03em calc((2 * var(--reader-leading) - 0.25 - var(--dc-top) - var(--dc-scale)) / var(--dc-scale) * 1em) -0.03em
+  font-family: var(--reader-font)
+  font-size: calc(var(--dc-scale) * 1em)
   font-weight: 500
   line-height: 1
   color: var(--reader-accent)

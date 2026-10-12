@@ -59,7 +59,7 @@ export default function LogIn() {
     return (
         <>
             <main className="auth-page">
-                <div className={`${cardClassName} max-w-sm text-center`}>
+                <div className={`${cardClassName} max-w-sm`}>
                     <Form
                         action={action}
                         validationErrors={state?.errors}
@@ -148,7 +148,7 @@ export default function LogIn() {
                             )}
                         </Button>
 
-                        <p className="text-xs text-center text-ui-muted mt-2">
+                        <p className="text-xs text-ui-muted mt-2">
                             Don&apos;t have an account?{" "}
                             <Link
                                 href="/account/sign-up"

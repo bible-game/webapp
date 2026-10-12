@@ -135,7 +135,7 @@ export default function SignUp() {
         <>
             <main className="auth-page">
                 {!state?.success ? (
-                    <div className={`${cardClassName} max-w-md text-center`}>
+                    <div className={`${cardClassName} max-w-md`}>
                         <Form
                             action={action}
                             validationErrors={state?.errors}
