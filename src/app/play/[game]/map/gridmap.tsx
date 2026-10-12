@@ -54,7 +54,14 @@ const NONE: RuledOut = new Map();
 
 /** The mark on a filled cell (selected, or the answer), dark so it reads against the colour */
 const ANSWER_MARK = "#000000";
-const ANSWER_FONT = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace";
+const FALLBACK_MONO = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace";
+
+/** The interface's mono face (IBM Plex Mono, set as --font-mono by the root layout), read at draw time so the canvas can use it */
+function monoFont(): string {
+    if (typeof window === "undefined") return FALLBACK_MONO;
+    const family = getComputedStyle(document.documentElement).getPropertyValue("--font-mono").trim();
+    return family ? `${family}, ${FALLBACK_MONO}` : FALLBACK_MONO;
+}
 
 const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -156,7 +163,7 @@ const BibleGridmap = (props: GridmapProps) => {
                 // chapter groups sit quieter still: hairlines between them, small labels
                 sectionLine: playTheme.line,
                 sectionText: playTheme.faint,
-                font: "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
+                font: monoFont(),
             },
             labels: {
                 tooltip: (cell: GridmapCell) => `${cell.itemLabel} ${cell.label}`,
@@ -170,7 +177,11 @@ const BibleGridmap = (props: GridmapProps) => {
             },
         });
 
+        let alive = true;
+        document.fonts?.load(`500 12px ${monoFont()}`).then(() => { if (alive) gridmap.current?.setColours(colours as Record<string, string>); }).catch(() => {});
+
         return () => {
+            alive = false;
             gridmap.current?.destroy();
             gridmap.current = null;
         };
@@ -270,7 +281,7 @@ const BibleGridmap = (props: GridmapProps) => {
             if (size >= 14) {
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
-                ctx.font = `500 ${Math.min(24, size * 0.6)}px ${ANSWER_FONT}`;
+                ctx.font = `500 ${Math.min(24, size * 0.6)}px ${monoFont()}`;
                 ctx.fillText(cell.label, toScreenX(cell.centerX), toScreenY(cell.centerY));
             } else {
                 ctx.beginPath();

@@ -51,7 +51,7 @@ export default function ReaderToolbar(props: Props) {
                     <button type="button" className="ui-icon reader-tool" aria-label="Text settings" onClick={props.onType}>
                         <span aria-hidden className="text-[17px] font-medium tracking-tight">Aa</span>
                     </button>
-                    <button type="button" className="reader-tool mx-auto flex min-h-11 min-w-0 max-w-full items-center gap-1.5 rounded-full px-3 text-[13px] font-medium"
+                    <button type="button" className="reader-tool mx-auto flex min-h-11 min-w-0 max-w-full items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium"
                             aria-label={`Translation: ${props.translation}. Change translation`} onClick={props.onTranslation}>
                         <span className="truncate">{props.translation}</span>
                         <ChevronUp aria-hidden className="size-4 shrink-0" />

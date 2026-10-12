@@ -69,7 +69,7 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
     return (
         <>
             <button type="button" aria-label="Choose a date" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}
-                    className="flex h-9 items-center gap-2 rounded-full border border-play-line bg-play-surface pl-3 pr-2.5 text-[14px] font-medium tabular-nums text-play-text">
+                    className="flex h-9 items-center gap-2 rounded-lg border border-play-line bg-play-surface pl-3 pr-2.5 text-[14px] font-medium tabular-nums text-play-text">
                 <CalendarDaysIcon className="size-4 text-play-muted" aria-hidden="true"/>
                 <span>{props.label}</span>
                 <ChevronDownIcon className="size-4 text-play-muted" aria-hidden="true"/>
@@ -82,13 +82,13 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
                     <ModalBody className="gap-3 px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
                         <div className="flex items-center justify-between">
                             <Button isIconOnly disableRipple aria-label="Previous month"
-                                    className="h-12 w-12 min-w-0 rounded-full bg-transparent text-play-text data-[pressed=true]:!bg-play-raised"
+                                    className="h-12 w-12 min-w-0 rounded-lg bg-transparent text-play-text data-[pressed=true]:!bg-play-raised"
                                     onPress={() => setMonth(month.clone().subtract(1, "month"))}>
                                 <ChevronLeftIcon className="size-6"/>
                             </Button>
                             <span className="text-[17px] font-semibold">{month.format("MMMM YYYY")}</span>
                             <Button isIconOnly disableRipple aria-label="Next month" isDisabled={!canGoForward}
-                                    className="h-12 w-12 min-w-0 rounded-full bg-transparent text-play-text data-[pressed=true]:!bg-play-raised"
+                                    className="h-12 w-12 min-w-0 rounded-lg bg-transparent text-play-text data-[pressed=true]:!bg-play-raised"
                                     onPress={() => setMonth(month.clone().add(1, "month"))}>
                                 <ChevronRightIcon className="size-6"/>
                             </Button>

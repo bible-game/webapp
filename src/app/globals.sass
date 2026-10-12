@@ -2,8 +2,6 @@
 @tailwind components
 @tailwind utilities
 
-@import '@/styles/font.sass'
-
 @keyframes circleIn
   to
     stroke-dashoffset: 0
@@ -17,7 +15,7 @@
     background: var(--ui-bg)
     color: var(--ui-text)
     color-scheme: dark
-    font-family: Inter, system-ui, sans-serif
+    font-family: var(--font-sans), system-ui, sans-serif
     letter-spacing: 0
   body
     min-width: 320px
@@ -31,6 +29,9 @@
       outline-offset: 3px
   button:disabled
     cursor: default
+  // one stroke weight for every Lucide icon
+  svg.lucide
+    stroke-width: 1.75px
 
 body
   background: var(--ui-bg)
@@ -109,7 +110,7 @@ body
   flex-shrink: 0
   align-items: center
   justify-content: center
-  border-radius: 50%
+  border-radius: 8px
   color: var(--ui-muted)
   &:hover
     background: var(--ui-raised)
@@ -199,7 +200,7 @@ body
       opacity: 0.6
   sup
     margin-right: 1px
-    font-family: Inter, system-ui, sans-serif
+    font-family: var(--font-sans), system-ui, sans-serif
     font-size: 11px
     font-variant-numeric: tabular-nums
     line-height: 0
@@ -316,7 +317,7 @@ body
   min-height: 44px
   align-items: center
   justify-content: center
-  border-radius: 50%
+  border-radius: 8px
   font-size: 14px
   font-variant-numeric: tabular-nums
   color: var(--reader-text)
@@ -362,45 +363,42 @@ body
     height: 32px
     flex-shrink: 0
     place-items: center
-    border-radius: 50%
+    border-radius: 8px
     background: var(--ui-raised)
     font-size: 13px
     font-weight: 600
   &[aria-checked="true"]
-    border-color: var(--reader-accent)
-    background: color-mix(in srgb, var(--reader-accent) 8%, var(--ui-surface))
-    box-shadow: var(--reader-glow)
-    .badge
-      background: var(--reader-accent)
-      color: var(--reader-on-accent)
-  // Review states: colour plus icon and label, never colour alone
+    border-color: var(--ui-text)
+    background: var(--ui-light-2)
+  // Review states: brightness plus icon and label, never colour alone (green and red belong to regions)
   &[data-result="right"]
-    border-color: color-mix(in srgb, var(--ui-won) 60%, transparent)
-    background: color-mix(in srgb, var(--ui-won) 10%, var(--ui-surface))
-    color: var(--ui-won)
+    background: var(--ui-light-3)
+    color: var(--ui-text)
   &[data-result="wrong"]
-    border-color: color-mix(in srgb, var(--ui-lost) 60%, transparent)
-    background: color-mix(in srgb, var(--ui-lost) 10%, var(--ui-surface))
-    color: var(--ui-lost)
+    background: var(--ui-light-1)
+    color: var(--ui-faint)
+    > svg
+      color: var(--ui-lost)
 
-// Study: a book, tinted by its division
+// Study: a book, with its division as a coloured key edge (the legend key); the rest stays neutral
 .book-chip
   display: flex
   min-height: 48px
   align-items: center
   justify-content: center
-  padding: 0 8px
-  border: 1px solid color-mix(in srgb, var(--chip) 35%, transparent)
+  padding: 0 8px 0 12px
+  border: 1px solid var(--ui-line)
   border-radius: 8px
-  background: color-mix(in srgb, var(--chip) 10%, transparent)
-  color: var(--chip)
+  background: var(--ui-surface)
+  box-shadow: inset 4px 0 0 var(--chip)
+  color: var(--ui-text)
   font-size: 14px
   font-weight: 500
   text-align: center
   line-height: 1.2
   transition: background 150ms
   &:hover
-    background: color-mix(in srgb, var(--chip) 18%, transparent)
+    background: var(--ui-raised)
 
 // Study: a chapter; studied ones are tinted, with their stars beneath
 .study-chapter
@@ -410,7 +408,7 @@ body
   flex-direction: column
   align-items: center
   justify-content: center
-  border-radius: 50%
+  border-radius: 8px
   color: var(--ui-text)
   font-size: 15px
   font-variant-numeric: tabular-nums
@@ -479,7 +477,7 @@ input:-webkit-autofill:focus
   overflow: hidden
   text-align: center
 
-// Menu drawer: destinations in their division colour (`--tone`); the current one tinted with a restrained glow
+// Menu drawer: neutral destinations; the current one is lit
 .drawer-row
   animation: drawer-rise 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both
 
@@ -494,23 +492,23 @@ input:-webkit-autofill:focus
   color: var(--ui-text)
   transition: background-color 0.15s
   svg
-    color: var(--tone)
+    color: var(--ui-muted)
   &:hover
     background: var(--ui-surface)
   &[aria-current="page"]
-    border-color: color-mix(in srgb, var(--tone) 40%, transparent)
-    background: color-mix(in srgb, var(--tone) 12%, transparent)
-    box-shadow: 0 0 18px color-mix(in srgb, var(--tone) 18%, transparent)
+    background: var(--ui-light-1)
+    svg
+      color: var(--ui-text)
 
 @keyframes drawer-rise
   from
     opacity: 0
     transform: translateY(6px)
 
-// The tagline, set quietly in the reading serif beneath the emblem: a light line, then a smaller, fainter one
+// The tagline, set quietly in the interface sans beneath the emblem: a light line, then a smaller, fainter one
 .home-tagline
   margin-top: -16px
-  font-family: var(--font-reading), Georgia, serif
+  font-family: var(--font-sans), system-ui, sans-serif
   font-size: 24px
   font-weight: 300
   line-height: 1.2

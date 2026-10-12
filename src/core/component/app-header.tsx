@@ -7,7 +7,6 @@ import { Avatar, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, Drawer
 import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, LightbulbIcon, MenuIcon, PlayIcon, UserRoundIcon, XIcon } from "lucide-react";
 import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
 import { logOut } from "@/core/action/auth/log-out";
-import { playTheme } from "@/core/style/play-theme";
 import LogoMark from "@/core/component/logo-mark";
 
 export type AppHeaderProps = {
@@ -15,13 +14,12 @@ export type AppHeaderProps = {
     children?: React.ReactNode;
 };
 
-const iconButton = "h-11 w-11 min-w-0 rounded-full bg-transparent p-0 text-ui-text data-[hover=true]:!bg-ui-raised data-[pressed=true]:!bg-ui-raised";
-// Each destination keeps a division colour from the map, as its identity
+const iconButton = "h-11 w-11 min-w-0 rounded-lg bg-transparent p-0 text-ui-text data-[hover=true]:!bg-ui-raised data-[pressed=true]:!bg-ui-raised";
 const links = [
-    { label: "Play", detail: "Today's chapter", href: "/play/today", prefix: "/play", icon: PlayIcon, tone: playTheme.green },
-    { label: "Read", detail: "The whole Bible", href: "/read", prefix: "/read", icon: BookOpenIcon, tone: playTheme.teal },
-    { label: "Study", detail: "Test what you remember", href: "/study", prefix: "/study", icon: LightbulbIcon, tone: playTheme.purple },
-    { label: "Statistics", detail: "Stars, streaks and progress", href: "/stats", prefix: "/stats", icon: ChartColumnIcon, tone: playTheme.gold },
+    { label: "Play", detail: "Today's chapter", href: "/play/today", prefix: "/play", icon: PlayIcon },
+    { label: "Read", detail: "The whole Bible", href: "/read", prefix: "/read", icon: BookOpenIcon },
+    { label: "Study", detail: "Test what you remember", href: "/study", prefix: "/study", icon: LightbulbIcon },
+    { label: "Statistics", detail: "Stars, streaks and progress", href: "/stats", prefix: "/stats", icon: ChartColumnIcon },
 ];
 const pages = [
     { label: "About", href: "/about" },
@@ -57,16 +55,16 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                         <DropdownItem key="logout" color="danger" className="text-ui-text" onPress={logOutAndReload}>Log Out</DropdownItem>
                     </DropdownMenu>
                 </Dropdown> : <Link href="/account/log-in" aria-label="Log in to save your progress" title="Log in"
-                                   className="relative flex h-11 w-11 items-center justify-center rounded-full text-ui-text hover:bg-ui-raised">
+                                   className="relative flex h-11 w-11 items-center justify-center rounded-lg text-ui-text hover:bg-ui-raised">
                     <UserRoundIcon className="size-6" strokeWidth={1.75}/>
-                    <span aria-hidden="true" className="absolute right-2 top-2 size-2.5 rounded-full bg-ui-accent ring-2 ring-ui-bg"/>
+                    <span aria-hidden="true" className="absolute right-2 top-2 size-2.5 rounded-full bg-ui-notice ring-2 ring-ui-bg"/>
                 </Link>}
             </div>
             <Drawer isOpen={drawer.isOpen} onOpenChange={drawer.onOpenChange} placement="left" size="full" radius="none" hideCloseButton
                     classNames={{ base: "play-ui bg-ui-bg text-ui-text" }}>
                 <DrawerContent>{onClose => <>
                     <DrawerHeader className="relative flex h-[72px] items-center justify-between px-2 pb-0 pt-[env(safe-area-inset-top)]">
-                        <Link href="/" aria-label="Bible Game home" onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-full">
+                        <Link href="/" aria-label="Bible Game home" onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-lg">
                             <LogoMark size={30}/>
                         </Link>
                         <span className="absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold">Bible Game</span>
@@ -74,10 +72,10 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                     </DrawerHeader>
                     <DrawerBody className="px-4 pt-4">
                         <nav aria-label="Main navigation" className="grid gap-y-1">
-                            {links.map(({ label, detail, href, prefix, icon: Icon, tone }, index) => {
+                            {links.map(({ label, detail, href, prefix, icon: Icon }, index) => {
                                 const active = pathname === prefix || pathname.startsWith(prefix + "/");
                                 return <Link key={href} href={href} onClick={onClose} aria-current={active ? "page" : undefined}
-                                             className="drawer-row drawer-link" style={{ "--tone": tone, ...rise(index) } as React.CSSProperties}>
+                                             className="drawer-row drawer-link" style={rise(index)}>
                                     <Icon className="size-5 shrink-0" strokeWidth={1.75}/>
                                     <span className="min-w-0">
                                         <span className="block text-[16px] font-medium leading-tight">{label}</span>
@@ -99,7 +97,7 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                                        style={rise(links.length)}>
                             <span className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-ui-raised ring-1 ring-ui-line">
                                 <UserRoundIcon className="size-5" strokeWidth={1.75}/>
-                                <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-ui-accent ring-2 ring-ui-surface"/>
+                                <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2.5 rounded-full bg-ui-notice ring-2 ring-ui-surface"/>
                             </span>
                             <span className="min-w-0 flex-1">
                                 <span className="block text-[15px] font-medium">Log in</span>
@@ -114,7 +112,7 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                             </nav>
                             <div className="flex">
                                 {social.map(({ label, href, icon: Icon }) => <a key={href} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}
-                                                                               className="flex size-11 items-center justify-center rounded-full hover:bg-ui-raised hover:text-ui-text">
+                                                                               className="flex size-11 items-center justify-center rounded-lg hover:bg-ui-raised hover:text-ui-text">
                                     <Icon size={18} color="currentColor"/>
                                 </a>)}
                             </div>

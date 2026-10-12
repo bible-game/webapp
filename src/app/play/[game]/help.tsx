@@ -2,13 +2,15 @@
 
 import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
-import { Band, CLOSE, FAR, NEAR } from "@/app/play/[game]/closeness";
+import { ArrowDownIcon, ArrowUpIcon, PartyPopperIcon } from "lucide-react";
+import { Band, CLOSE, FAR, NEAR, foundBand } from "@/app/play/[game]/closeness";
+import { playTheme } from "@/core/style/play-theme";
 
-const examples: { band: Band, passage: string, up: boolean, distance: string, meaning: string }[] = [
+const examples: { band: Band, passage: string, up: boolean, distance?: string, meaning: string }[] = [
     { band: CLOSE, passage: "ACT 14", up: false, distance: "300", meaning: "Within 500 verses" },
     { band: NEAR, passage: "ROM 2", up: true, distance: "1.2K", meaning: "Within 2,000 verses" },
     { band: FAR, passage: "NUM 31", up: false, distance: "28K", meaning: "Further away" },
+    { band: foundBand(playTheme.teal), passage: "NUM 9", up: false, meaning: "Found, in its region's colour" },
 ];
 
 /**
@@ -26,16 +28,18 @@ const Help = ({ children }: { children: React.ReactElement }) => (
                 <p className="text-[14px] font-semibold">How to play</p>
                 <p>Each day, one chapter of the Bible is chosen and summarised. Can you find it?</p>
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
-                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction:</p>
+                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. The closer the guess, the brighter its tile:</p>
                 <ul className="grid gap-2">
                     {examples.map(({ band, passage, up, distance, meaning }) => {
                         const Arrow = up ? ArrowUpIcon : ArrowDownIcon;
                         return (
                             <li key={passage} className="flex items-center gap-3">
-                                <span className="flex h-9 w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-lg border text-[12px] font-semibold leading-[1.15] tabular-nums"
+                                <span className="flex h-9 w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-lg border font-mono text-[12px] font-medium leading-[1.15] tabular-nums"
                                       style={{ background: band.fill, borderColor: band.edge, color: band.text }}>
                                     {passage}
-                                    <span className="flex items-center gap-0.5 font-medium"><Arrow className="size-3" strokeWidth={2.5}/>{distance}</span>
+                                    {distance ?
+                                        <span className="flex items-center gap-0.5"><Arrow className="size-3" strokeWidth={2.5}/>{distance}</span> :
+                                        <PartyPopperIcon className="size-3.5" aria-label="Found"/>}
                                 </span>
                                 <span className="text-play-muted">{meaning}</span>
                             </li>

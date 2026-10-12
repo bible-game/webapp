@@ -16,7 +16,7 @@ export default function Landing(props: any) {
                     Explore the Bible <em>with a daily passage guessing game</em>
                 </h1>
                 <div className="home-hero-actions">
-                    <Link href="/play/today" className="ui-button ui-primary h-12 w-full max-w-[18rem] !rounded-full text-[15px]">
+                    <Link href="/play/today" className="ui-button ui-primary h-12 w-full max-w-[18rem] text-[15px]">
                         <PlayIcon className="size-[18px]" strokeWidth={2}/>Play today&apos;s chapter
                     </Link>
                 </div>

@@ -122,7 +122,7 @@ export default function Results({ passage, review, study, title }: Props) {
                                     <p className="rounded-lg border border-ui-line bg-ui-bg p-3 text-[15px] leading-[1.6]">{review.summary}</p>
                                     {review.gradingResult?.message ? (
                                         <p className="mt-2 flex items-start gap-2 text-[13px]">
-                                            <span className="shrink-0 rounded-full px-2 py-0.5 font-semibold tabular-nums"
+                                            <span className="shrink-0 rounded px-2 py-0.5 font-semibold tabular-nums"
                                                   style={{ color: scoreTone(review.gradingResult.score), background: `color-mix(in srgb, ${scoreTone(review.gradingResult.score)} 14%, transparent)` }}>
                                                 {review.gradingResult.score}
                                             </span>

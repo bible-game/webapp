@@ -1,5 +1,7 @@
 # Bible Game UI Alignment
 
+The target look and feel is `look-and-feel.md` (the wayfinding theme); the rules below record what the code does today and were brought in line with it on 13 October 2026.
+
 ## Reference: Play
 
 Play is the agreed reference experience. The first application-wide alignment is
@@ -18,13 +20,13 @@ their purpose, consistency, legibility, and fit with Bible Game.
 | Element | Rule |
 | --- | --- |
 | Page chrome | Neutral charcoal, solid surfaces, restrained borders. Values live in `src/core/style/ui-theme.ts`; Play extends these with its division palette. |
-| Colour | Preserve the map's teal, purple, rose, green, and gold division colours. Use colour for book identity, progress, or feedback. |
-| Primary action | During play, use the selected book's colour with a dimensional highlight and restrained glow. Other primary actions use a high-contrast fill. |
-| Typography | Inter for navigation, controls, labels, and numbers; Newsreader (self-hosted via `next/font`, `--font-reading`) for the clue and passages, with optional reader faces in `reading-fonts.ts`; monospace for the map. Keep serif display text tied to reading content. |
+| Colour | Colour means region: the map's teal, purple, rose, green and gold mark the book on screen and nothing else. Guess closeness is brightness (`light-1` to `light-3`), not hue; only the found chapter takes its region colour. Utility colours: `help` (blue) and `notice` (yellow). See `look-and-feel.md`. |
+| Primary action | When the screen has a book (Play's guess button, the end screen's Read link, Read's Mark as read), the action takes that book's region colour with a dimensional highlight and restrained glow. Otherwise it is a high-contrast white fill. |
+| Typography | IBM Plex Sans for navigation, controls, labels and page titles (including the Home tagline); IBM Plex Mono for addresses (guess tiles, book codes, distances) and the map's labels; Literata for scripture (the clue, passages, quiz questions), exposed as `--font-reading`. Optional reader faces live in `reading-fonts.ts`. |
 | Letter spacing | Normal spacing for UI text. Avoid decorative, widely spaced uppercase headings. |
-| Corners | 8px on tiles, menus, popovers, and sheets; retain the calendar's softer 24px corners. Circles for icon controls and days; pills for the existing compact action row and date control. |
+| Corners | One 8px radius on every rectangular control, tile, menu and panel; 16px on bottom sheets. Circles only for avatars, dots and calendar days. No pills. |
 | Spacing | Use 4px increments, principally 8/12/16/24px. Keep related controls together and use space or borders to divide sections. |
-| Controls | Lucide icons by default, retaining the chosen bare info/alert glyphs and horizon icon without an arrow. Accessible names, visible keyboard focus, hover feedback, and explicit disabled states. Main touch controls are 44-48px. |
+| Controls | Lucide icons at one stroke weight (1.75px), set globally. Accessible names, visible keyboard focus, hover feedback, and explicit disabled states. Main touch controls are 44-48px. |
 | Motion | Short feedback transitions, stable control dimensions, and respect for reduced motion. |
 | Panels | Frame overlays and individual guess tiles. Avoid framing every section or placing metric cards inside a popover. |
 | Responsive layout | Play retains its 640px content width, dynamic viewport height, safe-area padding, and fixed footer. Other tasks need their own content widths and normal document scrolling. |

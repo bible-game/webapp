@@ -2,17 +2,16 @@
 
 import React, { useState, useMemo } from 'react';
 import { CompletionUtil } from "@/core/util/completion-util";
+import colours from "@/app/play/[game]/map/config/colours.json";
+import { playTheme } from "@/core/style/play-theme";
 
 interface Props {
     data: any;
     bible: any;
 }
 
-const completionColor = (pct: number) => {
-    if (pct === 0) return "bg-ui-surface";
-    if (pct < 1) return "bg-ui-accent";
-    return "bg-ui-won";
-};
+/** Seen chapters and verses are lit in the book's region colour (--region, set on each book); unseen ones stay dark */
+const completionColor = (pct: number) => (pct === 0 ? "bg-ui-surface" : "bg-[var(--region)]");
 
 const completionOpacity = (pct: number) => {
     if (pct === 0) return "opacity-60";
@@ -24,9 +23,11 @@ const completionOpacity = (pct: number) => {
 
 const verseColor = (verse: any) => {
     if (verse === '') return "bg-ui-surface";
-    if (verse === 0) return "bg-ui-accent opacity-85";
-    return "bg-ui-won opacity-85";
+    if (verse === 0) return "bg-[var(--region)] opacity-40";
+    return "bg-[var(--region)] opacity-90";
 };
+
+const CELLS = 10;
 
 const Heatmap = (props: Readonly<Props>) => {
     const [expandedBook, setExpandedBook] = useState<string | null>(null);
@@ -43,6 +44,7 @@ const Heatmap = (props: Readonly<Props>) => {
                     const bookData = props.data[key];
                     return {
                         key,
+                        region: (colours as Record<string, string>)[book.key] ?? playTheme.text,
                         name: book.name,
                         completion: bookData ? CompletionUtil.calcBookCompletion(bookData) : 0,
                         data: bookData,
@@ -96,7 +98,7 @@ const Heatmap = (props: Readonly<Props>) => {
                                     const pct = book.completion;
 
                                     return (
-                                        <div key={book.key}>
+                                        <div key={book.key} style={{ "--region": book.region } as React.CSSProperties}>
                                             <button
                                                 aria-expanded={isExpanded}
                                                 onClick={() => toggleBook(book.key)}
@@ -109,11 +111,11 @@ const Heatmap = (props: Readonly<Props>) => {
                                                 <span className="text-xs font-light text-ui-text w-28 sm:w-36 flex-shrink-0 truncate">
                                                     {book.name}
                                                 </span>
-                                                <div className="flex-1 h-1.5 rounded-full bg-white/[0.15] overflow-hidden">
-                                                    <div
-                                                        className={`h-full rounded-full transition-all duration-500 ${pct === 0 ? '' : pct < 1 ? 'bg-ui-accent' : 'bg-ui-won'}`}
-                                                        style={{ width: `${Math.max(pct * 100, pct > 0 ? 2 : 0)}%` }}
-                                                    />
+                                                <div aria-hidden="true" className="flex flex-1 items-center gap-0.5">
+                                                    {[...Array(CELLS)].map((_, cell) => (
+                                                        <span key={cell}
+                                                              className={`h-1.5 flex-1 transition-colors duration-500 ${cell < (pct === 0 ? 0 : Math.max(1, Math.round(pct * CELLS))) ? 'bg-[var(--region)]' : 'bg-ui-light-1'}`}/>
+                                                    ))}
                                                 </div>
                                                 <span className="text-[10px] text-ui-muted tabular-nums w-8 text-right flex-shrink-0">
                                                     {Math.round(pct * 100)}%

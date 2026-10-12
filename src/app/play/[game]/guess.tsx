@@ -26,7 +26,7 @@ function fontSize(count: number): string {
 const Tile = ({ band, count, children }: { band: Band, count: number, children: React.ReactNode }) => (
     <motion.li initial={{ opacity: 0, y: 6, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }}
                transition={{ type: "spring", stiffness: 420, damping: 28 }}
-               className="flex h-9 min-w-0 flex-1 flex-col items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border px-[0.4em] font-semibold leading-[1.15] tabular-nums"
+               className="flex h-9 min-w-0 flex-1 flex-col items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border px-[0.4em] font-mono font-medium leading-[1.15] tabular-nums"
                style={{ background: band.fill, borderColor: band.edge, color: band.text, fontSize: fontSize(count) }}>
         {children}
     </motion.li>
@@ -34,11 +34,11 @@ const Tile = ({ band, count, children }: { band: Band, count: number, children: 
 
 /** A guess not yet made */
 const Slot = () => (
-    <li aria-hidden="true" className="h-9 min-w-0 flex-1 rounded-lg border border-dashed border-play-line bg-play-surface/50"/>
+    <li aria-hidden="true" className="h-9 min-w-0 flex-1 rounded-lg border border-dashed border-play-line"/>
 );
 
 /**
- * Guess Tile: passage, direction and distance, coloured by how close it was
+ * Guess Tile: passage, direction and distance, lit by how close it was (the found chapter takes its region colour)
  */
 const Guess = ({ guess, count }: { guess: any, count: number }) => {
     const distance = distanceOf(guess);

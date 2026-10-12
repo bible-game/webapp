@@ -25,11 +25,18 @@ import MyStats from "@/app/play/[game]/my-stats";
 import colours from "@/app/play/[game]/map/config/colours.json";
 import groups from "@/app/play/[game]/map/config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
+import { lightOf } from "@/app/play/[game]/closeness";
 
 const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.18 } };
 /** The footer's switch between choosing and guessing: no exit and no movement, just a quick fade-in, so it never lags */
 const quick = { initial: { opacity: 0.4 }, animate: { opacity: 1 }, transition: { duration: 0.12 } };
-const stepper = "flex size-12 shrink-0 items-center justify-center rounded-full border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
+/** The primary action when a book is on screen: lit in that book's region colour (a dimensional highlight and a restrained glow) */
+const lit = (tint: string): React.CSSProperties => ({
+    "--tint": tint,
+    background: `linear-gradient(180deg, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0.08) 48%, transparent 52%), linear-gradient(135deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint) 60%, color-mix(in srgb, var(--tint) 88%, black))`,
+    boxShadow: `inset 0 1px 0 rgb(255 255 255 / 0.4), inset 0 -1px 0 color-mix(in srgb, var(--tint) 70%, black), 0 3px 12px -4px color-mix(in srgb, var(--tint) 45%, transparent)`,
+} as React.CSSProperties);
+const stepper = "flex size-12 shrink-0 items-center justify-center rounded-lg border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
 
 /**
  * One height for the footer in every state (choosing, guessing, game over), so the map above it never resizes when the
@@ -40,15 +47,6 @@ const FOOTER = "h-[100px] pb-2";
 
 const MAX_GUESSES = 5;
 
-
-/** A guess's colour by how far off it was, in step with the share text's squares (calcGuessBlocks) */
-function closenessColour(distance: number): string {
-    const d = Math.abs(distance);
-    if (d <= 500)  return playTheme.green;
-    if (d <= 2000) return playTheme.gold;
-    if (d <= 5000) return playTheme.orange;
-    return playTheme.rose;
-}
 
 /** The named chapter group (map/config/groups.json) a chapter falls in, e.g. "Rise of David" */
 function groupOf(book: string, chapter: number): string | undefined {
@@ -217,7 +215,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                 <InfoGlyph className="size-6"/>
                             </button>
                         </Help>
-                        <span aria-hidden="true" className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full border border-dashed border-play-line bg-play-surface px-5 text-[16px] text-play-muted">
+                        <span aria-hidden="true" className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-play-line bg-play-surface px-5 text-[16px] text-play-muted">
                             <span className="flex items-center gap-2 [@media(hover:hover)_and_(pointer:fine)]:hidden">
                                 <PointerIcon className="size-5 shrink-0" strokeWidth={1.75}/>Tap the map
                             </span>
@@ -244,7 +242,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                             <span className="text-play-muted">Your progress is only saved on this device. Log in to keep your streak and stars.</span>
                                         </p>
                                         <Link href="/account/log-in"
-                                              className="flex h-10 items-center justify-center rounded-full bg-play-text text-[14px] font-semibold text-play-bg transition active:scale-[0.98]">
+                                              className="flex h-10 items-center justify-center rounded-lg bg-play-text text-[14px] font-semibold text-play-bg transition active:scale-[0.98]">
                                             Log in
                                         </Link>
                                     </div>
@@ -259,7 +257,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                 const guessed = props.guesses[index];
                                 return (
                                     <span key={index} className={`size-2.5 rounded-full transition-colors ${!guessed && index == props.guesses.length ? "ring-1 ring-play-muted" : ""}`}
-                                          style={{ background: guessed ? closenessColour(guessed.closeness.distance) : playTheme.line }}/>
+                                          style={{ background: guessed ? lightOf(guessed) : playTheme.line }}/>
                                 );
                             })}
                         </span>
@@ -274,12 +272,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         </button>
                         <button type="button" disabled={guessed || !!excluded} onClick={submit}
                                 aria-label={excluded ? undefined : `${guessed ? "Guessed" : "Guess"} ${props.selected.book} ${props.chapter}`}
-                                style={ready ? {
-                                    "--tint": tint,
-                                    background: `linear-gradient(180deg, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0.08) 48%, transparent 52%), linear-gradient(135deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint) 60%, color-mix(in srgb, var(--tint) 88%, black))`,
-                                    boxShadow: `inset 0 1px 0 rgb(255 255 255 / 0.4), inset 0 -1px 0 color-mix(in srgb, var(--tint) 70%, black), 0 3px 12px -4px color-mix(in srgb, var(--tint) 45%, transparent)`,
-                                } as React.CSSProperties : undefined}
-                                className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-play-text px-5 text-[16px] font-medium text-play-bg transition active:scale-[0.98] disabled:bg-play-raised disabled:text-play-faint">
+                                style={ready ? lit(tint) : undefined}
+                                className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-play-text px-5 text-[16px] font-medium text-play-bg transition active:scale-[0.98] disabled:bg-play-raised disabled:text-play-faint">
                             {excluded ?
                                 <span className="truncate">{excluded}</span> :
                                 <>
@@ -306,6 +300,10 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     );
 
     const isToday = moment(props.date).isSame(moment(), "day");
+    // the answer's region colour: Read, the next step, takes it
+    const passageKey = props.bible.testaments.flatMap((t: any) => t.divisions).flatMap((d: any) => d.books)
+        .find((bk: any) => bk.name == props.passage.book)?.key;
+    const passageTint: string = (colours as Record<string, string>)[passageKey] ?? playTheme.text;
 
     return (
         <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-3 px-4`}>
@@ -319,7 +317,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
             </span>
             <div className="grid grid-cols-2 gap-2">
                 <button type="button" onClick={share} aria-live="polite" aria-label={shared && !copied && isToday ? "Copy results again" : undefined}
-                        className="flex h-12 items-center justify-center overflow-hidden whitespace-nowrap rounded-full bg-play-text px-3 text-[15px] font-semibold text-play-bg transition active:scale-[0.98]">
+                        className="flex h-12 items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border border-play-line bg-play-surface px-3 text-[15px] font-semibold text-play-text transition active:scale-[0.98]">
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.span key={copied ? "copied" : shared && isToday ? "countdown" : "share"} {...fade} className="flex items-center gap-2">
                             {copied ?
@@ -332,7 +330,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     </AnimatePresence>
                 </button>
                 <Link href={`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`}
-                      className="flex h-12 min-w-0 items-center justify-center gap-2 rounded-full border border-play-line bg-play-surface px-3 text-[15px] font-semibold text-play-text transition active:scale-[0.98]">
+                      style={lit(passageTint)}
+                      className="flex h-12 min-w-0 items-center justify-center gap-2 rounded-lg bg-play-text px-3 text-[15px] font-semibold text-play-bg transition active:scale-[0.98]">
                     <BookOpenIcon className="size-4 shrink-0" strokeWidth={2.25}/>
                     <Passage key={`${props.passage.book} ${props.passage.chapter}`} book={props.passage.book} chapter={props.passage.chapter} sizes={READ_SIZES}/>
                 </Link>

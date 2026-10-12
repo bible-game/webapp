@@ -11,7 +11,7 @@ export type ReaderSettings = {
 };
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
-    font: "newsreader",
+    font: "literata",
     size: 19,
     leading: 1.65,
     translation: "web",

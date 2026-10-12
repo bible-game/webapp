@@ -63,7 +63,7 @@ export default function PopUp() {
                             </ModalBody>
                             <ModalFooter>
                                 <Button
-                                    className="h-12 w-full rounded-full bg-play-text text-[16px] font-semibold text-play-bg"
+                                    className="h-12 w-full rounded-lg bg-play-text text-[16px] font-semibold text-play-bg"
                                     onPress={() => handleChoice(true, onClose)}>
                                     Accept and play
                                 </Button>

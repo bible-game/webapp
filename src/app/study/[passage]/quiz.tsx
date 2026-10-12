@@ -20,7 +20,8 @@ export const LETTERS = ['A', 'B', 'C'];
 export const optionsOf = (q: Question) => [q.optionOne, q.optionTwo, q.optionThree];
 
 /** The summary score's tint: won, amber, or lost, as before */
-export const scoreTone = (score: number) => score > 60 ? 'var(--ui-won)' : score > 40 ? 'var(--ui-amber)' : 'var(--ui-lost)';
+/** A grading score as brightness, not hue: green and red belong to the map's regions */
+export const scoreTone = (score: number) => score > 60 ? 'var(--ui-text)' : score > 40 ? 'var(--ui-muted)' : 'var(--ui-faint)';
 
 type Props = {
     /** The study's key, as in its address; reviews are saved under it */
@@ -160,7 +161,7 @@ export default function Quiz({ passage, study, title, loggedIn, onStep, onPassag
                                     <span className="flex items-center gap-2 text-ui-muted"><Spinner size="sm" color="default" />Scoring…</span>
                                 ) : grading ? (
                                     <span className="flex items-start gap-2">
-                                        <span className="shrink-0 rounded-full px-2 py-0.5 font-semibold tabular-nums"
+                                        <span className="shrink-0 rounded px-2 py-0.5 font-semibold tabular-nums"
                                               style={{ color: scoreTone(grading.score), background: `color-mix(in srgb, ${scoreTone(grading.score)} 14%, transparent)` }}>
                                             {grading.score}
                                         </span>
@@ -177,18 +178,18 @@ export default function Quiz({ passage, study, title, loggedIn, onStep, onPassag
                 <div className="mx-auto flex max-w-[43rem] items-center gap-3 px-4 pb-[max(16px,env(safe-area-inset-bottom))] sm:px-6">
                     {step > 0 ? (
                         <button type="button" aria-label="Previous question" onClick={() => setStep(step - 1)}
-                                className="grid size-12 shrink-0 place-items-center rounded-full bg-ui-raised text-ui-text hover:bg-ui-line">
+                                className="grid size-12 shrink-0 place-items-center rounded-lg bg-ui-raised text-ui-text hover:bg-ui-line">
                             <ArrowLeftIcon className="size-5" />
                         </button>
                     ) : null}
                     {onSummary ? (
                         <button type="button" onClick={submit} disabled={!allAnswered}
-                                className="ui-button reader-primary h-12 flex-1 !rounded-full text-[15px] disabled:!opacity-40 disabled:!shadow-none">
+                                className="ui-button reader-primary h-12 flex-1 text-[15px] disabled:!opacity-40 disabled:!shadow-none">
                             {allAnswered ? 'Submit' : 'Answer every question to submit'}
                         </button>
                     ) : (
                         <button type="button" onClick={() => setStep(step + 1)} disabled={!answers[step]}
-                                className="ui-button reader-primary h-12 flex-1 !rounded-full text-[15px] disabled:!opacity-40 disabled:!shadow-none">
+                                className="ui-button reader-primary h-12 flex-1 text-[15px] disabled:!opacity-40 disabled:!shadow-none">
                             {step === steps - 2 ? 'Next: summary' : 'Next'}
                         </button>
                     )}

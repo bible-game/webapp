@@ -20,7 +20,20 @@ const config: Config = {
         ui: uiTheme,
       },
       fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        // scripture: the clue, passages, quiz questions
         clue: ["var(--font-reading)", "Georgia", "serif"],
+      },
+      // one radius for every rectangular control, panel and chip (8px); sheets use 3xl (16px); circles are rounded-full
+      borderRadius: {
+        DEFAULT: "8px",
+        sm: "8px",
+        md: "8px",
+        lg: "8px",
+        xl: "8px",
+        "2xl": "8px",
+        "3xl": "16px",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
@@ -29,6 +42,9 @@ const config: Config = {
       },
     },
   },
-  plugins: [nextui(),heroui()],
+  plugins: [
+    nextui({ layout: { radius: { small: "8px", medium: "8px", large: "8px" } } }),
+    heroui({ layout: { radius: { small: "8px", medium: "8px", large: "8px" } } }),
+  ],
 };
 export default config;
