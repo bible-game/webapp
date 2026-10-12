@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 import AppHeader from "@/core/component/app-header";
 import CannonConfettiCanvas from "@/core/component/confetti";
@@ -26,7 +26,6 @@ export default function StudyContent(props: { passage: string; state?: Map<strin
     const [failed, setFailed] = useState(false);
     const [review, setReview] = useState<ReviewState | undefined>();
     const [ready, setReady] = useState(false);
-    const [step, setStep] = useState(0);
     const [passageOpen, setPassageOpen] = useState(false);
     const [confetti, setConfetti] = useState(false);
     const reducedMotion = useReducedMotion();
@@ -51,7 +50,6 @@ export default function StudyContent(props: { passage: string; state?: Map<strin
         return () => clearTimeout(t);
     }, [confetti]);
 
-    const onStep = useCallback((s: number) => setStep(s), []);
 
     function onSubmit(next: ReviewState) {
         if (next.stars > 0) setConfetti(true);
@@ -59,9 +57,6 @@ export default function StudyContent(props: { passage: string; state?: Map<strin
         window.scrollTo({ top: 0 });
     }
 
-    const steps = (study?.questions.length ?? 4) + 1;
-    const subtitle = review ? "Your result" : step < steps - 1 ? `Question ${step + 1} of ${steps}` : "Summary";
-    const progress = review ? 100 : (step / steps) * 100;
 
     return (
         <div className="study min-h-dvh">
@@ -69,14 +64,8 @@ export default function StudyContent(props: { passage: string; state?: Map<strin
             <div className="reader-header">
                 <div className="app-header">
                     <AppHeader info={props.info}>
-                        <div className="flex min-w-0 flex-col items-center">
-                            <span className="reader-title truncate">{title}</span>
-                            <span className="text-[11px] tabular-nums text-ui-muted">{ready ? subtitle : " "}</span>
-                        </div>
+                        <span className="reader-title min-w-0 truncate">{title}</span>
                     </AppHeader>
-                </div>
-                <div aria-hidden className="reader-progress">
-                    <div className="transition-[width] duration-300" style={{ width: `${progress}%` }} />
                 </div>
             </div>
 
@@ -95,7 +84,7 @@ export default function StudyContent(props: { passage: string; state?: Map<strin
                         </div>
                     ) : (
                         <Quiz passage={props.passage} study={study} title={title} loggedIn={!!props.state}
-                              onStep={onStep} onPassage={() => setPassageOpen(true)} onSubmit={onSubmit} />
+                              onPassage={() => setPassageOpen(true)} onSubmit={onSubmit} />
                     )}
                 </div>
             </main>

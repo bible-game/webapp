@@ -34,7 +34,7 @@ function ResetPasswordContent() {
     if (!token || !tokenValid) {
         return (
             <div className="w-full max-w-md text-ui-text text-center">
-                <h1 className="text-2xl font-semibold">Invalid Link</h1>
+                <h1 className="text-2xl font-semibold">Invalid link</h1>
                 <p className="text-sm text-ui-muted mt-2 mb-6">
                     The password reset link is invalid or has expired.
                 </p>
@@ -56,8 +56,8 @@ function ResetPasswordContent() {
                 validationErrors={state?.errors}
                 className="auth-form flex flex-col gap-5"
             >
-                <div className="text-center mb-2">
-                    <h1 className="text-2xl font-semibold">Reset Password</h1>
+                <div className="mb-2">
+                    <h1 className="text-2xl font-semibold">Reset password</h1>
                     <p className="text-sm text-ui-muted mt-1">
                         Enter your new password below.
                     </p>
@@ -68,7 +68,7 @@ function ResetPasswordContent() {
                 <Input
                     classNames={inputClassNames}
                     type="password"
-                    label="New Password"
+                    label="New password"
                     variant="bordered"
                     name="password"
                     isRequired
@@ -77,7 +77,7 @@ function ResetPasswordContent() {
                 <Input
                     classNames={inputClassNames}
                     type="password"
-                    label="Confirm New Password"
+                    label="Confirm New password"
                     variant="bordered"
                     name="confirmPassword"
                     isRequired
@@ -108,7 +108,7 @@ function ResetPasswordContent() {
                             Resetting...
                         </span>
                     ) : (
-                        "Reset Password"
+                        "Reset password"
                     )}
                 </Button>
             </Form>

@@ -85,10 +85,10 @@ export default function SignUp() {
     const fields = [
         { name: "email", type: "email", label: "Email", icon: Mail, isRequired: true },
         { name: "password", type: "password", label: "Password", icon: Lock, isPassword: true, isRequired: true, description: "At least 8 characters" },
-        { name: "confirmPassword", type: "password", label: "Confirm Password", icon: Lock, isPassword: true, isRequired: true },
-        { name: "firstname", type: "text", label: "First Name", icon: User, isRequired: true },
-        { name: "lastname", type: "text", label: "Last Name", icon: User, isRequired: true },
-        { name: "church", type: "text", label: "Home Church", icon: Church },
+        { name: "confirmPassword", type: "password", label: "Confirm password", icon: Lock, isPassword: true, isRequired: true },
+        { name: "firstname", type: "text", label: "First name", icon: User, isRequired: true },
+        { name: "lastname", type: "text", label: "Last name", icon: User, isRequired: true },
+        { name: "church", type: "text", label: "Home church", icon: Church },
     ]
 
     const renderField = ({ name, type, label, icon: Icon, isPassword, isRequired, description }: {
@@ -141,7 +141,7 @@ export default function SignUp() {
                             validationErrors={state?.errors}
                             className="auth-form flex flex-col space-y-4"
                         >
-                            <h1 className="text-2xl font-semibold text-ui-text">Create Account</h1>
+                            <h1 className="text-2xl font-semibold text-ui-text">Create account</h1>
 
                             {fields.map(renderField)}
 
@@ -186,7 +186,7 @@ export default function SignUp() {
                                         Creating...
                                     </span>
                                 ) : (
-                                    "Sign Up"
+                                    "Sign up"
                                 )}
                             </Button>
 
@@ -239,7 +239,7 @@ export default function SignUp() {
                                 />
                             </svg>
                         </div>
-                        <h1 className="text-2xl font-semibold text-ui-text">Account Created!</h1>
+                        <h1 className="text-2xl font-semibold text-ui-text">Account created</h1>
                         <p className="text-sm text-ui-text">
                             You can now log in with your new credentials.
                         </p>
@@ -249,7 +249,7 @@ export default function SignUp() {
                             className={`${submitButtonClassName} p-4`}
                             style={submitButtonStyle}
                         >
-                            Log In
+                            Log in
                         </Button>
                     </div>
                 )}

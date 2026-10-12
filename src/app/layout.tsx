@@ -13,7 +13,7 @@ const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variabl
 /** Scripture: anything from, or about, a specific passage (Play's clue, Read's text, quiz questions) */
 const reading = Literata({ subsets: ["latin"], axes: ["opsz"], style: ["normal", "italic"], variable: "--font-reading", display: "swap" });
 
-const description = "Explore the Bible with a daily passage guessing game.";
+const description = "Explore the Bible with a daily chapter-guessing game.";
 
 export const metadata: Metadata = {
     metadataBase: new URL("https://bible.game"),

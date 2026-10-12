@@ -29,16 +29,15 @@ type Props = {
     study: Study;
     title: string;
     loggedIn: boolean;
-    onStep: (step: number) => void;
     onPassage: () => void;
     onSubmit: (review: ReviewState) => void;
 };
 
 /**
- * The study, one step at a time: four questions, then a summary
+ * The study, one step at a time: four questions, then a summary (the fifth question)
  * @since 8th October 2026
  */
-export default function Quiz({ passage, study, title, loggedIn, onStep, onPassage, onSubmit }: Props) {
+export default function Quiz({ passage, study, title, loggedIn, onPassage, onSubmit }: Props) {
     const questions = study.questions;
     const steps = questions.length + 1;
     const [step, setStep] = useState(0);
@@ -54,9 +53,8 @@ export default function Quiz({ passage, study, title, loggedIn, onStep, onPassag
     const allAnswered = questions.every((_, i) => answers[i]);
 
     useEffect(() => {
-        onStep(step);
         window.scrollTo({ top: 0 });
-    }, [step, onStep]);
+    }, [step]);
 
     const grade = useDebouncedCallback((text: string) => {
         if (!text.trim()) { setGrading(null); setIsGrading(false); return; }
@@ -110,8 +108,15 @@ export default function Quiz({ passage, study, title, loggedIn, onStep, onPassag
 
     return (
         <div className="pb-36">
+            {/* Progress as a row of ruled cells, like the guess slots: done, current, still to come */}
+            <ol aria-hidden className="mb-1 flex gap-1">
+                {Array.from({ length: steps }, (_, i) => (
+                    <li key={i} className="h-1.5 flex-1 transition-colors"
+                        style={{ background: i < step ? "var(--ui-light-3)" : i === step ? "var(--ui-text)" : "var(--ui-light-1)" }} />
+                ))}
+            </ol>
             <div className="mb-3 flex min-h-11 items-center justify-between gap-3">
-                <span className="text-[13px] text-ui-muted">{onSummary ? 'In your own words' : 'Choose one'}</span>
+                <span className="text-[13px] tabular-nums text-ui-muted">Question {step + 1} of {steps}</span>
                 <button type="button" onClick={onPassage}
                         className="-mr-2 flex min-h-11 items-center gap-2 rounded-lg px-2 text-[13px] text-ui-muted hover:text-ui-text">
                     <BookOpenIcon className="size-4" />Passage
@@ -184,12 +189,12 @@ export default function Quiz({ passage, study, title, loggedIn, onStep, onPassag
                     ) : null}
                     {onSummary ? (
                         <button type="button" onClick={submit} disabled={!allAnswered}
-                                className="ui-button reader-primary h-12 flex-1 text-[15px] disabled:!opacity-40 disabled:!shadow-none">
+                                className="ui-button reader-primary h-12 flex-1 text-[15px] disabled:!bg-ui-raised disabled:!text-ui-faint">
                             {allAnswered ? 'Submit' : 'Answer every question to submit'}
                         </button>
                     ) : (
                         <button type="button" onClick={() => setStep(step + 1)} disabled={!answers[step]}
-                                className="ui-button reader-primary h-12 flex-1 text-[15px] disabled:!opacity-40 disabled:!shadow-none">
+                                className="ui-button reader-primary h-12 flex-1 text-[15px] disabled:!bg-ui-raised disabled:!text-ui-faint">
                             {step === steps - 2 ? 'Next: summary' : 'Next'}
                         </button>
                     )}

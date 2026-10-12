@@ -9,6 +9,10 @@ import {
 } from "@heroui/react";
 import React, { useEffect, useState } from "react";
 import { StateUtil } from "@/core/util/state-util";
+import { playTheme } from "@/core/style/play-theme";
+
+/** The map's key: its five region colours, in map order */
+const regions = [playTheme.teal, playTheme.purple, playTheme.rose, playTheme.green, playTheme.gold];
 
 export default function PopUp() {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -55,11 +59,17 @@ export default function PopUp() {
                         <>
                             <ModalHeader>
                                 <span aria-hidden="true" className="h-1 w-10 rounded-full bg-play-line"/>
-                                <span className="text-[18px] font-semibold text-play-text">Welcome to The Bible Game</span>
+                                <span className="text-[18px] font-semibold text-play-text">Welcome to Bible Game</span>
                             </ModalHeader>
                             <ModalBody>
                                 <p>Explore the Bible with a daily chapter-guessing game.</p>
                                 <p>We use cookies to save your progress.</p>
+                                <figure className="mt-4 flex flex-col gap-2">
+                                    <figcaption className="text-[12px] text-play-faint">Five colours, five regions of one map.</figcaption>
+                                    <span aria-hidden="true" className="flex gap-1">
+                                        {regions.map((colour) => <span key={colour} className="h-1.5 flex-1" style={{ background: colour }}/>)}
+                                    </span>
+                                </figure>
                             </ModalBody>
                             <ModalFooter>
                                 <Button

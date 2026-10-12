@@ -25,17 +25,14 @@ import MyStats from "@/app/play/[game]/my-stats";
 import colours from "@/app/play/[game]/map/config/colours.json";
 import groups from "@/app/play/[game]/map/config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
+import { uiTheme } from "@/core/style/ui-theme";
 import { lightOf } from "@/app/play/[game]/closeness";
 
 const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.18 } };
 /** The footer's switch between choosing and guessing: no exit and no movement, just a quick fade-in, so it never lags */
 const quick = { initial: { opacity: 0.4 }, animate: { opacity: 1 }, transition: { duration: 0.12 } };
-/** The primary action when a book is on screen: lit in that book's region colour (a dimensional highlight and a restrained glow) */
-const lit = (tint: string): React.CSSProperties => ({
-    "--tint": tint,
-    background: `linear-gradient(180deg, rgb(255 255 255 / 0.3) 0%, rgb(255 255 255 / 0.08) 48%, transparent 52%), linear-gradient(135deg, color-mix(in srgb, var(--tint) 75%, white), var(--tint) 60%, color-mix(in srgb, var(--tint) 88%, black))`,
-    boxShadow: `inset 0 1px 0 rgb(255 255 255 / 0.4), inset 0 -1px 0 color-mix(in srgb, var(--tint) 70%, black), 0 3px 12px -4px color-mix(in srgb, var(--tint) 45%, transparent)`,
-} as React.CSSProperties);
+/** The primary action when a book is on screen: a flat fill in that book's region colour (glow is kept for the map) */
+const lit = (tint: string): React.CSSProperties => ({ background: tint });
 const stepper = "flex size-12 shrink-0 items-center justify-center rounded-lg border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
 
 /**
@@ -211,7 +208,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     <div className="flex items-center gap-2">
                         <Help>
                             <button type="button" aria-label="How to play" title="How to play" className={stepper}
-                                    style={{ color: "#4cc9ff", borderColor: "color-mix(in srgb, #4cc9ff 40%, transparent)" }}>
+                                    style={{ color: uiTheme.help }}>
                                 <InfoGlyph className="size-6"/>
                             </button>
                         </Help>
@@ -231,7 +228,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                             }}>
                                 <PopoverTrigger>
                                     <button type="button" aria-label="You're not logged in. Show details" title="Save your progress" className={stepper}
-                                            style={{ color: "#e8b04f", borderColor: "color-mix(in srgb, #e8b04f 40%, transparent)" }}>
+                                            style={{ color: uiTheme.notice }}>
                                         <AlertGlyph className="size-6"/>
                                     </button>
                                 </PopoverTrigger>

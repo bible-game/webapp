@@ -173,3 +173,26 @@ framework deprecation warnings remain.
 
 Authenticated server submissions, password email delivery, and live audio playback
 were not exercised by these UI checks.
+
+## Figma 1.1.0 refinement (13 October 2026)
+
+Implemented from the refined Figma (see `look-and-feel.md`, Glow and Region key):
+
+- Glow only on the map, stars and emblem: Play's region primary is a flat fill; Read's
+  `--reader-glow` is gone (primary, drop cap, scroll progress, chapter, audio, tools).
+- Play's help and notice buttons are neutral outlines with a coloured glyph;
+  `notice` shares the warning gold.
+- Study quiz: five ruled progress cells and a "Question n of 5" row above the
+  question (the summary counts as the fifth); disabled Next is neutral. The header
+  shows only the passage name.
+- Mono chapter numbers (Read sheet, Study chapters) and step numbers `01`–`05` on
+  How it works; neutral Read/Study/Statistics icons.
+- Welcome sheet: "Welcome to Bible Game" and a five-colour region key.
+- Statistics: sentence-case division names with a 4px region key edge, "Bible
+  completion", whole percentages ("<1%" for any progress below 1%), neutral Games icon.
+- Account pages: sentence case, left-aligned headings, 16px gutter on phones.
+- "Chapter-guessing game" in the tagline, metadata, OG image and About.
+
+Checked at 375px against the mock passage service: Play (welcome, select),
+Study quiz, Statistics, Home and How it works, Read, Forgot password.
+The leaderboard and logged-in states need the user service (:8082), which was off.

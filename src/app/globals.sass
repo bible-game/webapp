@@ -135,7 +135,6 @@ body
   --reader-accent: var(--division, var(--ui-muted))
   --reader-on-accent: var(--ui-bg)
   --reader-line: rgba(242, 243, 244, 0.14)
-  --reader-glow: 0 0 10px color-mix(in srgb, var(--reader-accent) 55%, transparent)
   --reader-font: var(--font-reading), Georgia, serif
   --reader-size: 19px
   --reader-leading: 1.65
@@ -186,7 +185,6 @@ body
   div
     height: 100%
     background: var(--reader-accent)
-    box-shadow: var(--reader-glow)
 
 .reading-prose
   font-family: var(--reader-font)
@@ -207,7 +205,7 @@ body
     vertical-align: super
     color: var(--reader-accent)
 
-// Two lines tall. Solid colour with a text-shadow glow, in a box that wholly
+// Two lines tall, a flat solid colour, in a box that wholly
 // contains the glyph, so no browser can clip it.
 // Sized and placed from Literata's metrics (cap height 0.73em, ascent 1.18em, descent 0.31em), as a function of the
 // leading L: the cap spans from the first line's capitals to the second line's baseline, so it is L/0.73 + 1 body
@@ -220,22 +218,19 @@ body
   font-weight: 500
   line-height: 1
   color: var(--reader-accent)
-  text-shadow: 0 0 14px color-mix(in srgb, var(--reader-accent) 40%, transparent)
 
 .reader-primary
   border-color: transparent !important
   background: var(--reader-accent) !important
   color: var(--reader-on-accent) !important
-  box-shadow: var(--reader-glow)
 
 .reader-done
   border-color: color-mix(in srgb, var(--reader-accent) 60%, transparent) !important
   background: color-mix(in srgb, var(--reader-accent) 12%, transparent) !important
   color: var(--reader-accent) !important
 
-.reader-glow-fill
+.reader-fill
   background: var(--reader-accent)
-  box-shadow: var(--reader-glow)
 
 .reader-toolbar
   background: linear-gradient(180deg, transparent, var(--ui-bg) 24px)
@@ -247,7 +242,6 @@ body
     color: var(--reader-text)
   &[data-on]
     color: var(--reader-accent)
-    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--reader-accent) 60%, transparent))
 
 .reader-range
   display: block
@@ -274,14 +268,12 @@ body
     margin-top: -6px
     border-radius: 50%
     background: var(--reader-accent)
-    box-shadow: var(--reader-glow)
   &::-moz-range-thumb
     width: 14px
     height: 14px
     border: 0
     border-radius: 50%
     background: var(--reader-accent)
-    box-shadow: var(--reader-glow)
 
 .reader-tile
   display: flex
@@ -296,7 +288,7 @@ body
   &[aria-checked="true"]
     border-color: var(--reader-accent)
     color: var(--reader-text)
-    box-shadow: inset 0 0 0 1px var(--reader-accent), var(--reader-glow)
+    box-shadow: inset 0 0 0 1px var(--reader-accent)
 
 .reader-field
   min-height: 48px
@@ -319,6 +311,7 @@ body
   align-items: center
   justify-content: center
   border-radius: 8px
+  font-family: var(--font-mono), ui-monospace, monospace
   font-size: 14px
   font-variant-numeric: tabular-nums
   color: var(--reader-text)
@@ -336,7 +329,6 @@ body
     background: var(--reader-accent)
     color: var(--reader-on-accent)
     font-weight: 600
-    box-shadow: var(--reader-glow)
     &::after
       background: var(--reader-on-accent)
 
@@ -410,6 +402,7 @@ body
   justify-content: center
   border-radius: 8px
   color: var(--ui-text)
+  font-family: var(--font-mono), ui-monospace, monospace
   font-size: 15px
   font-variant-numeric: tabular-nums
   &:hover
@@ -650,7 +643,7 @@ input:-webkit-autofill:focus
     opacity: 0
 
 @media (max-width: 440px)
-  .app-page
+  .app-page, .auth-page
     padding-left: 16px
     padding-right: 16px
 

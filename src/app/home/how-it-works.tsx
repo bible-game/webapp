@@ -48,9 +48,9 @@ function MiniMap() {
 
 // An example of the figures on Statistics
 const figures = [
-    { label: "Stars", value: 42, icon: StarIcon, colour: "text-play-gold" },
+    { label: "Stars", value: 42, icon: StarIcon, colour: "text-ui-accent" },
     { label: "Day streak", value: 9, icon: FlameIcon, colour: "text-ui-orange" },
-    { label: "Bible seen", value: "4%", icon: BookOpenIcon, colour: "text-play-teal" },
+    { label: "Bible seen", value: "4%", icon: BookOpenIcon, colour: "text-ui-text" },
 ];
 
 const panel = "flex items-center justify-center rounded-lg border border-ui-line bg-ui-surface px-4 py-6";
@@ -75,8 +75,8 @@ const steps: { title: string; detail: string; art: React.ReactNode }[] = [
         title: "Then read it and study it",
         detail: "Read the whole chapter, then test what you remember with a short study.",
         art: <div className="flex gap-3">
-            <Link href="/read" className="ui-button flex-1"><BookOpenIcon className="size-4 text-play-teal"/>Read</Link>
-            <Link href="/study" className="ui-button flex-1"><LightbulbIcon className="size-4 text-play-purple"/>Study</Link>
+            <Link href="/read" className="ui-button flex-1"><BookOpenIcon className="size-4"/>Read</Link>
+            <Link href="/study" className="ui-button flex-1"><LightbulbIcon className="size-4"/>Study</Link>
         </div>,
     },
     {
@@ -89,7 +89,7 @@ const steps: { title: string; detail: string; art: React.ReactNode }[] = [
                     <dd className="text-[22px] font-semibold tabular-nums">{value}</dd>
                 </div>)}
             </dl>
-            <Link href="/stats" className="ui-button"><ChartColumnIcon className="size-4 text-play-gold"/>Statistics</Link>
+            <Link href="/stats" className="ui-button"><ChartColumnIcon className="size-4"/>Statistics</Link>
         </div>,
     },
 ];
@@ -100,7 +100,7 @@ export default function HowItWorks() {
         <ol className="mt-8 grid gap-12">
             {steps.map(({ title, detail, art }, index) => <li key={title}>
                 <div className="flex items-baseline gap-3">
-                    <span className="flex size-6 shrink-0 translate-y-[-1px] items-center justify-center self-center rounded-full border border-ui-line text-[12px] font-semibold text-ui-muted">{index + 1}</span>
+                    <span className="w-5 shrink-0 font-mono text-[12px] font-medium tabular-nums text-ui-faint">{String(index + 1).padStart(2, "0")}</span>
                     <h3 className="text-[17px] font-semibold">{title}</h3>
                 </div>
                 <p className="mt-2 text-[15px] leading-relaxed text-ui-muted">{detail}</p>

@@ -49,7 +49,7 @@ export default async function OpenGraphImage() {
             <img src={src} width={360} height={392} alt=""/>
             <div style={{ display: "flex", flexDirection: "column", maxWidth: 520 }}>
                 <div style={{ fontSize: 76, fontWeight: 600, color: uiTheme.text }}>Bible Game</div>
-                <div style={{ marginTop: 16, fontSize: 34, lineHeight: 1.35, color: uiTheme.muted }}>Explore the Bible with a daily passage guessing game</div>
+                <div style={{ marginTop: 16, fontSize: 34, lineHeight: 1.35, color: uiTheme.muted }}>Explore the Bible with a daily chapter-guessing game</div>
             </div>
         </div>,
         { ...size, fonts: [{ name: "IBM Plex Sans", data: regular, weight: 400 }, { name: "IBM Plex Sans", data: semibold, weight: 600 }] },

@@ -65,7 +65,7 @@ export default function LogIn() {
                         validationErrors={state?.errors}
                         className="auth-form flex flex-col space-y-4"
                     >
-                        <h1 className="text-2xl font-semibold text-ui-text">Log In</h1>
+                        <h1 className="text-2xl font-semibold text-ui-text">Log in</h1>
 
                         {/* Email */}
                         <Input
@@ -144,7 +144,7 @@ export default function LogIn() {
                                     Checking...
                                 </span>
                             ) : (
-                                "Log In"
+                                "Log in"
                             )}
                         </Button>
 
@@ -153,7 +153,7 @@ export default function LogIn() {
                             <Link
                                 href="/account/sign-up"
                                 className="underline hover:text-ui-text font-medium">
-                                Sign Up
+                                Sign up
                             </Link>
                         </p>
                     </Form>

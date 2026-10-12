@@ -37,7 +37,7 @@ export default function ForgotPassword() {
                                 href="/account/log-in"
                                 className={submitButtonClassName}
                             >
-                                Back to Log In
+                                Back to log in
                             </Button>
                         </div>
                     ) : (
@@ -46,8 +46,8 @@ export default function ForgotPassword() {
                             validationErrors={state?.errors}
                             className="auth-form flex flex-col gap-5"
                         >
-                            <div className="text-center mb-2">
-                                <h1 className="text-2xl font-semibold">Forgot Password</h1>
+                            <div className="mb-2">
+                                <h1 className="text-2xl font-semibold">Forgot password</h1>
                                 <p className="text-sm text-ui-muted mt-1">
                                     Enter your email and we&apos;ll send you a link to reset your password.
                                 </p>
@@ -87,7 +87,7 @@ export default function ForgotPassword() {
                                         Sending...
                                     </span>
                                 ) : (
-                                    "Send Reset Link"
+                                    "Send reset link"
                                 )}
                             </Button>
 
@@ -96,7 +96,7 @@ export default function ForgotPassword() {
                                 <Link
                                     href="/account/log-in"
                                     className="underline hover:text-ui-muted font-medium">
-                                    Log In
+                                    Log in
                                 </Link>
                             </p>
                         </Form>

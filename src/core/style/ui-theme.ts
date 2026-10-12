@@ -20,8 +20,8 @@ export const uiTheme = {
     orange: "#e8955a",
     /** Utility: help */
     help: "#4cc9ff",
-    /** Utility: not logged in, required marks */
-    notice: "#e8b04f",
+    /** Utility: not logged in, required marks. Shares the warning gold: one colour for "needs attention" */
+    notice: "#d2b96f",
     /** Starlight: Far guesses and hover (1), Near and selected (2), Close and correct (3) */
     "light-1": "rgba(242, 243, 244, 0.08)",
     "light-2": "rgba(242, 243, 244, 0.18)",

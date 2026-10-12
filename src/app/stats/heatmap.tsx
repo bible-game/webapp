@@ -29,6 +29,9 @@ const verseColor = (verse: any) => {
 
 const CELLS = 10;
 
+/** A division's name in sentence case ("Major Prophets" → "Major prophets"); "the Law" keeps its capital */
+const sentenceCase = (name: string) => name.split(" ").map((word, i) => i === 0 || word === "Law" ? word : word.toLowerCase()).join(" ");
+
 const Heatmap = (props: Readonly<Props>) => {
     const [expandedBook, setExpandedBook] = useState<string | null>(null);
     const [expandedChapter, setExpandedChapter] = useState<number | null>(null);
@@ -77,7 +80,7 @@ const Heatmap = (props: Readonly<Props>) => {
     return (
         <section className="w-full border-t border-ui-line pt-6">
             <div className="w-full">
-                <h3 className="text-[16px] font-semibold mb-4">Bible Completion</h3>
+                <h3 className="text-[16px] font-semibold mb-4">Bible completion</h3>
 
                 {!hasAnyCompletion && (
                     <div className="text-center py-6 mb-4 rounded-md bg-white/[0.02] border border-dashed border-ui-line">
@@ -89,8 +92,10 @@ const Heatmap = (props: Readonly<Props>) => {
                 <div className="space-y-5">
                     {groups.map((group: any) => (
                         <div key={group.name}>
-                            <h4 className="text-[13px] font-medium text-ui-muted mb-2">
-                                {group.name}
+                            {/* the region key: a 4px edge in the division's colour, like the map's legend */}
+                            <h4 className="mb-2 border-l-4 pl-2 text-[13px] font-medium leading-4 text-ui-muted"
+                                style={{ borderColor: group.books[0]?.region }}>
+                                {sentenceCase(group.name)}
                             </h4>
                             <div className="space-y-0.5">
                                 {group.books.map((book: any) => {

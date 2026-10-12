@@ -30,7 +30,7 @@ export default function About() {
                         <div className="min-w-0">
                             <h1 className="text-[24px] font-semibold">About Bible Game</h1>
                             <div className="text-sm text-ui-muted">
-                                A daily Bible passage guessing game
+                                A daily Bible chapter-guessing game
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@ export default function About() {
                     <h2 className="text-lg font-bold tracking-normal mb-3">Explanation</h2>
                     <div className="legal-content">
                         <h3 className="inline-block pb-1 relative font-bold text-lg md:text-xl">
-                            See the Bible Like Never Before
+                            See the Bible like never before
                         </h3>
                         <p className="mt-4 text-ui-muted leading-relaxed">
                             Bible Game sits in the family of Worldle-style games (think Versle, Lordle, etc).
@@ -120,7 +120,7 @@ export default function About() {
             <section className="relative w-full mb-10">
                 <div className="flex flex-col gap-2 mb-6">
                     <h2 className="text-[20px] font-semibold">
-                        See the Bible Like Never Before
+                        See the Bible like never before
                     </h2>
                     <p className="mt-3 text-sm md:text-lg text-ui-muted max-w-2xl">
                         Build a mental map of Scripture while playing a fun daily guessing game.

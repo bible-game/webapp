@@ -12,6 +12,12 @@ interface Props {
     completionPercentage: string;
 }
 
+/** Whole percentages, as on Home; any progress below 1% reads "<1" rather than a discouraging 0 */
+const wholePercent = (percent: string) => {
+    const value = parseFloat(percent) || 0;
+    return value === 0 ? "0" : value < 1 ? "<1" : String(Math.round(value));
+};
+
 export default function Metrics(props: Readonly<Props>) {
     const [metrics, setMetrics] = useState({ stars: 0, games: 0, streak: 0 });
     useEffect(() => {
@@ -19,10 +25,10 @@ export default function Metrics(props: Readonly<Props>) {
     }, []);
 
     const figures = [
-        { label: "Stars", value: metrics.stars, icon: StarIcon, colour: "text-play-gold" },
-        { label: "Games", value: metrics.games, icon: Gamepad2Icon, colour: "text-play-purple" },
+        { label: "Stars", value: metrics.stars, icon: StarIcon, colour: "text-ui-accent" },
+        { label: "Games", value: metrics.games, icon: Gamepad2Icon, colour: "text-ui-text" },
         { label: "Day streak", value: metrics.streak, icon: FlameIcon, colour: "text-ui-orange" },
-        { label: "Bible seen", value: `${props.completionPercentage}%`, icon: BookOpenIcon, colour: "text-play-teal" },
+        { label: "Bible seen", value: `${wholePercent(props.completionPercentage)}%`, icon: BookOpenIcon, colour: "text-ui-text" },
     ];
 
     return <dl className="grid grid-cols-2 gap-x-6 gap-y-5 border-y border-ui-line py-6 sm:grid-cols-4">
