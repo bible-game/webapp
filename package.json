@@ -5,11 +5,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint src"
   },
   "dependencies": {
-    "@fontsource/inter": "^5.2.5",
-    "@fontsource/roboto": "^5.2.5",
+    "@fontsource/ibm-plex-sans": "^5.3.0",
     "@heroui/autocomplete": "^2.3.11",
     "@heroui/date-picker": "^2.3.10",
     "@heroui/number-input": "^2.0.6",

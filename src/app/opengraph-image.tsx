@@ -38,13 +38,13 @@ function crossSvg(): string {
 
 export default async function OpenGraphImage() {
     const [regular, semibold] = await Promise.all([
-        readFile(join(process.cwd(), "node_modules/@fontsource/inter/files/inter-latin-400-normal.woff")),
-        readFile(join(process.cwd(), "node_modules/@fontsource/inter/files/inter-latin-600-normal.woff")),
+        readFile(join(process.cwd(), "node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff")),
+        readFile(join(process.cwd(), "node_modules/@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-600-normal.woff")),
     ]);
     const src = `data:image/svg+xml;base64,${Buffer.from(crossSvg()).toString("base64")}`;
 
     return new ImageResponse(
-        <div style={{ display: "flex", width: "100%", height: "100%", fontFamily: "Inter", alignItems: "center", justifyContent: "center", gap: 48, background: uiTheme.bg }}>
+        <div style={{ display: "flex", width: "100%", height: "100%", fontFamily: "IBM Plex Sans", alignItems: "center", justifyContent: "center", gap: 48, background: uiTheme.bg }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={src} width={360} height={392} alt=""/>
             <div style={{ display: "flex", flexDirection: "column", maxWidth: 520 }}>
@@ -52,6 +52,6 @@ export default async function OpenGraphImage() {
                 <div style={{ marginTop: 16, fontSize: 34, lineHeight: 1.35, color: uiTheme.muted }}>Explore the Bible with a daily passage guessing game</div>
             </div>
         </div>,
-        { ...size, fonts: [{ name: "Inter", data: regular, weight: 400 }, { name: "Inter", data: semibold, weight: 600 }] },
+        { ...size, fonts: [{ name: "IBM Plex Sans", data: regular, weight: 400 }, { name: "IBM Plex Sans", data: semibold, weight: 600 }] },
     );
 }

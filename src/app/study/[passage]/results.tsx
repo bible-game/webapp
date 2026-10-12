@@ -47,7 +47,7 @@ export default function Results({ passage, review, study, title }: Props) {
         <div className="pb-16">
             <header className="mb-6">
                 <div className="flex items-start justify-between gap-4">
-                    <h1 className="font-clue text-[32px] font-medium leading-tight">{title}</h1>
+                    <h1 className="text-[30px] font-semibold leading-tight">{title}</h1>
                     <span className="mt-2 flex shrink-0 items-center" role="img" aria-label={`${review.stars} of ${MAX_STARS} stars`}>
                         {Array.from({ length: MAX_STARS }, (_, i) => i < review.stars
                             ? <Star key={i} filled className="!size-6 !text-play-accent" />

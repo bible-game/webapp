@@ -56,7 +56,7 @@ Distance bands are unchanged: up to 500 verses is Close, up to 2,000 is Near, be
 
 | Role | Face | Rule |
 | --- | --- | --- |
-| The page | Literata | Anything from, or about, a specific passage: the clue, passage titles, reading text, quiz questions and the drop cap. |
+| The page | Literata | Anything from, or about, a specific passage: the clue, reading text, quiz questions, the model summary and the drop cap. Titles and headings, including passage names, stay in Plex Sans. |
 | The chart | IBM Plex Sans | Everything that is interface: page titles (Study, Statistics), buttons, labels, the Home tagline. |
 | Addresses | IBM Plex Mono | Book codes, chapter numbers and distances, so figures line up. Map labels use the same face. |
 

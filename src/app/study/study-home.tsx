@@ -120,7 +120,7 @@ export default function StudyHome(props: { state?: Map<string, ReviewState> }) {
                                 className="-ml-2 mb-2 flex min-h-11 items-center gap-2 rounded-lg px-2 text-[14px] text-ui-muted hover:text-ui-text">
                             <ArrowLeftIcon className="size-4" />All books
                         </button>
-                        <h3 className="mb-3 font-clue text-[24px] font-medium" style={{ color: "var(--chip)" }}>{book.name}</h3>
+                        <h3 className="mb-3 text-[22px] font-semibold" style={{ color: "var(--chip)" }}>{book.name}</h3>
                         <div className="grid grid-cols-[repeat(auto-fill,minmax(52px,1fr))] gap-1">
                             {Array.from({ length: book.chapters }, (_, i) => i + 1).map((c) => {
                                 const stars = starsByChapter.get(normalise(`${book.name}${c}`));
