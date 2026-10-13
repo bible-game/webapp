@@ -46,12 +46,12 @@ export default function PopUp() {
                 hideCloseButton
                 classNames={{
                     wrapper: "items-end",
-                    backdrop: "bg-black/40",
+                    backdrop: "bg-play-bg/70",
                     base: "play-ui !m-0 w-full max-w-[40rem] rounded-b-none rounded-t-lg border border-b-0 border-play-line " +
                         "bg-play-surface text-play-text shadow-[0_-16px_48px_rgba(0,0,0,0.5)] sm:!mb-4 sm:rounded-lg sm:border-b",
-                    header: "flex-col items-center gap-3 px-6 pb-0 pt-3",
-                    body: "gap-2 px-6 py-4 text-center text-[15px] leading-[1.5] text-play-muted",
-                    footer: "flex-col gap-3 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-0",
+                    header: "flex-col items-center gap-3 px-4 pb-0 pt-2",
+                    body: "gap-0 px-4 pb-0 pt-3 text-[12px] leading-4 text-play-muted",
+                    footer: "flex-col gap-3.5 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[18px]",
                 }}
             >
                 <ModalContent>
@@ -63,13 +63,14 @@ export default function PopUp() {
                             </ModalHeader>
                             <ModalBody>
                                 <p>Explore the Bible with a daily passage-guessing game.</p>
-                                <p>We use cookies to save your progress.</p>
-                                <figure className="mt-4 flex flex-col gap-2">
-                                    <figcaption className="text-[12px] text-play-faint">Five colours, five regions of one map.</figcaption>
-                                    <span aria-hidden="true" className="flex gap-1">
-                                        {regions.map((colour) => <span key={colour} className="h-1.5 flex-1" style={{ background: colour }}/>)}
-                                    </span>
-                                </figure>
+                                <p className="mt-4">
+                                    By continuing, you accept that we use{" "}
+                                    <a href="/about/cookies" className="font-semibold underline underline-offset-2 hover:text-play-text">cookies</a>
+                                    {" "}to save your progress.
+                                </p>
+                                <span aria-hidden="true" className="mt-7 flex gap-1">
+                                    {regions.map((colour) => <span key={colour} className="h-1.5 flex-1" style={{ background: colour }}/>)}
+                                </span>
                             </ModalBody>
                             <ModalFooter>
                                 <Button
@@ -79,9 +80,9 @@ export default function PopUp() {
                                 </Button>
                                 <p className="text-center text-[12px] text-play-faint">
                                     See our{" "}
-                                    <a href="/about/privacy" className="underline underline-offset-2 hover:text-play-text">Privacy Policy</a>
+                                    <a href="/about/privacy" className="font-bold underline underline-offset-2 hover:text-play-text">Privacy Policy</a>
                                     {" "}and{" "}
-                                    <a href="/about/cookies" className="underline underline-offset-2 hover:text-play-text">Cookie Policy</a>.
+                                    <a href="/about/cookies" className="font-bold underline underline-offset-2 hover:text-play-text">Cookie Policy</a>.
                                 </p>
                             </ModalFooter>
                         </>
