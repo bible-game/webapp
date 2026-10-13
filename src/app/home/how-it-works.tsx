@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon, StarIcon } from "lucide-react";
 import { Guesses } from "@/app/play/[game]/guess";
@@ -39,30 +39,49 @@ const chapterCell = (chapter: number) => ({
 });
 const answer = chapterCell(12);
 
-// Zoom towards Revelation, tap chapter 12, then zoom back out (looped in globals.sass)
+// Zoom towards Revelation, tap chapter 12, then zoom back out (looped in globals.sass). The loop
+// starts from the whole map each time the sketch scrolls into view, and stays still under reduced motion
 function MiniMap() {
     const { size } = revelation;
-    return <svg viewBox="0 0 300 132" className="mini-map w-full overflow-hidden" aria-hidden="true">
+    const ref = useRef<SVGSVGElement>(null);
+    const [playing, setPlaying] = useState(false);
+
+    useEffect(() => {
+        const svg = ref.current;
+        if (!svg || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const observer = new IntersectionObserver(([entry]) => setPlaying(entry.isIntersecting), { threshold: 0.75 });
+        observer.observe(svg);
+        return () => observer.disconnect();
+    }, []);
+
+    return <svg ref={ref} viewBox="0 0 300 132" className="mini-map w-full overflow-hidden" data-playing={playing || undefined} aria-hidden="true">
         <defs>
             <pattern id="mini-map-dots" width={6} height={6} patternUnits="userSpaceOnUse">
                 <circle cx={3} cy={3} r={0.7} fill="#fff" opacity={0.14}/>
             </pattern>
         </defs>
         <g className="mini-map-zoom">
-            {blocks.map(({ x, y, w, h, colour, xs = [], ys = [] }) => <g key={`${x}-${y}`} stroke={colour} strokeWidth={1}>
+            {blocks.map(({ x, y, w, h, colour, xs = [], ys = [] }) => <g key={`${x}-${y}`} stroke={colour} strokeWidth={1}
+                className={x === revelation.x && y === revelation.y ? undefined : "mini-map-context"}>
                 <rect x={x + 0.5} y={y + 0.5} width={w - 1} height={h - 1} rx={2} fill="url(#mini-map-dots)" strokeOpacity={0.75} vectorEffect="non-scaling-stroke"/>
                 {xs.map(lx => <line key={lx} x1={lx} x2={lx} y1={y} y2={y + h} strokeOpacity={0.35} vectorEffect="non-scaling-stroke"/>)}
                 {ys.map(ly => <line key={ly} x1={x} x2={x + w} y1={ly} y2={ly} strokeOpacity={0.35} vectorEffect="non-scaling-stroke"/>)}
             </g>)}
-            <g className="mini-map-chapters" stroke={playTheme.purple} strokeOpacity={0.35} fill="none">
+            <g className="mini-map-chapters">
                 {[...Array(revelation.chapters)].map((_, index) => {
                     const { x, y } = chapterCell(index + 1);
-                    return <rect key={index} x={x + 0.6} y={y + 0.6} width={size - 1.2} height={size - 1.2} rx={0.8} vectorEffect="non-scaling-stroke"/>;
+                    return <g key={index}>
+                        <rect x={x + 0.6} y={y + 0.6} width={size - 1.2} height={size - 1.2} rx={0.8} fill="none" stroke={playTheme.purple} strokeOpacity={0.4} vectorEffect="non-scaling-stroke"/>
+                        <text x={x + size / 2} y={y + size / 2} className="mini-map-number">{index + 1}</text>
+                    </g>;
                 })}
             </g>
-            <rect x={answer.x + 0.6} y={answer.y + 0.6} width={size - 1.2} height={size - 1.2} rx={0.8} fill={playTheme.purple} className="mini-map-found"/>
+            <g className="mini-map-found">
+                <rect x={answer.x + 0.6} y={answer.y + 0.6} width={size - 1.2} height={size - 1.2} rx={0.8} fill={playTheme.purple}/>
+                <text x={answer.x + size / 2} y={answer.y + size / 2} className="mini-map-number mini-map-found-number">12</text>
+            </g>
             <circle cx={answer.x + size / 2} cy={answer.y + size / 2} r={size / 2} fill="none" stroke="#fff" strokeWidth={1.5} vectorEffect="non-scaling-stroke" className="mini-map-ripple"/>
-            <circle cx={answer.x + size / 2} cy={answer.y + size / 2} r={size / 3} fill="#fff" className="mini-map-tap"/>
+            <circle cx={answer.x + size / 2} cy={answer.y + size / 2} r={size * 0.55} fill="#fff" fillOpacity={0.22} stroke="#fff" strokeOpacity={0.9} strokeWidth={1.5} vectorEffect="non-scaling-stroke" className="mini-map-tap"/>
         </g>
     </svg>;
 }
@@ -77,15 +96,16 @@ const figures = [
 const panel = "flex items-center justify-center rounded-lg border border-ui-line bg-ui-surface px-4 py-6";
 const button = "ui-button h-12 text-[16px] [&_svg]:size-5";
 
+// A "\n" in a detail is a line break from the design, kept at every width
 const steps: { title: string; detail: string; art: React.ReactNode }[] = [
     {
         title: "Read the summary",
-        detail: "Each day brings a new chapter, summarised in four to seven words.",
+        detail: "Each day brings a new chapter;\nsummarised in four to seven words.",
         art: <div className={`${panel} px-8 py-2.5`}><p className="text-balance text-center font-clue text-[18px] leading-[30px] text-ui-text">{clue}</p></div>,
     },
     {
         title: "Select the chapter",
-        detail: "The Bible is displayed as one map. Zoom and tap the chapter you think it is.",
+        detail: "The Bible is displayed as one map.\nZoom and tap the chapter you think it is.",
         art: <div className={panel}><MiniMap/></div>,
     },
     {
@@ -125,7 +145,7 @@ export default function HowItWorks() {
                     <span className="w-4 shrink-0 font-mono text-[12px] font-medium tabular-nums text-ui-faint">{String(index + 1).padStart(2, "0")}</span>
                     <h3 className="text-[18px] font-semibold leading-[24px]">{title}</h3>
                 </div>
-                <p className="mt-2.5 text-[16px] leading-[24px] text-ui-muted">{detail}</p>
+                <p className="mt-2.5 whitespace-pre-line text-[16px] leading-[24px] text-ui-muted">{detail}</p>
                 <div className="mt-[18px]">{art}</div>
             </li>)}
         </ol>
