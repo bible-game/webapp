@@ -7,7 +7,7 @@ import { Guesses } from "@/app/play/[game]/guess";
 import { playTheme } from "@/core/style/play-theme";
 
 // One worked example throughout: Revelation 12, found on the fourth guess
-const clue = "A cosmic battle ensues between…";
+const clue = "A cosmic battle ensues between good and evil";
 const guesses = [
     { book: "Numbers", chapter: 31, closeness: { distance: -28400 } },
     { book: "Hebrews", chapter: 4, closeness: { distance: -930 } },
@@ -24,25 +24,46 @@ const blocks: Block[] = [
     { x: 60, y: 42, w: 92, h: 42, colour: playTheme.rose, xs: [100] },
     { x: 154, y: 0, w: 70, h: 84, colour: playTheme.green, ys: [30, 58] },
     { x: 226, y: 0, w: 74, h: 84, colour: playTheme.gold, xs: [250, 275], ys: [42] },
-    { x: 0, y: 90, w: 92, h: 42, colour: playTheme.gold, xs: [23, 46, 69] },
-    { x: 94, y: 90, w: 40, h: 42, colour: playTheme.green },
-    { x: 136, y: 90, w: 120, h: 42, colour: playTheme.teal, xs: [160, 184, 208, 232], ys: [111] },
+    { x: 0, y: 90, w: 80, h: 42, colour: playTheme.gold, xs: [20, 40, 60] },
+    { x: 82, y: 90, w: 34, h: 42, colour: playTheme.green },
+    { x: 118, y: 90, w: 100, h: 42, colour: playTheme.teal, xs: [138, 158, 178, 198], ys: [111] },
+    { x: 220, y: 90, w: 36, h: 42, colour: playTheme.rose, xs: [238], ys: [111] },
     { x: 258, y: 90, w: 42, h: 42, colour: playTheme.purple },
 ];
 
+// Revelation's 22 chapters, five to a row, shown once the map is zoomed in; chapter 12 is the answer
+const revelation = { x: 258, y: 90, size: 8.4, columns: 5, chapters: 22 };
+const chapterCell = (chapter: number) => ({
+    x: revelation.x + ((chapter - 1) % revelation.columns) * revelation.size,
+    y: revelation.y + Math.floor((chapter - 1) / revelation.columns) * revelation.size,
+});
+const answer = chapterCell(12);
+
+// Zoom towards Revelation, tap chapter 12, then zoom back out (looped in globals.sass)
 function MiniMap() {
-    return <svg viewBox="-1 -1 302 134" className="w-full" aria-hidden="true">
+    const { size } = revelation;
+    return <svg viewBox="0 0 300 132" className="mini-map w-full overflow-hidden" aria-hidden="true">
         <defs>
             <pattern id="mini-map-dots" width={6} height={6} patternUnits="userSpaceOnUse">
                 <circle cx={3} cy={3} r={0.7} fill="#fff" opacity={0.14}/>
             </pattern>
         </defs>
-        {blocks.map(({ x, y, w, h, colour, xs = [], ys = [] }) => <g key={`${x}-${y}`} stroke={colour} strokeWidth={1}>
-            <rect x={x} y={y} width={w} height={h} rx={2} fill="url(#mini-map-dots)" strokeOpacity={0.75}/>
-            {xs.map(lx => <line key={lx} x1={lx} x2={lx} y1={y} y2={y + h} strokeOpacity={0.35}/>)}
-            {ys.map(ly => <line key={ly} x1={x} x2={x + w} y1={ly} y2={ly} strokeOpacity={0.35}/>)}
-        </g>)}
-        <rect x={272} y={101} width={12} height={12} rx={2} fill={playTheme.purple} className="mini-map-found"/>
+        <g className="mini-map-zoom">
+            {blocks.map(({ x, y, w, h, colour, xs = [], ys = [] }) => <g key={`${x}-${y}`} stroke={colour} strokeWidth={1}>
+                <rect x={x + 0.5} y={y + 0.5} width={w - 1} height={h - 1} rx={2} fill="url(#mini-map-dots)" strokeOpacity={0.75} vectorEffect="non-scaling-stroke"/>
+                {xs.map(lx => <line key={lx} x1={lx} x2={lx} y1={y} y2={y + h} strokeOpacity={0.35} vectorEffect="non-scaling-stroke"/>)}
+                {ys.map(ly => <line key={ly} x1={x} x2={x + w} y1={ly} y2={ly} strokeOpacity={0.35} vectorEffect="non-scaling-stroke"/>)}
+            </g>)}
+            <g className="mini-map-chapters" stroke={playTheme.purple} strokeOpacity={0.35} fill="none">
+                {[...Array(revelation.chapters)].map((_, index) => {
+                    const { x, y } = chapterCell(index + 1);
+                    return <rect key={index} x={x + 0.6} y={y + 0.6} width={size - 1.2} height={size - 1.2} rx={0.8} vectorEffect="non-scaling-stroke"/>;
+                })}
+            </g>
+            <rect x={answer.x + 0.6} y={answer.y + 0.6} width={size - 1.2} height={size - 1.2} rx={0.8} fill={playTheme.purple} className="mini-map-found"/>
+            <circle cx={answer.x + size / 2} cy={answer.y + size / 2} r={size / 2} fill="none" stroke="#fff" strokeWidth={1.5} vectorEffect="non-scaling-stroke" className="mini-map-ripple"/>
+            <circle cx={answer.x + size / 2} cy={answer.y + size / 2} r={size / 3} fill="#fff" className="mini-map-tap"/>
+        </g>
     </svg>;
 }
 
@@ -54,57 +75,58 @@ const figures = [
 ];
 
 const panel = "flex items-center justify-center rounded-lg border border-ui-line bg-ui-surface px-4 py-6";
+const button = "ui-button h-12 text-[16px] [&_svg]:size-5";
 
 const steps: { title: string; detail: string; art: React.ReactNode }[] = [
     {
-        title: "Read today's clue",
-        detail: "Every day brings a new chapter, described in a single line.",
-        art: <div className={panel}><p className="font-clue text-[20px] text-ui-text">{clue}</p></div>,
+        title: "Read the summary",
+        detail: "Each day brings a new chapter, summarised in four to seven words.",
+        art: <div className={`${panel} px-8 py-2.5`}><p className="text-balance text-center font-clue text-[18px] leading-[30px] text-ui-text">{clue}</p></div>,
     },
     {
-        title: "Find it on the map",
-        detail: "The whole Bible is laid out as one map. Tap the chapter you think it is.",
+        title: "Select the chapter",
+        detail: "The Bible is displayed as one map. Zoom and tap the chapter you think it is.",
         art: <div className={panel}><MiniMap/></div>,
     },
     {
-        title: "Get closer with every guess",
-        detail: "Each guess shows how many verses away the answer is, and in which direction. You have five.",
+        title: "Narrow your guess",
+        detail: "Your five guesses reveal how many verses away the answer is, and in which direction.",
         art: <div className={`${panel} [&_ol]:px-0`}><Guesses guesses={guesses}/></div>,
     },
     {
-        title: "Then read it and study it",
-        detail: "Read the whole chapter, then test what you remember with a short study.",
+        title: "Read and study",
+        detail: "Read the chapter, then test what you remember with a short study.",
         art: <div className="flex gap-3">
-            <Link href="/read" className="ui-button flex-1"><BookOpenIcon className="size-4"/>Read</Link>
-            <Link href="/study" className="ui-button flex-1"><LightbulbIcon className="size-4"/>Study</Link>
+            <Link href="/read" className={`${button} flex-1`}><BookOpenIcon/>Read</Link>
+            <Link href="/study" className={`${button} flex-1`}><LightbulbIcon/>Study</Link>
         </div>,
     },
     {
-        title: "Watch your progress grow",
-        detail: "Collect stars, keep your streak going, and see how much of the Bible you've explored.",
+        title: "Track your progress",
+        detail: "Collect stars, keep your streak going, and see how much of the Bible you\u2019ve explored.",
         art: <div className="grid gap-3">
-            <dl className={`${panel} grid grid-cols-3 gap-2 text-center`}>
-                {figures.map(({ label, value, icon: Icon, colour }) => <div key={label} className="flex flex-col-reverse">
-                    <dt className="mt-1 flex items-center justify-center gap-1.5 text-[12px] text-ui-muted"><Icon className={`size-3.5 ${colour}`}/>{label}</dt>
-                    <dd className="text-[22px] font-semibold tabular-nums">{value}</dd>
+            <dl className="grid grid-cols-2 gap-x-4 gap-y-[18px] rounded-lg border border-ui-line bg-ui-surface p-4">
+                {figures.map(({ label, value, icon: Icon, colour }) => <div key={label}>
+                    <dt className="flex items-center gap-2 text-[16px] text-ui-muted"><Icon className={`size-5 ${colour}`}/>{label}</dt>
+                    <dd className="mt-1 text-[32px] font-semibold leading-[38px] tabular-nums">{value}</dd>
                 </div>)}
             </dl>
-            <Link href="/stats" className="ui-button"><ChartColumnIcon className="size-4"/>Statistics</Link>
+            <Link href="/stats" className={button}><ChartColumnIcon/>Statistics</Link>
         </div>,
     },
 ];
 
 export default function HowItWorks() {
     return <section aria-labelledby="how-it-works" className="mx-auto w-full max-w-[28rem]">
-        <h2 id="how-it-works" className="text-[20px] font-semibold">How it works</h2>
+        <h2 id="how-it-works" className="text-[22px] font-semibold leading-[28px]">How it works</h2>
         <ol className="mt-8 grid gap-12">
             {steps.map(({ title, detail, art }, index) => <li key={title}>
                 <div className="flex items-baseline gap-3">
-                    <span className="w-5 shrink-0 font-mono text-[12px] font-medium tabular-nums text-ui-faint">{String(index + 1).padStart(2, "0")}</span>
-                    <h3 className="text-[17px] font-semibold">{title}</h3>
+                    <span className="w-4 shrink-0 font-mono text-[12px] font-medium tabular-nums text-ui-faint">{String(index + 1).padStart(2, "0")}</span>
+                    <h3 className="text-[18px] font-semibold leading-[24px]">{title}</h3>
                 </div>
-                <p className="mt-2 text-[15px] leading-relaxed text-ui-muted">{detail}</p>
-                <div className="mt-4">{art}</div>
+                <p className="mt-2.5 text-[16px] leading-[24px] text-ui-muted">{detail}</p>
+                <div className="mt-[18px]">{art}</div>
             </li>)}
         </ol>
     </section>;
