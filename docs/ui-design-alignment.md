@@ -191,7 +191,7 @@ Implemented from the refined Figma (see `look-and-feel.md`, Glow and Region key)
 - Statistics: sentence-case division names with a 4px region key edge, "Bible
   completion", whole percentages ("<1%" for any progress below 1%), neutral Games icon.
 - Account pages: sentence case, left-aligned headings, 16px gutter on phones.
-- "Chapter-guessing game" in the tagline, metadata, OG image and About.
+- "passage-guessing game" in the tagline, metadata, OG image and About.
 
 Checked at 375px against the mock passage service: Play (welcome, select),
 Study quiz, Statistics, Home and How it works, Read, Forgot password.

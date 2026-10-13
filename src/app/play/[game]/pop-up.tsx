@@ -62,7 +62,7 @@ export default function PopUp() {
                                 <span className="text-[18px] font-semibold text-play-text">Welcome to Bible Game</span>
                             </ModalHeader>
                             <ModalBody>
-                                <p>Explore the Bible with a daily chapter-guessing game.</p>
+                                <p>Explore the Bible with a daily passage-guessing game.</p>
                                 <p>We use cookies to save your progress.</p>
                                 <figure className="mt-4 flex flex-col gap-2">
                                     <figcaption className="text-[12px] text-play-faint">Five colours, five regions of one map.</figcaption>

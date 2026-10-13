@@ -30,7 +30,7 @@ export default function About() {
                         <div className="min-w-0">
                             <h1 className="text-[24px] font-semibold">About Bible Game</h1>
                             <div className="text-sm text-ui-muted">
-                                A daily Bible chapter-guessing game
+                                A daily Bible passage-guessing game
                             </div>
                         </div>
                     </div>
