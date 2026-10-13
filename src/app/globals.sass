@@ -490,10 +490,10 @@ input:-webkit-autofill:focus
 
 .drawer-link
   display: flex
-  min-height: 56px
+  min-height: 60px
   align-items: center
   gap: 16px
-  padding: 8px 12px
+  padding: 6px 12px
   border: 1px solid transparent
   border-radius: 8px
   color: var(--ui-text)
@@ -506,6 +506,13 @@ input:-webkit-autofill:focus
     background: var(--ui-light-1)
     svg
       color: var(--ui-text)
+
+// The log-in panel's rotating reasons: one line, clipped to the text column, softened at the right edge
+.login-reasons
+  display: block
+  height: 20px
+  overflow: hidden
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent)
 
 @keyframes drawer-rise
   from
