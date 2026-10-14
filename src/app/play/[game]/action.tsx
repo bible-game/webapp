@@ -34,6 +34,18 @@ const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exi
 const quick = { initial: { opacity: 0.4 }, animate: { opacity: 1 }, transition: { duration: 0.12 } };
 /** The primary action when a book is on screen: a flat fill in that book's region colour (glow is kept for the map) */
 const lit = (tint: string): React.CSSProperties => ({ background: tint });
+/** The end state's two buttons: the one that leads (in the answer's region colour, via lit) and the one that follows */
+const LEAD = "border-transparent bg-play-text text-play-bg";
+const FOLLOW = "border-play-line bg-play-surface text-play-text";
+
+/** Game dates whose results have been shared on this device, so a finished game reopens with Read in the lead */
+const SHARED_KEY = "shared";
+const sharedDates = (): string[] => {
+    try { return JSON.parse(localStorage.getItem(SHARED_KEY) ?? "[]"); } catch { return []; }
+};
+const markShared = (date: string) => {
+    try { localStorage.setItem(SHARED_KEY, JSON.stringify([...new Set([...sharedDates(), date])])); } catch { /* not saved; fine */ }
+};
 const stepper = "flex size-12 shrink-0 items-center justify-center rounded-lg border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
 
 /**
@@ -128,8 +140,10 @@ const Action = (props: any) => {
     const [popping, setPopping] = useState(false);
     // true for a moment after the results are copied, so the share button can say so itself
     const [copied, setCopied] = useState(false);
-    // once the results have been shared, the button settles on the countdown (today's game only) instead of "Share"
+    // once the results have been shared, the button settles on the countdown (today's game only) instead of "Share",
+    // and Read takes the lead from it (as Study does from "Mark as read" on the Read page)
     const [shared, setShared] = useState(false);
+    useEffect(() => setShared(sharedDates().includes(props.date)), [props.date]);
 
     useEffect(() => {
         if (!props.celebrate || !props.stars) return;
@@ -164,7 +178,7 @@ const Action = (props: any) => {
 
     function share() {
         const resultText = results();
-        navigator.clipboard.writeText(resultText).then(() => { setCopied(true); setShared(true); });
+        navigator.clipboard.writeText(resultText).then(() => { setCopied(true); setShared(true); markShared(props.date); });
 
         // remove? improve? Slack vs Whatsapp vs Discord, etc...
         // const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(resultText)}`;
@@ -298,7 +312,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     );
 
     const isToday = moment(props.date).isSame(moment(), "day");
-    // the answer's region colour: Read, the next step, takes it
+    // the answer's region colour, worn by whichever step leads: Share first, then Read
     const passageKey = props.bible.testaments.flatMap((t: any) => t.divisions).flatMap((d: any) => d.books)
         .find((bk: any) => bk.name == props.passage.book)?.key;
     const passageTint: string = (colours as Record<string, string>)[passageKey] ?? playTheme.text;
@@ -315,7 +329,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
             </span>
             <div className="grid grid-cols-2 gap-2">
                 <button type="button" onClick={share} aria-live="polite" aria-label={shared && !copied && isToday ? "Copy results again" : undefined}
-                        className="flex h-12 items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border border-play-line bg-play-surface px-3 text-[15px] font-semibold text-play-text transition active:scale-[0.98]">
+                        style={shared ? undefined : lit(passageTint)}
+                        className={`flex h-12 items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border px-3 text-[15px] font-semibold transition active:scale-[0.98] ${shared ? FOLLOW : LEAD}`}>
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.span key={copied ? "copied" : shared && isToday ? "countdown" : "share"} {...fade} className="flex items-center gap-2">
                             {copied ?
@@ -328,8 +343,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                     </AnimatePresence>
                 </button>
                 <Link href={`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`}
-                      style={lit(passageTint)}
-                      className="flex h-12 min-w-0 items-center justify-center gap-2 rounded-lg bg-play-text px-3 text-[15px] font-semibold text-play-bg transition active:scale-[0.98]">
+                      style={shared ? lit(passageTint) : undefined}
+                      className={`flex h-12 min-w-0 items-center justify-center gap-2 rounded-lg border px-3 text-[15px] font-semibold transition active:scale-[0.98] ${shared ? LEAD : FOLLOW}`}>
                     <BookOpenIcon className="size-4 shrink-0" strokeWidth={2.25}/>
                     <Passage key={`${props.passage.book} ${props.passage.chapter}`} book={props.passage.book} chapter={props.passage.chapter} sizes={READ_SIZES}/>
                 </Link>
