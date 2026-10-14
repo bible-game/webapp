@@ -14,20 +14,19 @@ const meanings = new Map<Band, string>([
     [FOUND, "Found it"],
 ]);
 
-// The worked example from How it works, closest first with the find last; band, arrow and distance come from the game's own rules
-const examples = [...exampleGuesses]
-    .sort((a, b) => (Math.abs(distanceOf(a)) || Infinity) - (Math.abs(distanceOf(b)) || Infinity))
-    .map(guess => {
-        const distance = distanceOf(guess);
-        const band = bandOf(guess);
-        return {
-            band,
-            passage: formatPassage(guess.book, guess.chapter),
-            up: distance < 0,
-            distance: distance ? compact.format(Math.abs(distance)) : undefined,
-            meaning: meanings.get(band)!,
-        };
-    });
+// The worked example from How it works, in the order it was played: far, nearer, close, found.
+// Band, arrow and distance come from the game's own rules
+const examples = exampleGuesses.map(guess => {
+    const distance = distanceOf(guess);
+    const band = bandOf(guess);
+    return {
+        band,
+        passage: formatPassage(guess.book, guess.chapter),
+        up: distance < 0,
+        distance: distance ? compact.format(Math.abs(distance)) : undefined,
+        meaning: meanings.get(band)!,
+    };
+});
 
 /**
  * How to Play: a popover above whatever trigger it wraps (the footer's info button), in the same style as the login warning's
@@ -44,7 +43,7 @@ const Help = ({ children }: { children: React.ReactElement }) => (
                 <p className="text-[14px] font-semibold">How to play</p>
                 <p>Each day, one chapter of the Bible is chosen and summarised. Can you find it?</p>
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
-                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. Green is close, yellow is nearer, red is far:</p>
+                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. Red is far, yellow is nearer, green is close:</p>
                 <ul className="grid gap-2">
                     {examples.map(({ band, passage, up, distance, meaning }) => {
                         const Arrow = up ? ArrowUpIcon : ArrowDownIcon;

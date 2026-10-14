@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Github, Mail, Play } from "lucide-react";
+import { Mail, Play } from "lucide-react";
+import { SiGithub } from "@icons-pack/react-simple-icons";
 import { useState } from "react";
 
 const button = "ui-button h-12 !px-5 !text-[16px] [&_svg]:size-5";
@@ -41,7 +42,7 @@ export default function About() {
                 </div>
                 <div className="mt-6 flex flex-wrap gap-2">
                     <Link href="/play/today" className={button}><Play/>Play</Link>
-                    <a href="https://github.com/bible-game" target="_blank" rel="noopener noreferrer" className={button}><Github/>GitHub</a>
+                    <a href="https://github.com/bible-game" target="_blank" rel="noopener noreferrer" className={button}><SiGithub color="currentColor" title="" aria-hidden="true"/>GitHub</a>
                     <button type="button" onClick={handleCopyEmail} aria-live="polite" className={`${button} relative`}>
                         <Mail/>hello@bible.game
                         {copied && <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-ui-success">Copied!</span>}
