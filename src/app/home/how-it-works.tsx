@@ -6,11 +6,12 @@ import { BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon, StarIcon } fro
 import { Guesses } from "@/app/play/[game]/guess";
 import { playTheme } from "@/core/style/play-theme";
 
-// One worked example throughout: Revelation 12, found on the fourth guess
+// One worked example throughout: Revelation 12, found on the fourth guess. Distances are verses
+// from the start of each guessed chapter to the start of Revelation 12
 const clue = "A cosmic battle ensues between good and evil";
 const guesses = [
-    { book: "Numbers", chapter: 31, closeness: { distance: -28400 } },
-    { book: "Hebrews", chapter: 4, closeness: { distance: -930 } },
+    { book: "Numbers", chapter: 31, closeness: { distance: -26227 } },
+    { book: "Hebrews", chapter: 4, closeness: { distance: -878 } },
     { book: "Revelation", chapter: 16, closeness: { distance: 63 } },
     { book: "Revelation", chapter: 12, closeness: { distance: 0 } },
 ];
@@ -100,12 +101,12 @@ const button = "ui-button h-12 text-[16px] [&_svg]:size-5";
 const steps: { title: string; detail: string; art: React.ReactNode }[] = [
     {
         title: "Read the summary",
-        detail: "Each day brings a new chapter;\nsummarised in four to seven words.",
+        detail: "Each day brings a new chapter -\nsummarised in one sentence.",
         art: <div className={`${panel} px-8 py-2.5`}><p className="text-balance text-center font-clue text-[18px] leading-[30px] text-ui-text">{clue}</p></div>,
     },
     {
         title: "Select the chapter",
-        detail: "The Bible is displayed as one map.\nZoom and tap the chapter you think it is.",
+        detail: "The Bible is laid out as one map.\nZoom and tap the chapter you think it is.",
         art: <div className={panel}><MiniMap/></div>,
     },
     {
