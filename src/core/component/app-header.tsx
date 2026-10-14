@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, useDisclosure } from "@heroui/react";
 import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, LightbulbIcon, MenuIcon, PlayIcon, UserRoundIcon, XIcon } from "lucide-react";
-import { SiGithub } from "@icons-pack/react-simple-icons";
+import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
 import { logOut } from "@/core/action/auth/log-out";
 import LogoMark from "@/core/component/logo-mark";
 
@@ -27,8 +27,11 @@ const pages = [
     { label: "Privacy", href: "/about/privacy" },
     { label: "Cookies", href: "/about/cookies" },
 ];
-const discord = "https://discord.gg/6ZJYbQcph5";
-const github = "https://github.com/bible-game";
+// Brand marks as the brands draw them (Simple Icons), not outlines
+const social = [
+    { label: "Bible Game on Discord", href: "https://discord.gg/6ZJYbQcph5", icon: SiDiscord },
+    { label: "Bible Game on GitHub", href: "https://github.com/bible-game", icon: SiGithub },
+];
 
 // Why log in, shown one at a time in the drawer's log-in panel
 const reasons = ["Keep your data secure", "Share data across devices", "Compete on the leaderboard"];
@@ -140,12 +143,12 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                                 {pages.map(({ label, href }) => <Link key={href} href={href} onClick={onClose}
                                                                       className="flex min-h-11 items-center px-[7px] first:pl-0 hover:text-ui-text">{label}</Link>)}
                             </nav>
-                            <div className="-mr-2.5 flex items-center gap-3">
-                                <a href={discord} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center hover:text-ui-text">Discord</a>
-                                <a href={github} target="_blank" rel="noopener noreferrer" aria-label="Bible Game on GitHub" title="Bible Game on GitHub"
-                                   className="flex size-11 items-center justify-center rounded-lg hover:bg-ui-raised hover:text-ui-text">
-                                    <SiGithub size={24} color="currentColor"/>
-                                </a>
+                            {/* 44px targets, overlapping a little so the marks sit 16px apart as in the design */}
+                            <div className="-mr-2.5 flex items-center -space-x-1">
+                                {social.map(({ label, href, icon: Icon }) => <a key={href} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}
+                                                                               className="flex size-11 items-center justify-center rounded-lg hover:bg-ui-raised hover:text-ui-text">
+                                    <Icon size={24} color="currentColor"/>
+                                </a>)}
                             </div>
                         </div>
                     </DrawerFooter>
