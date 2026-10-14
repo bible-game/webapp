@@ -82,8 +82,7 @@ const Heatmap = (props: Readonly<Props>) => {
 
                 {!hasAnyCompletion && (
                     <div className="text-center py-6 mb-4 rounded-md bg-white/[0.02] border border-dashed border-ui-line">
-                        <p className="text-sm text-ui-faint font-light">No progress yet</p>
-                        <p className="text-xs text-ui-faint font-light mt-1">Play games and read passages to track your completion here</p>
+                        <p className="text-sm text-ui-faint font-light">No progress yet.</p>
                     </div>
                 )}
 
