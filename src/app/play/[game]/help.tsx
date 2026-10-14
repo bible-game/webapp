@@ -3,14 +3,31 @@
 import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { ArrowDownIcon, ArrowUpIcon, PartyPopperIcon } from "lucide-react";
-import { Band, CLOSE, FAR, FOUND, NEAR } from "@/app/play/[game]/closeness";
+import { Band, bandOf, CLOSE, distanceOf, FAR, FOUND, NEAR } from "@/app/play/[game]/closeness";
+import { compact, formatPassage } from "@/app/play/[game]/guess";
+import { exampleGuesses } from "@/app/play/[game]/example";
 
-const examples: { band: Band, passage: string, up: boolean, distance?: string, meaning: string }[] = [
-    { band: CLOSE, passage: "ACT 14", up: false, distance: "300", meaning: "Within 500 verses" },
-    { band: NEAR, passage: "ROM 2", up: true, distance: "1.2K", meaning: "Within 2,000 verses" },
-    { band: FAR, passage: "NUM 31", up: false, distance: "28K", meaning: "Further away" },
-    { band: FOUND, passage: "NUM 9", up: false, meaning: "Found it" },
-];
+const meanings = new Map<Band, string>([
+    [CLOSE, "Within 500 verses"],
+    [NEAR, "Within 2,000 verses"],
+    [FAR, "Further away"],
+    [FOUND, "Found it"],
+]);
+
+// The worked example from How it works, closest first with the find last; band, arrow and distance come from the game's own rules
+const examples = [...exampleGuesses]
+    .sort((a, b) => (Math.abs(distanceOf(a)) || Infinity) - (Math.abs(distanceOf(b)) || Infinity))
+    .map(guess => {
+        const distance = distanceOf(guess);
+        const band = bandOf(guess);
+        return {
+            band,
+            passage: formatPassage(guess.book, guess.chapter),
+            up: distance < 0,
+            distance: distance ? compact.format(Math.abs(distance)) : undefined,
+            meaning: meanings.get(band)!,
+        };
+    });
 
 /**
  * How to Play: a popover above whatever trigger it wraps (the footer's info button), in the same style as the login warning's

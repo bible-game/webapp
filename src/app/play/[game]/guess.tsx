@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowDownIcon, ArrowUpIcon, PartyPopperIcon } from "lucide-react";
 import { ANSWER, Band, bandOf, distanceOf } from "@/app/play/[game]/closeness";
 
-const compact = Intl.NumberFormat("en", { notation: "compact" });
+export const compact = Intl.NumberFormat("en", { notation: "compact" });
 
 export function formatPassage(book: any, chapter: any): string {
     if (!book || !chapter) return "";

@@ -251,7 +251,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                     <div className="flex flex-col gap-3">
                                         <p className="text-[14px] leading-snug">
                                             <span className="font-semibold">You&apos;re not logged in.</span>{" "}
-                                            <span className="text-play-muted">Your progress is only saved on this device. Log in to keep your streak and stars.</span>
+                                            <span className="text-play-muted">Your progress is only saved on this device. Log in to keep your scores.</span>
                                         </p>
                                         <Link href="/account/log-in"
                                               className="flex h-10 items-center justify-center rounded-lg bg-play-text text-[14px] font-semibold text-play-bg transition active:scale-[0.98]">

@@ -5,16 +5,7 @@ import Link from "next/link";
 import { BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon, StarIcon } from "lucide-react";
 import { Guesses } from "@/app/play/[game]/guess";
 import { playTheme } from "@/core/style/play-theme";
-
-// One worked example throughout: Revelation 12, found on the fourth guess. Distances are verses
-// from the start of each guessed chapter to the start of Revelation 12
-const clue = "A cosmic battle ensues between good and evil";
-const guesses = [
-    { book: "Numbers", chapter: 31, closeness: { distance: -26227 } },
-    { book: "Hebrews", chapter: 4, closeness: { distance: -878 } },
-    { book: "Revelation", chapter: 16, closeness: { distance: 63 } },
-    { book: "Revelation", chapter: 12, closeness: { distance: 0 } },
-];
+import { exampleClue as clue, exampleGuesses as guesses } from "@/app/play/[game]/example";
 
 type Block = { x: number; y: number; w: number; h: number; colour: string; xs?: number[]; ys?: number[] };
 
@@ -95,7 +86,7 @@ const figures = [
 ];
 
 const panel = "flex items-center justify-center rounded-lg border border-ui-line bg-ui-surface px-4 py-6";
-const button = "ui-button h-12 text-[16px] [&_svg]:size-5";
+const button = "ui-button h-12 !text-[16px] [&_svg]:size-5";
 
 // A "\n" in a detail is a line break from the design, kept at every width
 const steps: { title: string; detail: string; art: React.ReactNode }[] = [
