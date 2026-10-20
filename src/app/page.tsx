@@ -2,13 +2,14 @@
 
 import Landing from "@/app/landing";
 import getUserInfo, { UserInfo } from "@/core/action/user/get-user-info";
-import isLoggedIn from "@/core/util/auth-util";
+import isLoggedIn, { isKnownUser } from "@/core/util/auth-util";
 
 export default async function Page() {
     let info: UserInfo | undefined;
     if (await isLoggedIn()) {
         info = await getUserInfo();
     }
+    const known = !info && await isKnownUser();
 
-    return <Landing info={info}/>
+    return <Landing info={info} known={known}/>
 }

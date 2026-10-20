@@ -14,6 +14,7 @@ import { logIn } from "@/core/action/auth/log-in"
 import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
 import { inputClassNames, alertClassNames, cardClassName, submitButtonClassName, submitButtonStyle } from "@/core/model/form/form-styles"
 import { useFormValidation } from "@/core/hook/useFormValidation"
+import { StateUtil } from "@/core/util/state-util"
 
 /**
  * Log-In Page
@@ -51,6 +52,22 @@ export default function LogIn() {
         }
     }, [state, clearAllErrors])
 
+    // Carry where the user was headed (e.g. today's game) through to the post-log-in redirect, along with anything
+    // played on this device while logged out, so it can be added to their account
+    const [next, setNext] = useState("")
+    const [reset, setReset] = useState(false)
+    const [local, setLocal] = useState({ games: "[]", reads: "[]", reviews: "[]" })
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        setNext(params.get("next") ?? "")
+        setReset(params.get("reset") === "success")
+        setLocal({
+            games: JSON.stringify(Array.from(StateUtil.getAllGames().values())),
+            reads: JSON.stringify(Array.from(StateUtil.getAllReads().values())),
+            reviews: JSON.stringify(Array.from(StateUtil.getAllReviews().values())),
+        })
+    }, [])
+
     const successAlertClassNames = {
         base: "border-green-400/40 bg-green-500/10 text-green-300 rounded-lg px-3 py-2",
         content: "text-sm",
@@ -66,6 +83,10 @@ export default function LogIn() {
                         className="auth-form flex flex-col space-y-4"
                     >
                         <h1 className="text-2xl font-semibold text-ui-text">Log in</h1>
+                        <input type="hidden" name="next" value={next} />
+                        <input type="hidden" name="games" value={local.games} />
+                        <input type="hidden" name="reads" value={local.reads} />
+                        <input type="hidden" name="reviews" value={local.reviews} />
 
                         {/* Email */}
                         <Input
@@ -115,6 +136,17 @@ export default function LogIn() {
                         >
                             Forgot password?
                         </Link>
+
+                {/* Arrived here from a successful password reset */}
+                {reset && !state?.errors?.form?.length && (
+                    <Alert
+                        hideIcon
+                        variant="bordered"
+                        color="success"
+                        description="Your password has been reset. Log in with your new password."
+                        classNames={successAlertClassNames}
+                    />
+                )}
 
                 {/* Form-level server error */}
                 {state?.errors?.form && state.errors.form.length > 0 && (

@@ -6,5 +6,7 @@ export async function post(url: string, body: any): Promise<any> {
     const headers = { authorization: `Bearer ${await getToken()}`, 'Content-Type': 'application/json'};
     const response = await fetch(url, { method: "POST", headers, body: JSON.stringify(body)});
 
+    if (!response.ok) return undefined; // e.g. 401 once a password reset has ended the session; the device keeps its copy
+
     return response.json();
 }

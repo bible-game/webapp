@@ -29,7 +29,7 @@ export default function ForgotPassword() {
                             <div>
                                 <h1 className="text-2xl font-semibold text-white">Check your email</h1>
                                 <p className="text-sm text-ui-muted mt-2">
-                                    We&apos;ve sent a password reset link to your email address.
+                                    If there&apos;s an account for that email, we&apos;ve sent it a password reset link.
                                 </p>
                             </div>
                             <Button

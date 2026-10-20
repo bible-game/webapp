@@ -53,7 +53,7 @@ export default async function Stats() {
         reviewState = await getReviewState();
 
         info = await getUserInfo();
-        displayName = `${info?.firstname} ${info?.lastname}`;
+        if (info) displayName = `${info.firstname} ${info.lastname}`;
         userId = await getUserId() ?? undefined;
         rank = await getRank(userId ?? '1'); // fixme
     }

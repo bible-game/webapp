@@ -6,7 +6,7 @@ import Game from "@/app/play/[game]/game";
 import { headers } from "next/headers";
 import { GameState } from "@/core/model/state/game-state";
 import { getGameState } from "@/core/action/state/get-state-game";
-import isLoggedIn from "@/core/util/auth-util";
+import isLoggedIn, { isKnownUser } from "@/core/util/auth-util";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
 
 async function get(url: string): Promise<any> {
@@ -43,10 +43,11 @@ export default async function Play({params}: { params: Promise<{ game: string }>
         state = await getGameState();
         info = await getUserInfo();
     }
+    const known = !info && await isKnownUser();
 
     return (
         <main className="w-full relative z-1">
-            <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} />
+            <Game game={game} bible={bible} divisions={divisions} books={books} device={device} state={state} info={info} known={known} />
         </main>
     );
 

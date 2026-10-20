@@ -1,6 +1,7 @@
 "use server"
 
 import { SignUpFormSchema, SignUpFormState } from "@/core/model/form/form-definitions"
+import { setAuthCookies } from "@/core/util/auth-cookies"
 
 export async function signup(state: SignUpFormState, formData: FormData): Promise<SignUpFormState> {
 
@@ -86,6 +87,7 @@ export async function signup(state: SignUpFormState, formData: FormData): Promis
             const result = await response.text()
             state!.token = result
             state!.success = true
+            await setAuthCookies(result)
         } else {
             const result = await response.json().catch(() => ({ error: "Unknown error", raw: "Failed to parse JSON" }))
             console.error(`Sign-up failed:

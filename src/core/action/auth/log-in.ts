@@ -1,12 +1,11 @@
 "use server"
 
-import { cookies } from "next/headers"
 import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
 import { redirect } from "next/navigation";
+import { safeNext, setAuthCookies } from "@/core/util/auth-cookies";
+import { syncState } from "@/core/action/state/sync-state";
 
 export async function logIn(state: LogInFormState, formData: FormData) {
-
-    const cookieStore = await cookies()
 
     if (!state) {
         state = {
@@ -52,7 +51,8 @@ export async function logIn(state: LogInFormState, formData: FormData) {
         if (response.status == 200) {
             result = await response.text()
             state!.token = result
-            cookieStore.set('token', result, { httpOnly: true })
+            await setAuthCookies(result)
+            await syncState(result, formData)
 
         } else {
             result = await response.json()
@@ -72,5 +72,5 @@ export async function logIn(state: LogInFormState, formData: FormData) {
         return state
     }
 
-    redirect('/');
+    redirect(safeNext(formData.get("next")));
 }

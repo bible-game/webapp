@@ -241,15 +241,15 @@ export default function SignUp() {
                         </div>
                         <h1 className="text-2xl font-semibold text-ui-text">Account created</h1>
                         <p className="text-sm text-ui-text">
-                            You can now log in with your new credentials.
+                            You&apos;re logged in, and your scores will now be saved.
                         </p>
                         <Button
                             as={Link}
-                            href="/account/log-in"
+                            href="/play/today"
                             className={`${submitButtonClassName} p-4`}
                             style={submitButtonStyle}
                         >
-                            Log in
+                            Play today&apos;s chapter
                         </Button>
                     </div>
                 )}

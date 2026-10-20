@@ -292,7 +292,7 @@ export default function Game(props: any) {
                             date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
                             step={step} canStep={(delta: number) => nextChapter(delta) !== null}
                             ruledOut={hasBook ? excluded.get(cellOf(chapter)) : undefined}
-                            bible={props.bible} chapter={chapter} guesses={guesses} info={props.info}/>
+                            bible={props.bible} chapter={chapter} guesses={guesses} info={props.info} known={props.known}/>
                 </section>
                 <Confetti fire={confetti && !reducedMotion}/>
             </div>

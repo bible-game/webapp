@@ -1,7 +1,8 @@
 "use server"
 
-import { ResetPasswordFormState } from "@/core/model/form/form-definitions"
+import { ResetPasswordFormSchema, ResetPasswordFormState } from "@/core/model/form/form-definitions"
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export async function resetPassword(state: ResetPasswordFormState, formData: FormData) {
     if (!state) {
@@ -25,14 +26,17 @@ export async function resetPassword(state: ResetPasswordFormState, formData: For
     const password = formData.get("password") as string
     const confirmPassword = formData.get("confirmPassword") as string
 
-    if (password !== confirmPassword) {
-        state.errors.confirmPassword.push("Passwords don't match")
+    const validated = ResetPasswordFormSchema.safeParse({ password, confirmPassword })
+    if (!validated.success) {
+        const fieldErrors = validated.error.flatten().fieldErrors
+        state.errors.password = fieldErrors.password ?? []
+        state.errors.confirmPassword = fieldErrors.confirmPassword ?? []
         return state
     }
 
     const body = {
         resetToken: token,
-        password: password
+        password: validated.data.password
     }
 
     try {
@@ -46,6 +50,9 @@ export async function resetPassword(state: ResetPasswordFormState, formData: For
 
         if (response.ok) {
             state.success = true
+            // The reset has ended every existing session, including any in this browser
+            const cookieStore = await cookies()
+            cookieStore.delete('token')
         } else {
             const result = await response.json()
             console.error(`Error when resetting password: ${result.message}`)

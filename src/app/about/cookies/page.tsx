@@ -29,7 +29,8 @@ export default function CookiePolicy() {
                     <p>These enable core gameplay:</p>
                     <ul className="list-disc list-inside space-y-1">
                         <li>Saving progress</li>
-                        <li>Account login features</li>
+                        <li>Keeping you logged in (for up to 90 days)</li>
+                        <li>Remembering that this device has logged in before, so we can invite you to log in again</li>
                         <li>Security & performance</li>
                     </ul>
 

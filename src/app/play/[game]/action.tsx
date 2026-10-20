@@ -46,6 +46,14 @@ const sharedDates = (): string[] => {
 const markShared = (date: string) => {
     try { localStorage.setItem(SHARED_KEY, JSON.stringify([...new Set([...sharedDates(), date])])); } catch { /* not saved; fine */ }
 };
+/** The day a known user last dismissed the log-in nudge, so it opens by itself at most once a day */
+const NUDGE_KEY = "login-nudge";
+const nudgedToday = (): boolean => {
+    try { return localStorage.getItem(NUDGE_KEY) === moment().format("YYYY-MM-DD"); } catch { return true; }
+};
+const markNudged = () => {
+    try { localStorage.setItem(NUDGE_KEY, moment().format("YYYY-MM-DD")); } catch { /* not saved; fine */ }
+};
 const stepper = "flex size-12 shrink-0 items-center justify-center rounded-lg border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
 
 /**
@@ -145,6 +153,18 @@ const Action = (props: any) => {
     const [shared, setShared] = useState(false);
     useEffect(() => setShared(sharedDates().includes(props.date)), [props.date]);
 
+    // A logged-out player who has logged in on this device before is shown the log-in popover before their first guess
+    const [nudging, setNudging] = useState(false);
+    useEffect(() => {
+        if (props.info || !props.known || !props.playing || props.guesses.length || nudgedToday()) return;
+        const timer = setTimeout(() => setNudging(true), 900);
+        return () => clearTimeout(timer);
+    }, [props.info, props.known, props.playing, props.guesses.length]);
+    const onNudgeChange = (open: boolean) => {
+        setNudging(open);
+        if (!open) markNudged();
+    };
+
     useEffect(() => {
         if (!props.celebrate || !props.stars) return;
 
@@ -237,7 +257,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         </span>
                         {props.info ?
                             <MyStats info={props.info} bible={props.bible} className={stepper}/> :
-                            <Popover placement="top-end" offset={12} showArrow classNames={{
+                            <Popover placement="top-end" offset={12} showArrow isOpen={nudging} onOpenChange={onNudgeChange} classNames={{
                                 content: "play-ui max-w-[17rem] rounded-lg border border-play-line bg-play-surface p-3.5 text-play-text shadow-xl",
                                 arrow: "bg-play-surface",
                             }}>
@@ -250,10 +270,15 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                 <PopoverContent>
                                     <div className="flex flex-col gap-3">
                                         <p className="text-[14px] leading-snug">
-                                            <span className="font-semibold">You&apos;re not logged in.</span>{" "}
-                                            <span className="text-play-muted">Your progress is only saved on this device. Log in to keep your scores.</span>
+                                            {props.known ? <>
+                                                <span className="font-semibold">Welcome back!</span>{" "}
+                                                <span className="text-play-muted">Log in so today&apos;s game counts towards your scores and the leaderboard.</span>
+                                            </> : <>
+                                                <span className="font-semibold">You&apos;re not logged in.</span>{" "}
+                                                <span className="text-play-muted">Your progress is only saved on this device. Log in to keep your scores.</span>
+                                            </>}
                                         </p>
-                                        <Link href="/account/log-in"
+                                        <Link href={`/account/log-in?next=/play/${props.date}`} onClick={markNudged}
                                               className="flex h-10 items-center justify-center rounded-lg bg-play-text text-[14px] font-semibold text-play-bg transition active:scale-[0.98]">
                                             Log in
                                         </Link>
