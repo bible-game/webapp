@@ -7,6 +7,7 @@ import { Modal, ModalBody, ModalContent } from "@heroui/react";
 import { Button } from "@heroui/button";
 import { CalendarDaysIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { StateUtil } from "@/core/util/state-util";
+import { StorageUtil } from "@/core/util/storage-util";
 import { GameState } from "@/core/model/state/game-state";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -22,6 +23,13 @@ const statusStyle: Record<Status, string> = {
     lost: "bg-play-error/25 text-play-error ring-1 ring-play-error/60",
     started: "bg-play-warning/25 text-play-warning ring-1 ring-play-warning/60",
 };
+
+/** The calendar this device saw last, so the days are coloured on the first open of a later visit */
+const CALENDAR_KEY = "calendar";
+function saved(): Record<string, number> | undefined {
+    if (typeof window == "undefined") return undefined; // the picker is rendered on the server too, where there is none
+    try { return JSON.parse(StorageUtil.retrieve(CALENDAR_KEY) ?? "null") ?? undefined; } catch { return undefined; }
+}
 
 function statusOf(state?: GameState): Status | undefined {
     if (!state || !state.guesses?.length) return undefined;
@@ -39,7 +47,15 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
     const selected = props.date == "today" ? moment() : moment(props.date, FORMAT);
     const [month, setMonth] = useState(selected.clone().startOf("month"));
     const [games, setGames] = useState(new Map<number, GameState>());
-    const { data: calendar } = useSWR<Record<string, number>>(open ? `${process.env.SVC_PASSAGE}/daily/calendar` : null, fetcher);
+    // The calendar is fetched on mount rather than on open, and seeded from the copy this device saw last, so the days
+    // are already coloured when the picker opens instead of filling in after it. Nothing here waits on the fetch: a
+    // saved copy is only ever missing today's entry, which the revalidation puts back.
+    const { data: calendar } = useSWR<Record<string, number>>(`${process.env.SVC_PASSAGE}/daily/calendar`, fetcher, {
+        fallbackData: saved(),
+        keepPreviousData: true,
+        revalidateOnFocus: false,
+        onSuccess: data => StorageUtil.save(CALENDAR_KEY, data),
+    });
 
     useEffect(() => {
         if (!open) return;
@@ -108,7 +124,7 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
                                             aria-label={`${day.format("dddd D MMMM")}${status ? `, ${status == "won" ? "completed" : status}` : ""}`}
                                             aria-current={current ? "date" : undefined}
                                             onClick={() => pick(day)}
-                                            className={`flex aspect-square min-h-12 items-center justify-center rounded-full text-[16px] font-medium tabular-nums
+                                            className={`flex aspect-square min-h-12 items-center justify-center rounded-full text-[16px] font-medium tabular-nums transition-colors duration-200
                                                 ${future ? "text-play-faint/40" : status ? statusStyle[status] : "text-play-text active:bg-play-raised"}
                                                 ${current ? "!bg-play-text !text-play-bg !ring-0" : ""}
                                                 ${!current && day.isSame(today, "day") ? "outline outline-1 outline-play-muted" : ""}`}>
