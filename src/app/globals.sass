@@ -191,15 +191,6 @@ body
     background: var(--reader-accent)
 
 .reading-prose
-  // The space set around each verse. The step across, in body ems, is how far a verse carries on past the end of the
-  // one before it (read by use-verse-flow, which does the measuring). The two steps down are in lines, either side of
-  // the whole line a new block would take on its own: a verse that carries on sits half a line down, since the step
-  // across is already separating it, while one that starts back at the margin has nothing but the space above it to
-  // set it apart, so it takes a line and a half.
-  --reader-gap: 1.4
-  --reader-reach: 0.6
-  --reader-rise: -0.5
-  --reader-drop: 0.5
   font-family: var(--reader-font)
   font-size: var(--reader-size)
   line-height: var(--reader-leading)
@@ -209,15 +200,6 @@ body
     transition: opacity 400ms ease
     &:not([data-lit])
       opacity: 0.6
-  // Each verse is its own block so that it can step down from the one before it, and flow-root rather than block so
-  // that the drop cap's float is held by the verse it belongs to. The first line's indent, which carries the verse on
-  // from where its neighbour ended, is measured and set by use-verse-flow.
-  [data-v]
-    display: flow-root
-    &+ [data-v]
-      margin-top: calc(var(--reader-rise) * var(--reader-leading) * 1em)
-    &[data-flush]
-      margin-top: calc(var(--reader-drop) * var(--reader-leading) * 1em)
   sup
     margin-right: 1px
     font-family: var(--font-sans), system-ui, sans-serif

@@ -17,7 +17,6 @@ import MarkReadButton from "@/app/read/[[...passage]]/mark-read-button";
 import { useReaderSettings } from "@/app/read/[[...passage]]/use-reader-settings";
 import { useReadAction } from "@/app/read/[[...passage]]/readaction";
 import { useLitVerses } from "@/app/read/[[...passage]]/use-lit-verses";
-import { useVerseFlow } from "@/app/read/[[...passage]]/use-verse-flow";
 import { getPassage } from "@/core/action/read/get-passage";
 import { getAudio } from "@/core/action/read/get-audio";
 import { findBook } from "@/core/model/bible/books";
@@ -52,7 +51,6 @@ export default function Content(props: any) {
     const translation = translations[settings.translation as keyof typeof translations] ?? translations.web;
     const { data: passage, isLoading: loading, isError, refetch } = usePassage(key, translation.abbr);
     const lit = useLitVerses(proseRef, [passage, settings.size, settings.leading, settings.font]);
-    useVerseFlow(proseRef, [passage, settings.size, settings.leading, settings.font]);
     const minutes = ReadingUtil.calcMinutes(passage?.text);
 
     function split(passageKey: any): {
@@ -142,9 +140,7 @@ export default function Content(props: any) {
     }
 
     const verses = passage?.verses?.map((verse: any, i: number) => {
-        // the newlines the translations carry are theirs, not ours: they mean something different in each one, so
-        // they are flattened to spaces and the verses are spaced out by the reader itself
-        const text = verse.text.replace(/\s*\n+\s*/g, " ").trim();
+        const text = verse.text.trim();
         return (
             <span key={verse.verse} id={`v${verse.verse}`} data-v={verse.verse} data-lit={lit.has(String(verse.verse)) || undefined}>
                 {i === 0 ? (
