@@ -93,7 +93,7 @@ const steps: { title: string; detail: string; art: React.ReactNode }[] = [
     {
         title: "Read the summary",
         detail: "Each day brings a new chapter -\nsummarised in one sentence.",
-        art: <div className={`${panel} px-8 py-2.5`}><p className="text-balance text-center font-mono text-[16px] leading-[24px] text-ui-text">{clue}</p></div>,
+        art: <div className={`${panel} px-8 py-2.5`}><p className="text-balance text-center font-mono text-[18px] leading-[26px] text-ui-text">{clue}</p></div>,
     },
     {
         title: "Select the chapter",
