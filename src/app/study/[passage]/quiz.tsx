@@ -127,7 +127,7 @@ export default function Quiz({ passage, study, title, loggedIn, onPassage, onSub
                 <motion.section key={step} {...motionProps} aria-live="polite">
                     {!onSummary ? (
                         <>
-                            <h2 id={`q-${step}`} className="mb-8 font-clue text-[24px] font-medium leading-[1.3] text-pretty">
+                            <h2 id={`q-${step}`} className="mb-8 font-condensed text-[24px] font-medium leading-[1.3] text-pretty">
                                 {question.content}
                             </h2>
                             <div role="radiogroup" aria-labelledby={`q-${step}`} className="grid gap-3">
@@ -149,7 +149,7 @@ export default function Quiz({ passage, study, title, loggedIn, onPassage, onSub
                         </>
                     ) : (
                         <>
-                            <h2 id="summary-label" className="mb-2 font-clue text-[24px] font-medium leading-[1.3] text-pretty">
+                            <h2 id="summary-label" className="mb-2 font-condensed text-[24px] font-medium leading-[1.3] text-pretty">
                                 Summarise {title} in your own words
                             </h2>
                             <p className="mb-6 text-[14px] text-ui-muted">A summary that captures the chapter earns a fifth star.</p>

@@ -22,9 +22,9 @@ Bible Game is a map, and the interface is the equipment you use to read it. The 
 | --- | --- |
 | Closeness | A traffic light in the status colours: `ui/success` (Close), `ui/warning` (Near), `ui/error` (Far). The found chapter is a solid `ui/success`. Decided 13 October 2026, after the brightness-only version was tried and dropped: the steps were too subtle to read. This is the one place colour does not mean region. |
 | Primary action | Takes the region colour when the screen has a book (Select on Play, Mark as read on Read). Otherwise it is a high-contrast white fill. |
-| Home tagline | Interface sans, not serif. Serif is reserved for scripture. |
+| Home tagline | Interface sans. No serif anywhere in the default UI (decided 22 October 2026). |
 | Shape | One small radius, 8px, on every rectangular control, panel and chip. Sheets use 16px. Circles only for avatars, dots and calendar days. No pills. |
-| Typefaces | IBM Plex Sans (interface), IBM Plex Mono (addresses and distances), Literata (scripture). Replaces Inter and Newsreader. |
+| Typefaces | The IBM Plex family only: Plex Sans (interface and passage text), Plex Mono (addresses, distances, the clue), Plex Sans Condensed (quiz questions). Literata was dropped on 22 October 2026; Newsreader and Garamond remain only as optional faces in the reader's Aa menu. |
 | Utility colours | Blue `#4cc9ff` means help. Notice (not logged in) shares `ui/warning`: one gold for "needs attention" (merged 13 October 2026). The help and notice buttons on Play are neutral outlines with only the glyph coloured, so no extra hue competes with the map. |
 | Glow | Light, not decoration. Only the map's selected or found cell, the stars and the emblem glow. Buttons (including region-colour primaries) and the drop cap are flat. Decided 13 October 2026. |
 | Region key | On a neutral cell, a 4px edge in the division colour names the place, like the map's legend. Used for the Statistics division headings. Study book chips stay solid region fills with dark text (the user's choice). Decided 13 October 2026. |
@@ -58,11 +58,11 @@ Distance bands: up to 500 verses is Close, up to 2,000 is Near, beyond is Far. T
 
 | Role | Face | Rule |
 | --- | --- | --- |
-| The page | Literata | Anything from, or about, a specific passage: the clue, reading text, quiz questions, the model summary and the drop cap. Titles and headings, including passage names, stay in Plex Sans. |
+| The page | Plex Sans, Mono and Sans Condensed | Anything from, or about, a specific passage. Reading text and the drop cap are Plex Sans; the clue and the model summary are Plex Mono, read like an instrument; quiz questions are Plex Sans Condensed. Titles and headings, including passage names, stay in Plex Sans. Figma styles: `Reading/Passage`, `Reading/Clue` (16/24), `Reading/Question`, `Reading/Drop cap`. |
 | The chart | IBM Plex Sans | Everything that is interface: page titles (Study, Statistics), buttons, labels, the Home tagline. |
 | Addresses | IBM Plex Mono | Book codes, chapter numbers, step numbers (`01`–`05`) and distances, so figures line up. Map labels use the same face. |
 
-One scale: 12, 14, 16, 18, 20, 22, 24 and 32. The drop cap is two lines tall, in the reader's chosen typeface: its foot sits on the second line's baseline and it rises 0.2em above the first line's capitals, so it reads with the first line (64px beside 18px scripture in Figma; computed from each face's metrics in code). Headings keep normal letter spacing. No all-caps eyebrows.
+One scale: 12, 14, 16, 18, 20, 22, 24 and 32. The drop cap is two lines tall, in the reader's chosen typeface: its foot sits on the second line's baseline and it rises 0.2em above the first line's capitals, so it reads with the first line (64px beside 18px passage text in Figma; computed from each face's metrics in code). Headings keep normal letter spacing. No all-caps eyebrows.
 
 ## Shape, spacing, icons
 
@@ -100,7 +100,7 @@ The lit map. The rest of the interface stays disciplined so the map, and the emb
 - `ui-theme.ts`: add the light levels, `help` and `notice`; stop using `accent` for anything but stars.
 - `closeness.ts`: tinted traffic-light bands, plus a solid green for the found chapter.
 - `layout.tsx` and `globals.sass`: swap the fonts; reduce radii to 8 and 16; remove pills.
-- Headings: serif only on scripture-bound text; page titles and the Home tagline move to the sans.
+- Headings: page titles and the Home tagline are in the sans (and, since 22 October 2026, so is everything else).
 - Statistics: keep the current layout (figures, leaderboard, per-book completion). Restyle the per-book bars as rows of coverage cells in the book's region colour, as in the Figma wireframe.
 - Drawer and Stats icons: neutral, with the current page lit, instead of a hue per page.
 - Refinement pass (13 October 2026, Figma 1.1.0): flat buttons and drop cap; neutral help/notice buttons; `ui/notice` aliases `ui/warning`; region key on Statistics division headings; Read and Study headers in Plex Sans; quiz progress as five cells (new `Quiz Progress` component); mono step numbers on How it works (no numbered circles); Region Key strip on the welcome sheet; calendar day states shown; sentence case on account screens and Statistics; 16px gutter on account screens; Home tagline says "passage-guessing".

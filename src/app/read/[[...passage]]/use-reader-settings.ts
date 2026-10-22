@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react";
-import { ReadingFont } from "@/core/style/reading-fonts";
+import { READING_FONTS, ReadingFont } from "@/core/style/reading-fonts";
 
 export type ReaderSettings = {
     font: ReadingFont;
@@ -11,7 +11,7 @@ export type ReaderSettings = {
 };
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
-    font: "literata",
+    font: "sans",
     size: 19,
     leading: 1.65,
     translation: "web",
@@ -26,6 +26,8 @@ export function useReaderSettings() {
     useEffect(() => {
         try {
             const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
+            // a face that has since been retired (Literata, "inter") falls back to the default
+            if (saved && !(saved.font in READING_FONTS)) delete saved.font;
             if (saved) setSettings({ ...DEFAULT_READER_SETTINGS, ...saved });
         } catch { /* storage unavailable: keep defaults */ }
     }, []);

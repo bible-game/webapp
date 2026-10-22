@@ -136,7 +136,7 @@ export default function Results({ passage, review, study, title }: Props) {
                             {study.goldenSummary ? (
                                 <div className="mt-4 rounded-lg bg-ui-raised p-3">
                                     <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-ui-muted">Model summary</p>
-                                    <p className="font-clue text-[16px] leading-[1.6]">{study.goldenSummary}</p>
+                                    <p className="font-mono text-[16px] leading-[1.5]">{study.goldenSummary}</p>
                                 </div>
                             ) : null}
                         </li>

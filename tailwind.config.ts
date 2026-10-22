@@ -22,8 +22,8 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
-        // scripture: the clue, passages, quiz questions
-        clue: ["var(--font-reading)", "Georgia", "serif"],
+        // quiz questions
+        condensed: ["var(--font-condensed)", "system-ui", "sans-serif"],
       },
       // one radius for every rectangular control, panel and chip (8px); sheets use 3xl (16px); circles are rounded-full
       borderRadius: {

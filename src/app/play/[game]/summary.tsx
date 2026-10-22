@@ -5,7 +5,7 @@ import { ChevronDownIcon } from "lucide-react";
 import { Guesses } from "@/app/play/[game]/guess";
 import { distanceOf } from "@/app/play/[game]/closeness";
 
-const text = "font-clue text-[20px] font-normal leading-[1.4] tracking-normal text-play-text text-center text-balance";
+const text = "font-mono text-[16px] font-normal leading-[1.5] tracking-normal text-play-text text-center text-balance";
 
 /**
  * Summary: the passage summary (the day's clue, up to two lines) above a row of guess slots.

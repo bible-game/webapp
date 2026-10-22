@@ -22,7 +22,7 @@ their purpose, consistency, legibility, and fit with Bible Game.
 | Page chrome | Neutral charcoal, solid surfaces, restrained borders. Values live in `src/core/style/ui-theme.ts`; Play extends these with its division palette. |
 | Colour | Colour means region: the map's teal, purple, rose, green and gold mark the book on screen. Guess closeness is the exception: a traffic light of the status colours `success`, `warning` and `error`, which are separate from the region hues (the found chapter is a solid `success`). Utility colours: `help` (blue) and `notice` (yellow). See `look-and-feel.md`. |
 | Primary action | When the screen has a book (Play's guess button, the end screen's Read link, Read's Mark as read), the action takes that book's region colour with a dimensional highlight and restrained glow. Otherwise it is a high-contrast white fill. |
-| Typography | IBM Plex Sans for navigation, controls, labels and page titles (including the Home tagline); IBM Plex Mono for addresses (guess tiles, book codes, distances) and the map's labels; Literata for scripture (the clue, passages, quiz questions), exposed as `--font-reading`. Optional reader faces live in `reading-fonts.ts`. |
+| Typography | IBM Plex Sans for navigation, controls, labels and page titles (including the Home tagline); IBM Plex Mono for addresses (guess tiles, book codes, distances) and the map's labels; Plex Mono also for the clue and the model summary; Plex Sans Condensed (`--font-condensed`, Tailwind `font-condensed`) for quiz questions; Plex Sans for Read's passage text and drop cap. No serif by default; Newsreader and Garamond are optional reader faces in `reading-fonts.ts`. |
 | Letter spacing | Normal spacing for UI text. Avoid decorative, widely spaced uppercase headings. |
 | Corners | One 8px radius on every rectangular control, tile, menu and panel; 16px on bottom sheets. Circles only for avatars, dots and calendar days. No pills. |
 | Spacing | Use 4px increments, principally 8/12/16/24px. Keep related controls together and use space or borders to divide sections. |
@@ -40,7 +40,7 @@ and month-first layout. Calendar loss text is
 lighter so it reads more clearly on dark surfaces. Stats figures are unframed and
 use the same UI type as other numeric controls.
 
-The map colours, serif clue, gameplay layout, five guesses, and daily play flow
+The map colours, mono clue, gameplay layout, five guesses, and daily play flow
 remain the foundation. Scoped `.play-ui` styling also covers the Play overlays
 rendered outside the page container by HeroUI.
 
@@ -72,7 +72,7 @@ The shared header carries just the passage title, larger than other header text,
 as a button. It opens a deliberately small passage sheet: a search to go to any
 reference, and the current book's chapters (current filled, read ones dotted).
 A glowing line along the header's lower edge shows progress through the chapter.
-The estimated reading time sits on the right of the "What comes before" line. Verses flow as one serif
+The estimated reading time sits on the right of the "What comes before" line. Verses flow as one
 paragraph with accented verse numbers and a two-line initial in the division
 colour. Dimming is gentle: verses within the reading band of the screen stay fully
 lit, and only those beyond it soften to 60%. Everything in view is lit at the top
@@ -99,7 +99,7 @@ within the current filter.
 
 A study runs one step at a time: four questions, then a summary. The header carries
 the passage and "Question n of 5", with the progress line beneath. Questions are set
-in Newsreader; answers are lettered cards in a radio group (arrow keys move the
+in Plex Sans Condensed; answers are lettered cards in a radio group (arrow keys move the
 choice), and the selected card takes the division colour. A pill Next (and Back)
 sit in a fixed footer. The summary is graded live, as before. The passage opens in
 Read's dark bottom sheet.
@@ -124,7 +124,7 @@ navigation. Existing submission and success flows remain.
 ### 6. Home and Information
 
 Home opens on a deliberately quiet first screen: a small glowing emblem, the tagline
-set quietly in the reading serif ("Explore the Bible" light and muted, then "with a
+set quietly in Plex Sans ("Explore the Bible" light and muted, then "with a
 daily passage guessing game" smaller and fainter, close beneath the emblem), a
 single "Play today's chapter" button, and a gently bouncing "How it works" cue at the screen's foot.
 
@@ -207,3 +207,10 @@ Follow-up: the drop cap rises 0.2em above the first line (`--dc-rise`), foot sti
 line's baseline (measured: 4–5px rise, 0px at the foot, in every typeface). Play's subline reads
 "Paul's letters, New Testament" (`DivisionUtil`, shared with Statistics). Sign up and Log in forms
 and their footnote links are left-aligned, as in Figma.
+
+Follow-up (22 October 2026): no serif faces. Literata is gone: Read's passage text and drop cap default to Plex Sans
+(`--reader-font`, with Plex Sans's metrics), the clue (Play, the How it works example) and the model summary are Plex
+Mono at 16/24, and quiz questions are Plex Sans Condensed (`font-condensed`). The `font-clue` utility and `--font-reading`
+are removed. The reader's Aa menu offers Plex Sans, Newsreader and Garamond; a saved choice of a retired face (Literata,
+or the old `inter` key) falls back to Plex Sans. Guess tiles read like a page: "4K →" when the answer is later, "← 28K"
+when earlier (57cae77); Figma matches.
