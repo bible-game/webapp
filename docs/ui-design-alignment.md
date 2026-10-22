@@ -210,7 +210,8 @@ and their footnote links are left-aligned, as in Figma.
 
 Follow-up (22 October 2026): no serif faces. Literata is gone: Read's passage text and drop cap default to Plex Sans
 (`--reader-font`, with Plex Sans's metrics), the clue (Play, the How it works example) and the model summary are Plex
-Mono at 16/24, and quiz questions are Plex Sans Condensed (`font-condensed`). The `font-clue` utility and `--font-reading`
+Mono (the clue at 18/26, stepping down to 17, 16 or 15 so it never wraps past two lines; the chevron is left only
+for a clue too long even at 15), and quiz questions are Plex Sans Condensed (`font-condensed`). The `font-clue` utility and `--font-reading`
 are removed. The reader's Aa menu offers Plex Sans, Newsreader and Garamond; a saved choice of a retired face (Literata,
 or the old `inter` key) falls back to Plex Sans. Guess tiles read like a page: "4K →" when the answer is later, "← 28K"
 when earlier (57cae77); Figma matches.

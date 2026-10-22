@@ -58,7 +58,7 @@ Distance bands: up to 500 verses is Close, up to 2,000 is Near, beyond is Far. T
 
 | Role | Face | Rule |
 | --- | --- | --- |
-| The page | Plex Sans, Mono and Sans Condensed | Anything from, or about, a specific passage. Reading text and the drop cap are Plex Sans; the clue and the model summary are Plex Mono, read like an instrument; quiz questions are Plex Sans Condensed. Titles and headings, including passage names, stay in Plex Sans. Figma styles: `Reading/Passage`, `Reading/Clue` (16/24), `Reading/Question`, `Reading/Drop cap`. |
+| The page | Plex Sans, Mono and Sans Condensed | Anything from, or about, a specific passage. Reading text and the drop cap are Plex Sans; the clue and the model summary are Plex Mono, read like an instrument; quiz questions are Plex Sans Condensed. Titles and headings, including passage names, stay in Plex Sans. Figma styles: `Reading/Passage`, `Reading/Clue` (18/26; on screen it steps down to 17, 16 or 15 so a long clue never runs past two lines), `Reading/Question`, `Reading/Drop cap`. |
 | The chart | IBM Plex Sans | Everything that is interface: page titles (Study, Statistics), buttons, labels, the Home tagline. |
 | Addresses | IBM Plex Mono | Book codes, chapter numbers, step numbers (`01`–`05`) and distances, so figures line up. Map labels use the same face. |
 
