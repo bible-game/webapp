@@ -149,6 +149,7 @@ const BibleGridmap = (props: GridmapProps) => {
             disabledOpacity: 0.9,
             layout: "fit",
             showSections: props.showGroups ?? true,
+            sectionLabelSize: 9.5,
             theme: {
                 background: playTheme.bg,
                 text: playTheme.text,

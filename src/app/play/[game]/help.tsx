@@ -1,10 +1,10 @@
 "use client"
 
 import React from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
-import { ArrowDownIcon, ArrowUpIcon, PartyPopperIcon } from "lucide-react";
+import { Popover, PopoverContent, type PopoverProps, PopoverTrigger } from "@heroui/react";
+import { ArrowLeftIcon, ArrowRightIcon, PartyPopperIcon } from "lucide-react";
 import { Band, bandOf, CLOSE, distanceOf, FAR, FOUND, NEAR } from "@/app/play/[game]/closeness";
-import { compact, formatPassage } from "@/app/play/[game]/guess";
+import { compact, Direction, formatPassage } from "@/app/play/[game]/guess";
 import { exampleGuesses } from "@/app/play/[game]/example";
 
 const meanings = new Map<Band, string>([
@@ -22,18 +22,19 @@ const examples = exampleGuesses.map(guess => {
     return {
         band,
         passage: formatPassage(guess.book, guess.chapter),
-        up: distance < 0,
+        later: distance < 0,
         distance: distance ? compact.format(Math.abs(distance)) : undefined,
         meaning: meanings.get(band)!,
     };
 });
 
 /**
- * How to Play: a popover above whatever trigger it wraps (the footer's info button), in the same style as the login warning's
+ * How to Play: a popover above whatever trigger it wraps (the footer's info button, or an already-guessed guess button),
+ * in the same style as the login warning's
  * @since 2nd October 2026
  */
-const Help = ({ children }: { children: React.ReactElement }) => (
-    <Popover placement="top-start" offset={12} showArrow classNames={{
+const Help = ({ children, placement = "top-start" }: { children: React.ReactElement, placement?: PopoverProps["placement"] }) => (
+    <Popover placement={placement} offset={12} showArrow classNames={{
         content: "play-ui w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-lg border border-play-line bg-play-surface p-4 text-play-text shadow-xl",
         arrow: "bg-play-surface",
     }}>
@@ -45,25 +46,22 @@ const Help = ({ children }: { children: React.ReactElement }) => (
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
                 <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. Red is far, yellow is nearer, green is close:</p>
                 <ul className="grid gap-2">
-                    {examples.map(({ band, passage, up, distance, meaning }) => {
-                        const Arrow = up ? ArrowUpIcon : ArrowDownIcon;
-                        return (
-                            <li key={passage} className="flex items-center gap-3">
-                                <span className="flex h-9 w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-lg border font-mono text-[12px] font-medium leading-[1.15] tabular-nums"
-                                      style={{ background: band.fill, borderColor: band.edge, color: band.text }}>
-                                    {passage}
-                                    {distance ?
-                                        <span className="flex items-center gap-0.5"><Arrow className="size-3" strokeWidth={2.5}/>{distance}</span> :
-                                        <PartyPopperIcon className="size-3.5" aria-label="Found"/>}
-                                </span>
-                                <span className="text-play-muted">{meaning}</span>
-                            </li>
-                        );
-                    })}
+                    {examples.map(({ band, passage, later, distance, meaning }) => (
+                        <li key={passage} className="flex items-center gap-3">
+                            <span className="flex h-9 w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-lg border font-mono text-[12px] font-medium leading-[1.15] tabular-nums"
+                                  style={{ background: band.fill, borderColor: band.edge, color: band.text }}>
+                                {passage}
+                                {distance ?
+                                    <Direction later={later} distance={distance} className="size-3"/> :
+                                    <PartyPopperIcon className="size-3.5" aria-label="Found"/>}
+                            </span>
+                            <span className="text-play-muted">{meaning}</span>
+                        </li>
+                    ))}
                 </ul>
                 <p className="text-play-muted">
-                    <ArrowUpIcon className="inline size-3.5 align-[-2px]" strokeWidth={2.5}/> the answer is later in the Bible,{" "}
-                    <ArrowDownIcon className="inline size-3.5 align-[-2px]" strokeWidth={2.5}/> earlier.
+                    <ArrowRightIcon className="inline size-3.5 align-[-2px]" strokeWidth={2.5}/> the answer is later in the Bible,{" "}
+                    <ArrowLeftIcon className="inline size-3.5 align-[-2px]" strokeWidth={2.5}/> earlier.
                 </p>
                 <p className="text-[13px] text-play-faint">Feedback? hello@bible.game</p>
             </div>

@@ -19,6 +19,7 @@ import {
     PlusIcon,
     Share2Icon,
     StarIcon,
+    XIcon,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import Help from "@/app/play/[game]/help";
@@ -235,6 +236,27 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
     const group = props.hasBook ? groupOf(props.selected.book, parseInt(props.chapter)) : undefined;
     const ready = !guessed && !excluded;
 
+    // an already-guessed chapter can't be guessed again: marked wrong with an X, the button opens How to play instead, to explain its result
+    const guessButton = (
+        <button type="button" disabled={!!excluded} onClick={guessed ? undefined : submit}
+                aria-label={excluded ? undefined : guessed
+                    ? `Already guessed ${props.selected.book} ${props.chapter}. How to play`
+                    : `Guess ${props.selected.book} ${props.chapter}`}
+                style={ready ? lit(tint) : undefined}
+                className={`flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-5 text-[16px] font-medium transition active:scale-[0.98] ${guessed
+                    ? "bg-play-raised text-play-faint"
+                    : "bg-play-text text-play-bg disabled:bg-play-raised disabled:text-play-faint"}`}>
+            {excluded ?
+                <span className="truncate">{excluded}</span> :
+                <>
+                    {guessed ? <XIcon className="size-5 shrink-0" strokeWidth={2.25} aria-hidden="true"/> : null}
+                    <Passage key={`${props.selected.book} ${props.chapter}`} book={props.selected.book} chapter={props.chapter}/>
+                    {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
+                </>
+            }
+        </button>
+    );
+
     if (props.playing) return (
         <>
             {!props.hasBook ?
@@ -307,19 +329,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                                 onClick={() => props.step(-1)} className={stepper}>
                             <MinusIcon className="size-5"/>
                         </button>
-                        <button type="button" disabled={guessed || !!excluded} onClick={submit}
-                                aria-label={excluded ? undefined : `${guessed ? "Guessed" : "Guess"} ${props.selected.book} ${props.chapter}`}
-                                style={ready ? lit(tint) : undefined}
-                                className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg bg-play-text px-5 text-[16px] font-medium text-play-bg transition active:scale-[0.98] disabled:bg-play-raised disabled:text-play-faint">
-                            {excluded ?
-                                <span className="truncate">{excluded}</span> :
-                                <>
-                                    {guessed ? <CheckIcon className="size-5 shrink-0" strokeWidth={2.25} aria-label="Guessed"/> : null}
-                                    <Passage key={`${props.selected.book} ${props.chapter}`} book={props.selected.book} chapter={props.chapter}/>
-                                    {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
-                                </>
-                            }
-                        </button>
+                        {guessed ? <Help placement="top">{guessButton}</Help> : guessButton}
                         <button type="button" aria-label="Next chapter" disabled={!props.canStep(1)}
                                 onClick={() => props.step(1)} className={stepper}>
                             <PlusIcon className="size-5"/>

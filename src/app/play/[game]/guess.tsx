@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowDownIcon, ArrowUpIcon, PartyPopperIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon, PartyPopperIcon } from "lucide-react";
 import { ANSWER, Band, bandOf, distanceOf } from "@/app/play/[game]/closeness";
 
 export const compact = Intl.NumberFormat("en", { notation: "compact" });
@@ -38,20 +38,32 @@ const Slot = () => (
 );
 
 /**
+ * Direction and distance, read like a page: an arrow pointing right, after the distance, when the answer is later in the
+ * Bible; pointing left, before it, when earlier
+ */
+export const Direction = ({ later, distance, className }: { later: boolean, distance: string, className: string }) => (
+    later ?
+        <span className="flex items-center gap-[0.15em]">
+            {distance}<ArrowRightIcon className={className} strokeWidth={2.5} aria-label="answer is later"/>
+        </span> :
+        <span className="flex items-center gap-[0.15em]">
+            <ArrowLeftIcon className={className} strokeWidth={2.5} aria-label="answer is earlier"/>{distance}
+        </span>
+);
+
+/**
  * Guess Tile: passage, direction and distance, lit by how close it was (the found chapter takes its region colour)
  */
 const Guess = ({ guess, count }: { guess: any, count: number }) => {
     const distance = distanceOf(guess);
-    const Arrow = distance < 0 ? ArrowUpIcon : ArrowDownIcon;
 
     return (
         <Tile band={bandOf(guess)} count={count}>
             <span>{formatPassage(guess.bookKey || guess.book, guess.chapter)}</span>
             {distance === 0 ?
                 <PartyPopperIcon className="size-[1.2em] shrink-0" aria-label="Found"/> :
-                <span className="flex items-center gap-[0.15em] font-medium opacity-90">
-                    <Arrow className="size-[1em]" strokeWidth={2.5} aria-label={distance < 0 ? "answer is later" : "answer is earlier"}/>
-                    {compact.format(Math.abs(distance))}
+                <span className="font-medium opacity-90">
+                    <Direction later={distance < 0} distance={compact.format(Math.abs(distance))} className="size-[1em]"/>
                 </span>
             }
         </Tile>
