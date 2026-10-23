@@ -207,10 +207,10 @@ body
 // else from the page (the ground's near-black base, which reads darker than the ground). Read's header and toolbar have
 // always blended in: solid chrome holding only a window onto the ground, with no colour of their own. These strips are
 // the same chrome at each edge of every page, so the bars match everywhere. No fill: a flat colour here becomes the
-// bars' colour, darker than the ground. 16px tall, so Safari finds them (it looks a few px in from the edge, and
-// env(safe-area-inset-*) reads 0 in a Safari tab). Safari only looks at fixed and sticky layers, so they sit behind the
-// page, just over the ground: they hide nothing, and Read's and Study's own chrome stays on top of them, as before.
-// iOS only (-webkit-touch-callout).
+// bars' colour, darker than the ground. Safari takes the topmost thing at a point a few px in from the edge, so they sit
+// over the page (behind it, Safari sees only page content and falls back to the base); under Read's and Study's own
+// chrome (z 30-40), which already does this. 6px, the most that covers nothing: Play's date chip starts 6px down.
+// (env(safe-area-inset-*) reads 0 in a Safari tab.) iOS only (-webkit-touch-callout).
 .status-cap
   display: none
 @supports (-webkit-touch-callout: none)
@@ -219,12 +219,12 @@ body
     clip-path: inset(0)
     position: fixed
     inset: 0 0 auto
-    z-index: -1
-    height: max(16px, env(safe-area-inset-top))
+    z-index: 25
+    height: max(6px, env(safe-area-inset-top))
     pointer-events: none
     &.status-cap-bottom
       inset: auto 0 0
-      height: max(16px, env(safe-area-inset-bottom))
+      height: max(6px, env(safe-area-inset-bottom))
 
 %chrome-bottom
   @extend %chrome

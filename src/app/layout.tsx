@@ -26,8 +26,7 @@ export const metadata: Metadata = {
 };
 
 // Matches the ground so the mobile browser's bars blend in. Edge to edge ('cover'), so iOS Safari tints both of its bars;
-// the status caps (.status-cap in globals.sass) give it the ground at each edge of every page, as Read's chrome does.
-// They follow the Ground, so they paint over it and under everything else
+// the status caps (.status-cap in globals.sass) give it the ground at each edge of every page, as Read's chrome does
 export const viewport: Viewport = { themeColor: uiTheme.bg, colorScheme: "dark", viewportFit: "cover" };
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
