@@ -37,6 +37,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
           <body>
           <Ground/>
           <div aria-hidden="true" className="status-cap"><GroundWindow/></div>
+          <div aria-hidden="true" className="status-cap status-cap-bottom"><GroundWindow/></div>
           <Providers>
               {children}
             </Providers>

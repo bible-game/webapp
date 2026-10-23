@@ -203,8 +203,9 @@ body
 %chrome-top
   @extend %chrome
 
-// The status bar's strip (the page draws edge to edge, see viewport in layout.tsx): solid chrome on every page, so
-// content scrolls away beneath it and the ground runs unbroken to the top of the screen. No height off a phone.
+// The strips behind the status bar and the home indicator (the page draws edge to edge, see viewport in layout.tsx):
+// solid chrome on every page, as Read's header and toolbar are, so content scrolls away beneath them and the ground runs
+// unbroken to both edges of the screen. No height off a phone.
 .status-cap
   @extend %chrome
   position: fixed
@@ -212,6 +213,9 @@ body
   z-index: 40
   height: env(safe-area-inset-top)
   pointer-events: none
+  &.status-cap-bottom
+    inset: auto 0 0
+    height: env(safe-area-inset-bottom)
 
 %chrome-bottom
   @extend %chrome
@@ -244,8 +248,8 @@ body
     &:hover
       background: rgba(242, 243, 244, 0.1)
 
-// Solid, as the ground, so the passage disappears beneath it
-.reader-header
+// Solid, as the ground, so the passage disappears beneath it. The page header (menu.tsx) is the same on every other page
+.reader-header, .page-header
   position: sticky
   top: 0
   z-index: 30
