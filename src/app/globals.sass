@@ -203,11 +203,12 @@ body
 %chrome-top
   @extend %chrome
 
-// Edge strips for iOS Safari (26+), which paints each of its bars in one solid colour, taken from a fixed or sticky
-// element at that edge (within a few px, most of the width, at least 3px tall), else the page's. Read's header and
-// toolbar give it the ground; these give every other page the same, so the bars match everywhere and content never shows
-// through them. At least 4px, because env(safe-area-inset-*) reads 0 in a Safari tab; each is a window onto the ground,
-// so it has no visible edge. iOS only (-webkit-touch-callout).
+// Edge strips for iOS Safari (26+), which takes the look of each of its bars from a fixed or sticky element at that edge
+// (within a few px, most of the width, at least 3px tall), else the page's. Read's header and toolbar give it the ground;
+// these give every other page the same, so the bars match everywhere and content never shows through them. Like Read's
+// chrome they hold only a window onto the ground and no colour of their own: a solid fill here paints the bars that flat
+// colour, darker than the ground around them. At least 4px, because env(safe-area-inset-*) reads 0 in a Safari tab.
+// iOS only (-webkit-touch-callout).
 .status-cap
   display: none
 @supports (-webkit-touch-callout: none)
@@ -218,7 +219,6 @@ body
     inset: 0 0 auto
     z-index: 40
     height: max(4px, env(safe-area-inset-top))
-    background: var(--ui-bg)
     pointer-events: none
     &.status-cap-bottom
       inset: auto 0 0
