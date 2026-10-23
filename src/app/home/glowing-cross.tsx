@@ -7,7 +7,7 @@ import { MorphTiming, useMosaicMorph } from "@/app/home/use-mosaic-morph";
 /**
  * The Hero B into Cross emblem, as the original logo (public/icon-bright.png): outlined glass stones with white-hot
  * lines, a tight coloured glow and dark tinted glass inside, each stone in its own colour from the logo's cool and warm
- * runs (stoneColours in mosaic.ts). Between the shapes the stones become a constellation (use-mosaic-morph.ts).
+ * runs (stoneColours in mosaic.ts). Between the shapes the stones drift as stars, each to the stone of its own colour (use-mosaic-morph.ts).
  * Renders the B on the server; the morph runs after.
  */
 

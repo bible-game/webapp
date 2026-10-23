@@ -151,8 +151,9 @@ export const bCells = tracedB.map(glass);
 
 // The emblem's colours, from the original logo (public/icon-bright.png): a cool run (periwinkle to cyan, a touch of mint)
 // and a warm run (red-orange through orange to amber and yellow). On the B the cool run climbs the stem and the warm run
-// falls round the bowls, each stone taking the colour where its centre sits. The cross borrows the B's colours in the
-// same proportions: the cool ones down its head (to just below the crossbar), the warm ones from the arms down the foot.
+// falls round the bowls, each stone taking the colour where its centre sits: cool on the left, warm on the right, each
+// top to bottom. The cross is laid out the same way (its left half cool, its right half warm, each top to bottom) and
+// takes exactly the B's colours, in the same proportions.
 const COOL = [[0, "#8f8dff"], [0.45, "#6d9cff"], [0.8, "#40e6f2"], [1, "#55f0bf"]] as const;
 const WARM = [[0, "#ff5244"], [0.28, "#ff7d35"], [0.5, "#ffb12e"], [0.72, "#ffd034"], [1, "#ffd94a"]] as const;
 type Run = readonly (readonly [number, string])[];
@@ -179,43 +180,33 @@ const onB = ([x, y]: Point): { cool: boolean; t: number } => x < 18.2
     ? { cool: true, t: ((x + 11) * 35 + y * HEIGHT) / (35 * 35 + HEIGHT * HEIGHT) }
     : { cool: false, t: y / HEIGHT };
 
-/** The cross's cool stones: its head, down to just below the crossbar */
-const coolOnCross = ([x, y]: Point) => x > 22 && x < 38 && y < 56;
+/** The cross's cool stones: its left half (the left arm and the stem's left column), as the B's stem is its left */
+const coolOnCross = ([x]: Point) => x < WIDTH / 2;
 
-/** The cross's stones in each part, top to bottom, take the B's colours for that part in the same order, evenly spread */
-function crossColours(): string[] {
-    const b = bCells.map(cell => onB(centroid(cell)));
-    const centres = crossCells.map(centroid);
-    const colours = new Array<string>(crossCells.length);
-    for (const cool of [true, false]) {
-        const ts = b.filter(p => p.cool === cool).map(p => p.t).sort((p, q) => p - q);
-        const stones = centres.map((c, k) => [c, k] as const).filter(([c]) => coolOnCross(c) === cool)
-            .sort(([p], [q]) => p[1] - q[1] || p[0] - q[0]);
-        stones.forEach(([, k], rank) => {
-            colours[k] = sample(cool ? COOL : WARM, ts[Math.floor((rank + 0.5) / stones.length * ts.length)]);
-        });
-    }
-    return colours;
-}
-
-/** Each stone's colour, in the order of `bCells` or `crossCells` */
-export const stoneColours = (shape: "b" | "cross"): string[] => shape === "b"
-    ? bCells.map(cell => { const { cool, t } = onB(centroid(cell)); return sample(cool ? COOL : WARM, t); })
-    : crossColours();
-
-const B_COLOURS = stoneColours("b");
-const CROSS_COLOURS = stoneColours("cross");
+const onBs = bCells.map(cell => onB(centroid(cell)));
 
 /**
- * Pairs each cross cell with a B cell, nearest first in each shape's own unit box, then untangles crossing journeys.
- * The B has more cells than the cross; each extra one divides out of the cross cell nearest to it.
+ * Each cross stone's partner in the B: within each half (cool, warm), the cross's stones top to bottom take the B's
+ * stones in their colour order, evenly spread, so the cross wears exactly the B's colours and each stone of the B has a
+ * place on the cross of the same colour
  */
-function unit(cells: Point[][]): Point[] {
-    const centres = cells.map(centroid);
-    const [minX, maxX] = [Math.min(...centres.map(p => p[0])), Math.max(...centres.map(p => p[0]))];
-    const [minY, maxY] = [Math.min(...centres.map(p => p[1])), Math.max(...centres.map(p => p[1]))];
-    return centres.map(([x, y]) => [(x - minX) / (maxX - minX), (y - minY) / (maxY - minY)]);
+function crossPartners(): number[] {
+    const centres = crossCells.map(centroid);
+    const partners = new Array<number>(crossCells.length);
+    for (const cool of [true, false]) {
+        const bs = onBs.map((p, j) => ({ ...p, j })).filter(p => p.cool === cool).sort((p, q) => p.t - q.t);
+        const stones = centres.map((c, k) => [c, k] as const).filter(([c]) => coolOnCross(c) === cool)
+            .sort(([p], [q]) => p[1] - q[1] || p[0] - q[0]);
+        stones.forEach(([, k], rank) => partners[k] = bs[Math.floor((rank + 0.5) / stones.length * bs.length)].j);
+    }
+    return partners;
 }
+
+const PARTNERS = crossPartners();
+const B_COLOURS = bCells.map((_, j) => sample(onBs[j].cool ? COOL : WARM, onBs[j].t));
+
+/** Each stone's colour, in the order of `bCells` or `crossCells` */
+export const stoneColours = (shape: "b" | "cross"): string[] => shape === "b" ? B_COLOURS : PARTNERS.map(j => B_COLOURS[j]);
 
 /** Rotates `to`'s corners to sit closest to `from`'s, each about its own centre, so a cell turns as little as it can */
 function align(from: Point[], to: Point[]): Point[] {
@@ -228,40 +219,28 @@ function align(from: Point[], to: Point[]): Point[] {
     return [...to.slice(best), ...to.slice(0, best)];
 }
 
-export type MorphCell = { cross: Point[]; b: Point[]; extra: boolean; entrance: number; stagger: number; colour: { cross: string; b: string } };
+/** A cell's place in the morph's wave: its B stone's height, 0 at the top to 1 at the bottom */
+export type MorphCell = { cross: Point[]; b: Point[]; extra: boolean; entrance: number; wave: number; colour: { cross: string; b: string } };
 
+/**
+ * Pairs each cross stone with the B stone of its colour (its partner), so no stone changes colour on the way and their
+ * paths run side by side rather than across each other. The B has more stones than the cross; each extra one merges into
+ * the cross stone whose partner is nearest it in colour, on its own side.
+ */
 function pair(): MorphCell[] {
-    const from = unit(crossCells), to = unit(bCells);
-    const distance = (i: number, j: number) => Math.hypot(from[i][0] - to[j][0], from[i][1] - to[j][1]);
-
-    const candidates = from.flatMap((_, i) => to.map((_, j) => [i, j, distance(i, j)])).sort((a, b) => a[2] - b[2]);
-    const match = new Array<number>(from.length).fill(-1), taken = new Set<number>();
-    for (const [i, j] of candidates) {
-        if (match[i] < 0 && !taken.has(j)) { match[i] = j; taken.add(j); }
-    }
-    for (let improved = true; improved;) {
-        improved = false;
-        for (let a = 0; a < match.length; a++) for (let b = a + 1; b < match.length; b++) {
-            if (distance(a, match[b]) + distance(b, match[a]) < distance(a, match[a]) + distance(b, match[b]) - 1e-9) {
-                [match[a], match[b]] = [match[b], match[a]];
-                improved = true;
-            }
-        }
-    }
-
     // The B is drawn first, so its cells light up outward from its middle
     const centre = centroid(bCells.flatMap(cell => cell));
     const entrance = (cell: Point[]) => { const [x, y] = centroid(cell); return Math.round(Math.hypot(x - centre[0], y - centre[1]) * 14); };
-    const stagger = (i: number) => Math.min(1, Math.hypot(from[i][0] - 0.5, from[i][1] - 0.3) / 0.75);
+    const wave = (j: number) => centroid(bCells[j])[1] / HEIGHT;
     const seed = (cell: Point[]): Point[] => { const c = centroid(cell); return cell.map(([x, y]) => [c[0] + (x - c[0]) * 0.15, c[1] + (y - c[1]) * 0.15]); };
 
-    const colour = (i: number, j: number) => ({ cross: CROSS_COLOURS[i], b: B_COLOURS[j] });
-
-    const cells: MorphCell[] = match.map((j, i) => ({ cross: crossCells[i], b: align(crossCells[i], bCells[j]), extra: false, entrance: entrance(bCells[j]), stagger: stagger(i), colour: colour(i, j) }));
+    const cells: MorphCell[] = PARTNERS.map((j, i) => ({ cross: crossCells[i], b: align(crossCells[i], bCells[j]), extra: false, entrance: entrance(bCells[j]), wave: wave(j), colour: { cross: B_COLOURS[j], b: B_COLOURS[j] } }));
+    const taken = new Set(PARTNERS);
     bCells.forEach((cell, j) => {
         if (taken.has(j)) return;
-        const parent = from.reduce((best, _, i) => distance(i, j) < distance(best, j) ? i : best, 0);
-        cells.push({ cross: seed(crossCells[parent]), b: align(crossCells[parent], cell), extra: true, entrance: entrance(cell), stagger: Math.min(1, stagger(parent) + 0.15), colour: colour(parent, j) });
+        const gap = (i: number) => onBs[PARTNERS[i]].cool === onBs[j].cool ? Math.abs(onBs[PARTNERS[i]].t - onBs[j].t) : Infinity;
+        const parent = PARTNERS.reduce((best, _, i) => gap(i) < gap(best) ? i : best, 0);
+        cells.push({ cross: seed(crossCells[parent]), b: align(crossCells[parent], cell), extra: true, entrance: entrance(cell), wave: wave(j), colour: { cross: B_COLOURS[PARTNERS[parent]], b: B_COLOURS[j] } });
     });
     return cells;
 }

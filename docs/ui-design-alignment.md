@@ -131,10 +131,10 @@ single "Play today's chapter" button, and a gently bouncing "How it works" cue a
 The emblem (`home/glowing-cross.tsx`) is always in motion. It opens and rests on the
 logo's stained-glass "B", which becomes a mosaic Latin cross and returns. The cross is a jittered lattice of cells;
 the B is the logo cell for cell, traced from `public/icon-bright.png` (`home/mosaic.ts`).
-Between the shapes the stones become a constellation: each closes to a star, travels, and opens
-into its partner, in a wave out from the heart; the B's ten extra cells merge into their nearest cross cells (`home/use-mosaic-morph.ts`;
-timing and colour under 1.2 below). Only the cells' shapes and opacity, the colour divide and the glow animate; the morph pauses
-off-screen and in hidden tabs, and reduced motion leaves the B still.
+Between the shapes the stones drift as stars: in a wave from top to bottom, each closes to a star, glides straight to
+the stone of its own colour in the other shape, and opens there; the B's ten extra cells fade into the cross cell of
+their colour (`home/use-mosaic-morph.ts`; timing and colour under 1.2 below). Only the cells' shapes, colour and opacity
+and the glow animate; the morph pauses off-screen and in hidden tabs, and reduced motion leaves the B still.
 
 "How it works" follows the life of a day's game in five steps (clue, map, guesses, read
 and study, progress), illustrated with Play's own guess tiles, a sketch of the map, and
@@ -236,8 +236,9 @@ in the foreground):
 - **Emblem**: the original logo's look (`public/icon-bright.png`): outlined glass stones with a white core, a tight
   glow and dark tinted glass. Each stone takes one colour from the logo's two runs (`stoneColours` in mosaic.ts): on
   the B by where it sits, the cool run (periwinkle to cyan and mint) up the stem and the warm run (red-orange to yellow)
-  down the bowls. The cross borrows the B's colours in the same proportions, top to bottom: cool down its head to just
-  below the crossbar, warm from the arms down the foot. 160px on Home. LogoMark, the favicon
+  down the bowls: cool on the left, warm on the right. The cross is laid out the same way (23 October 2026, "mirror"):
+  its left half (the left arm and the stem's left column) cool and its right half warm, each top to bottom, wearing
+  exactly the B's colours, each cross stone that of its partner in the B. 160px on Home. LogoMark, the favicon
   (`icon.tsx` + favicon.ico), `apple-icon.tsx` and the share image (`opengraph-image.tsx`) use the same stones and colours
   (`core/style/emblem-svg.ts`).
 - **Map**: Gridmap 0.2.0 (temporarily installed from `../../project-gridmap/library`): transparent background, books in
@@ -245,10 +246,12 @@ in the foreground):
   light, IBM Plex Mono labels cut into the lines.
 - **How it works**: step 2 is the real map (`home/mini-map.tsx`), gliding in on Revelation and tapping chapter 12; the
   hand-drawn sketch remains as a fallback when the passage service is unavailable.
-- **Hero morph (23 October 2026)**: a constellation. 3.5s on the B, 3s on the cross, 3.2s to change. Out from the heart,
-  each stone closes to a point of light; the stars sweep on a gentle curve to their new places, changing colour on the
-  way (the B's ten extra stars merge into their neighbours'), and open into the new stones, heart first. The glow swells
-  from 70% while they travel.
+- **Hero morph (23 October 2026)**: an ordered drift (it replaced a constellation whose stars swept round the centre,
+  paired by position, so they changed colour and crossed paths). 3.5s on the B, 3s on the cross, 3.6s to change. Each
+  cross stone is paired with the B stone of its own colour, so no star changes colour and none crosses another. In a
+  calm wave from top to bottom, each stone closes to a star (16% of its size), glides straight, and opens; the B's ten
+  extra stars fade into the cross stone of their colour. The glow lifts from 70% while they travel. Figma: "Emblem
+  morph 1.2.0 · Ordered drift" on the Style Guide page.
 - **Palette, logo hues (23 October 2026)**: the region hues moved towards the original logo while keeping the OKLCH
   lightness and chroma rules: purple to periwinkle, red to coral, blue most of the way to cyan (azure, h215, so it stays
   distinct from green on the map). Light `#43CAE7 #ABAEFF #ED8C7F #70CE98 #D4B455`; solid `#61C1D7 #A7AAEC #DA8E83 #7CC499
