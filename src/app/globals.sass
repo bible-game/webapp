@@ -205,9 +205,11 @@ body
 
 // Edge strips for iOS Safari (26+), which takes the look of each of its bars from a fixed or sticky element at that edge
 // (within a few px, most of the width, at least 3px tall), else the page's. Read's header and toolbar give it the ground;
-// these give every other page the same, so the bars match everywhere and content never shows through them. Like Read's
-// chrome they hold only a window onto the ground and no colour of their own: a solid fill here paints the bars that flat
-// colour, darker than the ground around them. At least 4px, because env(safe-area-inset-*) reads 0 in a Safari tab.
+// these give every other page the same, so the bars match everywhere and content never shows through them. Safari paints
+// the bar one flat colour, so each strip's colour is the ground's at that edge (measured on a 393 × 852 screen across the
+// fields' drift, which moves it by a step at most): the navy field at the top, the purple and deep fields at the bottom.
+// Not ui-bg, the ground's base, which reads much darker than the fields over it. Each also holds a window onto the
+// ground, so the strip itself shows no edge. At least 4px, because env(safe-area-inset-*) reads 0 in a Safari tab.
 // iOS only (-webkit-touch-callout).
 .status-cap
   display: none
@@ -219,10 +221,12 @@ body
     inset: 0 0 auto
     z-index: 40
     height: max(4px, env(safe-area-inset-top))
+    background: #070f21
     pointer-events: none
     &.status-cap-bottom
       inset: auto 0 0
       height: max(4px, env(safe-area-inset-bottom))
+      background: #0f0f27
 
 %chrome-bottom
   @extend %chrome
