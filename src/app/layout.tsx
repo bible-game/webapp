@@ -4,7 +4,6 @@ import Providers from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { uiTheme } from "@/core/style/ui-theme";
 import Ground from "@/core/component/ground";
-import GroundWindow from "@/core/component/ground-window";
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Condensed } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 
@@ -25,9 +24,8 @@ export const metadata: Metadata = {
     twitter: { card: "summary_large_image", title: "Bible Game", description },
 };
 
-// Matches the ground so the mobile browser's bars blend in. Edge to edge ('cover'), so iOS Safari tints both of its bars;
-// the status caps (.status-cap in globals.sass) give it the ground at each edge of every page, as Read's chrome does
-export const viewport: Viewport = { themeColor: uiTheme.bg, colorScheme: "dark", viewportFit: "cover" };
+// Matches the ground's edges so the mobile browser's bars blend in (see edge in ui-theme.ts)
+export const viewport: Viewport = { themeColor: uiTheme.edge, colorScheme: "dark" };
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -35,8 +33,6 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
           <SpeedInsights/>
           <body>
           <Ground/>
-          <div aria-hidden="true" className="status-cap"><GroundWindow/></div>
-          <div aria-hidden="true" className="status-cap status-cap-bottom"><GroundWindow/></div>
           <Providers>
               {children}
             </Providers>

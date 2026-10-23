@@ -6,6 +6,12 @@
 export const uiTheme = {
     /** The ground's near-black base; also text on light fills (the white primary, solid region buttons, the found tile) */
     bg: "#05060a",
+    /**
+     * The ground as it reads at the screen's edges (navy at the top, indigo at the bottom; this sits between). The page's
+     * own colour, behind the ground: iOS Safari paints its bars in it wherever no header or toolbar sits at the edge, so
+     * Home's bars match Read's (whose header and toolbar give #070f23 and #0e0f27). Also seen when overscrolling.
+     */
+    edge: "#0b0f25",
     /** Glass: buttons, chips, fields, cards */
     surface: "rgba(180, 195, 255, 0.06)",
     /** Glass, a step brighter: selected segments, counters, hover */

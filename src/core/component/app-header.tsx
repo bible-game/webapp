@@ -94,11 +94,8 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                 </Link>}
             </div>
             <Drawer isOpen={drawer.isOpen} onOpenChange={drawer.onOpenChange} placement="left" size="full" radius="none" hideCloseButton
-                    classNames={{ base: "play-ui isolate !bg-transparent text-ui-text" }}>
+                    classNames={{ base: "play-ui bg-ui-sheet text-ui-text" }}>
                 <DrawerContent>{onClose => <>
-                    {/* the sheet colour on a layer, not the drawer itself: iOS Safari paints its bars any solid colour it
-                        finds on a fixed panel at the edge, flat and darker; a layer lets it show the drawer as drawn */}
-                    <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ui-sheet"/>
                     <DrawerHeader className="relative flex h-[72px] items-center justify-between px-2 pb-0 pt-[env(safe-area-inset-top)]">
                         <Link href="/" aria-label="Bible Game home" onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-lg">
                             <LogoMark size={28}/>
