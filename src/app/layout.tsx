@@ -24,8 +24,10 @@ export const metadata: Metadata = {
     twitter: { card: "summary_large_image", title: "Bible Game", description },
 };
 
-// Matches the charcoal page so the mobile browser's bars blend in
-export const viewport: Viewport = { themeColor: uiTheme.bg, colorScheme: "dark" };
+// Matches the ground so the mobile browser's bars blend in. Edge to edge ('cover'): the Ground runs up behind the status
+// bar on every page, rather than iOS filling that strip with its own sample (black on Home, which has no sticky header);
+// headers and the hero keep clear of it with env(safe-area-inset-top)
+export const viewport: Viewport = { themeColor: uiTheme.bg, colorScheme: "dark", viewportFit: "cover" };
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
   return (
