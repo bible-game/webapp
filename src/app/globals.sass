@@ -203,6 +203,16 @@ body
 %chrome-top
   @extend %chrome
 
+// The status bar's strip (the page draws edge to edge, see viewport in layout.tsx): solid chrome on every page, so
+// content scrolls away beneath it and the ground runs unbroken to the top of the screen. No height off a phone.
+.status-cap
+  @extend %chrome
+  position: fixed
+  inset: 0 0 auto
+  z-index: 40
+  height: env(safe-area-inset-top)
+  pointer-events: none
+
 %chrome-bottom
   @extend %chrome
 

@@ -4,6 +4,7 @@ import Providers from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { uiTheme } from "@/core/style/ui-theme";
 import Ground from "@/core/component/ground";
+import GroundWindow from "@/core/component/ground-window";
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Condensed } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
 
 // Matches the ground so the mobile browser's bars blend in. Edge to edge ('cover'): the Ground runs up behind the status
 // bar on every page, rather than iOS filling that strip with its own sample (black on Home, which has no sticky header);
-// headers and the hero keep clear of it with env(safe-area-inset-top)
+// headers and the hero keep clear of it with env(safe-area-inset-top), and the status cap hides content scrolling under it
 export const viewport: Viewport = { themeColor: uiTheme.bg, colorScheme: "dark", viewportFit: "cover" };
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
@@ -35,6 +36,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
           <SpeedInsights/>
           <body>
           <Ground/>
+          <div aria-hidden="true" className="status-cap"><GroundWindow/></div>
           <Providers>
               {children}
             </Providers>
