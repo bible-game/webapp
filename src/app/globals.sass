@@ -210,7 +210,9 @@ body
 // bars' colour, darker than the ground. Safari takes the topmost thing at a point a few px in from the edge, so they sit
 // over the page (behind it, Safari sees only page content and falls back to the base); under Read's and Study's own
 // chrome (z 30-40), which already does this. 6px, the most that covers nothing: Play's date chip starts 6px down.
-// (env(safe-area-inset-*) reads 0 in a Safari tab.) iOS only (-webkit-touch-callout).
+// (env(safe-area-inset-*) reads 0 in a Safari tab.) They must take pointer events: Safari finds them by hit-testing, which
+// passes straight through pointer-events: none; their 6px sit under the status bar and the browser's own buttons, so
+// they catch no tap anyone means. iOS only (-webkit-touch-callout).
 .status-cap
   display: none
 @supports (-webkit-touch-callout: none)
@@ -221,7 +223,6 @@ body
     inset: 0 0 auto
     z-index: 25
     height: max(6px, env(safe-area-inset-top))
-    pointer-events: none
     &.status-cap-bottom
       inset: auto 0 0
       height: max(6px, env(safe-area-inset-bottom))
