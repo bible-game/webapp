@@ -203,19 +203,26 @@ body
 %chrome-top
   @extend %chrome
 
-// The strips behind the status bar and the home indicator (the page draws edge to edge, see viewport in layout.tsx):
-// solid chrome on every page, as Read's header and toolbar are, so content scrolls away beneath them and the ground runs
-// unbroken to both edges of the screen. No height off a phone.
+// Edge strips for iOS Safari (26+), which paints each of its bars in one solid colour, taken from a fixed or sticky
+// element at that edge (within a few px, most of the width, at least 3px tall), else the page's. Read's header and
+// toolbar give it the ground; these give every other page the same, so the bars match everywhere and content never shows
+// through them. At least 4px, because env(safe-area-inset-*) reads 0 in a Safari tab; each is a window onto the ground,
+// so it has no visible edge. iOS only (-webkit-touch-callout).
 .status-cap
-  @extend %chrome
-  position: fixed
-  inset: 0 0 auto
-  z-index: 40
-  height: env(safe-area-inset-top)
-  pointer-events: none
-  &.status-cap-bottom
-    inset: auto 0 0
-    height: env(safe-area-inset-bottom)
+  display: none
+@supports (-webkit-touch-callout: none)
+  .status-cap
+    display: block
+    clip-path: inset(0)
+    position: fixed
+    inset: 0 0 auto
+    z-index: 40
+    height: max(4px, env(safe-area-inset-top))
+    background: var(--ui-bg)
+    pointer-events: none
+    &.status-cap-bottom
+      inset: auto 0 0
+      height: max(4px, env(safe-area-inset-bottom))
 
 %chrome-bottom
   @extend %chrome
@@ -248,8 +255,8 @@ body
     &:hover
       background: rgba(242, 243, 244, 0.1)
 
-// Solid, as the ground, so the passage disappears beneath it. The page header (menu.tsx) is the same on every other page
-.reader-header, .page-header
+// Solid, as the ground, so the passage disappears beneath it
+.reader-header
   position: sticky
   top: 0
   z-index: 30
