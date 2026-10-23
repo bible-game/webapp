@@ -33,9 +33,72 @@
   svg.lucide
     stroke-width: 1.75px
 
+// The page is transparent over the Ground (ground.tsx), the near-black base on html beneath it
 body
-  background: var(--ui-bg)
+  background: transparent
   color: var(--ui-text)
+
+// The Ground: near-black under broad, diffuse fields of navy, indigo and purple, each larger than the screen, drifting
+// on slow, offset cycles (60-120s) so the depth moves without drawing attention. No stars, noise or texture. Still under
+// reduced motion. One ground behind every page.
+.ground
+  position: fixed
+  inset: 0
+  z-index: -1
+  overflow: hidden
+  background: var(--ui-bg)
+  pointer-events: none
+  span
+    position: absolute
+    border-radius: 50%
+    will-change: transform
+  .ground-navy
+    width: 190vmax
+    height: 100vmax
+    left: calc(12% - 95vmax)
+    top: calc(10% - 50vmax)
+    background: radial-gradient(closest-side, rgba(11, 29, 68, 0.55), rgba(11, 29, 68, 0.25) 55%, transparent)
+    animation: ground-drift-a 90s ease-in-out infinite alternate
+  .ground-indigo
+    width: 180vmax
+    height: 90vmax
+    left: calc(98% - 90vmax)
+    top: calc(48% - 45vmax)
+    background: radial-gradient(closest-side, rgba(26, 20, 80, 0.5), rgba(26, 20, 80, 0.22) 55%, transparent)
+    animation: ground-drift-b 120s ease-in-out infinite alternate
+  .ground-purple
+    width: 200vmax
+    height: 90vmax
+    left: calc(8% - 100vmax)
+    top: calc(88% - 45vmax)
+    background: radial-gradient(closest-side, rgba(43, 15, 69, 0.45), rgba(43, 15, 69, 0.2) 55%, transparent)
+    animation: ground-drift-c 75s ease-in-out infinite alternate
+  .ground-deep
+    width: 160vmax
+    height: 70vmax
+    left: calc(88% - 80vmax)
+    top: calc(100% - 35vmax)
+    background: radial-gradient(closest-side, rgba(10, 32, 72, 0.35), rgba(10, 32, 72, 0.16) 55%, transparent)
+    animation: ground-drift-a 105s ease-in-out -40s infinite alternate-reverse
+
+@keyframes ground-drift-a
+  to
+    transform: translate(6vw, 4vh) scale(1.06)
+    opacity: 0.85
+
+@keyframes ground-drift-b
+  to
+    transform: translate(-7vw, 3vh) scale(0.95)
+    opacity: 1.1
+
+@keyframes ground-drift-c
+  to
+    transform: translate(5vw, -5vh) scale(1.08)
+    opacity: 0.9
+
+@media (prefers-reduced-motion: reduce)
+  .ground span
+    animation: none !important
 
 .study-toolbar
   .ui-button
@@ -128,12 +191,30 @@ body
   color: var(--ui-text)
   font-size: 16px
 
+// Clear chrome (headers and footers over scrolling content): a barely tinted pane, so the ground's colour carries
+// through, frosted behind so passing text stays out of the way; the frost fades out towards the content, so no edge.
+// (Backdrop blurs go through Tailwind: a plain backdrop-filter declaration is dropped from this file's compiled output.)
+// Solid chrome (Read's and Study's header and footer): each bar holds a copy of the ground (GroundWindow) and is cut
+// to its own box, so content scrolling beneath is hidden while the bar still reads as the open ground, with no edge.
+// (clip-path, unlike overflow, also clips the copy's fixed layer.)
+%chrome
+  clip-path: inset(0)
+
+%chrome-top
+  @extend %chrome
+
+%chrome-bottom
+  @extend %chrome
+
 // Read: the app's charcoal, accented in the colour of the passage's division (as on Play's map)
 .reader, .reader-sheet, .study
   --reader-text: var(--ui-text)
   --reader-muted: var(--ui-muted)
   --reader-accent: var(--division, var(--ui-muted))
   --reader-on-accent: var(--ui-bg)
+  // the one solid action (Mark as read, the study's lead button): the region's solid tone, with a soft glow
+  --reader-solid: var(--division-solid, var(--ui-text))
+  --reader-glow: var(--division-glow, none)
   --reader-line: rgba(242, 243, 244, 0.14)
   --reader-font: var(--font-sans), system-ui, sans-serif
   // Plex Sans's metrics, for the drop cap (reading-fonts.ts sets them per typeface)
@@ -145,7 +226,7 @@ body
   color: var(--reader-text)
 
 .reader
-  background: var(--ui-bg)
+  background: transparent
   .ui-button
     border-color: var(--reader-line)
     background: rgba(242, 243, 244, 0.05)
@@ -153,11 +234,12 @@ body
     &:hover
       background: rgba(242, 243, 244, 0.1)
 
+// Solid, as the ground, so the passage disappears beneath it
 .reader-header
   position: sticky
   top: 0
   z-index: 30
-  background: var(--ui-bg)
+  @extend %chrome-top
 
 .reader-title
   font-family: var(--font-sans), system-ui, sans-serif
@@ -181,11 +263,11 @@ body
   .reader-title
     font-size: 20px
 
+// Only the progress line itself: a full-width track would draw an edge under the clear header
 .reader-progress
   position: absolute
   inset: auto 0 0 0
   height: 2px
-  background: rgba(242, 243, 244, 0.06)
   div
     height: 100%
     background: var(--reader-accent)
@@ -233,9 +315,11 @@ body
   line-height: 1
   color: var(--reader-accent)
 
+// Solid light: the region's solid tone with near-black text, and a glow outside the edge
 .reader-primary
   border-color: transparent !important
-  background: var(--reader-accent) !important
+  background: var(--reader-solid) !important
+  box-shadow: var(--reader-glow)
   color: var(--reader-on-accent) !important
 
 .reader-done
@@ -246,9 +330,25 @@ body
 .reader-fill
   background: var(--reader-accent)
 
+// Solid, as the ground. Tucked away by sliding its controls down while the bar's cut closes behind them: the bar itself
+// never moves, which would carry its copy of the ground out of step with the page's
 .reader-toolbar
-  background: linear-gradient(180deg, transparent, var(--ui-bg) 24px)
+  @extend %chrome-bottom
   color: var(--reader-muted)
+  transition: clip-path 300ms ease
+  > .reader-toolbar-body
+    transition: transform 300ms ease
+  &[data-hidden]
+    clip-path: inset(100% 0 0 0)
+    > .reader-toolbar-body
+      transform: translateY(100%)
+  @media (prefers-reduced-motion: reduce)
+    &, > .reader-toolbar-body
+      transition: none
+
+// The quiz's fixed footer (Back, Next): the same solid chrome as Read's toolbar
+.chrome-foot
+  @extend %chrome-bottom
 
 .reader-tool
   color: var(--reader-muted)
@@ -339,12 +439,12 @@ body
     height: 4px
     border-radius: 50%
     background: var(--reader-accent)
+  // the current chapter is lit glass in the region's colour
   &[aria-current="page"]
-    background: var(--reader-accent)
-    color: var(--reader-on-accent)
+    background: color-mix(in srgb, var(--reader-accent) 12%, transparent)
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--reader-accent) 50%, transparent)
+    color: var(--reader-accent)
     font-weight: 600
-    &::after
-      background: var(--reader-on-accent)
 
 // Study: an answer, as a lettered card; selected takes the division colour
 .study-option
@@ -377,34 +477,40 @@ body
   &[aria-checked="true"]
     border-color: var(--ui-text)
     background: var(--ui-light-2)
-  // Review states: brightness plus icon and label, never colour alone (green and red belong to regions)
-  &[data-result="right"]
-    background: var(--ui-light-3)
+  // Review states: lit glass in the success green or error red, always with an icon and label too
+  &[data-result="right"], &[data-result="wrong"]
+    --result: var(--ui-success)
+    border-color: color-mix(in srgb, var(--result) 50%, transparent)
+    background: color-mix(in srgb, var(--result) 12%, transparent)
     color: var(--ui-text)
-  &[data-result="wrong"]
-    background: var(--ui-light-1)
-    color: var(--ui-faint)
+    .badge
+      background: color-mix(in srgb, var(--result) 12%, transparent)
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--result) 50%, transparent)
+      color: var(--result)
     > svg
-      color: var(--ui-error)
+      color: var(--result)
+  &[data-result="wrong"]
+    --result: var(--ui-error)
+    color: var(--ui-muted)
 
-// Study: a book, filled in its division colour with dark text (the map's legend key)
+// Study: a book, as lit glass in its division colour (a 12% tint, a 50% edge, the name in full light)
 .book-chip
   display: flex
   min-height: 48px
   align-items: center
   justify-content: center
   padding: 0 8px
-  border: 1px solid var(--chip)
+  border: 1px solid color-mix(in srgb, var(--chip) 50%, transparent)
   border-radius: 8px
-  background: var(--chip)
-  color: var(--ui-bg)
+  background: color-mix(in srgb, var(--chip) 12%, transparent)
+  color: var(--chip)
   font-size: 14px
   font-weight: 600
   text-align: center
   line-height: 1.2
-  transition: filter 150ms
+  transition: background-color 150ms
   &:hover
-    filter: brightness(1.1)
+    background: color-mix(in srgb, var(--chip) 20%, transparent)
 
 // Study: a chapter; studied ones are tinted, with their stars beneath
 .study-chapter
@@ -583,7 +689,7 @@ input:-webkit-autofill:focus
   opacity: 0
 
 .mini-map-number
-  fill: #ac7db3
+  fill: #abaeff
   fill-opacity: 0.85
   font-family: var(--font-mono), ui-monospace, monospace
   font-size: 2.8px
@@ -597,7 +703,7 @@ input:-webkit-autofill:focus
   opacity: 0
 
 .mini-map-found
-  filter: drop-shadow(0 0 4px #ac7db3)
+  filter: drop-shadow(0 0 4px rgba(171, 174, 255, 0.5))
 
 .mini-map-tap, .mini-map-ripple
   opacity: 0
@@ -623,6 +729,23 @@ input:-webkit-autofill:focus
     animation: mini-map-ripple var(--mini-map-loop) ease-out infinite
 
 // Frames the General letters and Revelation: x 200-300, y 88-132 at 3x
+// The real mini-map's finger: comes down on the chapter, presses and lifts (mini-map.tsx sets [data-on])
+.mini-map-touch
+  position: absolute
+  width: 22px
+  height: 22px
+  margin: -11px 0 0 -11px
+  border: 1.5px solid rgba(255, 255, 255, 0.9)
+  border-radius: 50%
+  background: rgba(255, 255, 255, 0.22)
+  opacity: 0
+  scale: 1.6
+  pointer-events: none
+  transition: opacity 0.18s, scale 0.18s ease-out
+  &[data-on]
+    opacity: 1
+    scale: 1
+
 @keyframes mini-map-zoom
   0%, 10%, 84%, 100%
     transform: none
@@ -684,35 +807,6 @@ input:-webkit-autofill:focus
   flex-shrink: 0
   isolation: isolate
 
-.glowing-cross-spectrum, .glowing-cross-core
-  position: absolute
-  z-index: -1
-  top: 46%
-  left: 50%
-  translate: -50% -50%
-  border-radius: 50%
-  pointer-events: none
-
-// The division colours turning slowly behind the cross
-.glowing-cross-spectrum
-  width: 280px
-  height: 280px
-  background: conic-gradient(#8fc7ce, #ac7db3, #d65f78, #78ad88, #d2b96f, #8fc7ce)
-  filter: blur(36px) saturate(1.5)
-  opacity: 0.42
-  mask-image: radial-gradient(closest-side, rgba(0, 0, 0, 0.35), #000 50%, transparent)
-  will-change: rotate
-  animation: hero-glow-in 2s ease-out 0.5s both, hero-turn 40s linear infinite
-
-// Warm white light where the beams meet
-.glowing-cross-core
-  top: 32%
-  width: 150px
-  height: 150px
-  background: radial-gradient(closest-side, rgba(255, 252, 245, 0.2), rgba(255, 252, 245, 0.06) 55%, transparent)
-  will-change: scale, opacity
-  animation: hero-glow-in 1.6s ease-out 0.3s both, hero-breathe 7s ease-in-out 1.9s infinite
-
 .glowing-cross-art
   position: absolute
   top: -6.25%
@@ -720,17 +814,18 @@ input:-webkit-autofill:focus
   width: 120%
   height: 112.5%
   overflow: visible
-  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.18))
 
 // Cells light up outward from where the beams meet; their shapes are then the morph's (use-mosaic-morph.ts)
 .glowing-cross-cell
   animation: hero-cell-in 0.9s ease-out both
 
+// a pale core along each stone, like a neon tube
 .glowing-cross-filament
-  opacity: 0.3
+  opacity: 0.8
 
 .glowing-cross-bloom
   animation: hero-bloom 2s ease-out 0.2s both
+
 
 @keyframes hero-cell-in
   from
@@ -741,19 +836,6 @@ input:-webkit-autofill:focus
     opacity: 0
   to
     opacity: 0.95
-
-@keyframes hero-glow-in
-  from
-    opacity: 0
-
-@keyframes hero-turn
-  to
-    rotate: 360deg
-
-@keyframes hero-breathe
-  50%
-    opacity: 0.65
-    scale: 0.9
 
 @keyframes hero-rise
   from

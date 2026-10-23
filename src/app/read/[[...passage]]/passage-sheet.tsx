@@ -50,7 +50,7 @@ export default function PassageSheet({ open, onOpenChange, title, book, chapter,
 
     return (
         <ReaderSheet open={open} onOpenChange={onOpenChange} title={title} className="max-h-[85dvh]">
-            <form role="search" className="sticky top-0 z-10 -mx-5 -mt-2 bg-ui-surface px-5 pb-2 pt-2" onSubmit={(e) => { e.preventDefault(); if (query.trim()) go(query.trim()); }}>
+            <form role="search" className="sticky top-0 z-10 -mx-5 -mt-2 bg-ui-sheet px-5 pb-2 pt-2" onSubmit={(e) => { e.preventDefault(); if (query.trim()) go(query.trim()); }}>
                 <label className="reader-field flex items-center gap-2">
                     <SearchIcon aria-hidden className="size-4 shrink-0 text-[var(--reader-muted)]" />
                     <input aria-label="Go to passage" placeholder="Go to passage, e.g. John 3:16" enterKeyHint="go"

@@ -1,52 +1,53 @@
 "use client";
 
 import React, { useRef } from "react";
-import { divisionStops, gradients, HEIGHT, morphCells, rounded, WIDTH } from "@/core/style/mosaic";
+import { HEIGHT, morphCells, rounded, WIDTH } from "@/core/style/mosaic";
 import { MorphTiming, useMosaicMorph } from "@/app/home/use-mosaic-morph";
 
 /**
- * The logo's stained-glass "B", laid as a mosaic of glowing cells, which keeps becoming a Latin cross and returning.
- * Cells are tinted through the map's divisions in canonical order (Law → Gospels) with a white neon core; the halo
- * behind turns slowly through the same colours. Renders the B on the server; the morph runs after.
+ * The Hero B into Cross emblem, as the original logo (public/icon-bright.png): outlined glass stones with white-hot
+ * lines, a tight coloured glow and dark tinted glass inside, each stone in its own colour from the logo's cool and warm
+ * runs (stoneColours in mosaic.ts). Between the shapes the stones become a constellation (use-mosaic-morph.ts).
+ * Renders the B on the server; the morph runs after.
  */
 
-/** One layer of cells; each cell is wrapped so its entrance (CSS) and shape (the morph) never contend */
-function Cells({ className, ...paint }: { className?: string } & React.SVGProps<SVGPathElement>) {
-    return <g className={className}>
-        {morphCells.map((cell, k) => <g key={k} className="glowing-cross-cell" style={{ animationDelay: `${cell.entrance}ms` }}>
-            <path data-cell={k} d={rounded(cell.b)} strokeLinejoin="round" {...paint}/>
-        </g>)}
+type Layer = "bloom" | "stone" | "core";
+
+/** One layer of cells; each cell is wrapped so its entrance (CSS) and its shape (the morph) never contend */
+function Cells({ layer }: { layer: Layer }) {
+    return <g>
+        {morphCells.map((cell, k) => {
+            const paint = layer === "core"
+                ? { fill: "none", stroke: "#ffffff", strokeWidth: 0.42, strokeOpacity: 0.75 }
+                : { "data-colour": "", fill: cell.colour.b, fillOpacity: 0.14, stroke: cell.colour.b, strokeWidth: layer === "bloom" ? 1.6 : 1.15 };
+            return <g key={k} className="glowing-cross-cell" style={{ animationDelay: `${cell.entrance}ms` }}>
+                <path data-cell={k} d={rounded(cell.b)} strokeLinejoin="round" {...paint}/>
+            </g>;
+        })}
     </g>;
 }
 
-export default function GlowingCross({ height = 120, timing }: { height?: number; timing?: MorphTiming }) {
+export default function GlowingCross({ height = 160, timing }: { height?: number; timing?: MorphTiming }) {
     const id = "glowing-cross";
     const root = useRef<HTMLDivElement>(null);
     useMosaicMorph(root, timing);
 
     const width = height * WIDTH / HEIGHT;
-    const [x1, y1, x2, y2] = gradients.b;
-    const stops = (opacity: number) => divisionStops.map((colour, k) =>
-        <stop key={colour + k} offset={k / (divisionStops.length - 1)} stopColor={colour} stopOpacity={opacity}/>);
-
     return <div ref={root} aria-hidden="true" className="glowing-cross" style={{ width, height }}>
-        <div className="glowing-cross-spectrum"/>
-        <div className="glowing-cross-core"/>
         <svg viewBox={`-6 -6 ${WIDTH + 12} ${HEIGHT + 12}`} className="glowing-cross-art">
             <defs>
-                <linearGradient id={`${id}-line`} data-morph="" gradientUnits="userSpaceOnUse" x1={x1} y1={y1} x2={x2} y2={y2}>{stops(1)}</linearGradient>
-                <linearGradient id={`${id}-fill`} data-morph="" gradientUnits="userSpaceOnUse" x1={x1} y1={y1} x2={x2} y2={y2}>{stops(0.22)}</linearGradient>
                 <filter id={`${id}-bloom`} x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation={1.3} result="neon"/>
-                    <feGaussianBlur in="SourceGraphic" stdDeviation={4.5} result="bloom"/>
-                    <feMerge><feMergeNode in="bloom"/><feMergeNode in="bloom"/><feMergeNode in="neon"/></feMerge>
+                    <feGaussianBlur in="SourceGraphic" stdDeviation={1.2} result="neon"/>
+                    <feGaussianBlur in="SourceGraphic" stdDeviation={3.5} result="wide"/>
+                    <feMerge><feMergeNode in="wide"/><feMergeNode in="neon"/></feMerge>
                 </filter>
             </defs>
-            <g filter={`url(#${id}-bloom)`} className="glowing-cross-bloom">
-                <Cells fill={`url(#${id}-fill)`} stroke={`url(#${id}-line)`} strokeWidth={1.15}/>
+            {/* the glow rests at 70% and swells to full while the stones travel (data-bloom, set by the morph) */}
+            <g data-bloom="" opacity={0.7}>
+                <g filter={`url(#${id}-bloom)`} className="glowing-cross-bloom"><Cells layer="bloom"/></g>
             </g>
-            <Cells fill={`url(#${id}-fill)`} stroke={`url(#${id}-line)`} strokeWidth={1.15}/>
-            <Cells className="glowing-cross-filament" fill="none" stroke="#fff" strokeWidth={0.4}/>
+            <Cells layer="stone"/>
+            <g className="glowing-cross-filament"><Cells layer="core"/></g>
         </svg>
     </div>;
 }

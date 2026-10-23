@@ -5,6 +5,7 @@ import { Spinner } from "@heroui/react";
 import { ChevronUp, HeadphonesIcon } from "lucide-react";
 import { Toaster } from "react-hot-toast";
 import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
+import GroundWindow from "@/core/component/ground-window";
 
 type Props = {
     onType: () => void;
@@ -39,12 +40,12 @@ export default function ReaderToolbar(props: Props) {
     const visible = !hidden || !!audio.src;
 
     return (
-        <div
-            className={`reader-toolbar fixed inset-x-0 bottom-0 z-40 transition-transform duration-300 motion-reduce:transition-none ${visible ? "" : "translate-y-[calc(100%+8px)]"}`}
-            onFocusCapture={() => setHidden(false)}
-        >
-            <Toaster position="top-center" />
-            <div className="mx-auto max-w-[43rem] px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-6 sm:px-6">
+        <>
+        <Toaster position="top-center" />
+        <div className="reader-toolbar fixed inset-x-0 bottom-0 z-40" data-hidden={!visible || undefined}
+             onFocusCapture={() => setHidden(false)}>
+            <GroundWindow />
+            <div className="reader-toolbar-body mx-auto max-w-[43rem] px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 sm:px-6">
                 {audio.src ? <AudioPlayer src={audio.src} onClose={audio.onClose} /> : null}
 
                 <nav aria-label="Reading controls" className="mt-1 grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-4 px-2">
@@ -70,5 +71,6 @@ export default function ReaderToolbar(props: Props) {
                 </nav>
             </div>
         </div>
+        </>
     );
 }

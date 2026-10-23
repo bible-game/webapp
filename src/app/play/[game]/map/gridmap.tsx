@@ -2,9 +2,9 @@
 
 import { createGridmap, type Gridmap, type GridmapCell, type GridmapData } from "@project-gridmap/library";
 import React, { useEffect, useMemo, useRef } from "react";
-import colours from "./config/colours.json";
 import groups from "./config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
+import { alpha, bookColours } from "@/core/style/regions";
 import type { RuledOut } from "@/app/play/[game]/ruled-out";
 
 type BibleBook = {
@@ -19,7 +19,7 @@ type BibleDivision = {
     books: BibleBook[];
 };
 
-type BibleTestament = {
+export type BibleTestament = {
     name: string;
     divisions: BibleDivision[];
 };
@@ -53,7 +53,20 @@ type BookGroups = Record<string, Array<{ name: string; start: number; end: numbe
 const NONE: RuledOut = new Map();
 
 /** The mark on a filled cell (selected, or the answer), dark so it reads against the colour */
-const ANSWER_MARK = "#000000";
+const ANSWER_MARK = playTheme.bg;
+
+/**
+ * The map is background, so it is lit sparingly: books in the quiet map tone, on their outlines and labels only (the
+ * chapter-group partitions a faint trace, the chapter marks neutral); the selected chapter takes its region's light.
+ */
+export const MAP_COLOURS = bookColours("map");
+export const LIGHT_COLOURS = bookColours("light");
+export const colourParts = (narrativeHidden?: boolean) => ({
+    borders: { opacity: 1 },
+    sections: { opacity: 0.22 },
+    marks: { coloured: false, opacity: narrativeHidden ? 0.2 : 0.28 },
+    labels: { opacity: 1 },
+});
 const FALLBACK_MONO = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace";
 
 /** The interface's mono face (IBM Plex Mono, set as --font-mono by the root layout), read at draw time so the canvas can use it */
@@ -63,9 +76,31 @@ function monoFont(): string {
     return family ? `${family}, ${FALLBACK_MONO}` : FALLBACK_MONO;
 }
 
+/** The map's theme: drawn straight onto the ground, its structure in faint glass lines beneath the coloured books */
+export function mapTheme() {
+    return {
+        // drawn straight onto the ground: ruled-out cells fade by erasing, and labels cut the lines behind them
+        background: "transparent",
+        text: playTheme.text,
+        // testament labels: faint, with the selected testament's label a step brighter (it takes layerLine)
+        mutedText: playTheme.faint,
+        faintText: playTheme.faint,
+        cellLine: "rgba(180, 195, 255, 0.06)",
+        itemLine: "rgba(180, 195, 255, 0.30)",
+        // structure sits beneath the coloured books, faint enough not to paint over their outlines
+        groupLine: "rgba(180, 195, 255, 0.16)",
+        layerLine: "rgba(180, 195, 255, 0.30)",
+        // chapter groups sit quieter still: hairlines between them, small labels
+        sectionLine: "rgba(180, 195, 255, 0.14)",
+        sectionText: "#6e7280",
+        selectedMark: playTheme.bg,
+        font: monoFont(),
+    };
+}
+
 const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-function buildBibleGridmapData(testaments: BibleTestament[]): GridmapData {
+export function buildBibleGridmapData(testaments: BibleTestament[]): GridmapData {
     return {
         layers: testaments.map((testament) => ({
             id: slug(testament.name),
@@ -139,33 +174,19 @@ const BibleGridmap = (props: GridmapProps) => {
         gridmap.current = createGridmap({
             container: element.current,
             data: gridmapData,
-            colours: colours as Record<string, string>,
+            colours: MAP_COLOURS,
+            selectedColours: LIGHT_COLOURS,
+            colourParts: colourParts(props.narrativeHidden),
             colourBy: "item",
             itemLabels: "full",
             markType: "number",
-            markOpacity: props.narrativeHidden ? 0.3 : 0.55,
             numberMinPx: props.device === "mobile" ? 10 : 8,
             disabledCells: [...ruledOut.current.keys()],
             disabledOpacity: 0.9,
             layout: "fit",
             showSections: props.showGroups ?? true,
             sectionLabelSize: 9.5,
-            theme: {
-                background: playTheme.bg,
-                text: playTheme.text,
-                // testament labels: faint, with the selected testament's label a step brighter (it takes layerLine)
-                mutedText: playTheme.faint,
-                faintText: playTheme.faint,
-                cellLine: playTheme.line,
-                itemLine: playTheme.faint,
-                // structure sits beneath the coloured books: division boundaries recede, the testament frame stays legible
-                groupLine: "#5a5d63",
-                layerLine: playTheme.faint,
-                // chapter groups sit quieter still: hairlines between them, small labels
-                sectionLine: playTheme.line,
-                sectionText: playTheme.faint,
-                font: monoFont(),
-            },
+            theme: mapTheme(),
             labels: {
                 tooltip: (cell: GridmapCell) => `${cell.itemLabel} ${cell.label}`,
                 // tapping a ruled-out chapter says why, instead of selecting it
@@ -179,7 +200,7 @@ const BibleGridmap = (props: GridmapProps) => {
         });
 
         let alive = true;
-        document.fonts?.load(`500 12px ${monoFont()}`).then(() => { if (alive) gridmap.current?.setColours(colours as Record<string, string>); }).catch(() => {});
+        document.fonts?.load(`500 12px ${monoFont()}`).then(() => { if (alive) gridmap.current?.setColours(MAP_COLOURS); }).catch(() => {});
 
         return () => {
             alive = false;
@@ -195,7 +216,7 @@ const BibleGridmap = (props: GridmapProps) => {
     useEffect(() => {
         gridmap.current?.setConfig({
             itemLabels: "full",
-            markOpacity: props.narrativeHidden ? 0.3 : 0.55,
+            colourParts: colourParts(props.narrativeHidden),
             numberMinPx: props.device === "mobile" ? 10 : 8,
         });
     }, [props.device, props.narrativeHidden]);
@@ -255,7 +276,7 @@ const BibleGridmap = (props: GridmapProps) => {
         props.playing,
     ]);
 
-    // Once the game is over, the answer is marked so it stands out on the whole map: filled solid in its book's colour
+    // Once the game is over, the answer is marked so it stands out on the whole map: filled solid in its region's light
     // with a dark mark, like a selected chapter, and a glowing ring around it that stays visible even when the chapter
     // is only a few pixels wide.
     const answer = props.playing === false ? `${findBookKey(props.data, props.passage?.book)}/${props.passage?.chapter}` : null;
@@ -263,11 +284,11 @@ const BibleGridmap = (props: GridmapProps) => {
         const map = gridmap.current;
         if (!map || !answer) return;
 
-        return map.addLayer(({ ctx, model, camera, rect, toScreenX, toScreenY, colourOf }) => {
+        return map.addLayer(({ ctx, model, camera, rect, toScreenX, toScreenY }) => {
             const cell = model.cells.find((candidate) => candidate.id === answer);
             if (!cell) return;
 
-            const colour = colourOf(cell, playTheme.text);
+            const colour = LIGHT_COLOURS[cell.itemId] ?? playTheme.text;
             const ring = 4;
             ctx.save();
             ctx.fillStyle = colour;
@@ -291,7 +312,7 @@ const BibleGridmap = (props: GridmapProps) => {
             }
 
             ctx.lineWidth = 2;
-            ctx.shadowColor = colour;
+            ctx.shadowColor = alpha(colour, 0.5);
             ctx.shadowBlur = 14;
             ctx.beginPath();
             ctx.rect(toScreenX(cell.x) - ring, toScreenY(cell.y) - ring,

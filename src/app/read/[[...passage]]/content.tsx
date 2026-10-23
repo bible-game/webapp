@@ -24,6 +24,7 @@ import { useDivisionAccent } from "@/core/hook/use-division-accent";
 import { READING_FONTS } from "@/core/style/reading-fonts";
 import { ReadingUtil } from "@/core/util/reading-util";
 import translations from "./translations.json";
+import GroundWindow from "@/core/component/ground-window";
 
 
 const usePassage = (passageKey: string, translation?: string) => {
@@ -162,6 +163,7 @@ export default function Content(props: any) {
             "--reader-leading": settings.leading,
         } as React.CSSProperties}>
             <div className="reader-header">
+                <GroundWindow />
                 <div className="app-header">
                     <AppHeader info={props.info}>
                         <button type="button" onClick={() => setSheet("passage")}

@@ -48,7 +48,7 @@ export default function PopUp() {
                     wrapper: "items-end",
                     backdrop: "bg-play-bg/70",
                     base: "play-ui !m-0 w-full max-w-[40rem] rounded-b-none rounded-t-lg border border-b-0 border-play-line " +
-                        "bg-play-surface text-play-text shadow-[0_-16px_48px_rgba(0,0,0,0.5)] sm:!mb-4 sm:rounded-lg sm:border-b",
+                        "bg-play-sheet text-play-text shadow-[0_-16px_48px_rgba(0,0,0,0.5)] sm:!mb-4 sm:rounded-lg sm:border-b",
                     header: "flex-col items-center gap-3 px-4 pb-0 pt-2",
                     body: "gap-0 px-4 pb-0 pt-3 text-[12px] leading-4 text-play-muted",
                     footer: "flex-col gap-3.5 px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[18px]",

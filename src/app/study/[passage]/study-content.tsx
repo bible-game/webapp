@@ -12,6 +12,7 @@ import { parseStudyKey } from "@/app/study/study-util";
 import Quiz from "@/app/study/[passage]/quiz";
 import Results from "@/app/study/[passage]/results";
 import { PassageViewer } from "@/app/study/[passage]/passage-viewer";
+import GroundWindow from "@/core/component/ground-window";
 
 /**
  * A study: the quiz until it's submitted, then your result
@@ -62,6 +63,7 @@ export default function StudyContent(props: { passage: string; state?: Map<strin
         <div className="study min-h-dvh">
             <CannonConfettiCanvas fire={confetti && !reducedMotion} />
             <div className="reader-header">
+                <GroundWindow />
                 <div className="app-header">
                     <AppHeader info={props.info}>
                         <span className="reader-title min-w-0 truncate">{title}</span>

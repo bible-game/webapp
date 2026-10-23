@@ -93,7 +93,7 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
 
             <Modal isOpen={open} onOpenChange={setOpen} placement="bottom" backdrop="blur" hideCloseButton
                    aria-label="Choose a game date"
-                   classNames={{ base: "play-ui dark m-0 w-full max-w-[28rem] rounded-b-none rounded-t-3xl border border-play-line bg-play-surface text-play-text sm:m-auto sm:rounded-3xl" }}>
+                   classNames={{ base: "play-ui dark m-0 w-full max-w-[28rem] rounded-b-none rounded-t-3xl border border-play-line bg-play-sheet text-play-text sm:m-auto sm:rounded-3xl" }}>
                 <ModalContent>
                     <ModalBody className="gap-3 px-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
                         <div className="flex items-center justify-between">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import LogoMark from "@/core/component/logo-mark";
 import { Mail, Play } from "lucide-react";
 import { SiGithub } from "@icons-pack/react-simple-icons";
 import { useState } from "react";
@@ -34,7 +35,7 @@ export default function About() {
         <main className="app-page !pt-5">
             <header>
                 <div className="flex items-start gap-3">
-                    <img src="/icon-nobg.png" alt="" className="size-10 shrink-0"/>
+                    <LogoMark size={40} className="shrink-0"/>
                     <div className="min-w-0">
                         <h1 className="text-[22px] font-semibold leading-7">About Bible Game</h1>
                         <p className="mt-0.5 text-[14px] leading-5 text-ui-muted">A daily Bible passage-guessing game</p>

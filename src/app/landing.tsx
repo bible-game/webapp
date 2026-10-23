@@ -31,7 +31,7 @@ export default function Landing(props: any) {
                 </a>
             </section>
             <div className="app-page home-more">
-                <HowItWorks/>
+                <HowItWorks bible={props.bible}/>
                 <footer className="mt-16 flex flex-wrap gap-x-5 gap-y-3 border-t border-ui-line pt-6 text-[13px] text-ui-muted">
                     <Link href="/about" className="hover:text-ui-text">About</Link>
                     <Link href="/about/privacy" className="hover:text-ui-text">Privacy</Link>

@@ -27,7 +27,7 @@ const Tile = ({ band, count, children }: { band: Band, count: number, children: 
     <motion.li initial={{ opacity: 0, y: 6, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }}
                transition={{ type: "spring", stiffness: 420, damping: 28 }}
                className="flex h-9 min-w-0 flex-1 flex-col items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border px-[0.4em] font-mono font-medium leading-[1.15] tabular-nums"
-               style={{ background: band.fill, borderColor: band.edge, color: band.text, fontSize: fontSize(count) }}>
+               style={{ background: band.fill, borderColor: band.edge, color: band.text, boxShadow: band.glow, fontSize: fontSize(count) }}>
         {children}
     </motion.li>
 );

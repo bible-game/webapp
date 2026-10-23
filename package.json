@@ -24,7 +24,7 @@
     "@nextui-org/react": "^2.4.6",
     "@nextui-org/system": "^2.2.5",
     "@nextui-org/theme": "^2.4.5",
-    "@project-gridmap/library": "0.1.11",
+    "@project-gridmap/library": "file:../../project-gridmap/library",
     "@tanstack/react-query": "^5.90.2",
     "@uidotdev/usehooks": "^2.4.1",
     "@vercel/speed-insights": "^1.2.0",

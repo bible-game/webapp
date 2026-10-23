@@ -13,6 +13,7 @@ import { GradingResult, ReviewState } from '@/core/model/state/review-state';
 import { StateUtil } from '@/core/util/state-util';
 import { post } from '@/core/action/http/post';
 import { REVIEW_DATE_FORMAT } from '@/app/study/study-util';
+import GroundWindow from "@/core/component/ground-window";
 
 export const LETTERS = ['A', 'B', 'C'];
 
@@ -179,7 +180,8 @@ export default function Quiz({ passage, study, title, loggedIn, onPassage, onSub
                 </motion.section>
             </AnimatePresence>
 
-            <div className="fixed inset-x-0 bottom-0 z-30 bg-[linear-gradient(180deg,transparent,var(--ui-bg)_24px)] pt-6">
+            <div className="chrome-foot fixed inset-x-0 bottom-0 z-30 pt-3">
+                <GroundWindow />
                 <div className="mx-auto flex max-w-[43rem] items-center gap-3 px-4 pb-[max(16px,env(safe-area-inset-bottom))] sm:px-6">
                     {step > 0 ? (
                         <button type="button" aria-label="Previous question" onClick={() => setStep(step - 1)}

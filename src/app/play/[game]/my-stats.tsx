@@ -59,8 +59,8 @@ const MyStats = ({ info, bible, className }: { info: { firstname: string, lastna
 
     return (
         <Popover placement="top-end" offset={12} showArrow classNames={{
-            content: "play-ui w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-lg border border-play-line bg-play-surface p-4 text-play-text shadow-xl",
-            arrow: "bg-play-surface",
+            content: "play-ui w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-lg border border-play-line bg-play-sheet p-4 text-play-text shadow-xl",
+            arrow: "bg-play-sheet",
         }}>
             <PopoverTrigger>
                 <button type="button" aria-label={place ? `You're ${place}${ordinal(place)} of ${data?.totalPlayers}. Show your statistics` : "Show your statistics"}

@@ -35,8 +35,8 @@ const examples = exampleGuesses.map(guess => {
  */
 const Help = ({ children, placement = "top-start" }: { children: React.ReactElement, placement?: PopoverProps["placement"] }) => (
     <Popover placement={placement} offset={12} showArrow classNames={{
-        content: "play-ui w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-lg border border-play-line bg-play-surface p-4 text-play-text shadow-xl",
-        arrow: "bg-play-surface",
+        content: "play-ui w-[calc(100vw-2rem)] max-w-[20rem] items-stretch rounded-lg border border-play-line bg-play-sheet p-4 text-play-text shadow-xl",
+        arrow: "bg-play-sheet",
     }}>
         <PopoverTrigger>{children}</PopoverTrigger>
         <PopoverContent>

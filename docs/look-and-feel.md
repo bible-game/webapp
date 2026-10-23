@@ -1,6 +1,6 @@
 # Bible Game Look and Feel
 
-Status: agreed direction, 12 October 2026. This is the **target** theme. `ui-design-alignment.md` records what is already implemented in code; where the two differ, this document is where the code is heading. The Figma file (Style Guide page, components `1.1.0+`, hi-fi wireframes) is built from it.
+Status: agreed direction, 12 October 2026; superseded where they differ by 1.2 "Atmosphere" (22-23 October 2026: the Figma Style Guide 1.2.0, summarised at the end of ui-design-alignment.md). This is the **target** theme. `ui-design-alignment.md` records what is already implemented in code; where the two differ, this document is where the code is heading. The Figma file (Style Guide page, components `1.1.0+`, hi-fi wireframes) is built from it.
 
 ## The theme: wayfinding
 

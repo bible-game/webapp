@@ -131,12 +131,9 @@ single "Play today's chapter" button, and a gently bouncing "How it works" cue a
 The emblem (`home/glowing-cross.tsx`) is always in motion. It opens and rests on the
 logo's stained-glass "B", which becomes a mosaic Latin cross and returns. The cross is a jittered lattice of cells;
 the B is the logo cell for cell, traced from `public/icon-bright.png` (`home/mosaic.ts`).
-Each cell drifts and reshapes into its partner in a wave out from the centre, and the
-B's ten extra cells fold into their nearest cross cells (`home/use-mosaic-morph.ts`:
-3s on each shape, 2.2s to change). The cells are tinted through the map's divisions in
-canonical order with a white neon core; the colours run down the cross and across the
-B. Behind it a blurred ring of the division colours turns slowly and a soft white light
-breathes. Only the cells' shapes, opacity, scale, and rotation animate; the morph pauses
+Between the shapes the stones become a constellation: each closes to a star, travels, and opens
+into its partner, in a wave out from the heart; the B's ten extra cells merge into their nearest cross cells (`home/use-mosaic-morph.ts`;
+timing and colour under 1.2 below). Only the cells' shapes and opacity, the colour divide and the glow animate; the morph pauses
 off-screen and in hidden tabs, and reduced motion leaves the B still.
 
 "How it works" follows the life of a day's game in five steps (clue, map, guesses, read
@@ -215,3 +212,45 @@ for a clue too long even at 15), and quiz questions are Plex Sans Condensed (`fo
 are removed. The reader's Aa menu offers Plex Sans, Newsreader and Garamond; a saved choice of a retired face (Literata,
 or the old `inter` key) falls back to Plex Sans. Guess tiles read like a page: "4K →" when the answer is later, "← 28K"
 when earlier (57cae77); Figma matches.
+
+## 1.2 "Atmosphere" (23 October 2026)
+
+Implemented from the Figma Style Guide 1.2.0 (restrained, atmospheric, neon-inspired; subtlety in the background, vibrancy
+in the foreground):
+
+- **Ground** (`core/component/ground.tsx`, `.ground` in globals.sass): near-black `#05060a` under four broad navy, indigo
+  and purple fields, larger than the screen, drifting on 75-120s offset cycles; still under reduced motion. Behind every
+  page (root layout); pages and Play are transparent over it.
+- **Glass**: `ui.surface/raised/line` are a cool light (`#B4C3FF`) at 6/10/16%; `ui.sheet` (`rgba(11,13,26,.86)` +
+  backdrop blur) for sheets, popovers, the drawer and the expanded clue. Read's and Study's header and footer are solid:
+  each holds its own copy of the ground, cut to the bar with `clip-path` and kept in step with the page's
+  (`core/component/ground-window.tsx`), so content disappears beneath with no band at the edge. Read's toolbar tucks away
+  by closing that cut rather than moving the bar. (Backdrop blurs in globals.sass go through `@apply`; a plain
+  `backdrop-filter` declaration is dropped from that file's compiled output.)
+- **Palette** (`core/style/regions.ts`): five regions balanced in OKLCH, red held a step deeper. Light tier
+  (`playTheme`, `colours.json`) for text, lines, chips and the emblem; `solid` for large fills; `mapTone` for the map;
+  glows are the light at 25%. Status colours borrow green, yellow and red.
+- **Region UI**: chips, closeness tiles, the current chapter and quiz results are lit glass (12% tint, 50% edge, text in
+  the colour). The region primary (Play's guess and end-state lead, Read's Mark as read, Study's lead) is solid light: the
+  solid tone with near-black text and a glow (`--division-solid`, `--division-glow`). The found tile is the solid green.
+- **Emblem**: the original logo's look (`public/icon-bright.png`): outlined glass stones with a white core, a tight
+  glow and dark tinted glass. Each stone takes one colour from the logo's two runs (`stoneColours` in mosaic.ts): on
+  the B by where it sits, the cool run (periwinkle to cyan and mint) up the stem and the warm run (red-orange to yellow)
+  down the bowls. The cross borrows the B's colours in the same proportions, top to bottom: cool down its head to just
+  below the crossbar, warm from the arms down the foot. 160px on Home. LogoMark, the favicon
+  (`icon.tsx` + favicon.ico), `apple-icon.tsx` and the share image (`opengraph-image.tsx`) use the same stones and colours
+  (`core/style/emblem-svg.ts`).
+- **Map**: Gridmap 0.2.0 (temporarily installed from `../../project-gridmap/library`): transparent background, books in
+  the map tone on outlines and labels only, partitions at 22%, neutral chapter marks, the selection in the region's
+  light, IBM Plex Mono labels cut into the lines.
+- **How it works**: step 2 is the real map (`home/mini-map.tsx`), gliding in on Revelation and tapping chapter 12; the
+  hand-drawn sketch remains as a fallback when the passage service is unavailable.
+- **Hero morph (23 October 2026)**: a constellation. 3.5s on the B, 3s on the cross, 3.2s to change. Out from the heart,
+  each stone closes to a point of light; the stars sweep on a gentle curve to their new places, changing colour on the
+  way (the B's ten extra stars merge into their neighbours'), and open into the new stones, heart first. The glow swells
+  from 70% while they travel.
+- **Palette, logo hues (23 October 2026)**: the region hues moved towards the original logo while keeping the OKLCH
+  lightness and chroma rules: purple to periwinkle, red to coral, blue most of the way to cyan (azure, h215, so it stays
+  distinct from green on the map). Light `#43CAE7 #ABAEFF #ED8C7F #70CE98 #D4B455`; solid `#61C1D7 #A7AAEC #DA8E83 #7CC499
+  #C8AF68`; map `#6AB1C2 #9D9FD3 #C2877E #7DB392 #B6A36D`. Error and help follow red and blue.
+

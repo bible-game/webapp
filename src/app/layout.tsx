@@ -3,6 +3,7 @@ import React from "react";
 import Providers from "./providers";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { uiTheme } from "@/core/style/ui-theme";
+import Ground from "@/core/component/ground";
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Condensed } from "next/font/google";
 import type { Metadata, Viewport } from "next";
 
@@ -31,6 +32,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
       <html lang="en" className={`dark ${sans.variable} ${mono.variable} ${condensed.variable}`} style={Object.fromEntries(Object.entries(uiTheme).map(([key, value]) => [`--ui-${key}`, value])) as React.CSSProperties}>
           <SpeedInsights/>
           <body>
+          <Ground/>
           <Providers>
               {children}
             </Providers>

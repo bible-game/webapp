@@ -1,21 +1,23 @@
 import { playTheme } from "@/core/style/play-theme";
+import { glow, litGlass, solid } from "@/core/style/regions";
 
 /**
  * Closeness bands for a guess, matching the share-result emoji (🟩 ≤ 500, 🟨 ≤ 2,000, 🟥 beyond).
- * Tiles are tinted rather than filled: `fill` is the tint, `edge` the outline and `text` the label, arrow and distance.
+ * Tiles are lit glass rather than filled: `fill` is the tint, `edge` the outline and `text` the label, arrow and distance.
+ * Only the found tile is solid, with a soft `glow` outside it.
  * @since 2nd October 2026
  */
-export type Band = { fill: string, edge: string, text: string };
+export type Band = { fill: string, edge: string, text: string, glow?: string };
 
-const tint = (hex: string): Band => ({ fill: `${hex}24`, edge: `${hex}73`, text: hex });
+const tint = (hex: string): Band => litGlass(hex);
 
 // the status colours, not the map's region hues, so a guess never reads as a place
 export const CLOSE: Band = tint(playTheme.success);
 export const NEAR: Band = tint(playTheme.warning);
 export const FAR: Band = tint(playTheme.error);
 
-/** The found chapter: the success colour, filled solid so a win stands apart from a near miss */
-export const FOUND: Band = { fill: playTheme.success, edge: playTheme.success, text: playTheme.bg };
+/** The found chapter: the green region's solid tone, filled so a win stands apart from a near miss, with a soft glow */
+export const FOUND: Band = { fill: solid.green, edge: solid.green, text: playTheme.bg, glow: glow(playTheme.success, 18) };
 
 /** The missed answer, shown after the guesses when the game is lost: outlined in white so it stands out most */
 export const ANSWER: Band = { fill: `${playTheme.text}1a`, edge: playTheme.text, text: playTheme.text };

@@ -31,7 +31,7 @@ export default function TranslationSheet({ open, onOpenChange, selected, onSelec
 
     return (
         <ReaderSheet open={open} onOpenChange={onOpenChange} title="Translation" className="max-h-[85dvh]">
-            <label className="reader-field sticky top-0 z-10 flex items-center gap-2 bg-ui-surface">
+            <label className="reader-field sticky top-0 z-10 flex items-center gap-2 bg-ui-sheet">
                 <SearchIcon aria-hidden className="size-4 shrink-0 text-[var(--reader-muted)]" />
                 <input aria-label="Search translations" placeholder="Search translations" type="search"
                        value={query} onChange={(e) => setQuery(e.target.value)}

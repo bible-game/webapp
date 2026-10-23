@@ -1,4 +1,3 @@
-import { playTheme } from "@/core/style/play-theme";
 
 /**
  * Mosaic geometry for the home emblem: a Latin cross and the stained-glass "B" of the logo, both laid as glass cells
@@ -12,11 +11,6 @@ export const WIDTH = 60;
 export const HEIGHT = 96;
 const GAP = 0.75;
 export const CORNER = 1.3;
-
-export const divisionStops = [playTheme.teal, playTheme.purple, playTheme.rose, playTheme.green, playTheme.gold];
-
-/** Colour runs teal → gold: down the cross, and from the B's stem (cool) to its bowls (warm), as in the logo */
-export const gradients = { cross: [8, 0, 52, HEIGHT], b: [-11, 28, 71, 70] };
 
 /** Deterministic noise in [-1, 1], so server and client render the same mosaic */
 function noise(i: number, j: number, seed: number): number {
@@ -155,6 +149,63 @@ const tracedB: Point[][] = [
 ];
 export const bCells = tracedB.map(glass);
 
+// The emblem's colours, from the original logo (public/icon-bright.png): a cool run (periwinkle to cyan, a touch of mint)
+// and a warm run (red-orange through orange to amber and yellow). On the B the cool run climbs the stem and the warm run
+// falls round the bowls, each stone taking the colour where its centre sits. The cross borrows the B's colours in the
+// same proportions: the cool ones down its head (to just below the crossbar), the warm ones from the arms down the foot.
+const COOL = [[0, "#8f8dff"], [0.45, "#6d9cff"], [0.8, "#40e6f2"], [1, "#55f0bf"]] as const;
+const WARM = [[0, "#ff5244"], [0.28, "#ff7d35"], [0.5, "#ffb12e"], [0.72, "#ffd034"], [1, "#ffd94a"]] as const;
+type Run = readonly (readonly [number, string])[];
+
+const rgb = (hex: string) => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+const toHex = (channels: number[]) => "#" + channels.map(c => Math.round(c).toString(16).padStart(2, "0")).join("");
+
+/** Two colours mixed, `t` of the way from `a` to `b` */
+export function mix(a: string, b: string, t: number): string {
+    const [x, y] = [rgb(a), rgb(b)];
+    return toHex(x.map((c, k) => c + (y[k] - c) * t));
+}
+
+function sample(run: Run, t: number): string {
+    const at = Math.min(1, Math.max(0, t));
+    const k = run.findIndex(([offset]) => offset >= at);
+    if (k <= 0) return run[0][1];
+    const [[o0, c0], [o1, c1]] = [run[k - 1], run[k]];
+    return mix(c0, c1, (at - o0) / (o1 - o0));
+}
+
+/** Where a B stone centred at (x, y) sits: the stem (left of x 18) along the cool run's slant, the bowls down the warm run */
+const onB = ([x, y]: Point): { cool: boolean; t: number } => x < 18.2
+    ? { cool: true, t: ((x + 11) * 35 + y * HEIGHT) / (35 * 35 + HEIGHT * HEIGHT) }
+    : { cool: false, t: y / HEIGHT };
+
+/** The cross's cool stones: its head, down to just below the crossbar */
+const coolOnCross = ([x, y]: Point) => x > 22 && x < 38 && y < 56;
+
+/** The cross's stones in each part, top to bottom, take the B's colours for that part in the same order, evenly spread */
+function crossColours(): string[] {
+    const b = bCells.map(cell => onB(centroid(cell)));
+    const centres = crossCells.map(centroid);
+    const colours = new Array<string>(crossCells.length);
+    for (const cool of [true, false]) {
+        const ts = b.filter(p => p.cool === cool).map(p => p.t).sort((p, q) => p - q);
+        const stones = centres.map((c, k) => [c, k] as const).filter(([c]) => coolOnCross(c) === cool)
+            .sort(([p], [q]) => p[1] - q[1] || p[0] - q[0]);
+        stones.forEach(([, k], rank) => {
+            colours[k] = sample(cool ? COOL : WARM, ts[Math.floor((rank + 0.5) / stones.length * ts.length)]);
+        });
+    }
+    return colours;
+}
+
+/** Each stone's colour, in the order of `bCells` or `crossCells` */
+export const stoneColours = (shape: "b" | "cross"): string[] => shape === "b"
+    ? bCells.map(cell => { const { cool, t } = onB(centroid(cell)); return sample(cool ? COOL : WARM, t); })
+    : crossColours();
+
+const B_COLOURS = stoneColours("b");
+const CROSS_COLOURS = stoneColours("cross");
+
 /**
  * Pairs each cross cell with a B cell, nearest first in each shape's own unit box, then untangles crossing journeys.
  * The B has more cells than the cross; each extra one divides out of the cross cell nearest to it.
@@ -177,7 +228,7 @@ function align(from: Point[], to: Point[]): Point[] {
     return [...to.slice(best), ...to.slice(0, best)];
 }
 
-export type MorphCell = { cross: Point[]; b: Point[]; extra: boolean; entrance: number; stagger: number };
+export type MorphCell = { cross: Point[]; b: Point[]; extra: boolean; entrance: number; stagger: number; colour: { cross: string; b: string } };
 
 function pair(): MorphCell[] {
     const from = unit(crossCells), to = unit(bCells);
@@ -204,15 +255,18 @@ function pair(): MorphCell[] {
     const stagger = (i: number) => Math.min(1, Math.hypot(from[i][0] - 0.5, from[i][1] - 0.3) / 0.75);
     const seed = (cell: Point[]): Point[] => { const c = centroid(cell); return cell.map(([x, y]) => [c[0] + (x - c[0]) * 0.15, c[1] + (y - c[1]) * 0.15]); };
 
-    const cells: MorphCell[] = match.map((j, i) => ({ cross: crossCells[i], b: align(crossCells[i], bCells[j]), extra: false, entrance: entrance(bCells[j]), stagger: stagger(i) }));
+    const colour = (i: number, j: number) => ({ cross: CROSS_COLOURS[i], b: B_COLOURS[j] });
+
+    const cells: MorphCell[] = match.map((j, i) => ({ cross: crossCells[i], b: align(crossCells[i], bCells[j]), extra: false, entrance: entrance(bCells[j]), stagger: stagger(i), colour: colour(i, j) }));
     bCells.forEach((cell, j) => {
         if (taken.has(j)) return;
         const parent = from.reduce((best, _, i) => distance(i, j) < distance(best, j) ? i : best, 0);
-        cells.push({ cross: seed(crossCells[parent]), b: align(crossCells[parent], cell), extra: true, entrance: entrance(cell), stagger: Math.min(1, stagger(parent) + 0.15) });
+        cells.push({ cross: seed(crossCells[parent]), b: align(crossCells[parent], cell), extra: true, entrance: entrance(cell), stagger: Math.min(1, stagger(parent) + 0.15), colour: colour(parent, j) });
     });
     return cells;
 }
 
+/** Every cell with its colour at each end (extra cells start as their parent's) */
 export const morphCells = pair();
 
 /** The shape `progress` of the way from cross (0) to B (1) */

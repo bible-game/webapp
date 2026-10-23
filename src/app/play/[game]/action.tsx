@@ -29,12 +29,13 @@ import groups from "@/app/play/[game]/map/config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
 import { uiTheme } from "@/core/style/ui-theme";
 import { lightOf } from "@/app/play/[game]/closeness";
+import { glow, tone } from "@/core/style/regions";
 
 const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.18 } };
 /** The footer's switch between choosing and guessing: no exit and no movement, just a quick fade-in, so it never lags */
 const quick = { initial: { opacity: 0.4 }, animate: { opacity: 1 }, transition: { duration: 0.12 } };
-/** The primary action when a book is on screen: a flat fill in that book's region colour (glow is kept for the map) */
-const lit = (tint: string): React.CSSProperties => ({ background: tint });
+/** The primary action when a book is on screen: solid light, a fill in the region's solid tone (near-black text), with a soft glow outside it */
+const lit = (tint: string): React.CSSProperties => ({ background: tone(tint, "solid"), boxShadow: glow(tint) });
 /** The end state's two buttons: the one that leads (in the answer's region colour, via lit) and the one that follows */
 const LEAD = "border-transparent bg-play-text text-play-bg";
 const FOLLOW = "border-play-line bg-play-surface text-play-text";
@@ -280,8 +281,8 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                         {props.info ?
                             <MyStats info={props.info} bible={props.bible} className={stepper}/> :
                             <Popover placement="top-end" offset={12} showArrow isOpen={nudging} onOpenChange={onNudgeChange} classNames={{
-                                content: "play-ui max-w-[17rem] rounded-lg border border-play-line bg-play-surface p-3.5 text-play-text shadow-xl",
-                                arrow: "bg-play-surface",
+                                content: "play-ui max-w-[17rem] rounded-lg border border-play-line bg-play-sheet p-3.5 text-play-text shadow-xl",
+                                arrow: "bg-play-sheet",
                             }}>
                                 <PopoverTrigger>
                                     <button type="button" aria-label="You're not logged in. Show details" title="Save your progress" className={stepper}

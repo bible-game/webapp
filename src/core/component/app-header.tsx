@@ -79,7 +79,7 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
             </Button>
             {children}
             <div className="flex h-11 w-11 items-center justify-center">
-                {info ? <Dropdown placement="bottom-end" classNames={{ content: "rounded-lg bg-ui-surface border border-ui-line text-ui-text" }}>
+                {info ? <Dropdown placement="bottom-end" classNames={{ content: "rounded-lg bg-ui-sheet border border-ui-line text-ui-text" }}>
                     <DropdownTrigger>
                         <Avatar as="button" aria-label="Open account menu" className="size-8 bg-ui-raised text-[12px] font-semibold text-ui-text ring-1 ring-ui-line"
                                 name={initials(info)}/>
@@ -94,7 +94,7 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                 </Link>}
             </div>
             <Drawer isOpen={drawer.isOpen} onOpenChange={drawer.onOpenChange} placement="left" size="full" radius="none" hideCloseButton
-                    classNames={{ base: "play-ui bg-ui-bg text-ui-text" }}>
+                    classNames={{ base: "play-ui bg-ui-sheet text-ui-text" }}>
                 <DrawerContent>{onClose => <>
                     <DrawerHeader className="relative flex h-[72px] items-center justify-between px-2 pb-0 pt-[env(safe-area-inset-top)]">
                         <Link href="/" aria-label="Bible Game home" onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-lg">

@@ -6,6 +6,8 @@ import { BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon, StarIcon } fro
 import { Guesses } from "@/app/play/[game]/guess";
 import { playTheme } from "@/core/style/play-theme";
 import { exampleClue as clue, exampleGuesses as guesses } from "@/app/play/[game]/example";
+import MiniMap from "@/app/home/mini-map";
+import type { BibleTestament } from "@/app/play/[game]/map/gridmap";
 
 type Block = { x: number; y: number; w: number; h: number; colour: string; xs?: number[]; ys?: number[] };
 
@@ -33,7 +35,7 @@ const answer = chapterCell(12);
 
 // Zoom towards Revelation, tap chapter 12, then zoom back out (looped in globals.sass). The loop
 // starts from the whole map each time the sketch scrolls into view, and stays still under reduced motion
-function MiniMap() {
+function SketchMap() {
     const { size } = revelation;
     const ref = useRef<SVGSVGElement>(null);
     const [playing, setPlaying] = useState(false);
@@ -89,6 +91,7 @@ const panel = "flex items-center justify-center rounded-lg border border-ui-line
 const button = "ui-button h-12 !text-[16px] [&_svg]:size-5";
 
 // A "\n" in a detail is a line break from the design, kept at every width
+// step 2's art (the map) is chosen when rendering: the real map when the Bible's structure is to hand, else the sketch
 const steps: { title: string; detail: string; art: React.ReactNode }[] = [
     {
         title: "Read the summary",
@@ -98,7 +101,7 @@ const steps: { title: string; detail: string; art: React.ReactNode }[] = [
     {
         title: "Select the chapter",
         detail: "The Bible is laid out as one map.\nZoom and tap the chapter you think it is.",
-        art: <div className={panel}><MiniMap/></div>,
+        art: null,
     },
     {
         title: "Narrow your guess",
@@ -128,7 +131,12 @@ const steps: { title: string; detail: string; art: React.ReactNode }[] = [
     },
 ];
 
-export default function HowItWorks() {
+/** Step 2: the real map when the Bible's structure is to hand, else the sketch */
+const mapArt = (bible?: BibleTestament[]) => bible
+    ? <div className={`${panel} !p-0 overflow-hidden`}><MiniMap bible={bible}/></div>
+    : <div className={panel}><SketchMap/></div>;
+
+export default function HowItWorks({ bible }: { bible?: BibleTestament[] }) {
     return <section aria-labelledby="how-it-works" className="mx-auto w-full max-w-[28rem]">
         <h2 id="how-it-works" className="text-[22px] font-semibold leading-[28px]">How it works</h2>
         <ol className="mt-8 grid gap-12">
@@ -138,7 +146,7 @@ export default function HowItWorks() {
                     <h3 className="text-[18px] font-semibold leading-[24px]">{title}</h3>
                 </div>
                 <p className="mt-2.5 whitespace-pre-line text-[16px] leading-[24px] text-ui-muted">{detail}</p>
-                <div className="mt-[18px]">{art}</div>
+                <div className="mt-[18px]">{art ?? mapArt(bible)}</div>
             </li>)}
         </ol>
     </section>;
