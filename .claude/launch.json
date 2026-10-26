@@ -1,6 +1,7 @@
 {
   "version": "0.0.1",
   "configurations": [
-    {"name": "webapp", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000}
+    {"name": "webapp", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000},
+    {"name": "brand-lab", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8771", "-d", "/private/tmp/claude-501/-Users-jamessmith-Projects-bible-game-webapp/a91c5220-6228-4dd3-9268-900fd40dddf8/scratchpad/brand"], "port": 8771}
   ]
 }
