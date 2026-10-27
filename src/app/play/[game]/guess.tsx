@@ -1,77 +1,92 @@
 "use client"
 
-import React, { useState } from "react";
+import React from "react";
+import { motion } from "framer-motion";
+import { ArrowLeftIcon, ArrowRightIcon, PartyPopperIcon } from "lucide-react";
+import { ANSWER, Band, bandOf, distanceOf } from "@/app/play/[game]/closeness";
 
-enum Closeness {
-    UNKNOWN = 'text-white',
-    VERY_FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-danger-200 to-danger-600',
-    FAR = 'text-transparent bg-clip-text bg-gradient-to-b from-orange-200 to-orange-600',
-    MEDIUM = 'text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 to-yellow-600',
-    CLOSE = 'text-transparent bg-clip-text bg-gradient-to-b from-lime-200 to-lime-600',
-    VERY_CLOSE = 'text-transparent bg-clip-text bg-gradient-to-b from-success-200 to-success-600'
+export const compact = Intl.NumberFormat("en", { notation: "compact" });
+
+export function formatPassage(book: any, chapter: any): string {
+    if (!book || !chapter) return "";
+    return `${book.substring(0, book.split(" ").length > 1 ? 4 : 3).toUpperCase()} ${chapter}`;
 }
 
-const Guess = (props: any) => {
-    const formatter = Intl.NumberFormat("en", { notation: "compact" });
+export const SLOTS = 5; // guesses per game
+const GAP = 6; // px between tiles
 
-    const [colour] = useState(grade(props.closeness));
-    const [passage] = useState(formatPassage(props.book, props.chapter));
-    const [closeness] = useState(formatCloseness(props.closeness));
+/**
+ * Text scales with the tile's width (a share of the row, via container units) so every tile keeps its passage and
+ * distance, stacked; each tile needs roughly 5.2em of width, e.g. "PSA 119" plus padding.
+ */
+function fontSize(count: number): string {
+    return `min(12px, calc((100cqw - ${(count - 1) * GAP}px) / ${count} / 5.2))`;
+}
 
-    function grade(closeness: any): string {
-        if (closeness) {
-            closeness = Math.abs(parseInt(closeness.distance));
-            // note :: closeness now defined as verse distance; % closeness is ratio to total verses
+const Tile = ({ band, count, children }: { band: Band, count: number, children: React.ReactNode }) => (
+    <motion.li initial={{ opacity: 0, y: 6, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+               transition={{ type: "spring", stiffness: 420, damping: 28 }}
+               className="flex h-9 min-w-0 flex-1 flex-col items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border px-[0.4em] font-mono font-medium leading-[1.15] tabular-nums"
+               style={{ background: band.fill, borderColor: band.edge, color: band.text, boxShadow: band.glow, fontSize: fontSize(count) }}>
+        {children}
+    </motion.li>
+);
 
-            if (closeness <= 100) return Closeness.VERY_CLOSE
-            if (closeness <= 500) return Closeness.CLOSE
-            if (closeness <= 2000) return Closeness.MEDIUM
-            if (closeness <= 5000) return Closeness.FAR
-            else return Closeness.VERY_FAR
-        }
+/** A guess not yet made */
+const Slot = () => (
+    <li aria-hidden="true" className="h-9 min-w-0 flex-1 rounded-lg border border-dashed border-play-line"/>
+);
 
-        return Closeness.UNKNOWN
-    }
+/**
+ * Direction and distance, read like a page: an arrow pointing right, after the distance, when the answer is later in the
+ * Bible; pointing left, before it, when earlier
+ */
+export const Direction = ({ later, distance, className }: { later: boolean, distance: string, className: string }) => (
+    later ?
+        <span className="flex items-center gap-[0.15em]">
+            {distance}<ArrowRightIcon className={className} strokeWidth={2.5} aria-label="answer is later"/>
+        </span> :
+        <span className="flex items-center gap-[0.15em]">
+            <ArrowLeftIcon className={className} strokeWidth={2.5} aria-label="answer is earlier"/>{distance}
+        </span>
+);
 
-    // TODO :: extra to service-layer and apply to answer chip too!?
-    function formatPassage(book: any, chapter: any): string {
-        if (!!book && !!chapter) {
-            switch (book) {
-                // case 'Song of Solomon':
-                //     return `Sg. Solomon ${chapter}`;
-                // case '1 Thessalonians':
-                //     return `1 Thessalon. ${chapter}`;
-                // case '2 Thessalonians':
-                //     return `2 Thessalon ${chapter}`;
-                // case '1 Corinthians':
-                //     return `1 Corinth. ${chapter}`;
-                // case '2 Corinthians':
-                //     return `2 Corinth. ${chapter}`;
-                default:
-                    return `${book.substring(0, book.split(" ").length > 1 ? 4 : 3).toUpperCase()} ${chapter}`
+/**
+ * Guess Tile: passage, direction and distance, lit by how close it was (the found chapter takes its region colour)
+ */
+const Guess = ({ guess, count }: { guess: any, count: number }) => {
+    const distance = distanceOf(guess);
+
+    return (
+        <Tile band={bandOf(guess)} count={count}>
+            <span>{formatPassage(guess.bookKey || guess.book, guess.chapter)}</span>
+            {distance === 0 ?
+                <PartyPopperIcon className="size-[1.2em] shrink-0" aria-label="Found"/> :
+                <span className="font-medium opacity-90">
+                    <Direction later={distance < 0} distance={compact.format(Math.abs(distance))} className="size-[1em]"/>
+                </span>
             }
-        }
+        </Tile>
+    );
+}
 
-        return ""
-    }
+/** Every guess in order, an empty slot for each one left, and the missed answer when the game was lost */
+export const Guesses = ({ guesses, answer }: { guesses: any[], answer?: any }) => {
+    const filled = guesses.length + (answer ? 1 : 0);
+    const count = Math.max(SLOTS, filled);
 
-    function formatCloseness(closeness: any): string {
-        if (!!closeness) {
-            const distance = parseInt(closeness.distance);
-            return distance == 0 ? '🎉' : formatter.format(Math.abs(distance));
-
-        } else return '';
-    }
-
-    return <div className="p-1 justify-between text-white">
-        <div className="sm:flex items-center gap-2">
-            <p className="text-[11px] sm:text-[12px]">{passage}</p>
-            <p className={"text-[11px] sm:text-[12px] sm:flex gap-1 " + colour}>
-                <span>{closeness == '🎉' ? '' : props.closeness.distance.toString().includes('-') ? <>&#9650;</> : <>&#9660;</> }</span>
-                <span>{closeness}</span>
-            </p>
-        </div>
-    </div>
+    return (
+        <ol aria-label="Guesses" className="flex w-full px-4 [container-type:inline-size]" style={{ gap: GAP }}>
+            {guesses.map((guess) => <Guess key={guess.book + guess.chapter} guess={guess} count={count}/>)}
+            {answer ?
+                <Tile band={ANSWER} count={count}>
+                    <span className="text-[0.85em] font-medium uppercase tracking-wide opacity-70">Answer</span>
+                    <span>{formatPassage(answer.bookKey || answer.book, answer.chapter)}</span>
+                </Tile> : null
+            }
+            {[...Array(count - filled)].map((_, index) => <Slot key={`slot-${index}`}/>)}
+        </ol>
+    );
 }
 
 export default Guess;

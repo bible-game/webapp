@@ -1,0 +1,334 @@
+"use client"
+
+import { createGridmap, type Gridmap, type GridmapCell, type GridmapData } from "@project-gridmap/library";
+import React, { useEffect, useMemo, useRef } from "react";
+import groups from "./config/groups.json";
+import { playTheme } from "@/core/style/play-theme";
+import { alpha, bookColours } from "@/core/style/regions";
+import type { RuledOut } from "@/app/play/[game]/ruled-out";
+
+type BibleBook = {
+    key: string;
+    name: string;
+    chapters: number;
+    verses: Array<number | string>;
+};
+
+type BibleDivision = {
+    name: string;
+    books: BibleBook[];
+};
+
+export type BibleTestament = {
+    name: string;
+    divisions: BibleDivision[];
+};
+
+type GridmapProps = {
+    data: BibleTestament[];
+    device?: "mobile" | string;
+    passage?: {
+        book?: string;
+        division?: string;
+        testament?: string;
+        chapter?: number | string;
+    };
+    select: (book: string, chapter: string | null, isBookKey?: boolean) => void;
+    book?: string;
+    bookFound?: boolean;
+    divFound?: boolean;
+    testFound?: boolean;
+    narrativeHidden?: boolean;
+    playing?: boolean;
+    /** Cell id ("BOOK/chapter") to show as selected, e.g. after stepping chapters outside the map */
+    selection?: string | null;
+    /** Chapters the guesses exclude, by cell id, with the reason: barely visible on the map, and can't be selected */
+    ruledOut?: RuledOut;
+    /** Show each book's named chapter groups (config/groups.json): dotted partitions in the book's colour, with labels on their borders. On unless false */
+    showGroups?: boolean;
+};
+
+type BookGroups = Record<string, Array<{ name: string; start: number; end: number }>>;
+
+const NONE: RuledOut = new Map();
+
+/** The mark on a filled cell (selected, or the answer), dark so it reads against the colour */
+const ANSWER_MARK = playTheme.bg;
+
+/**
+ * The map is background, so it is lit sparingly: books in the quiet map tone, on their outlines and labels only (the
+ * chapter-group partitions a faint trace, the chapter marks neutral); the selected chapter takes its region's light.
+ */
+export const MAP_COLOURS = bookColours("map");
+export const LIGHT_COLOURS = bookColours("light");
+export const colourParts = (narrativeHidden?: boolean) => ({
+    borders: { opacity: 1 },
+    sections: { opacity: 0.22 },
+    marks: { coloured: false, opacity: narrativeHidden ? 0.2 : 0.28 },
+    labels: { opacity: 1 },
+});
+const FALLBACK_MONO = "ui-monospace, 'SF Mono', Menlo, Consolas, monospace";
+
+/** The interface's mono face (IBM Plex Mono, set as --font-mono by the root layout), read at draw time so the canvas can use it */
+function monoFont(): string {
+    if (typeof window === "undefined") return FALLBACK_MONO;
+    const family = getComputedStyle(document.documentElement).getPropertyValue("--font-mono").trim();
+    return family ? `${family}, ${FALLBACK_MONO}` : FALLBACK_MONO;
+}
+
+/** The map's theme: drawn straight onto the ground, its structure in faint glass lines beneath the coloured books */
+export function mapTheme() {
+    return {
+        // drawn straight onto the ground: ruled-out cells fade by erasing, and labels cut the lines behind them
+        background: "transparent",
+        text: playTheme.text,
+        // testament labels: faint, with the selected testament's label a step brighter (it takes layerLine)
+        mutedText: playTheme.faint,
+        faintText: playTheme.faint,
+        cellLine: "rgba(180, 195, 255, 0.06)",
+        itemLine: "rgba(180, 195, 255, 0.30)",
+        // structure sits beneath the coloured books, faint enough not to paint over their outlines
+        groupLine: "rgba(180, 195, 255, 0.16)",
+        layerLine: "rgba(180, 195, 255, 0.30)",
+        // chapter groups sit quieter still: hairlines between them, small labels
+        sectionLine: "rgba(180, 195, 255, 0.14)",
+        sectionText: "#6e7280",
+        selectedMark: playTheme.bg,
+        font: monoFont(),
+    };
+}
+
+const slug = (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+export function buildBibleGridmapData(testaments: BibleTestament[]): GridmapData {
+    return {
+        layers: testaments.map((testament) => ({
+            id: slug(testament.name),
+            label: testament.name,
+            groups: testament.divisions.map((division) => ({
+                id: slug(division.name),
+                label: division.name,
+                items: division.books.map((book) => ({
+                    id: book.key,
+                    label: book.name,
+                    shortLabel: book.key,
+                    // the library calls a chapter range within a book a section
+                    sections: (groups as BookGroups)[book.name.toLowerCase()]?.map(({ name, start, end }) => ({ label: name, start, end })),
+                    meta: {
+                        bookName: book.name,
+                        division: division.name,
+                        testament: testament.name,
+                    },
+                    cells: Array.from({ length: book.chapters }, (_, index) => {
+                        const chapter = index + 1;
+                        return {
+                            id: `${book.key}/${chapter}`,
+                            label: String(chapter),
+                            value: Number(book.verses[index]) || null,
+                            meta: {
+                                bookKey: book.key,
+                                bookName: book.name,
+                                chapter,
+                                division: division.name,
+                                testament: testament.name,
+                            },
+                        };
+                    }),
+                })),
+            })),
+        })),
+    };
+}
+
+function findBookKey(testaments: BibleTestament[], bookName?: string) {
+    if (!bookName) return null;
+
+    for (const testament of testaments) {
+        for (const division of testament.divisions) {
+            const book = division.books.find((candidate) => candidate.name === bookName || candidate.key === bookName);
+            if (book) return book.key;
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Gridmap Component for displaying the Bible
+ * @since 26th September 2026
+ */
+const BibleGridmap = (props: GridmapProps) => {
+    const element = useRef<HTMLDivElement | null>(null);
+    const gridmap = useRef<Gridmap | null>(null);
+    const select = useRef(props.select);
+    const ruledOut = useRef(props.ruledOut ?? NONE);
+    const gridmapData = useMemo(() => buildBibleGridmapData(props.data), [props.data]);
+
+    useEffect(() => {
+        select.current = props.select;
+    }, [props.select]);
+
+    useEffect(() => {
+        if (!element.current) return;
+
+        gridmap.current = createGridmap({
+            container: element.current,
+            data: gridmapData,
+            colours: MAP_COLOURS,
+            selectedColours: LIGHT_COLOURS,
+            colourParts: colourParts(props.narrativeHidden),
+            colourBy: "item",
+            itemLabels: "full",
+            markType: "number",
+            numberMinPx: props.device === "mobile" ? 10 : 8,
+            disabledCells: [...ruledOut.current.keys()],
+            disabledOpacity: 0.9,
+            layout: "fit",
+            showSections: props.showGroups ?? true,
+            sectionLabelSize: 9.5,
+            theme: mapTheme(),
+            labels: {
+                tooltip: (cell: GridmapCell) => `${cell.itemLabel} ${cell.label}`,
+                // tapping a ruled-out chapter says why, instead of selecting it
+                disabled: (cell: GridmapCell) => `${cell.itemLabel} ${cell.label}: ${ruledOut.current.get(cell.id)}`,
+            },
+            onSelectCell(cell: GridmapCell) {
+                const bookKey = String(cell.meta.bookKey ?? cell.itemId);
+                const chapter = String(cell.meta.chapter ?? cell.label);
+                select.current(bookKey, chapter);
+            },
+        });
+
+        let alive = true;
+        document.fonts?.load(`500 12px ${monoFont()}`).then(() => { if (alive) gridmap.current?.setColours(MAP_COLOURS); }).catch(() => {});
+
+        return () => {
+            alive = false;
+            gridmap.current?.destroy();
+            gridmap.current = null;
+        };
+    }, []);
+
+    useEffect(() => {
+        gridmap.current?.setData(gridmapData);
+    }, [gridmapData]);
+
+    useEffect(() => {
+        gridmap.current?.setConfig({
+            itemLabels: "full",
+            colourParts: colourParts(props.narrativeHidden),
+            numberMinPx: props.device === "mobile" ? 10 : 8,
+        });
+    }, [props.device, props.narrativeHidden]);
+
+    useEffect(() => {
+        gridmap.current?.setConfig({ showSections: props.showGroups ?? true });
+    }, [props.showGroups]);
+
+    useEffect(() => {
+        ruledOut.current = props.ruledOut ?? NONE;
+        gridmap.current?.setDisabledCells(ruledOut.current.keys());
+    }, [props.ruledOut]);
+
+    useEffect(() => {
+        const map = gridmap.current;
+        if (map && props.selection && map.getSelectedCell()?.id !== props.selection) map.selectCell(props.selection);
+    }, [props.selection]);
+
+    useEffect(() => {
+        const map = gridmap.current;
+        if (!map) return;
+
+        // game over: the whole map, nothing veiled, with the answer marked (below)
+        if (props.playing === false) {
+            map.focusMap();
+            return;
+        }
+
+        if (props.bookFound) {
+            const bookKey = findBookKey(props.data, props.passage?.book);
+            if (bookKey) {
+                map.focusItem(bookKey);
+            }
+            return;
+        }
+
+        if (props.divFound && props.passage?.division) {
+            map.focusGroup(slug(props.passage.division));
+            return;
+        }
+
+        if (props.testFound) {
+            map.focusMap();
+            return;
+        }
+
+        map.focusMap();
+    }, [
+        props.bookFound,
+        props.divFound,
+        props.testFound,
+        props.passage?.book,
+        props.passage?.chapter,
+        props.passage?.division,
+        props.passage?.testament,
+        props.data,
+        props.playing,
+    ]);
+
+    // Once the game is over, the answer is marked so it stands out on the whole map: filled solid in its region's light
+    // with a dark mark, like a selected chapter, and a glowing ring around it that stays visible even when the chapter
+    // is only a few pixels wide.
+    const answer = props.playing === false ? `${findBookKey(props.data, props.passage?.book)}/${props.passage?.chapter}` : null;
+    useEffect(() => {
+        const map = gridmap.current;
+        if (!map || !answer) return;
+
+        return map.addLayer(({ ctx, model, camera, rect, toScreenX, toScreenY }) => {
+            const cell = model.cells.find((candidate) => candidate.id === answer);
+            if (!cell) return;
+
+            const colour = LIGHT_COLOURS[cell.itemId] ?? playTheme.text;
+            const ring = 4;
+            ctx.save();
+            ctx.fillStyle = colour;
+            ctx.strokeStyle = colour;
+            ctx.beginPath();
+            rect(cell);
+            ctx.fill();
+
+            // the dark mark: the chapter number where the cell is big enough to read it, else a dot
+            const size = Math.min(cell.width, cell.height) * camera.k;
+            ctx.fillStyle = ANSWER_MARK;
+            if (size >= 14) {
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.font = `500 ${Math.min(24, size * 0.6)}px ${monoFont()}`;
+                ctx.fillText(cell.label, toScreenX(cell.centerX), toScreenY(cell.centerY));
+            } else {
+                ctx.beginPath();
+                ctx.arc(toScreenX(cell.centerX), toScreenY(cell.centerY), Math.max(1.5, size * 0.25), 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.lineWidth = 2;
+            ctx.shadowColor = alpha(colour, 0.5);
+            ctx.shadowBlur = 14;
+            ctx.beginPath();
+            ctx.rect(toScreenX(cell.x) - ring, toScreenY(cell.y) - ring,
+                cell.width * camera.k + ring * 2, cell.height * camera.k + ring * 2);
+            ctx.stroke();
+            ctx.restore();
+        });
+    }, [answer]);
+
+    return (
+        <div
+            ref={element}
+            className="absolute inset-0 touch-none"
+            id="gridmap"
+        />
+    );
+};
+
+export default BibleGridmap;

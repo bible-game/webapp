@@ -1,33 +1,47 @@
 "use client"
 
 import Summary from "@/app/play/[game]/summary";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
 import Action from "@/app/play/[game]/action";
-import { CheckIcon } from "@heroui/shared-icons";
-import Guesses from "@/app/play/[game]/guesses";
+import Header from "@/app/play/[game]/header";
 import Confetti from "@/core/component/confetti";
-import Treemap from "@/app/play/[game]/map/treemap";
+import Gridmap from "@/app/play/[game]/map/gridmap";
 import moment from "moment/moment";
 import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
-import * as Hammer from 'hammerjs';
-import { Spinner } from "@heroui/react";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
-import { toast } from "react-hot-toast";
-import { Button } from "@heroui/button";
-import Link from "next/link";
+import { ruledOut } from "@/app/play/[game]/ruled-out";
+import { MotionConfig, useReducedMotion } from "framer-motion";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+/** Skeleton of the page (header, clue, guess slots, map frame) while the day's passage loads */
+const Loading = () => (
+    <div aria-busy="true" aria-label="Loading"
+         className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col bg-transparent pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex w-full max-w-[40rem] flex-1 animate-pulse flex-col">
+            <div className="flex h-14 items-center justify-center"><div className="h-9 w-32 rounded-lg bg-play-surface"/></div>
+            <div className="mx-auto mb-2 mt-2 h-5 w-3/4 rounded-md bg-play-surface"/>
+            <div className="mx-auto mb-4 h-5 w-1/2 rounded-md bg-play-surface"/>
+            <div className="flex gap-1.5 px-4 pb-3">
+                {[...Array(5)].map((_, index) => <div key={index} className="h-9 flex-1 rounded-lg bg-play-surface"/>)}
+            </div>
+            <div className="mx-10 my-6 flex-1 rounded-sm border border-play-line"/>
+            <div className="mx-auto mb-7 h-5 w-48 rounded-md bg-play-surface"/>
+        </div>
+    </div>
+);
 
 /**
  * Game Component
  * @since 13th May 2025
  */
 export default function Game(props: any) {
+    const reducedMotion = useReducedMotion();
     if (props.game == 'today') {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
@@ -57,56 +71,15 @@ export default function Game(props: any) {
     const [stars, setStars] = useState(0);
     const [state, setState] = useState({} as any);
     const [confetti, setConfetti] = useState(false);
-    const [narrativeHidden, setNarrativeHidden] = useState(true);
-
-    // FixMe :: double-render, just a dev issue like the treemap?
-    useEffect(() => {
-        if (!props.state && StateUtil.getConsent()) {
-            toast.custom((t) => (
-                <div
-                    className={`${
-                        t.visible ? 'animate-enter' : 'animate-leave'
-                    } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
-                >
-                    <div className="flex-1 w-0 p-4">
-                        <div className="flex items-start">
-                            <div className="flex-shrink-0 pt-0.5">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     strokeWidth="1.25"
-                                     stroke={'black'} className="size-4">
-                                    <path strokeLinecap="round" strokeLinejoin="round"
-                                          d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                </svg>
-                            </div>
-                            <div className="ml-3 flex-1">
-                                <p className="text-sm font-medium text-gray-900">
-                                    Log-in to keep your data safe
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="flex border-l border-gray-200">
-                        <Button
-                            as={Link}
-                            onPress={() => toast.dismiss()}
-                            href="/account/log-in"
-                            className="bg-white h-full w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            Log In
-                        </Button>
-                    </div>
-                </div>
-            ))
-        }
-    }, [props.state]);
+    const narrativeHidden = true;
+    // what the guesses so far exclude; the whole map comes back once the game is over
+    const excluded = useMemo(() => playing ? ruledOut(testaments, guesses, passage?.book) : new Map<string, string>(),
+        [testaments, guesses, playing, passage?.book]);
 
     useEffect(() => {
         if (confetti) setConfetti(false);
 
-        if (typeof window !== "undefined") {
-            (window as any).Hammer = Hammer.default;
-
-            if (passage) loadState();
-        }
+        if (typeof window !== "undefined" && passage) loadState();
     }, [passage]);
 
     // Re-sync state from localStorage when returning to the page (bfcache / tab switch)
@@ -126,7 +99,8 @@ export default function Game(props: any) {
 
         if (passage) {
             const state = StateUtil.getGame(passage.id);
-            setGuesses(state.guesses)
+            // guesses saved by the user service (or before keys were stored) carry only the book's name; the tiles need its key for the region colour
+            setGuesses(state.guesses.map((g: any) => g.bookKey ? g : { ...g, bookKey: props.books.find((bk: any) => bk.name == g.book)?.key }))
             setStars(state.stars || 0)
             setPlaying(state.playing)
             setState(state);
@@ -196,18 +170,18 @@ export default function Game(props: any) {
 
         if (selected.book == passage.book) {
             setBook(passage.book);
-            setBookFound(<CheckIcon className="text-lg text-green-200"/>);
+            setBookFound(true);
         }
         if (selected.chapter == passage.chapter) {
             setChapter(passage.chapter);
-            setChapterFound(<CheckIcon className="text-lg text-green-200"/>);
+            setChapterFound(true);
         }
 
         if (selected.testament == passage.testament) {
-            setTestamentFound(<CheckIcon className="text-lg text-green-200"/>);
+            setTestamentFound(true);
         }
         if (selected.division == passage.division) {
-            setDivisionFound(<CheckIcon className="text-lg text-green-200"/>);
+            setDivisionFound(true);
         }
 
         let starResult = 0
@@ -260,8 +234,22 @@ export default function Game(props: any) {
         // return passage.icon != icon;
     }
 
+    const cellOf = (chapter: string | number) => `${allBooks.find((bk: any) => bk.name == selected.book)?.key}/${chapter}`;
+
+    /** The nearest chapter in the given direction, within the book, that isn't ruled out (or null) */
+    function nextChapter(delta: number): number | null {
+        let next = parseInt(selected.chapter) + delta;
+        while (next >= 1 && next <= maxChapter && excluded.has(cellOf(next))) next += delta;
+        return next >= 1 && next <= maxChapter ? next : null;
+    }
+
+    /** Moves the selected chapter back or forward, staying within the book and skipping ruled-out chapters */
+    function step(delta: number) {
+        const next = nextChapter(delta);
+        if (next) selectChapter(next.toString());
+    }
+
     function select(book: any, chapter: any, isBookKey = true) {
-        console.log(chapter);
         if (isBookKey) {
             const bookName = allBooks.find((bk: any) => bk.key == book).name;
             if (book) selectBook(bookName);
@@ -272,33 +260,43 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
-    function toggleNarrative() {
-        setNarrativeHidden(!narrativeHidden);
-    }
-
-    if (isLoading) return <Spinner color="primary" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]"/>
+    if (isLoading) return <Loading/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
+        passage.bookKey ||= props.books.find((bk: any) => bk.name == passage.book)?.key;
         passage.testament = props.bible.testaments.find((test: any) => test.divisions.some((div: any) => div.name == passage.division)).name;
 
         return (
-            <>
+            <MotionConfig reducedMotion="user">
+            <div className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-transparent pt-[env(safe-area-inset-top)] text-play-text">
                 <PopUp />
-                <Summary passage={passage} playing={playing}/>
-                <Treemap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
-                         testFound={testamentFound} data={testaments} book={book} device={props.device}
-                         narrativeHidden={narrativeHidden}
-                         playing={playing}/>
-                <Action passage={passage} playing={playing} stars={stars} isExistingGuess={isExistingGuess}
-                        isInvalidGuess={isInvalidGuess} clearSelection={clearSelection} date={props.game}
-                        addGuess={addGuess} selected={selected} books={books} bookFound={bookFound}
-                        selectBook={selectBook} maxChapter={maxChapter} hasBook={hasBook}
-                        state={props.state} passageId={passage.id} bible={props.bible}
-                        selectChapter={selectChapter} chapter={chapter} guesses={guesses}/>
-                <Guesses guesses={guesses} bookFound={bookFound} device={props.device} stars={stars}/>
-                <Confetti fire={confetti}/>
-            </>
+                <div className="mx-auto flex w-full max-w-[40rem] shrink-0 flex-col">
+                    <Header info={props.info} date={props.game}/>
+                    <Summary passage={passage} playing={playing} guesses={guesses}/>
+                </div>
+
+                <div className="mx-auto min-h-0 w-full max-w-[40rem] flex-1">
+                    <div className="h-full w-full p-3 sm:p-6">
+                        <div className="relative h-full w-full">
+                            <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
+                                     testFound={testamentFound} data={testaments} book={book} device={props.device}
+                                     narrativeHidden={narrativeHidden}
+                                     selection={hasBook ? cellOf(chapter) : null}
+                                     ruledOut={excluded} playing={playing}/>
+                        </div>
+                    </div>
+                </div>
+
+                <section className="mx-auto !w-full max-w-[40rem] shrink-0 pb-[env(safe-area-inset-bottom)]">
+                    <Action passage={passage} playing={playing} stars={stars} celebrate={confetti} isExistingGuess={isExistingGuess}
+                            date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
+                            step={step} canStep={(delta: number) => nextChapter(delta) !== null}
+                            ruledOut={hasBook ? excluded.get(cellOf(chapter)) : undefined}
+                            bible={props.bible} chapter={chapter} guesses={guesses} info={props.info} known={props.known}/>
+                </section>
+                <Confetti fire={confetti && !reducedMotion}/>
+            </div>
+            </MotionConfig>
         );
     }
 }
-

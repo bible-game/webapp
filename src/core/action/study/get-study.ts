@@ -10,8 +10,15 @@ export async function getStudy(passageKey: string) {
 
 export interface Question {
     content: string;
-    optionOne: string[];
-    optionTwo: string[];
-    optionThree: string[];
+    optionOne: string;
+    optionTwo: string;
+    optionThree: string;
     correct: string;
+}
+
+export interface Study {
+    passageKey: string;
+    questions: Question[];
+    /** A model summary of the passage */
+    goldenSummary?: string;
 }

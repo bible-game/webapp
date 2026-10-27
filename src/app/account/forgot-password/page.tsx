@@ -1,54 +1,106 @@
 "use client"
 
-import Background from "@/app/background"
+import React, { useActionState } from "react"
+import { Form } from "@heroui/form"
+import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
+import { CircularProgress } from "@heroui/progress"
+import { Alert } from "@heroui/alert"
+import { inputClassNames, alertClassNames, submitButtonClassName } from "@/core/model/form/form-styles";
 import Link from "next/link"
-import Image from "next/image"
-import { ArrowLeft, Mail } from "lucide-react"
-import { cardClassName } from "@/core/model/form/form-styles"
+
+import { forgotPassword } from "@/core/action/auth/forgot-password"
+import { ForgotPasswordFormState } from "@/core/model/form/form-definitions"
 
 /**
- * Forgot Password (Coming Soon) Page
- * @since 17th February 2026
+ * Forgot Password Page
  */
 export default function ForgotPassword() {
+    //@ts-ignore
+    const [state, action, pending] = useActionState<ForgotPasswordFormState, FormData>(forgotPassword, undefined)
+
+
     return (
         <>
-            <Background />
-            <main className="flex items-center justify-center min-h-screen px-4 py-16 sm:py-24">
-                <div className={`${cardClassName} max-w-md text-center space-y-5`}>
-                    <Image
-                        src="/icon-nobg.png"
-                        alt="Bible Game"
-                        width={56}
-                        height={56}
-                        className="mx-auto"
-                    />
-
-                    <div className="flex justify-center">
-                        <div className="w-16 h-16 rounded-full bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-                            <Mail className="text-indigo-400" size={28} />
+            <main className="auth-page">
+                <div className="w-full max-w-md text-ui-text">
+                    {state?.success ? (
+                        <div className="flex flex-col gap-6 text-center">
+                            <div>
+                                <h1 className="text-2xl font-semibold text-white">Check your email</h1>
+                                <p className="text-sm text-ui-muted mt-2">
+                                    If there&apos;s an account for that email, we&apos;ve sent it a password reset link.
+                                </p>
+                            </div>
+                            <Button
+                                as={Link}
+                                href="/account/log-in"
+                                className={submitButtonClassName}
+                            >
+                                Back to log in
+                            </Button>
                         </div>
-                    </div>
+                    ) : (
+                        <Form
+                            action={action}
+                            validationErrors={state?.errors}
+                            className="auth-form flex flex-col gap-5"
+                        >
+                            <div className="mb-2">
+                                <h1 className="text-2xl font-semibold">Forgot password</h1>
+                                <p className="text-sm text-ui-muted mt-1">
+                                    Enter your email and we&apos;ll send you a link to reset your password.
+                                </p>
+                            </div>
 
-                    <h1 className="text-2xl font-semibold text-indigo-300">Reset Password</h1>
-                    <p className="text-sm text-indigo-300">
-                        This feature is coming soon. In the meantime, please reach out to us
-                        for help resetting your password.
-                    </p>
-                    <p className="text-sm text-indigo-300">
-                        hello@bible.game
-                    </p>
+                            <Input
+                                classNames={inputClassNames}
+                                label="Email"
+                                variant="bordered"
+                                type="email"
+                                name="email"
+                                isRequired
+                            />
 
-                    <Button
-                        as={Link}
-                        href="/account/log-in"
-                        variant="light"
-                        className="text-indigo-400 hover:text-indigo-300"
-                        startContent={<ArrowLeft size={16} />}
-                    >
-                        Back to Log In
-                    </Button>
+                            {state?.errors?.form && state.errors.form.length > 0 && (
+                                <Alert
+                                    hideIcon
+                                    variant="bordered"
+                                    color="danger"
+                                    description={state.errors.form[0]}
+                                    classNames={alertClassNames}
+                                />
+                            )}
+
+                            <Button
+                                type="submit"
+                                disabled={pending}
+                                className={submitButtonClassName}
+                            >
+                                {pending ? (
+                                    <span className="flex items-center gap-2">
+                                        <CircularProgress
+                                            aria-label="Sending request..."
+                                            size="sm"
+                                            color="secondary"
+                                        />
+                                        Sending...
+                                    </span>
+                                ) : (
+                                    "Send reset link"
+                                )}
+                            </Button>
+
+                            <p className="text-xs text-ui-muted mt-2">
+                                Remembered your password?{" "}
+                                <Link
+                                    href="/account/log-in"
+                                    className="underline hover:text-ui-muted font-medium">
+                                    Log in
+                                </Link>
+                            </p>
+                        </Form>
+                    )}
                 </div>
             </main>
         </>

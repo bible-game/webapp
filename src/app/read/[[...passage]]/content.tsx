@@ -1,23 +1,30 @@
 "use client"
 
-import React, { useEffect, useMemo, useState } from "react";
-import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
-import { Input } from "@heroui/input";
-import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
-import { getPassage } from "@/core/action/read/get-passage";
-import { Spinner } from "@heroui/react";
-import Context from "@/app/read/[[...passage]]/context";
-import ReadAction from "@/app/read/[[...passage]]/readaction";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { bcv_parser } from "bible-passage-reference-parser/esm/bcv_parser";
 import * as lang from "bible-passage-reference-parser/esm/lang/en.js";
-import { Button } from "@nextui-org/react";
+import { ChevronDown, GraduationCapIcon } from "lucide-react";
+import AppHeader from "@/core/component/app-header";
+import ScrollProgress from "@/app/read/[[...passage]]/scroll-progress";
+import Context from "@/app/read/[[...passage]]/context";
+import ReaderToolbar from "@/app/read/[[...passage]]/reader-toolbar";
+import TypeSheet from "@/app/read/[[...passage]]/type-sheet";
+import TranslationSheet from "@/app/read/[[...passage]]/translation-sheet";
+import PassageSheet from "@/app/read/[[...passage]]/passage-sheet";
+import MarkReadButton from "@/app/read/[[...passage]]/mark-read-button";
+import { useReaderSettings } from "@/app/read/[[...passage]]/use-reader-settings";
+import { useReadAction } from "@/app/read/[[...passage]]/readaction";
+import { useLitVerses } from "@/app/read/[[...passage]]/use-lit-verses";
+import { getPassage } from "@/core/action/read/get-passage";
 import { getAudio } from "@/core/action/read/get-audio";
-import Link from "next/link";
-import { ChevronDown, BookOpenText, SearchIcon, XIcon, HeadphonesIcon, GraduationCapIcon } from "lucide-react";
-import { AudioPlayer } from "@/app/read/[[...passage]]/audio-player";
-import { useQuery } from "@tanstack/react-query";
-import { useDebouncedValue } from '@mantine/hooks';
+import { findBook } from "@/core/model/bible/books";
+import { useDivisionAccent } from "@/core/hook/use-division-accent";
+import { READING_FONTS } from "@/core/style/reading-fonts";
+import { ReadingUtil } from "@/core/util/reading-util";
 import translations from "./translations.json";
+import GroundWindow from "@/core/component/ground-window";
 
 
 const usePassage = (passageKey: string, translation?: string) => {
@@ -25,47 +32,27 @@ const usePassage = (passageKey: string, translation?: string) => {
         queryKey: ['passage', passageKey, translation],
         queryFn: () => getPassage(passageKey, translation),
         staleTime: Infinity,
+        enabled: !!passageKey,
     });
 }
 
 export default function Content(props: any) {
     const [key, setKey] = useState(props.passageKey ? prettyPassage(Array.isArray(props.passageKey) ? props.passageKey[0] : props.passageKey) : "1 John 4 : 7 - 19");
-    const wordsPerMinute = 160;
     const [audioLoading, setAudioLoading] = useState(false);
-    const [playing, setPlaying] = useState(false);
-    const [current, setCurrent] = useState("");
-    const [selectedTranslations, setSelectedTranslations] = useState(new Set(["web"]));
-    const [translation, setTranslation] = useState<string>(translations["web"].abbr);
+    const [audioSrc, setAudioSrc] = useState<string | undefined>();
+    const [sheet, setSheet] = useState<"type" | "translation" | "passage" | null>(null);
+    const [settings, updateSettings] = useReaderSettings();
+    const proseRef = useRef<HTMLParagraphElement>(null);
 
     function prettyPassage(passage: string): string {
+        try { passage = decodeURIComponent(passage); } catch { /* already decoded */ }
         return passage.replace(/[a-z](?=\d)|\d(?=[a-z])/gi, "$& ");
-    } []
-    const [debouncedKey] = useDebouncedValue(key, 400);
+    }
 
-
-    const { data: passage, isLoading: loading, isError, refetch } = usePassage(debouncedKey, translation);
-
-    const readingTime = useMemo(() => {
-        if (passage?.text) {
-            const words = passage?.text.split(" ");
-            return Math.ceil(words.length / wordsPerMinute).toString() + " minutes";
-        }
-    }, [passage]);
-
-    const selectedValue = useMemo(() => {
-        const selectedTranslation = Array.from(selectedTranslations)[0];
-        return translations[selectedTranslation as keyof typeof translations] || selectedTranslation;
-    }, [selectedTranslations]);
-
-
-    const verses = passage?.verses ? (
-        passage.verses.map((verse: any) => (
-            <div key={verse.verse} className="my-6 grid grid-cols-[auto,1fr] gap-3 items-start">
-                <div className="text-gray-400 text-[10px] font-light pt-2">{verse.verse}</div>
-                <div className="text-gray-800 text-[16px] font-light leading-[1.75rem]">{verse.text}</div>
-            </div>
-        ))
-    ) : null;
+    const translation = translations[settings.translation as keyof typeof translations] ?? translations.web;
+    const { data: passage, isLoading: loading, isError, refetch } = usePassage(key, translation.abbr);
+    const lit = useLitVerses(proseRef, [passage, settings.size, settings.leading, settings.font]);
+    const minutes = ReadingUtil.calcMinutes(passage?.text);
 
     function split(passageKey: any): {
         book: string;
@@ -109,169 +96,150 @@ export default function Content(props: any) {
         }
     }
 
-    function playAudio(): void {
-        if (key) {
-            setAudioLoading(true);
-            getAudio(key).then((audioBuffer: any) => {
-                if (audioBuffer) {
-                    setAudioLoading(false);
-                    const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" });
-                    const audioUrl = URL.createObjectURL(audioBlob);
-                    setCurrent(audioUrl);
-                    setPlaying(true);
-                }
-            });
-        }
-    }
-
-    const handleSearchChange = (key: string) => {
-        setKey(key);
-    }
-
     const splitKey = useMemo(() => (key ? split(key) : { book: "", chapter: "", verseStart: undefined, verseEnd: undefined }), [key]);
+    const book = findBook(splitKey.book);
+    const chapter = Number(splitKey.chapter) || 1;
+    const { read, markRead } = useReadAction({ ...splitKey, state: props.state });
+
+    useDivisionAccent(book);
+
+    const title = useMemo(() => {
+        if (!splitKey.book) return key;
+        const verses = splitKey.verseStart
+            ? `:${splitKey.verseStart}${splitKey.verseEnd ? `–${splitKey.verseEnd}` : ""}`
+            : "";
+        return `${book?.name ?? splitKey.book} ${chapter}${verses}`;
+    }, [key, splitKey, book, chapter]);
+
+    // Keep the address in step with the passage, so reloading or sharing keeps your place
+    useEffect(() => {
+        if (!book || !props.passageKey && key === "1 John 4 : 7 - 19") return;
+        const verses = splitKey.verseStart ? `:${splitKey.verseStart}${splitKey.verseEnd ? `-${splitKey.verseEnd}` : ""}` : "";
+        window.history.replaceState(null, "", `/read/${book.name.replace(/\s/g, "")}${chapter}${verses}`);
+    }, [book, chapter, splitKey.verseStart, splitKey.verseEnd]);
+
+    function goTo(passageKey: string): void {
+        closeAudio();
+        setKey(passageKey);
+        window.scrollTo({ top: 0 });
+    }
+
+    function playAudio(): void {
+        if (!key) return;
+        setAudioLoading(true);
+        getAudio(key).then((audioBuffer: any) => {
+            if (audioBuffer) {
+                const audioBlob = new Blob([audioBuffer], { type: "audio/mpeg" });
+                setAudioSrc(URL.createObjectURL(audioBlob));
+            }
+        }).finally(() => setAudioLoading(false));
+    }
+
+    function closeAudio(): void {
+        if (audioSrc) URL.revokeObjectURL(audioSrc);
+        setAudioSrc(undefined);
+    }
+
+    const verses = passage?.verses?.map((verse: any, i: number) => {
+        const text = verse.text.trim();
+        return (
+            <span key={verse.verse} id={`v${verse.verse}`} data-v={verse.verse} data-lit={lit.has(String(verse.verse)) || undefined}>
+                {i === 0 ? (
+                    <><sup className="sr-only">{verse.verse}</sup><span aria-hidden className="drop-cap">{text[0]}</span>{text.slice(1)}</>
+                ) : (
+                    <><sup>{verse.verse}</sup>{text}</>
+                )}{" "}
+            </span>
+        );
+    });
 
     return (
-        <section className="relative mt-4 sm:mt-6 w-[90%] left-[5%]">
-            <ScrollProgress
-                className="bg-gradient-to-r from-indigo-600 to-violet-600"
-                height={6}
+        <div style={{
+            "--reader-font": READING_FONTS[settings.font]?.family,
+            "--reader-cap": READING_FONTS[settings.font]?.cap,
+            "--reader-ascent": READING_FONTS[settings.font]?.ascent,
+            "--reader-descent": READING_FONTS[settings.font]?.descent,
+            "--reader-size": `${settings.size}px`,
+            "--reader-leading": settings.leading,
+        } as React.CSSProperties}>
+            <div className="reader-header">
+                <GroundWindow />
+                <div className="app-header">
+                    <AppHeader info={props.info}>
+                        <button type="button" onClick={() => setSheet("passage")}
+                                aria-label={`${title}. Change passage`} className="reader-passage">
+                            <span className="reader-title truncate">{title}</span>
+                            <ChevronDown aria-hidden className="size-4 shrink-0 text-[var(--reader-muted)]" />
+                        </button>
+                    </AppHeader>
+                </div>
+                <ScrollProgress />
+            </div>
+
+            <main className="app-page !pb-36">
+                <section className="mx-auto w-full max-w-[40rem]">
+                    {loading ? (
+                        <div className="reading-skeleton" role="status" aria-label="Loading passage">
+                            {[96, 88, 92, 70, 94, 84, 60].map((width, i) => (
+                                <span key={i} style={{ width: `${width}%` }} />
+                            ))}
+                        </div>
+                    ) : isError ? (
+                        <div role="alert" className="flex flex-col items-start gap-3 py-8 text-[var(--reader-muted)]">
+                            <p>Unable to load this passage.</p>
+                            <button type="button" className="ui-button" onClick={() => refetch()}>Try again</button>
+                        </div>
+                    ) : passage?.verses ? (
+                        <>
+                            {/* the reading time shares the line with the context before, on the right */}
+                            <div className="relative">
+                                <Context passageKey={key} context="before" />
+                                {minutes ? (
+                                    <span className="pointer-events-none absolute right-0 top-0 flex h-11 items-center text-[13px] tabular-nums text-[var(--reader-muted)]">
+                                        {minutes} min read
+                                    </span>
+                                ) : null}
+                            </div>
+                            <article className="mb-5 mt-7">
+                                <p ref={proseRef} className="reading-prose">
+                                    {verses}
+                                </p>
+                            </article>
+                            <Context passageKey={key} context="after" />
+
+                            <div className="mt-10 grid grid-cols-2 gap-3 sm:flex">
+                                <MarkReadButton read={read} onMark={markRead} />
+                                {/* once the passage is read, studying it is the next step, so Study takes the lead */}
+                                <Link href={`/study/${splitKey.book.replace(/\s/g, "")}${chapter}`}
+                                      aria-label={`Study ${title}`} className={`ui-button ${read ? "reader-primary" : ""}`}>
+                                    <GraduationCapIcon className="size-4" />
+                                    Study
+                                </Link>
+                            </div>
+                        </>
+                    ) : (
+                        <div role="alert" className="flex flex-col items-start gap-3 py-8 text-[var(--reader-muted)]">
+                            <p>No passage found for “{key}”. Try a reference like John 3:16.</p>
+                            <button type="button" className="ui-button" onClick={() => setSheet("passage")}>Change passage</button>
+                        </div>
+                    )}
+                </section>
+            </main>
+
+            <ReaderToolbar
+                onType={() => setSheet("type")}
+                translation={translation.name}
+                onTranslation={() => setSheet("translation")}
+                audio={{ src: audioSrc, loading: audioLoading, onListen: playAudio, onClose: closeAudio }}
             />
 
-            {/* Toolbar */}
-            <div className="mb-6 sm:mb-8">
-                <div className="flex flex-col gap-3">
-                    <div className="relative">
-                        <Input
-                            aria-label="Passage"
-                            variant="underlined"
-                            radius="lg"
-                            size="lg"
-                            value={key}
-                            startContent={<SearchIcon className="size-5 text-slate-400" />}
-                            endContent={
-                                key ? (
-                                    <button
-                                        aria-label="Clear"
-                                        className="p-1 rounded hover:bg-slate-100 text-slate-400"
-                                        onClick={() => setKey("")}
-                                    >
-                                        <XIcon className="size-4" />
-                                    </button>
-                                ) : null
-                            }
-                            classNames={{
-                                inputWrapper: ["bg-white/90"],
-                                input: ["text-[1.75rem] sm:text-[2rem] font-light"],
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === "Escape") setKey("");
-                            }}
-                            onValueChange={handleSearchChange}
-                        />
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-
-                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700 px-2.5 py-1">
-                            <BookOpenText className="size-4" />
-                            {readingTime}
-                        </span>
-
-
-                        <span className="h-8 inline-flex items-center gap-1 rounded-full bg-slate-100 text-slate-700">
-                            <Dropdown>
-                                <DropdownTrigger className="bg-slate-100">
-                                    <Button className="capitalize">
-                                        {selectedValue.name}
-                                        <ChevronDown />
-                                    </Button>
-                                </DropdownTrigger>
-                                <DropdownMenu
-                                    disallowEmptySelection
-                                    aria-label="Bible translation selection"
-                                    selectedKeys={selectedTranslations}
-                                    selectionMode="single"
-                                    variant="flat"
-                                    onSelectionChange={(keys) => {
-                                        const newSelectedTranslations = new Set(keys as Set<string>);
-                                        setSelectedTranslations(newSelectedTranslations);
-                                        if (key) {
-                                            const newSelected = Array.from(newSelectedTranslations)[0];
-                                            const newSelectedTranslation = translations[newSelected as keyof typeof translations];
-                                            setTranslation(newSelectedTranslation.abbr);
-                                            // getPassage(key, newSelectedTranslation.abbr).then((response: any) => {
-                                            //   setPassage(response);
-                                            //   calculateReadingTime(response);
-                                            //   setLoading(false);
-                                            // });
-                                        }
-                                    }}
-                                >
-                                    {Object.entries(translations).map(([key, translation]) => (
-                                        <DropdownItem className="bg-slate-100 text-black" key={key}>{translation.name}</DropdownItem>
-                                    ))}
-                                </DropdownMenu>
-                            </Dropdown>
-                        </span>
-
-                        {playing ? null : (
-                            <Button
-                                onPress={playAudio}
-                                className="h-8 inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2.5 py-4 border border-[2px] border-slate-100 hover:bg-primary hover:text-white"
-                                color="default"
-                            >
-                                {audioLoading ? (
-                                    <Spinner color="primary" size="sm" />
-                                ) : (
-                                    <>
-                                        <HeadphonesIcon className="size-4" /> Listen
-                                    </>
-                                )}
-                            </Button>
-                        )}
-                    </div>
-                    {playing ? (
-                        <AudioPlayer src={current} onClose={() => setPlaying(false)} />
-                    ) : null}
-                </div>
-            </div>
-
-            {/* Reading area */}
-            <div>
-                {loading ? (
-                    <div className="flex justify-center py-24">
-                        <Spinner color="primary" />
-                    </div>
-                ) : passage.verses ? (
-
-                    <div>
-                        <Context passageKey={key} context="before" />
-                        <article className="mt-6 sm:mt-8">
-                            {verses}
-                        </article>
-                        <Context passageKey={key} context="after" />
-
-                        <div className="mt-8 sm:mt-10">
-                            <ReadAction
-                                state={props.state}
-                                book={splitKey.book}
-                                chapter={splitKey.chapter}
-                                verseStart={splitKey.verseStart}
-                                verseEnd={splitKey.verseEnd}
-                            />
-                            <Button
-                                as={Link}
-                                href={`/study/${splitKey.book.replace(/\s/g, "")}${splitKey.chapter
-                                    }`}
-                                className="ml-3 rounded-xl text-white bg-gradient-to-tr from-violet-600 to-violet-700 shadow hover:brightness-110"
-                            >
-                                <GraduationCapIcon className="size-4" />
-                                Study {splitKey.book} {splitKey.chapter}
-                            </Button>
-                        </div>
-                    </div>
-                ) : null}
-            </div>
-        </section>
+            <TypeSheet open={sheet === "type"} onOpenChange={(open) => setSheet(open ? "type" : null)}
+                       settings={settings} update={updateSettings} />
+            <PassageSheet open={sheet === "passage"} onOpenChange={(open) => setSheet(open ? "passage" : null)}
+                          title={title} book={book} chapter={chapter} onGo={goTo} />
+            <TranslationSheet open={sheet === "translation"} onOpenChange={(open) => setSheet(open ? "translation" : null)}
+                              selected={settings.translation} onSelect={(translation) => updateSettings({ translation })} />
+        </div>
     );
 }
 

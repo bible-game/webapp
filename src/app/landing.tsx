@@ -1,116 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { Play, BookOpen, BarChart3, GraduationCap } from "lucide-react";
-import Background from "@/app/background";
+import { ChevronDownIcon, PlayIcon, UserRoundIcon } from "lucide-react";
 import Menu from "@/app/menu";
-import { motion } from "framer-motion";
+import GlowingCross from "@/app/home/glowing-cross";
+import HowItWorks from "@/app/home/how-it-works";
 
 export default function Landing(props: any) {
-    return (
-        <>
-            <Background />
-            <main className="min-h-screen text-[#e8ecff] flex flex-col z-10 relative items-center w-full">
-                <Menu isLanding={true} info={props.info} />
-
-                {/* Hero */}
-                <section className="flex flex-col items-center justify-center text-center py-10 sm:py-20 px-6">
-                    <motion.h1
-                        className="text-4xl sm:text-5xl font-extrabold m-0"
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}>
-                        Bible Game
-                    </motion.h1>
-
-                    <motion.p
-                        className="mt-4 text-md md:text-xl text-[#adb3d6] max-w-2xl"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4, duration: 0.8 }}>
-                        Explore the Bible with a daily passage guessing game 📖✨
-                    </motion.p>
-
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.8, duration: 0.6 }}>
-                        <Link
-                            href="/play/today"
-                            className="mt-8 px-6 py-3 rounded-full bg-white/10 border border-white/20 font-semibold hover:bg-white/20 transition-colors inline-flex items-center gap-2">
-                            <Play size={18} /> Play Today’s Game
-                        </Link>
-                    </motion.div>
-                </section>
-
-                {/* Game Modes */}
-                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6 w-full max-w-4xl mx-auto px-8 sm:px-6 pb-10 sm:pb-20">
-                    <Link href="/play/today" className="block">
-                        <motion.div
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            transition={{ type: "spring", stiffness: 200 }}
-                            className="bg-gradient-to-r from-green-600/70 to-green-400/60 rounded-2xl shadow-lg p-4 sm:p-6">
-                            { props.device != "mobile" ? <p className="text-sm uppercase text-white/70 font-bold">Play</p> : <></> }
-                            <h3 className="text-lg sm:text-xl font-semibold mt-1 flex items-center gap-2">
-                                <Play size={20} /> Daily Challenge
-                            </h3>
-                            <p className="text-sm text-white/80 mt-2">
-                                Build a mental map of Scripture.
-                            </p>
-                        </motion.div>
-                    </Link>
-
-                    <Link href="/read" className="block">
-                        <motion.div
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            transition={{ type: "spring", stiffness: 200 }}
-                            className="bg-gradient-to-r from-blue-600/70 to-blue-400/60 rounded-2xl shadow-lg p-4 sm:p-6">
-                            { props.device != "mobile" ? <p className="text-sm uppercase text-white/70 font-bold">Read</p> : <></> }
-                            <h3 className="text-lg sm:text-xl font-semibold mt-1 flex items-center gap-2">
-                                <BookOpen size={20} /> Daily Reading
-                            </h3>
-                            <p className="text-sm text-white/80 mt-2">
-                                Record your Bible reading.
-                            </p>
-                        </motion.div>
-                    </Link>
-
-                    <Link href="/study" className="block">
-                        <motion.div
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            transition={{ type: "spring", stiffness: 200 }}
-                            className="bg-gradient-to-r from-purple-600/70 to-purple-400/60 rounded-2xl shadow-lg p-4 sm:p-6">
-                            { props.device != "mobile" ? <p className="text-sm uppercase text-white/70 font-bold">Study</p> : <></> }
-                            <h3 className="text-lg sm:text-xl font-semibold mt-1 flex items-center gap-2">
-                                <GraduationCap size={20} /> Learn & Explore
-                            </h3>
-                            <p className="text-sm text-white/80 mt-2">
-                                Dive deeper into passages.
-                            </p>
-                        </motion.div>
-                    </Link>
-
-                    <Link href="/stats" className="block">
-                        <motion.div
-                            whileHover={{ scale: 1.05, y: -2 }}
-                            transition={{ type: "spring", stiffness: 200 }}
-                            className="bg-gradient-to-r from-yellow-600/70 to-yellow-400/60 rounded-2xl shadow-lg p-4 sm:p-6">
-                            { props.device != "mobile" ? <p className="text-sm uppercase text-white/70 font-bold">Stats</p> : <></> }
-                            <h3 className="text-lg sm:text-xl font-semibold mt-1 flex items-center gap-2">
-                                <BarChart3 size={20} /> Statistics
-                            </h3>
-                            <p className="text-sm text-white/80 mt-2">
-                                Track your scores over time.
-                            </p>
-                        </motion.div>
-                    </Link>
-                </section>
-
-                {/* Footer */}
-                <footer className="mt-auto py-6 border-t border-white/10 text-center text-sm text-[#adb3d6]">
-                    © {new Date().getFullYear()} Bible Game
+    return <div className="min-h-dvh">
+        <Menu info={props.info}/>
+        <main>
+            <section className="home-hero">
+                <GlowingCross/>
+                <h1 className="home-hero-text home-tagline">
+                    Explore the Bible <em>with a daily passage-guessing game</em>
+                </h1>
+                <div className="home-hero-actions">
+                    {/* a logged-out visitor who has logged in on this device before is invited back in, then on to today's game */}
+                    {props.known ?
+                        <Link href="/account/log-in?next=/play/today" className="ui-button ui-primary h-12 w-full max-w-[18rem] text-[15px]">
+                            <UserRoundIcon className="size-[18px]" strokeWidth={2}/>Login
+                        </Link> :
+                        <Link href="/play/today" className="ui-button ui-primary h-12 w-full max-w-[18rem] text-[15px]">
+                            <PlayIcon className="size-[18px]" strokeWidth={2}/>Play today&apos;s chapter
+                        </Link>}
+                </div>
+                <a href="#how-it-works" className="home-hero-cue">
+                    How it works
+                    <ChevronDownIcon className="size-5" aria-hidden="true"/>
+                </a>
+            </section>
+            <div className="app-page home-more">
+                <HowItWorks bible={props.bible}/>
+                <footer className="mt-16 flex flex-wrap gap-x-5 gap-y-3 border-t border-ui-line pt-6 text-[13px] text-ui-muted">
+                    <Link href="/about" className="hover:text-ui-text">About</Link>
+                    <Link href="/about/privacy" className="hover:text-ui-text">Privacy</Link>
+                    <Link href="/about/cookies" className="hover:text-ui-text">Cookies</Link>
+                    <span className="ml-auto">Bible Game {new Date().getFullYear()}</span>
                 </footer>
-            </main>
-        </>
-    );
+            </div>
+        </main>
+    </div>;
 }

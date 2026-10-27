@@ -1,20 +1,20 @@
 "use client"
 
-import React, { useActionState, useEffect, useState } from "react"
+import React, { useActionState, Suspense, useEffect, useState } from "react"
 import { Form } from "@heroui/form"
 import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
 import { CircularProgress } from "@heroui/progress"
 import { Alert } from "@heroui/alert"
-import Background from "@/app/background";
+
 import Link from "next/link"
-import Image from "next/image"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 
 import { logIn } from "@/core/action/auth/log-in"
 import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
 import { inputClassNames, alertClassNames, cardClassName, submitButtonClassName, submitButtonStyle } from "@/core/model/form/form-styles"
 import { useFormValidation } from "@/core/hook/useFormValidation"
+import { StateUtil } from "@/core/util/state-util"
 
 /**
  * Log-In Page
@@ -52,17 +52,41 @@ export default function LogIn() {
         }
     }, [state, clearAllErrors])
 
+    // Carry where the user was headed (e.g. today's game) through to the post-log-in redirect, along with anything
+    // played on this device while logged out, so it can be added to their account
+    const [next, setNext] = useState("")
+    const [reset, setReset] = useState(false)
+    const [local, setLocal] = useState({ games: "[]", reads: "[]", reviews: "[]" })
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        setNext(params.get("next") ?? "")
+        setReset(params.get("reset") === "success")
+        setLocal({
+            games: JSON.stringify(Array.from(StateUtil.getAllGames().values())),
+            reads: JSON.stringify(Array.from(StateUtil.getAllReads().values())),
+            reviews: JSON.stringify(Array.from(StateUtil.getAllReviews().values())),
+        })
+    }, [])
+
+    const successAlertClassNames = {
+        base: "border-green-400/40 bg-green-500/10 text-green-300 rounded-lg px-3 py-2",
+        content: "text-sm",
+    }
+
     return (
         <>
-            <Background />
-            <main className="flex items-center justify-center min-h-screen px-3 sm:px-4 py-12 sm:py-24">
-                <div className={`${cardClassName} max-w-sm text-center`}>
+            <main className="auth-page">
+                <div className={`${cardClassName} max-w-sm`}>
                     <Form
                         action={action}
                         validationErrors={state?.errors}
                         className="auth-form flex flex-col space-y-4"
                     >
-                        <h1 className="text-2xl font-semibold text-indigo-300">Log In</h1>
+                        <h1 className="text-2xl font-semibold text-ui-text">Log in</h1>
+                        <input type="hidden" name="next" value={next} />
+                        <input type="hidden" name="games" value={local.games} />
+                        <input type="hidden" name="reads" value={local.reads} />
+                        <input type="hidden" name="reviews" value={local.reviews} />
 
                         {/* Email */}
                         <Input
@@ -77,7 +101,7 @@ export default function LogIn() {
                             isRequired
                             {...getFieldProps("email")}
                             startContent={
-                                <Mail className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
+                                <Mail className="text-ui-faint pointer-events-none flex-shrink-0" size={20} />
                             }
                         />
 
@@ -94,35 +118,46 @@ export default function LogIn() {
                             isRequired
                             {...getFieldProps("password")}
                             startContent={
-                                <Lock className="text-indigo-300/50 pointer-events-none flex-shrink-0" size={20} />
+                                <Lock className="text-ui-faint pointer-events-none flex-shrink-0" size={20} />
                             }
                             endContent={
-                                <button className="focus:outline-none" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
+                                <button className="ui-icon" type="button" onClick={toggleVisibility} aria-label="toggle password visibility">
                                     {isVisible ? (
-                                        <EyeOff className="text-indigo-300/50 pointer-events-none" size={20} />
+                                        <EyeOff className="text-ui-faint pointer-events-none" size={20} />
                                     ) : (
-                                        <Eye className="text-indigo-300/50 pointer-events-none" size={20} />
+                                        <Eye className="text-ui-faint pointer-events-none" size={20} />
                                     )}
                                 </button>
                             }
                         />
                         <Link
                             href="/account/forgot-password"
-                            className="text-xs text-indigo-400 hover:text-indigo-300 self-end -mt-2 transition-colors"
+                            className="text-xs text-ui-muted hover:text-ui-text -mt-2 transition-colors"
                         >
                             Forgot password?
                         </Link>
 
-                        {/* Form-level server error */}
-                        {state?.errors?.form && state.errors.form.length > 0 && (
-                            <Alert
-                                hideIcon
-                                variant="bordered"
-                                color="danger"
-                                description={state.errors.form[0]}
-                                classNames={alertClassNames}
-                            />
-                        )}
+                {/* Arrived here from a successful password reset */}
+                {reset && !state?.errors?.form?.length && (
+                    <Alert
+                        hideIcon
+                        variant="bordered"
+                        color="success"
+                        description="Your password has been reset. Log in with your new password."
+                        classNames={successAlertClassNames}
+                    />
+                )}
+
+                {/* Form-level server error */}
+                {state?.errors?.form && state.errors.form.length > 0 && (
+                    <Alert
+                        hideIcon
+                        variant="bordered"
+                        color="danger"
+                        description={state.errors.form[0]}
+                        classNames={alertClassNames}
+                    />
+                )}
 
                         {/* Submit */}
                         <Button
@@ -141,16 +176,16 @@ export default function LogIn() {
                                     Checking...
                                 </span>
                             ) : (
-                                "Log In"
+                                "Log in"
                             )}
                         </Button>
 
-                        <p className="text-xs text-indigo-400">
+                        <p className="text-xs text-ui-muted mt-2">
                             Don&apos;t have an account?{" "}
                             <Link
                                 href="/account/sign-up"
-                                className="underline hover:text-indigo-300 font-medium">
-                                Sign Up
+                                className="underline hover:text-ui-text font-medium">
+                                Sign up
                             </Link>
                         </p>
                     </Form>

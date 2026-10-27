@@ -4,13 +4,17 @@ import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 import { ReadonlyRequestCookies } from "next/dist/server/web/spec-extension/adapters/request-cookies";
 import { RequestCookie } from "next/dist/compiled/@edge-runtime/cookies";
+import { KNOWN_USER_COOKIE } from "@/core/util/auth-cookies";
 
 /**
  * Authentication-related Utilities
  * @since 24th June 2025
  */
 
-/** Determines if the user has a valid auth token */
+/**
+ * Determines if the user has a validly signed auth token. The user service may still reject it (after a password
+ * reset), so the calls that use it treat a 401 as logged out rather than failing
+ */
 export default async function isLoggedIn(): Promise<boolean> {
     try {
         const token = await getToken();
@@ -47,4 +51,10 @@ export async function getUserId(): Promise<string | undefined> {
     } else {
         return undefined;
     }
+}
+
+/** Determines if this device has logged in before (the user may now be logged out) */
+export async function isKnownUser(): Promise<boolean> {
+    const cookieStore: ReadonlyRequestCookies = await cookies();
+    return cookieStore.has(KNOWN_USER_COOKIE);
 }

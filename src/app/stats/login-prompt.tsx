@@ -1,28 +1,14 @@
-"use client"
+"use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { XIcon } from "lucide-react";
 
 export default function LoginPrompt(props: any) {
-
     const [dismissed, setDismissed] = useState(false);
-
-    if (!props.authenticated && !dismissed)
-        return <div className="w-[80vw] sm:w-[48rem] mt-4">
-            <div
-                className="relative border border-purple-500/50 bg-purple-900/30 backdrop-blur-md rounded-md p-4 sm:p-5 shadow-lg text-white">
-                <button
-                    onClick={() => setDismissed(true)}
-                    className="absolute text-purple-400 hover:text-purple-300 text-md font-bold right-4 -translate-y-1"
-                    aria-label="Close">×</button>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="text-purple-200">
-                        <p className="text-sm text-purple-400 leading-tight font-light">
-                            <Link href="/account/log-in" className="underline font-medium">Log in</Link> to keep your data safe and compete on the leaderboard!
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    if (props.authenticated || dismissed) return null;
+    return <div className="my-4 flex items-center gap-3 border-b border-ui-line pb-4">
+        <p className="min-w-0 flex-1 text-[14px] leading-relaxed text-ui-muted"><Link href="/account/log-in" className="font-semibold text-ui-text underline underline-offset-4">Log in</Link> to save your progress across devices.</p>
+        <button type="button" className="ui-icon" aria-label="Dismiss login reminder" onClick={() => setDismissed(true)}><XIcon className="size-5"/></button>
+    </div>;
 }

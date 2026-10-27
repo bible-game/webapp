@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Accordion, AccordionItem, Spinner, Button, Modal, ModalContent, Textarea, Chip } from "@heroui/react";
 import { getPostContext } from "@/core/action/read/get-postcontext";
 import { getPreContext } from "@/core/action/read/get-precontext";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronDown, ThumbsDown, ThumbsUp } from "lucide-react";
 import { postFeedback } from "@/core/action/read/post-feedback";
 import toast from "react-hot-toast";
 
@@ -22,7 +22,7 @@ const FEEDBACK_OPTIONS: FeedbackOption[] = [
 const Context = (props: any) => {
     const [context, setContext] = useState("");
     const [loading, setLoading] = useState(false);
-    const [title] = useState(props.context == "before" ? "Pre‑Context" : "Post‑Context");
+    const [title] = useState(props.context == "before" ? "What comes before" : "What comes next");
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
     const [comment, setComment] = useState("");
@@ -81,39 +81,45 @@ const Context = (props: any) => {
 
     return (
         <Accordion
-            className="opacity-90 bg-white/80 backdrop-blur-sm ring-1 ring-indigo-500 rounded-2xl p-3 sm:p-4"
-            itemClasses={{ title: "text-indigo-700 font-medium", indicator: "text-indigo-700", startContent: "text-indigo-700 bg-red" }}
+            className="px-0"
+            itemClasses={{
+                trigger: "min-h-11 py-2 gap-2 justify-start",
+                titleWrapper: "flex-none",
+                title: "text-[var(--reader-muted)] text-[14px] font-medium",
+                indicator: "text-[var(--reader-accent)] -rotate-90 data-[open=true]:rotate-0",
+                content: "pt-1 pb-3",
+            }}
             onSelectionChange={toggle}
             isCompact
         >
-            <AccordionItem key="1" aria-label="context" className="flex flex-col gap-2" title={title}>
-                {loading ? (<Spinner color="secondary" />) : (
+            <AccordionItem key="1" aria-label={title} indicator={<ChevronDown className="size-4" />} className="flex flex-col gap-2" title={title}>
+                {loading ? (<Spinner color="default" size="sm" />) : (
                     <>
-                        <p className="font-light text-sm leading-6 text-indigo-700 max-w-[80%] sm:max-w-[42rem]">{context}</p>
-                        <div className="flex gap-4 max-w-[80%] sm:max-w-[42rem] justify-end ">
-                            <Button className="p-2 min-w-0 aspect-square bg-transparent border-1 border-indigo-700 text-indigo-700 hover:text-green-500 hover:border-green-500 duration-50"
+                        <p className="border-l-2 border-[color-mix(in_srgb,var(--reader-accent)_45%,transparent)] pl-3 text-[15px] leading-[1.6] text-[var(--reader-muted)]">{context}</p>
+                        <div className="-mr-2 mt-1 flex justify-end">
+                            <Button isIconOnly aria-label="Helpful context" className="ui-icon bg-transparent text-[var(--reader-muted)]"
                                 onPress={handlePositiveSubmit}>
                                 <ThumbsUp className="size-5" />
                             </Button>
 
-                            <Button className="p-2 min-w-0 aspect-square bg-transparent border-1 border-indigo-700 text-indigo-700 hover:text-red-500 hover:border-red-500 duration-50"
+                            <Button isIconOnly aria-label="Unhelpful context" className="ui-icon bg-transparent text-[var(--reader-muted)]"
                                 onPress={() => updateModalOpen(true)}>
                                 <ThumbsDown className="size-5" />
                             </Button>
-                            <Modal isOpen={modalOpen} onOpenChange={updateModalOpen}>
+                            <Modal isOpen={modalOpen} onOpenChange={updateModalOpen} classNames={{ base: "bg-ui-surface text-ui-text border border-ui-line rounded-lg" }}>
 
 
-                                <ModalContent className="text-black p-4 flex flex-col gap-4">
+                                <ModalContent className="p-6 flex flex-col gap-4">
                                     <h3 className="text-xl font-bold">Leave a comment?</h3>
-                                    <p className="text-black/80">Help us improve our content by adding a comment to you feedback</p>
+                                    <p className="text-ui-muted text-sm">Help us improve our content by adding feedback.</p>
                                     <div className="flex gap-2 flex-wrap">
                                         {FEEDBACK_OPTIONS.map(({ label, value }, index) => {
-                                            return <Button key={index} className={`text-sm hover:scale-[103%] transition-all duration-100 py-0 min-h-0 min-w-0 rounded-full ${selectedOptions.includes(index) && " bg-indigo-700 text-white"}`} onPress={() => toggleOption(index)}>{label}</Button>
+                                            return <label key={index} className="flex items-center gap-2 text-sm"><input type="checkbox" checked={selectedOptions.includes(index)} onChange={() => toggleOption(index)}/>{label}</label>
                                         })}
                                     </div>
                                     <Textarea placeholder="Write a comment (optional)" value={comment} onValueChange={setComment} isDisabled />
                                     <div className="flex justify-end gap-4">
-                                        <Button onPress={handleNegativeSubmit}>
+                                        <Button className="ui-button ui-primary" onPress={handleNegativeSubmit}>
                                             Submit
                                         </Button>
                                     </div>

@@ -1,32 +1,29 @@
 'use server';
 
-import Background from "@/app/background";
 import Menu from "@/app/menu";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
 import isLoggedIn from "@/core/util/auth-util";
-import StudyPicker from "@/app/study/study-picker";
-import StudyHeader from "@/app/study/study-header";
+import StudyHome from "@/app/study/study-home";
+import { getReviewState } from "@/core/action/state/get-state-review";
+import { ReviewState } from "@/core/model/state/review-state";
 import { cookies } from "next/headers";
 
 export default async function Study() {
     let _ = cookies();
 
     let info: UserInfo | undefined;
+    let state: Map<string, ReviewState> | undefined;
     if (await isLoggedIn()) {
         info = await getUserInfo();
+        state = await getReviewState();
     }
 
     return (
-        <>
-            <Background />
-            <main className="min-h-screen text-[#e8ecff] flex flex-col z-10 relative items-center w-full">
-                <Menu isLanding={false} info={info} />
-                <StudyHeader />
-                <StudyPicker />
-                <footer className="mt-auto py-6 border-t border-white/10 text-center text-sm text-[#adb3d6] w-full">
-                    © {new Date().getFullYear()} Bible Game
-                </footer>
+        <div className="min-h-dvh">
+            <Menu info={info}/>
+            <main className="app-page">
+                <StudyHome state={state}/>
             </main>
-        </>
+        </div>
     );
 }

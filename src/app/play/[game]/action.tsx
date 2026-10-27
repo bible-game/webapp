@@ -1,42 +1,179 @@
 "use client"
 
-import { Autocomplete, AutocompleteItem } from "@heroui/autocomplete";
-import { NumberInput } from "@heroui/number-input";
-import { Button } from "@nextui-org/react";
-import { toast } from "react-hot-toast";
 import { guess } from "@/core/action/play/guess";
-import { redirect } from "next/navigation";
+import Link from "next/link";
 import moment from "moment";
 import { CalendarDate } from "@internationalized/date";
 import { CompletionUtil } from "@/core/util/completion-util";
-import React, { useEffect, useRef, useState } from "react";
+import { DivisionUtil } from "@/core/util/division-util";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Star } from "@/app/play/[game]/star";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+    ArrowRightIcon,
+    BookOpenIcon,
+    CheckIcon,
+    MinusIcon,
+    MousePointerClickIcon,
+    PointerIcon,
+    PlusIcon,
+    Share2Icon,
+    StarIcon,
+    XIcon,
+} from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import Help from "@/app/play/[game]/help";
+import MyStats from "@/app/play/[game]/my-stats";
+import colours from "@/app/play/[game]/map/config/colours.json";
+import groups from "@/app/play/[game]/map/config/groups.json";
+import { playTheme } from "@/core/style/play-theme";
+import { uiTheme } from "@/core/style/ui-theme";
+import { lightOf } from "@/app/play/[game]/closeness";
+import { glow, tone } from "@/core/style/regions";
 
-const Action = (props: any) => {
-    // Track the newest star to trigger a temporary “pop” animation
-    const [popping, setPopping] = useState<Set<number>>(new Set());
-    const prevStarsRef = useRef<number>(props.stars);
+const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.18 } };
+/** The footer's switch between choosing and guessing: no exit and no movement, just a quick fade-in, so it never lags */
+const quick = { initial: { opacity: 0.4 }, animate: { opacity: 1 }, transition: { duration: 0.12 } };
+/** The primary action when a book is on screen: solid light, a fill in the region's solid tone (near-black text), with a soft glow outside it */
+const lit = (tint: string): React.CSSProperties => ({ background: tone(tint, "solid"), boxShadow: glow(tint) });
+/** The end state's two buttons: the one that leads (in the answer's region colour, via lit) and the one that follows */
+const LEAD = "border-transparent bg-play-text text-play-bg";
+const FOLLOW = "border-play-line bg-play-surface text-play-text";
+
+/** Game dates whose results have been shared on this device, so a finished game reopens with Read in the lead */
+const SHARED_KEY = "shared";
+const sharedDates = (): string[] => {
+    try { return JSON.parse(localStorage.getItem(SHARED_KEY) ?? "[]"); } catch { return []; }
+};
+const markShared = (date: string) => {
+    try { localStorage.setItem(SHARED_KEY, JSON.stringify([...new Set([...sharedDates(), date])])); } catch { /* not saved; fine */ }
+};
+/** The day a known user last dismissed the log-in nudge, so it opens by itself at most once a day */
+const NUDGE_KEY = "login-nudge";
+const nudgedToday = (): boolean => {
+    try { return localStorage.getItem(NUDGE_KEY) === moment().format("YYYY-MM-DD"); } catch { return true; }
+};
+const markNudged = () => {
+    try { localStorage.setItem(NUDGE_KEY, moment().format("YYYY-MM-DD")); } catch { /* not saved; fine */ }
+};
+const stepper = "flex size-12 shrink-0 items-center justify-center rounded-lg border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
+
+/**
+ * One height for the footer in every state (choosing, guessing, game over), so the map above it never resizes when the
+ * state changes: the guessing footer is the tallest content, and the others are centred in the same height. The bottom
+ * padding is part of it, so the buttons keep a little room below them.
+ */
+const FOOTER = "h-[100px] pb-2";
+
+const MAX_GUESSES = 5;
+
+
+/** The named chapter group (map/config/groups.json) a chapter falls in, e.g. "Rise of David" */
+function groupOf(book: string, chapter: number): string | undefined {
+    return (groups as Record<string, Array<{ name: string, start: number, end: number }>>)[book.toLowerCase()]
+        ?.find(({ start, end }) => chapter >= start && chapter <= end)?.name;
+}
+
+/** Font sizes (px) for the passage on the guess button, largest first */
+const PASSAGE_SIZES = [16, 15, 14, 13];
+/** ...and on the read link, which starts a size smaller */
+const READ_SIZES = [15, 14, 13, 12];
+
+/**
+ * The full passage on the guess button (or read link), shrunk a step at a time until it fits the width.
+ * Re-measured whenever the button resizes; keyed by passage so a new one starts at the largest size.
+ */
+const Passage = ({ book, chapter, sizes = PASSAGE_SIZES }: { book: string, chapter: string, sizes?: number[] }) => {
+    const label = useRef<HTMLSpanElement>(null);
+    const [step, setStep] = useState(0);
+
+    useLayoutEffect(() => {
+        const el = label.current;
+        if (el && step < sizes.length - 1 && el.scrollWidth > el.clientWidth) setStep(step + 1);
+    }, [step, sizes.length]);
 
     useEffect(() => {
-        if (props.stars > prevStarsRef.current) {
-            const newestIndex = props.stars - 1; // 0-based index of the newest star
-            setPopping((prev) => {
-                const next = new Set(prev);
-                next.add(newestIndex);
-                return next;
-            });
-            // Remove the pop class after a short delay
-            const t = setTimeout(() => {
-                setPopping((prev) => {
-                    const next = new Set(prev);
-                    next.delete(newestIndex);
-                    return next;
-                });
-            }, 450); // match the duration-300 plus a bit of linger
-            return () => clearTimeout(t);
-        }
-        prevStarsRef.current = props.stars;
-    }, [props.stars]);
+        const button = label.current?.closest("button, a");
+        if (!button) return;
+
+        const observer = new ResizeObserver(() => setStep(0)); // try the largest size again at the new width
+        observer.observe(button);
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <span ref={label} className="min-w-0 overflow-hidden whitespace-nowrap font-semibold tabular-nums"
+              style={{ fontSize: sizes[step] }}>
+            {book} {chapter}
+        </span>
+    );
+}
+
+/** Time left until the next daily chapter (local midnight), as h:mm:ss */
+const Countdown = () => {
+    const [now, setNow] = useState(() => moment());
+    useEffect(() => {
+        const t = setInterval(() => setNow(moment()), 1000);
+        return () => clearInterval(t);
+    }, []);
+
+    const left = moment.duration(moment(now).add(1, "day").startOf("day").diff(now));
+    return <span className="tabular-nums">{`${Math.floor(left.asHours())}:${String(left.minutes()).padStart(2, "0")}:${String(left.seconds()).padStart(2, "0")}`}</span>;
+}
+
+const glyph = { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeLinecap: "round", strokeLinejoin: "round" } as const;
+
+const InfoGlyph = ({ className }: { className?: string }) => (
+    <svg {...glyph} strokeWidth={2.5} className={className} aria-hidden="true"><path d="M12 11v6"/><path d="M12 7h.01"/></svg>
+);
+
+const AlertGlyph = ({ className }: { className?: string }) => (
+    <svg {...glyph} strokeWidth={2.5} className={className} aria-hidden="true"><path d="M12 7v6"/><path d="M12 17h.01"/></svg>
+);
+
+/** The chosen horizon icon, without the sunrise arrow. */
+const HalfSunIcon = ({ className, strokeWidth = 2, ...rest }: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 3 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth}
+         strokeLinecap="round" strokeLinejoin="round" className={className} {...rest}>
+        <path d="M12 10V8"/>
+        <path d="m4.93 10.93 1.41 1.41"/>
+        <path d="M2 18h2"/>
+        <path d="M20 18h2"/>
+        <path d="m19.07 10.93-1.41 1.41"/>
+        <path d="M22 22H2"/>
+        <path d="M16 18a4 4 0 0 0-8 0"/>
+    </svg>
+);
+
+const Action = (props: any) => {
+    // A temporary “pop” on the newest star, only when the game is won now (not when a finished game is reloaded)
+    const [popping, setPopping] = useState(false);
+    // true for a moment after the results are copied, so the share button can say so itself
+    const [copied, setCopied] = useState(false);
+    // once the results have been shared, the button settles on the countdown (today's game only) instead of "Share",
+    // and Read takes the lead from it (as Study does from "Mark as read" on the Read page)
+    const [shared, setShared] = useState(false);
+    useEffect(() => setShared(sharedDates().includes(props.date)), [props.date]);
+
+    // A logged-out player who has logged in on this device before is shown the log-in popover before their first guess
+    const [nudging, setNudging] = useState(false);
+    useEffect(() => {
+        if (props.info || !props.known || !props.playing || props.guesses.length || nudgedToday()) return;
+        const timer = setTimeout(() => setNudging(true), 900);
+        return () => clearTimeout(timer);
+    }, [props.info, props.known, props.playing, props.guesses.length]);
+    const onNudgeChange = (open: boolean) => {
+        setNudging(open);
+        if (!open) markNudged();
+    };
+
+    useEffect(() => {
+        if (!props.celebrate || !props.stars) return;
+
+        setPopping(true);
+        const t = setTimeout(() => setPopping(false), 450); // match the duration-300 plus a bit of linger
+        return () => clearTimeout(t);
+    }, [props.celebrate, props.stars]);
 
     function calcGuessBlocks() {
         let guessBlocks = '';
@@ -54,22 +191,16 @@ const Action = (props: any) => {
         return guessBlocks;
     }
 
-    function calcStreakIcon(): string {
-        const streak = CompletionUtil.calcStreak();
+    useEffect(() => {
+        if (!copied) return;
 
-        if      (streak >= 50) return '💎';
-        else if (streak >= 25) return '🏅';
-        else if (streak >= 10) return '🥈';
-        else if (streak >= 5)  return '🥉';
-        else if (streak >= 0)  return '🔥';
-        else                   return '😵';
-
-    }
+        const t = setTimeout(() => setCopied(false), 1800);
+        return () => clearTimeout(t);
+    }, [copied]);
 
     function share() {
         const resultText = results();
-        navigator.clipboard.writeText(resultText);
-        toast.success("Results copied!");
+        navigator.clipboard.writeText(resultText).then(() => { setCopied(true); setShared(true); markShared(props.date); });
 
         // remove? improve? Slack vs Whatsapp vs Discord, etc...
         // const whatsappUrl = `whatsapp://send?text=${encodeURIComponent(resultText)}`;
@@ -88,104 +219,174 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
 
-    return <section className="sm:absolute bottom-[4rem] left-[calc(50%-24rem)]">{
-        props.playing ? <section className="sm:panel flex justify-between mt-0 sm:mt-4 flex-wrap">
-                <Autocomplete
-                    className="sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] sm:rounded-l-full pl-4 pr-2 py-1 sm:w-[13.33rem] w-[33%]"
-                    inputProps={{
-                        classNames: {
-                            inputWrapper: "border-0",
-                            label: "!text-[#ffffff66]",
-                        }
-                    }}
-                    classNames={{
-                        selectorButton: "text-white opacity-40"
-                    }}
-                    defaultItems={props.books}
-                    isReadOnly={!!props.bookFound}
-                    startContent={props.bookFound}
-                    selectedKey={props.selected.book}
-                    label="Book"
-                    onClear={() => props.clearSelection()}
-                    onSelectionChange={(key: any) => {
-                        props.selectBook(key)
-                    }}
-                    variant="bordered">
-                    {(item: any) =>
-                        <AutocompleteItem className="text-black text-sm"
-                                          key={item.name}>{item.name}</AutocompleteItem>}
-                </Autocomplete>
-                <NumberInput
-                    classNames={{
-                        base: "sm:flex-1 text-sm sm:border-r-1 border-[#ffffff40] px-2 pr-2 py-1 !opacity-100",
-                        inputWrapper: "border-0",
-                        label: "!text-[#ffffff66]",
-                        stepperButton: "text-white opacity-40"
-                    }}
-                    value={props.hasBook ? parseInt(props.chapter) : undefined}
-                    maxValue={props.hasBook ? props.maxChapter : undefined}
-                    onChange={(e: any) => props.selectChapter(e)}
-                    minValue={1}
-                    label="Chapter"
-                    isDisabled={!props.hasBook}
-                    hideStepper={!props.hasBook}
-                    variant="bordered"
-                    className="w-[33%] sm:w-[13.33rem]"
-                    endContent={!props.hasBook ? undefined :
-                        <div className={"w-full text-left opacity-50 relative right-[0rem]"}>/ {props.maxChapter} </div>
-                    }
-                />
-                <Button
-                    className="border-0 sm:flex-1 text-white h-[66px] text-sm rounded-l-none sm:rounded-r-full sm:w-[13.33rem] w-[33%] sm:-ml-[14px]"
-                    variant="bordered"
-                    onPress={() => {
-                        if (props.isExistingGuess()) toast.error("You have already guessed this!")
-                        else {
-                            guess(props.date, props.selected.book, props.selected.chapter, props.passage).then((guess: any) => {
-                                console.log(props.passage)
-                                props.addGuess(guess)
-                            })
-                        }
-                    }}>Guess <span className="font-extralight tracking-[1px]">({props.guesses.length + 1}/5)</span></Button>
-            </section> :
-            <section className="sm:panel flex justify-between sm:mt-4 items-center flex-wrap">
-                <div className="group w-[100%] sm:w-[13.33rem] hidden sm:flex justify-center gap-1 mr-[3px]">
-                    {[...Array(props.stars)].map((_, index: number) => (
-                        <Star key={`star-${index}`} filled popping={popping.has(index)} />
-                    ))}
-                    {[...Array(5 - props.stars)].map((_, index: number) => (
-                        <Star
-                            key={`blank-${index}`}
-                            filled={false}
-                            className="opacity-30"
-                        />
-                    ))}
-                </div>
+    function submit() {
+        navigator.vibrate?.(12);
+        guess(props.date, props.selected.book, props.selected.chapter, props.passage).then((guess: any) => {
+            props.addGuess(guess)
+        })
+    }
 
-                <Button
-                    className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-[12px] sm:text-sm  rounded-none border-[#ffffff40] sm:border-x-1 w-[50%] sm:w-[13.33rem]"
-                    variant="bordered"
-                    onPress={share}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                         strokeWidth={1.25} stroke="currentColor" className="size-4">
-                        <path strokeLinecap="round" strokeLinejoin="round"
-                              d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
-                    </svg>
-                    Share Result
-                </Button>
-                <Button
-                    className="border-0 sm:flex-1 text-white h-[48px] sm:h-[66px] text-[12px] sm:text-sm rounded-l-none rounded-r-full w-[50%] sm:w-[13.33rem]"
-                    variant="bordered"
-                    onPress={() => redirect(`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`)}>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                         strokeWidth={1.25} stroke="currentColor" className="size-4">
-                        <path strokeLinecap="round" strokeLinejoin="round"
-                              d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/>
-                    </svg>
-                    Daily Reading
-                </Button>
-            </section>
-    } </section>
+    const guessed = props.hasBook && props.isExistingGuess();
+    // a chapter the guesses exclude can't be guessed; the button says why instead
+    const excluded: string | undefined = guessed ? undefined : props.ruledOut;
+
+    // the selected chapter's division colour (the map's own), and the group it falls in
+    const bookKey = props.bible.testaments.flatMap((t: any) => t.divisions).flatMap((d: any) => d.books)
+        .find((bk: any) => bk.name == props.selected.book)?.key;
+    const tint: string = (colours as Record<string, string>)[bookKey] ?? playTheme.text;
+    const group = props.hasBook ? groupOf(props.selected.book, parseInt(props.chapter)) : undefined;
+    const ready = !guessed && !excluded;
+
+    // an already-guessed chapter can't be guessed again: marked wrong with an X, the button opens How to play instead, to explain its result
+    const guessButton = (
+        <button type="button" disabled={!!excluded} onClick={guessed ? undefined : submit}
+                aria-label={excluded ? undefined : guessed
+                    ? `Already guessed ${props.selected.book} ${props.chapter}. How to play`
+                    : `Guess ${props.selected.book} ${props.chapter}`}
+                style={ready ? lit(tint) : undefined}
+                className={`flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-5 text-[16px] font-medium transition active:scale-[0.98] ${guessed
+                    ? "bg-play-raised text-play-faint"
+                    : "bg-play-text text-play-bg disabled:bg-play-raised disabled:text-play-faint"}`}>
+            {excluded ?
+                <span className="truncate">{excluded}</span> :
+                <>
+                    {guessed ? <XIcon className="size-5 shrink-0" strokeWidth={2.25} aria-hidden="true"/> : null}
+                    <Passage key={`${props.selected.book} ${props.chapter}`} book={props.selected.book} chapter={props.chapter}/>
+                    {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
+                </>
+            }
+        </button>
+    );
+
+    if (props.playing) return (
+        <>
+            {!props.hasBook ?
+                <motion.div key="hint" {...quick} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
+                    {/* a ghost of the guess row below, so choosing a chapter fills it in rather than swapping it out */}
+                    <div className="flex items-center gap-2">
+                        <Help>
+                            <button type="button" aria-label="How to play" title="How to play" className={stepper}
+                                    style={{ color: uiTheme.help }}>
+                                <InfoGlyph className="size-6"/>
+                            </button>
+                        </Help>
+                        <span aria-hidden="true" className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-play-line bg-play-surface px-5 text-[16px] text-play-muted">
+                            <span className="flex items-center gap-2 [@media(hover:hover)_and_(pointer:fine)]:hidden">
+                                <PointerIcon className="size-5 shrink-0" strokeWidth={1.75}/>Tap the map
+                            </span>
+                            <span className="hidden items-center gap-2 [@media(hover:hover)_and_(pointer:fine)]:flex">
+                                <MousePointerClickIcon className="size-5 shrink-0" strokeWidth={1.75}/>Click to pick
+                            </span>
+                        </span>
+                        {props.info ?
+                            <MyStats info={props.info} bible={props.bible} className={stepper}/> :
+                            <Popover placement="top-end" offset={12} showArrow isOpen={nudging} onOpenChange={onNudgeChange} classNames={{
+                                content: "play-ui max-w-[17rem] rounded-lg border border-play-line bg-play-sheet p-3.5 text-play-text shadow-xl",
+                                arrow: "bg-play-sheet",
+                            }}>
+                                <PopoverTrigger>
+                                    <button type="button" aria-label="You're not logged in. Show details" title="Save your progress" className={stepper}
+                                            style={{ color: uiTheme.notice }}>
+                                        <AlertGlyph className="size-6"/>
+                                    </button>
+                                </PopoverTrigger>
+                                <PopoverContent>
+                                    <div className="flex flex-col gap-3">
+                                        <p className="text-[14px] leading-snug">
+                                            {props.known ? <>
+                                                <span className="font-semibold">Welcome back!</span>{" "}
+                                                <span className="text-play-muted">Log in so today&apos;s game counts towards your scores and the leaderboard.</span>
+                                            </> : <>
+                                                <span className="font-semibold">You&apos;re not logged in.</span>{" "}
+                                                <span className="text-play-muted">Your progress is only saved on this device. Log in to keep your scores.</span>
+                                            </>}
+                                        </p>
+                                        <Link href={`/account/log-in?next=/play/${props.date}`} onClick={markNudged}
+                                              className="flex h-10 items-center justify-center rounded-lg bg-play-text text-[14px] font-semibold text-play-bg transition active:scale-[0.98]">
+                                            Log in
+                                        </Link>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        }
+                    </div>
+                    <p className="text-center text-[12px] leading-none text-play-muted"
+                       aria-label={`Guess ${Math.min(props.guesses.length + 1, MAX_GUESSES)} of ${MAX_GUESSES}`}>
+                        <span className="mb-1.5 flex items-center justify-center gap-2" aria-hidden="true">
+                            {[...Array(MAX_GUESSES)].map((_, index: number) => {
+                                const guessed = props.guesses[index];
+                                return (
+                                    <span key={index} className={`size-2.5 rounded-full transition-colors ${!guessed && index == props.guesses.length ? "ring-1 ring-play-muted" : ""}`}
+                                          style={{ background: guessed ? lightOf(guessed) : playTheme.line }}/>
+                                );
+                            })}
+                        </span>
+                        <span aria-hidden="true">Guess {Math.min(props.guesses.length + 1, MAX_GUESSES)} of {MAX_GUESSES}</span>
+                    </p>
+                </motion.div> :
+                <motion.div key="guess" {...quick} className={`flex ${FOOTER} flex-col justify-center gap-2 px-4`}>
+                    <div className="flex items-center gap-2">
+                        <button type="button" aria-label="Previous chapter" disabled={!props.canStep(-1)}
+                                onClick={() => props.step(-1)} className={stepper}>
+                            <MinusIcon className="size-5"/>
+                        </button>
+                        {guessed ? <Help placement="top">{guessButton}</Help> : guessButton}
+                        <button type="button" aria-label="Next chapter" disabled={!props.canStep(1)}
+                                onClick={() => props.step(1)} className={stepper}>
+                            <PlusIcon className="size-5"/>
+                        </button>
+                    </div>
+                    <p className="min-w-0 text-center leading-tight" aria-label="Where this chapter sits">
+                        <span className="block truncate text-[15px] font-medium" style={{ color: tint }}>{group ?? DivisionUtil.sentenceCase(props.selected.division)}</span>
+                        <span className="mt-0.5 block truncate text-[12px] text-play-muted">
+                            {DivisionUtil.place(props.selected.division, props.selected.testament)}
+                        </span>
+                    </p>
+                </motion.div>
+            }
+        </>
+    );
+
+    const isToday = moment(props.date).isSame(moment(), "day");
+    // the answer's region colour, worn by whichever step leads: Share first, then Read
+    const passageKey = props.bible.testaments.flatMap((t: any) => t.divisions).flatMap((d: any) => d.books)
+        .find((bk: any) => bk.name == props.passage.book)?.key;
+    const passageTint: string = (colours as Record<string, string>)[passageKey] ?? playTheme.text;
+
+    return (
+        <motion.section {...fade} className={`flex ${FOOTER} !w-full flex-col justify-center gap-3 px-4`}>
+            <span className="flex items-center justify-center gap-1.5" aria-label={`${props.stars} of 5 stars`}>
+                {[...Array(5)].map((_, index: number) =>
+                    index < props.stars ?
+                        <Star key={`star-${index}`} filled popping={popping && index == props.stars - 1}
+                              className="!size-7 !text-play-accent"/> :
+                        <StarIcon key={`star-${index}`} className="size-7 text-play-line" fill="none" strokeWidth={1.5} aria-hidden="true"/>
+                )}
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+                <button type="button" onClick={share} aria-live="polite" aria-label={shared && !copied && isToday ? "Copy results again" : undefined}
+                        style={shared ? undefined : lit(passageTint)}
+                        className={`flex h-12 items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border px-3 text-[15px] font-semibold transition active:scale-[0.98] ${shared ? FOLLOW : LEAD}`}>
+                    <AnimatePresence mode="wait" initial={false}>
+                        <motion.span key={copied ? "copied" : shared && isToday ? "countdown" : "share"} {...fade} className="flex items-center gap-2">
+                            {copied ?
+                                <><CheckIcon className="size-4 shrink-0" strokeWidth={2.5}/>Copied!</> :
+                                shared && isToday ?
+                                    <><HalfSunIcon className="size-[22px] shrink-0" strokeWidth={2.25} aria-label="Next chapter in"/><Countdown/></> :
+                                    <><Share2Icon className="size-4 shrink-0" strokeWidth={2.25}/>Share</>
+                            }
+                        </motion.span>
+                    </AnimatePresence>
+                </button>
+                <Link href={`/read/${props.passage.book.replace(/ /g, "")}${props.passage.chapter}`}
+                      style={shared ? lit(passageTint) : undefined}
+                      className={`flex h-12 min-w-0 items-center justify-center gap-2 rounded-lg border px-3 text-[15px] font-semibold transition active:scale-[0.98] ${shared ? LEAD : FOLLOW}`}>
+                    <BookOpenIcon className="size-4 shrink-0" strokeWidth={2.25}/>
+                    <Passage key={`${props.passage.book} ${props.passage.chapter}`} book={props.passage.book} chapter={props.passage.chapter} sizes={READ_SIZES}/>
+                </Link>
+            </div>
+        </motion.section>
+    );
 }
 
 export default Action;

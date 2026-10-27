@@ -1,53 +1,39 @@
 "use client"
 
-import { Button } from "@nextui-org/react";
-import React from "react";
-import { toast, Toaster } from "react-hot-toast";
+import { useEffect, useState } from "react";
 import { StateUtil } from "@/core/util/state-util";
 import { post } from "@/core/action/http/post";
-import getReadKey from "@/core/model/state/read-state";
-import { CheckCircle2 } from "lucide-react";
+import getReadKey, { ReadState } from "@/core/model/state/read-state";
 
-const ReadAction = (props: any) => {
-    function tickRead() {
-        const chapter = props.chapter || 1;
-        const state = {
-            book: props.book,
-            chapter,
-            verseStart: props.verseStart || "",
-            verseEnd: props.verseEnd || "",
-            passageKey: "",
-        };
-        state.passageKey = getReadKey(state);
+type ReadPassage = {
+    book: string;
+    chapter: string | number;
+    verseStart?: string | number;
+    verseEnd?: string | number;
+    state?: Map<string, ReadState>;
+};
+
+/** Read state for a passage, and marking it read (locally, and remotely when logged in) */
+export function useReadAction(props: ReadPassage) {
+    const chapter = String(props.chapter || 1);
+    const verseStart = props.verseStart ? String(props.verseStart) : "";
+    const verseEnd = props.verseEnd ? String(props.verseEnd) : "";
+    const readKey = getReadKey({ book: props.book, chapter, verseStart, verseEnd, passageKey: "" });
+    const [read, setRead] = useState(false);
+
+    useEffect(() => {
+        setRead(!!StateUtil.getRead(readKey).passageKey || !!props.state?.has?.(readKey));
+    }, [readKey, props.state]);
+
+    function markRead() {
+        const state = { book: props.book, chapter, verseStart, verseEnd, passageKey: readKey };
         StateUtil.setRead(state);
+        setRead(true);
 
         if (props.state) {
             post(`${process.env.SVC_USER}/state/read`, state).then();
         }
-
-        if (props.verseStart) {
-            if (props.verseEnd) {
-                toast.success(`${props.book} ${chapter} : ${props.verseStart} - ${props.verseEnd}`);
-            } else {
-                toast.success(`${props.book} ${chapter} : ${props.verseStart}`);
-            }
-        } else {
-            toast.success(`${props.book} ${chapter}`);
-        }
     }
 
-    return (
-        <>
-            <Toaster position="bottom-right" />
-            <Button
-                onPress={tickRead}
-                aria-label="Mark as read"
-                className="rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-700 text-white shadow hover:brightness-110">
-                <CheckCircle2 className="size-4" />
-                <span className="ml-1">Tick Read</span>
-            </Button>
-        </>
-    );
-};
-
-export default ReadAction;
+    return { read, markRead };
+}

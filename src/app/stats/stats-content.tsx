@@ -12,6 +12,7 @@ interface Props {
     gameState?: any;
     readState?: any;
     reviewState?: any;
+    children?: React.ReactNode;
 }
 
 export default function StatsContent(props: Readonly<Props>) {
@@ -45,7 +46,8 @@ export default function StatsContent(props: Readonly<Props>) {
                 bible={props.bible}
                 completionPercentage={completionPercentage}
             />
-            <div className="pb-[8rem]">
+            {props.children}
+            <div>
                 <Heatmap data={completion} bible={props.bible} />
             </div>
         </>

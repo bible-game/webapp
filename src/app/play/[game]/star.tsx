@@ -9,16 +9,16 @@ export const Star = ({
             "size-6 transition-transform duration-300",
             // hover “pop” on the whole row
             "group-hover:scale-110",
-            // glow & color
+            // glow & color: the glow follows the star's own colour, so a themed star glows in its theme
             filled
                 ? "text-yellow-300"
                 : "text-[#D9D9D9]",
             shadow
-                ? "[filter:drop-shadow(0_0_6px_rgba(245,197,66,.6))_drop-shadow(0_0_18px_rgba(245,197,66,.30))]"
+                ? "[filter:drop-shadow(0_0_6px_color-mix(in_srgb,currentColor_60%,transparent))_drop-shadow(0_0_18px_color-mix(in_srgb,currentColor_30%,transparent))]"
                 : "",
             // one-shot pop (applied only to the newest earned star)
             popping
-                ? "scale-125 rotate-6 [filter:drop-shadow(0_0_12px_rgba(245,197,66,1))_drop-shadow(0_0_28px_rgba(245,197,66,.6))]"
+                ? "scale-125 rotate-6 [filter:drop-shadow(0_0_12px_currentColor)_drop-shadow(0_0_28px_color-mix(in_srgb,currentColor_60%,transparent))]"
                 : "",
             className,
         ].join(" ")}
@@ -26,7 +26,7 @@ export const Star = ({
         viewBox="0 0 24 24"
         fill={filled ? "currentColor" : "gray"}
         strokeWidth={1.5}
-        stroke={filled ? "#ffdc44" : "gray"}
+        stroke={filled ? "currentColor" : "gray"}
         aria-hidden="true"
     >
         <path
