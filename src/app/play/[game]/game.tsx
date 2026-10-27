@@ -16,25 +16,9 @@ import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
 import { ruledOut } from "@/app/play/[game]/ruled-out";
 import { MotionConfig, useReducedMotion } from "framer-motion";
+import PlaySkeleton from "@/app/play/[game]/skeleton";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
-
-/** Skeleton of the page (header, clue, guess slots, map frame) while the day's passage loads */
-const Loading = () => (
-    <div aria-busy="true" aria-label="Loading"
-         className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col bg-transparent pt-[env(safe-area-inset-top)]">
-        <div className="mx-auto flex w-full max-w-[40rem] flex-1 animate-pulse flex-col">
-            <div className="flex h-14 items-center justify-center"><div className="h-9 w-32 rounded-lg bg-play-surface"/></div>
-            <div className="mx-auto mb-2 mt-2 h-5 w-3/4 rounded-md bg-play-surface"/>
-            <div className="mx-auto mb-4 h-5 w-1/2 rounded-md bg-play-surface"/>
-            <div className="flex gap-1.5 px-4 pb-3">
-                {[...Array(5)].map((_, index) => <div key={index} className="h-9 flex-1 rounded-lg bg-play-surface"/>)}
-            </div>
-            <div className="mx-10 my-6 flex-1 rounded-sm border border-play-line"/>
-            <div className="mx-auto mb-7 h-5 w-48 rounded-md bg-play-surface"/>
-        </div>
-    </div>
-);
 
 /**
  * Game Component
@@ -260,7 +244,7 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
-    if (isLoading) return <Loading/>
+    if (isLoading) return <PlaySkeleton/>
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
         passage.bookKey ||= props.books.find((bk: any) => bk.name == passage.book)?.key;

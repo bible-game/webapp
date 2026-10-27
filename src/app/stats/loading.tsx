@@ -1,8 +1,14 @@
-"use client"
+import StatsSkeleton from "@/app/stats/skeleton";
 
-import { Spinner } from "@heroui/react";
-
-/** Shown straight away while the server fetches the page's data */
+/** Shown straight away while the server fetches the page's data; the menu waits for the page, which knows who is in */
 export default function Loading() {
-    return <Spinner color="primary" aria-label="Loading" className="absolute left-[calc(50%-20px)] top-[calc(50%-20px)]" />;
+    return (
+        <>
+            <div className="app-header"><div className="h-14"/></div>
+            <main className="app-page">
+                <header className="page-heading"><h1>Statistics</h1></header>
+                <StatsSkeleton/>
+            </main>
+        </>
+    );
 }
