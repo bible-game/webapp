@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import useSWR from "swr";
-import { Modal, ModalBody, ModalContent } from "@heroui/react";
+import { Modal, ModalBody, ModalContent, Spinner } from "@heroui/react";
 import { Button } from "@heroui/button";
 import { CalendarDaysIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { StateUtil } from "@/core/util/state-util";
@@ -50,7 +50,7 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
     // The calendar is fetched on mount rather than on open, and seeded from the copy this device saw last, so the days
     // are already coloured when the picker opens instead of filling in after it. Nothing here waits on the fetch: a
     // saved copy is only ever missing today's entry, which the revalidation puts back.
-    const { data: calendar } = useSWR<Record<string, number>>(`${process.env.SVC_PASSAGE}/daily/calendar`, fetcher, {
+    const { data: calendar, error } = useSWR<Record<string, number>>(`${process.env.SVC_PASSAGE}/daily/calendar`, fetcher, {
         fallbackData: saved(),
         keepPreviousData: true,
         revalidateOnFocus: false,
@@ -65,6 +65,8 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
     }, [open]);
 
     const today = moment().startOf("day");
+    // Only on a first visit, with no saved copy: the days can still be picked, but aren't coloured yet
+    const loading = !calendar && !error;
 
     const cells = useMemo(() => {
         const lead = month.isoWeekday() - 1; // Monday-first leading blanks
@@ -110,28 +112,32 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
                             </Button>
                         </div>
 
-                        <div className="grid grid-cols-7 gap-1.5 text-center">
-                            {WEEKDAYS.map((day, i) =>
-                                <span key={i} className="pb-1 text-[12px] font-medium uppercase text-play-faint">{day}</span>)}
-                            {cells.map((day, i) => {
-                                if (!day) return <span key={`blank-${i}`}/>;
-                                const key = day.format(FORMAT);
-                                const future = day.isAfter(today, "day");
-                                const status = statusOf(calendar?.[key] != null ? games.get(calendar[key]) : undefined);
-                                const current = day.isSame(selected, "day");
-                                return (
-                                    <button key={key} type="button" disabled={future}
-                                            aria-label={`${day.format("dddd D MMMM")}${status ? `, ${status == "won" ? "completed" : status}` : ""}`}
-                                            aria-current={current ? "date" : undefined}
-                                            onClick={() => pick(day)}
-                                            className={`flex aspect-square min-h-12 items-center justify-center rounded-full text-[16px] font-medium tabular-nums transition-colors duration-200
-                                                ${future ? "text-play-faint/40" : status ? statusStyle[status] : "text-play-text active:bg-play-raised"}
-                                                ${current ? "!bg-play-text !text-play-bg !ring-0" : ""}
-                                                ${!current && day.isSame(today, "day") ? "outline outline-1 outline-play-muted" : ""}`}>
-                                        {day.date()}
-                                    </button>
-                                );
-                            })}
+                        <div className="relative">
+                            {loading && <Spinner color="default" aria-label="Loading your progress"
+                                                 className="pointer-events-none absolute inset-0 z-10 m-auto"/>}
+                            <div className={`grid grid-cols-7 gap-1.5 text-center transition-opacity duration-200 ${loading ? "opacity-40" : ""}`}>
+                                {WEEKDAYS.map((day, i) =>
+                                    <span key={i} className="pb-1 text-[12px] font-medium uppercase text-play-faint">{day}</span>)}
+                                {cells.map((day, i) => {
+                                    if (!day) return <span key={`blank-${i}`}/>;
+                                    const key = day.format(FORMAT);
+                                    const future = day.isAfter(today, "day");
+                                    const status = statusOf(calendar?.[key] != null ? games.get(calendar[key]) : undefined);
+                                    const current = day.isSame(selected, "day");
+                                    return (
+                                        <button key={key} type="button" disabled={future}
+                                                aria-label={`${day.format("dddd D MMMM")}${status ? `, ${status == "won" ? "completed" : status}` : ""}`}
+                                                aria-current={current ? "date" : undefined}
+                                                onClick={() => pick(day)}
+                                                className={`flex aspect-square min-h-12 items-center justify-center rounded-full text-[16px] font-medium tabular-nums transition-colors duration-200
+                                                    ${future ? "text-play-faint/40" : status ? statusStyle[status] : "text-play-text active:bg-play-raised"}
+                                                    ${current ? "!bg-play-text !text-play-bg !ring-0" : ""}
+                                                    ${!current && day.isSame(today, "day") ? "outline outline-1 outline-play-muted" : ""}`}>
+                                            {day.date()}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </ModalBody>
                 </ModalContent>
