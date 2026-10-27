@@ -8,11 +8,7 @@ import { GameState } from "@/core/model/state/game-state";
 import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn, { isKnownUser } from "@/core/util/auth-util";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
-
-async function get(url: string): Promise<any> {
-    const response = await fetch(url, {method: "GET"});
-    return await response.json();
-}
+import getBible from "@/core/action/config/get-bible";
 
 const flatten = (group: any, subgroup: any) => {
     const list = [];
@@ -32,18 +28,18 @@ export default async function Play({params}: { params: Promise<{ game: string }>
     const device = headersList.get('x-device-type');
 
     const { game } = await params;
-    const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
+
+    // The calls are independent, so they run together rather than one after another
+    const loggedIn = await isLoggedIn();
+    const [bible, state, info]: [any, Map<number,GameState> | undefined, UserInfo | undefined] = await Promise.all([
+        getBible(),
+        loggedIn ? getGameState() : undefined,
+        loggedIn ? getUserInfo() : undefined
+    ]);
+    const known = !info && await isKnownUser();
 
     const divisions = flatten(bible.testaments, 'divisions');
     const books = flatten(divisions, 'books');
-
-    let info: UserInfo | undefined;
-    let state: Map<number,GameState> | undefined;
-    if (await isLoggedIn()) {
-        state = await getGameState();
-        info = await getUserInfo();
-    }
-    const known = !info && await isKnownUser();
 
     return (
         <main className="w-full relative z-1">

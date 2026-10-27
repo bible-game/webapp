@@ -14,15 +14,12 @@ import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn, { getUserId } from "@/core/util/auth-util";
 import getUserInfo, { UserInfo } from "@/core/action/user/get-user-info";
 import getLeaders from "@/core/action/user/get-leaders";
+import { Leader } from "@/core/model/user/leader";
 import { getReviewState } from "@/core/action/state/get-state-review";
 import { ReviewState } from "@/core/model/state/review-state";
 import getRank from "@/core/action/user/get-rank";
 import { cookies } from "next/headers";
-
-async function get(url: string): Promise<any> {
-    const response = await fetch(url, {method: "GET"});
-    return await response.json();
-}
+import getBible from "@/core/action/config/get-bible";
 
 const getOrdinalSuffix = (n: number) => {
     const s = ["th", "st", "nd", "rd"];
@@ -37,26 +34,27 @@ const getOrdinalSuffix = (n: number) => {
 export default async function Stats() {
     let _ = cookies();
 
-    let displayName: string | undefined;
-    const bible = await get(`${process.env.SVC_PASSAGE}/config/bible`);
-    const leaders = await getLeaders();
-
-    let gameState: Map<number,GameState> | undefined;
-    let readState: Map<string,ReadState> | undefined;
-    let reviewState: Map<string,ReviewState> | undefined;
-    let info: UserInfo | undefined;
-    let rank: { rank?: number, totalPlayers?: number } = {};
-    let userId: string | undefined;
-    if (await isLoggedIn()) {
-        gameState = await getGameState();
-        readState = await getReadState();
-        reviewState = await getReviewState();
-
-        info = await getUserInfo();
-        if (info) displayName = `${info.firstname} ${info.lastname}`;
-        userId = await getUserId() ?? undefined;
-        rank = await getRank(userId ?? '1'); // fixme
-    }
+    // The calls are independent, so they run together rather than one after another
+    const loggedIn = await isLoggedIn();
+    const userId: string | undefined = loggedIn ? await getUserId() ?? undefined : undefined; // read from the token, no request
+    const [bible, leaders, gameState, readState, reviewState, info, rank]: [
+        any,
+        Leader[],
+        Map<number,GameState> | undefined,
+        Map<string,ReadState> | undefined,
+        Map<string,ReviewState> | undefined,
+        UserInfo | undefined,
+        { rank?: number, totalPlayers?: number }
+    ] = await Promise.all([
+        getBible(),
+        getLeaders(),
+        loggedIn ? getGameState() : undefined,
+        loggedIn ? getReadState() : undefined,
+        loggedIn ? getReviewState() : undefined,
+        loggedIn ? getUserInfo() : undefined,
+        loggedIn ? getRank(userId ?? '1') : {} // fixme
+    ]);
+    const displayName = info ? `${info.firstname} ${info.lastname}` : undefined;
 
     return (
         <>
