@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import moment from "moment";
 import useSWR from "swr";
-import { Modal, ModalBody, ModalContent, Spinner } from "@heroui/react";
+import { Modal, ModalBody, ModalContent } from "@heroui/react";
 import { Button } from "@heroui/button";
 import { CalendarDaysIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { StateUtil } from "@/core/util/state-util";
@@ -65,7 +65,8 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
     }, [open]);
 
     const today = moment().startOf("day");
-    // Only on a first visit, with no saved copy: the days can still be picked, but aren't coloured yet
+    // Only on a first visit, with no saved copy: the days pulse like a skeleton until they can be coloured, and can
+    // still be picked meanwhile
     const loading = !calendar && !error;
 
     const cells = useMemo(() => {
@@ -112,33 +113,30 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
                             </Button>
                         </div>
 
-                        <div className="relative">
-                            {loading && <Spinner color="default" aria-label="Loading your progress"
-                                                 className="pointer-events-none absolute inset-0 z-10 m-auto"/>}
-                            <div className={`grid grid-cols-7 gap-1.5 text-center transition-opacity duration-200 ${loading ? "opacity-40" : ""}`}>
-                                {WEEKDAYS.map((day, i) =>
-                                    <span key={i} className="pb-1 text-[12px] font-medium uppercase text-play-faint">{day}</span>)}
-                                {cells.map((day, i) => {
-                                    if (!day) return <span key={`blank-${i}`}/>;
-                                    const key = day.format(FORMAT);
-                                    const future = day.isAfter(today, "day");
-                                    const status = statusOf(calendar?.[key] != null ? games.get(calendar[key]) : undefined);
-                                    const current = day.isSame(selected, "day");
-                                    return (
-                                        <button key={key} type="button" disabled={future}
-                                                aria-label={`${day.format("dddd D MMMM")}${status ? `, ${status == "won" ? "completed" : status}` : ""}`}
-                                                aria-current={current ? "date" : undefined}
-                                                onClick={() => pick(day)}
-                                                className={`flex aspect-square min-h-12 items-center justify-center rounded-full text-[16px] font-medium tabular-nums transition-colors duration-200
-                                                    ${future ? "text-play-faint/40" : status ? statusStyle[status] : "text-play-text active:bg-play-raised"}
-                                                    ${current ? "!bg-play-text !text-play-bg !ring-0" : ""}
-                                                    ${!current && day.isSame(today, "day") ? "outline outline-1 outline-play-muted" : ""}`}>
-                                            {day.date()}
-                                        </button>
-                                    );
-                                })}
-                            </div>
+                        <div aria-busy={loading} className={`grid grid-cols-7 gap-1.5 text-center ${loading ? "animate-pulse" : ""}`}>
+                            {WEEKDAYS.map((day, i) =>
+                                <span key={i} className="pb-1 text-[12px] font-medium uppercase text-play-faint">{day}</span>)}
+                            {cells.map((day, i) => {
+                                if (!day) return <span key={`blank-${i}`}/>;
+                                const key = day.format(FORMAT);
+                                const future = day.isAfter(today, "day");
+                                const status = statusOf(calendar?.[key] != null ? games.get(calendar[key]) : undefined);
+                                const current = day.isSame(selected, "day");
+                                return (
+                                    <button key={key} type="button" disabled={future}
+                                            aria-label={`${day.format("dddd D MMMM")}${status ? `, ${status == "won" ? "completed" : status}` : ""}`}
+                                            aria-current={current ? "date" : undefined}
+                                            onClick={() => pick(day)}
+                                            className={`flex aspect-square min-h-12 items-center justify-center rounded-full text-[16px] font-medium tabular-nums transition-colors duration-200
+                                                ${future ? "text-play-faint/40" : status ? statusStyle[status] : "text-play-text active:bg-play-raised"}
+                                                ${current ? "!bg-play-text !text-play-bg !ring-0" : ""}
+                                                ${!current && day.isSame(today, "day") ? "outline outline-1 outline-play-muted" : ""}`}>
+                                        {day.date()}
+                                    </button>
+                                );
+                            })}
                         </div>
+                        {loading && <span role="status" className="sr-only">Loading your progress</span>}
                     </ModalBody>
                 </ModalContent>
             </Modal>
