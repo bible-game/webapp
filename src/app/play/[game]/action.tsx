@@ -1,6 +1,7 @@
 "use client"
 
-import { guess } from "@/core/action/play/guess";
+import { guess, saveGuess } from "@/core/action/play/guess";
+import { score } from "@/app/play/[game]/score";
 import Link from "next/link";
 import moment from "moment";
 import { CalendarDate } from "@internationalized/date";
@@ -56,6 +57,15 @@ const nudgedToday = (): boolean => {
 const markNudged = () => {
     try { localStorage.setItem(NUDGE_KEY, moment().format("YYYY-MM-DD")); } catch { /* not saved; fine */ }
 };
+/**
+ * Saves guesses to the user service one after another, in the background: the user service creates a day's game with
+ * its first guess, so two saves at once could create it twice. A failed save leaves the device's copy, as before.
+ */
+let saving: Promise<void> = Promise.resolve();
+function save(passageId: number, scored: any): void {
+    saving = saving.then(() => saveGuess(passageId, scored)).catch(e => console.error(e));
+}
+
 const stepper = "flex size-12 shrink-0 items-center justify-center rounded-lg border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";
 
 /**
@@ -219,11 +229,27 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 ⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
     }
 
+    // only while the passage service scores a guess the browser couldn't
+    const [pending, setPending] = useState(false);
+
     function submit() {
+        if (pending) return;
         navigator.vibrate?.(12);
-        guess(props.date, props.selected.book, props.selected.chapter, props.passage).then((guess: any) => {
-            props.addGuess(guess)
-        })
+        const { book, chapter } = props.selected;
+        const closeness = score(props.bible, props.passage, { book, chapter });
+
+        if (closeness) {
+            const scored = { book, chapter, ...closeness, closeness, passageBook: props.passage.book, passageChapter: props.passage.chapter };
+            props.addGuess(scored);
+            save(props.passage.id, scored);
+            return;
+        }
+
+        setPending(true);
+        guess(props.date, book, chapter, props.passage)
+            .then((guess: any) => props.addGuess(guess))
+            .catch(e => console.error(e))
+            .finally(() => setPending(false));
     }
 
     const guessed = props.hasBook && props.isExistingGuess();
@@ -239,7 +265,7 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
 
     // an already-guessed chapter can't be guessed again: marked wrong with an X, the button opens How to play instead, to explain its result
     const guessButton = (
-        <button type="button" disabled={!!excluded} onClick={guessed ? undefined : submit}
+        <button type="button" disabled={!!excluded || pending} aria-busy={pending} onClick={guessed ? undefined : submit}
                 aria-label={excluded ? undefined : guessed
                     ? `Already guessed ${props.selected.book} ${props.chapter}. How to play`
                     : `Guess ${props.selected.book} ${props.chapter}`}
@@ -251,8 +277,11 @@ ${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
                 <span className="truncate">{excluded}</span> :
                 <>
                     {guessed ? <XIcon className="size-5 shrink-0" strokeWidth={2.25} aria-hidden="true"/> : null}
-                    <Passage key={`${props.selected.book} ${props.chapter}`} book={props.selected.book} chapter={props.chapter}/>
-                    {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
+                    {/* waiting on the passage service, the label pulses like a skeleton rather than spinning */}
+                    <span className={`flex min-w-0 items-center gap-2 ${pending ? "animate-pulse" : ""}`}>
+                        <Passage key={`${props.selected.book} ${props.chapter}`} book={props.selected.book} chapter={props.chapter}/>
+                        {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
+                    </span>
                 </>
             }
         </button>
