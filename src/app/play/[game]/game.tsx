@@ -1,7 +1,7 @@
 "use client"
 
 import Summary from "@/app/play/[game]/summary";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
@@ -16,7 +16,7 @@ import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
 import { ruledOut } from "@/app/play/[game]/ruled-out";
 import { MotionConfig, useReducedMotion } from "framer-motion";
-import PlaySkeleton from "@/app/play/[game]/skeleton";
+import { getGameState } from "@/core/action/state/get-state-game";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
@@ -26,11 +26,16 @@ const fetcher = (url: string) => fetch(url).then((r) => r.json());
  */
 export default function Game(props: any) {
     const reducedMotion = useReducedMotion();
+    // The game reads this device's storage as it renders, so it only ever renders in the browser; the layout's skeleton
+    // covers the server render and hydration
+    const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
     if (props.game == 'today') {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
 
-    const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher);
+    // The server sends the day's passage with the page; the browser fetches it only if that failed
+    const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher,
+        { fallbackData: props.passage, revalidateOnMount: !props.passage });
     const passage = data as Passage;
 
     const [playing, setPlaying] = useState(true);
@@ -77,9 +82,23 @@ export default function Game(props: any) {
         return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
     }, [passage]);
 
+    // A logged-in player's other games (for the calendar and their stats) are fetched once the page is up, rather than
+    // sent with it. A guess made meanwhile is newer than the fetched copy of today's game, so it is kept.
+    useEffect(() => {
+        if (!props.loggedIn) return;
+        getGameState().then(games => {
+            if (!games) return;
+            const current = passage ? StateUtil.getGame(passage.id) : undefined;
+            StateUtil.setAllGame(games);
+            if (current && current.guesses.length > (games.get(current.passageId)?.guesses.length ?? 0)) StateUtil.setGame(current);
+        }).catch(e => console.error(e));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     function loadState() {
-        if (props.state)
-            StateUtil.setAllGame(props.state);
+        // The page's copy of today's game goes stale once the player guesses, so it never replaces a longer local one
+        if (props.played && props.played.guesses.length >= StateUtil.getGame(props.played.passageId).guesses.length)
+            StateUtil.setGame(props.played);
 
         if (passage) {
             const state = StateUtil.getGame(passage.id);
@@ -244,7 +263,7 @@ export default function Game(props: any) {
         if (chapter) selectChapter(chapter);
     }
 
-    if (isLoading) return <PlaySkeleton/>
+    if (!mounted || isLoading) return null
     else {
         passage.division = props.divisions.find((div: any) => div.books.some((book: any) => book.name == passage.book)).name;
         passage.bookKey ||= props.books.find((bk: any) => bk.name == passage.book)?.key;
@@ -252,7 +271,7 @@ export default function Game(props: any) {
 
         return (
             <MotionConfig reducedMotion="user">
-            <div className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-transparent pt-[env(safe-area-inset-top)] text-play-text">
+            <div data-game-ready className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-transparent pt-[env(safe-area-inset-top)] text-play-text">
                 <PopUp />
                 <div className="mx-auto flex w-full max-w-[40rem] shrink-0 flex-col">
                     <Header info={props.info} date={props.game}/>

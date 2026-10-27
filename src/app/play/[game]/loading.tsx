@@ -1,6 +1,4 @@
-import PlaySkeleton from "@/app/play/[game]/skeleton";
-
-/** Shown straight away while the server fetches the page's data */
+/** Shown straight away while the server fetches the page's data: nothing, so the layout's skeleton shows through */
 export default function Loading() {
-    return <PlaySkeleton/>;
+    return null;
 }

@@ -13,3 +13,7 @@
       animation-duration: 0.01ms !important
       animation-iteration-count: 1 !important
       transition-duration: 0.01ms !important
+
+// The skeleton stays mounted beneath the game; hidden rather than removed, so its pulse never restarts
+body:has([data-game-ready]) .play-skeleton
+  visibility: hidden
