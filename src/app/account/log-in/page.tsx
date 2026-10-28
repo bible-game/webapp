@@ -14,7 +14,6 @@ import { logIn } from "@/core/action/auth/log-in"
 import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
 import { inputClassNames, alertClassNames, cardClassName, submitButtonClassName, submitButtonStyle } from "@/core/model/form/form-styles"
 import { useFormValidation } from "@/core/hook/useFormValidation"
-import { StateUtil } from "@/core/util/state-util"
 
 /**
  * Log-In Page
@@ -52,20 +51,14 @@ export default function LogIn() {
         }
     }, [state, clearAllErrors])
 
-    // Carry where the user was headed (e.g. today's game) through to the post-log-in redirect, along with anything
-    // played on this device while logged out, so it can be added to their account
+    // Carry where the user was headed (e.g. today's game) through to the post-log-in redirect. Anything played on this
+    // device while logged out is synced to their account after it (see syncLocalState)
     const [next, setNext] = useState("")
     const [reset, setReset] = useState(false)
-    const [local, setLocal] = useState({ games: "[]", reads: "[]", reviews: "[]" })
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
         setNext(params.get("next") ?? "")
         setReset(params.get("reset") === "success")
-        setLocal({
-            games: JSON.stringify(Array.from(StateUtil.getAllGames().values())),
-            reads: JSON.stringify(Array.from(StateUtil.getAllReads().values())),
-            reviews: JSON.stringify(Array.from(StateUtil.getAllReviews().values())),
-        })
     }, [])
 
     const successAlertClassNames = {
@@ -84,9 +77,6 @@ export default function LogIn() {
                     >
                         <h1 className="text-2xl font-semibold text-ui-text">Log in</h1>
                         <input type="hidden" name="next" value={next} />
-                        <input type="hidden" name="games" value={local.games} />
-                        <input type="hidden" name="reads" value={local.reads} />
-                        <input type="hidden" name="reviews" value={local.reviews} />
 
                         {/* Email */}
                         <Input
