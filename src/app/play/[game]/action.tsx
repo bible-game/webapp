@@ -217,7 +217,8 @@ const Action = (props: any) => {
 
         // figure space: one digit wide, so 0.09% and 24.23% take the same width and ⭐ stays put
         const percentage = CompletionUtil.calcPercentageCompletion(props.bible).padStart(5, ' ');
-        const stars = new Intl.NumberFormat('en', { notation: 'compact' }).format(CompletionUtil.calcStars());
+        // rounded down, so a total never claims stars not yet earned (1,359 is 1.3K, not 1.4K)
+        const stars = new Intl.NumberFormat('en', { notation: 'compact', roundingMode: 'trunc' }).format(CompletionUtil.calcStars());
 
         return `bible.game
 ${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('DD-MMM-YYYY').toUpperCase()}
