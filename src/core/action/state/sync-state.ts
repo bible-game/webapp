@@ -23,10 +23,6 @@ export async function syncState(body: SyncBody): Promise<boolean> {
         cookieStore.delete(SYNC_PENDING_COOKIE);
         return false;
     }
-    if (!body.games.length && !body.reads.length && !body.reviews.length) {
-        cookieStore.delete(SYNC_PENDING_COOKIE);
-        return true;
-    }
 
     try {
         const response = await fetch(`${process.env.SVC_USER}/state/sync`, {

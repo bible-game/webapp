@@ -11,3 +11,9 @@ export const SYNC_PENDING_MAX_AGE = 60 * 60 * 24;
 export function isSyncPending(): boolean {
     return document.cookie.split('; ').some((cookie) => cookie.startsWith(`${SYNC_PENDING_COOKIE}=`));
 }
+
+/** Clears the pending sync from the browser, sparing a server action (and the page re-render it brings) when there's nothing to send */
+export function clearSyncPending(): void {
+    const secure = location.protocol === 'https:' ? '; secure' : '';
+    document.cookie = `${SYNC_PENDING_COOKIE}=; path=/; max-age=0; samesite=lax${secure}`;
+}
