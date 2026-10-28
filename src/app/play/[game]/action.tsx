@@ -29,7 +29,7 @@ import colours from "@/app/play/[game]/map/config/colours.json";
 import groups from "@/app/play/[game]/map/config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
 import { uiTheme } from "@/core/style/ui-theme";
-import { lightOf } from "@/app/play/[game]/closeness";
+import { lightOf, squareOf } from "@/app/play/[game]/closeness";
 import { glow, tone } from "@/core/style/regions";
 
 const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.18 } };
@@ -185,20 +185,12 @@ const Action = (props: any) => {
         return () => clearTimeout(t);
     }, [props.celebrate, props.stars]);
 
-    function calcGuessBlocks() {
-        let guessBlocks = '';
+    /** The five slots: a square per miss, then 🎉 for the win and any guesses left over */
+    function calcGuessBlocks(won: boolean) {
+        const misses = props.guesses.filter((guess: any) => guess.closeness.distance != 0).map(squareOf);
+        const slots = [...misses, ...Array(5 - props.guesses.length + (won ? 1 : 0)).fill('🎉')];
 
-        for (const guess of props.guesses) {
-            const distance = Math.abs(guess.closeness.distance);
-            if (distance == 0)       continue
-            if (distance <= 100)   { guessBlocks += '🟩'; continue; }
-            if (distance <= 500)   { guessBlocks += '🟩'; continue; }
-            if (distance <= 2000)  { guessBlocks += '🟨'; continue; }
-            if (distance <= 5000)  { guessBlocks += '🟧';           }
-            else                   { guessBlocks += '🟥';           }
-        }
-
-        return guessBlocks;
+        return slots.join(' '); // en space: wider than a space, and never collapsed by HTML surfaces
     }
 
     useEffect(() => {
@@ -223,10 +215,14 @@ const Action = (props: any) => {
             if (guess.closeness.distance == 0) won = true;
         })
 
+        // figure space: one digit wide, so 0.09% and 24.23% take the same width and ⭐ stays put
+        const percentage = CompletionUtil.calcPercentageCompletion(props.bible).padStart(5, ' ');
+        const stars = new Intl.NumberFormat('en', { notation: 'compact' }).format(CompletionUtil.calcStars());
+
         return `bible.game
-${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('Do MMM YYYY')}
-${calcGuessBlocks()}${'🎉'.repeat(5 - props.guesses.length + (won ? 1 : 0))}
-⭐ ${CompletionUtil.calcStars()} 📖 ${CompletionUtil.calcPercentageCompletion(props.bible)}%`;
+${moment(new CalendarDate(parseInt(props.date.split('-')[0]), parseInt(props.date.split('-')[1]) - 1, parseInt(props.date.split('-')[2]))).format('DD-MMM-YYYY').toUpperCase()}
+${calcGuessBlocks(won)}
+📖 ${percentage}% ⭐ ${stars}`;
     }
 
     // only while the passage service scores a guess the browser couldn't
