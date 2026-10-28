@@ -2,7 +2,7 @@ import { playTheme } from "@/core/style/play-theme";
 import { glow, litGlass, solid } from "@/core/style/regions";
 
 /**
- * Closeness bands for a guess, matching the share-result emoji (🟩 ≤ 500, 🟨 ≤ 2,000, 🟥 beyond).
+ * Closeness bands for a guess (green ≤ 500, yellow ≤ 2,000, red beyond): the one rule behind the tiles, the guess counter's dots and the share text's squares.
  * Tiles are lit glass rather than filled: `fill` is the tint, `edge` the outline and `text` the label, arrow and distance.
  * Only the found tile is solid, with a soft `glow` outside it.
  * @since 2nd October 2026
@@ -34,11 +34,18 @@ export function bandOf(guess: any): Band {
     return FAR;
 }
 
-/** One colour for a guess where a whole slot will not fit (the guess counter's dots): one step finer than the tiles, in step with the share text's squares */
+/** One colour for a guess where a whole slot will not fit (the guess counter's dots): the tile's band, as a single status colour */
 export function lightOf(guess: any): string {
-    const distance = Math.abs(distanceOf(guess));
-    if (distance <= 500) return playTheme.success;
-    if (distance <= 2000) return playTheme.warning;
-    if (distance <= 5000) return playTheme.orange;
+    const band = bandOf(guess);
+    if (band === FOUND || band === CLOSE) return playTheme.success;
+    if (band === NEAR) return playTheme.warning;
     return playTheme.error;
+}
+
+/** The share text's square for a guess: the tile's band, as an emoji */
+export function squareOf(guess: any): string {
+    const band = bandOf(guess);
+    if (band === FOUND || band === CLOSE) return '🟩';
+    if (band === NEAR) return '🟨';
+    return '🟥';
 }

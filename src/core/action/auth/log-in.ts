@@ -2,8 +2,9 @@
 
 import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { safeNext, setAuthCookies } from "@/core/util/auth-cookies";
-import { syncState } from "@/core/action/state/sync-state";
+import { SYNC_PENDING_COOKIE, SYNC_PENDING_MAX_AGE } from "@/core/util/sync-cookie";
 
 export async function logIn(state: LogInFormState, formData: FormData) {
 
@@ -52,7 +53,9 @@ export async function logIn(state: LogInFormState, formData: FormData) {
             result = await response.text()
             state!.token = result
             await setAuthCookies(result)
-            await syncState(result, formData)
+            // Anything played on this device while logged out is synced by the browser once it has been redirected
+            const secure = process.env.NODE_ENV === 'production';
+            (await cookies()).set(SYNC_PENDING_COOKIE, '1', { secure, sameSite: 'lax', path: '/', maxAge: SYNC_PENDING_MAX_AGE });
 
         } else {
             result = await response.json()
