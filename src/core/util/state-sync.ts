@@ -19,8 +19,13 @@ export async function syncLocalState(): Promise<void> {
     try {
         const unsynced = StateUtil.getUnsynced();
         const states = (entries: [any, any][]) => entries.map(([, state]) => state);
+        // Guesses saved by the user service don't carry their passage, which the sync requires of every guess
+        const games = states(unsynced.games).map((game) => ({
+            ...game,
+            guesses: game.guesses.map((guess: any) => ({ ...guess, passageBook: guess.passageBook ?? game.passageBook, passageChapter: guess.passageChapter ?? game.passageChapter }))
+        }));
         // With nothing to send, the action only clears the pending cookie
-        const done = await syncState({ games: states(unsynced.games), reads: states(unsynced.reads), reviews: states(unsynced.reviews) });
+        const done = await syncState({ games, reads: states(unsynced.reads), reviews: states(unsynced.reviews) });
         if (done) StateUtil.markSynced(unsynced);
     } catch (e) {
         console.error(e);
