@@ -5,11 +5,10 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Avatar, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, useDisclosure } from "@heroui/react";
-import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon, MenuIcon, PlayIcon, StarIcon, UserRoundIcon, XIcon } from "lucide-react";
+import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, LightbulbIcon, MenuIcon, PlayIcon, StarIcon, UserRoundIcon, XIcon } from "lucide-react";
 import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
 import { logOut } from "@/core/action/auth/log-out";
 import LogoMark from "@/core/component/logo-mark";
-import getBible from "@/core/action/config/get-bible";
 import { CompletionUtil } from "@/core/util/completion-util";
 import { StorageUtil } from "@/core/util/storage-util";
 
@@ -67,32 +66,13 @@ function LoginReasons() {
     </span>;
 }
 
-type Progress = { stars: number; seen?: number; streak: number };
-
-// The Bible's structure, fetched once per visit: Bible seen needs it to know how many verses each chapter has
-let bibleConfig: Promise<any> | undefined;
-const loadBible = () => bibleConfig ??= getBible().catch(() => { bibleConfig = undefined; });
-
-function useProgress(enabled: boolean) {
-    const [progress, setProgress] = useState<Progress>();
+function useStars(enabled: boolean) {
+    const [stars, setStars] = useState<number>();
 
     useEffect(() => {
         if (!enabled) return;
-        let bible: any;
-        let updating = false;
-        const update = () => {
-            // build() saves the completion it makes, which fires the change event again; that save isn't new progress
-            if (updating) return;
-            updating = true;
-            let seen: number | undefined;
-            try {
-                if (bible) seen = parseFloat(CompletionUtil.calcPercentageFromBuilt(CompletionUtil.build(bible)));
-            } catch { /* state the config doesn't know; leave Bible seen out */ }
-            finally { updating = false; }
-            setProgress({ stars: CompletionUtil.calcStars(), seen, streak: CompletionUtil.calcStreak() });
-        };
+        const update = () => setStars(CompletionUtil.calcStars());
         update();
-        loadBible().then(config => { bible = config; if (config) update(); });
         window.addEventListener(StorageUtil.CHANGED, update);
         window.addEventListener("storage", update);
         return () => {
@@ -101,11 +81,8 @@ function useProgress(enabled: boolean) {
         };
     }, [enabled]);
 
-    return progress;
+    return stars;
 }
-
-// As on Statistics: whole percent, and "<1" until the first one
-const seenText = (seen: number) => seen === 0 ? "0%" : seen < 1 ? "<1%" : `${Math.round(seen)}%`;
 
 const roll = {
     enter: (direction: number) => ({ y: `${direction * 100}%`, opacity: 0 }),
@@ -134,18 +111,10 @@ function RollingNumber({ value, text }: { value: number; text: string }) {
     </span>;
 }
 
-function StarPill({ info, progress }: { info: NonNullable<AppHeaderProps["info"]>; progress?: Progress }) {
-    const figures = progress ? [
-        { key: "stars", value: progress.stars, text: progress.stars.toLocaleString("en"), icon: <StarIcon className="size-3.5 text-play-gold" fill="currentColor"/> },
-        ...(progress.seen === undefined ? [] : [{ key: "seen", value: progress.seen, text: seenText(progress.seen), icon: <BookOpenIcon className="size-3.5 text-ui-text"/> }]),
-        { key: "streak", value: progress.streak, text: String(progress.streak), icon: <FlameIcon className="size-3.5 text-ui-orange"/> },
-    ] : [];
-
-    return <span className="flex h-9 items-center gap-2.5 rounded-full bg-ui-raised pl-3 pr-1 text-[13px] font-semibold text-ui-text ring-1 ring-ui-line transition-colors group-data-[hover=true]:bg-ui-light-2 group-data-[pressed=true]:bg-ui-light-2">
-        {figures.map(({ key, value, text, icon }) => <span key={key} className="flex items-center gap-1">
-            <span aria-hidden="true" className="flex shrink-0">{icon}</span>
-            <RollingNumber value={value} text={text}/>
-        </span>)}
+function StarPill({ info, stars }: { info: NonNullable<AppHeaderProps["info"]>; stars?: number }) {
+    return <span className="flex h-9 items-center gap-1.5 rounded-full bg-ui-raised pl-2.5 pr-1 text-[13px] font-semibold text-ui-text ring-1 ring-ui-line transition-colors group-data-[hover=true]:bg-ui-light-2 group-data-[pressed=true]:bg-ui-light-2">
+        <StarIcon aria-hidden="true" className="size-3.5 shrink-0 text-play-gold" fill="currentColor"/>
+        {stars === undefined ? null : <RollingNumber value={stars} text={stars.toLocaleString("en")}/>}
         <Avatar aria-hidden="true" className="size-7 bg-ui-sheet text-[11px] font-semibold text-ui-text" name={initials(info)}/>
     </span>;
 }
@@ -154,23 +123,43 @@ const initials = (info: NonNullable<AppHeaderProps["info"]>) => (info.firstname[
 const rise = (index: number) => ({ animationDelay: `${80 + index * 30}ms` });
 const logOutAndReload = () => logOut().then(() => window.location.reload());
 
+/** The width of the header's wider side, so both sides can take it: the middle item stays centred and is the one to
+ *  give way when space is short, never the account pill */
+function useSideWidth() {
+    const account = useRef<HTMLDivElement>(null);
+    const [side, setSide] = useState(44);
+
+    useEffect(() => {
+        const element = account.current;
+        if (!element) return;
+        const observer = new ResizeObserver(() => setSide(Math.max(44, Math.ceil(element.getBoundingClientRect().width))));
+        observer.observe(element);
+        return () => observer.disconnect();
+    }, []);
+
+    return { account, side };
+}
+
 export default function AppHeader({ info, children }: AppHeaderProps) {
     const drawer = useDisclosure();
     const pathname = usePathname();
-    const progress = useProgress(!!info);
+    const stars = useStars(!!info);
+    const { account, side } = useSideWidth();
 
     return (
-        <header className="grid h-14 shrink-0 grid-cols-[auto_1fr_auto] items-center px-2 text-ui-text">
+        // Equal side columns, so the page's middle item (date, passage, title) stays centred
+        <header className="grid h-14 shrink-0 grid-cols-[minmax(var(--side),1fr)_minmax(0,auto)_minmax(var(--side),1fr)] items-center px-2 text-ui-text"
+                style={{ "--side": `${side}px` } as React.CSSProperties}>
             <Button isIconOnly disableRipple aria-label="Open menu" title="Open menu" className={iconButton} onPress={drawer.onOpen}>
                 <MenuIcon className="size-6"/>
             </Button>
-            <div className="flex min-w-0 justify-center">{children}</div>
-            <div className="flex h-11 min-w-11 items-center justify-end justify-self-end">
+            <div className="flex min-w-0 justify-center px-1 *:min-w-0 *:max-w-full">{children}</div>
+            <div ref={account} className="flex h-11 min-w-11 items-center justify-end justify-self-end">
                 {info ? <Dropdown placement="bottom-end" classNames={{ content: "rounded-lg bg-ui-sheet border border-ui-line text-ui-text" }}>
                     <DropdownTrigger>
-                        <Button disableRipple aria-label={progress ? `Open account menu: ${progress.stars} stars, ${progress.seen === undefined ? "" : `${seenText(progress.seen)} of the Bible seen, `}${progress.streak} day streak` : "Open account menu"}
+                        <Button disableRipple aria-label={stars === undefined ? "Open account menu" : `Open account menu, ${stars} stars`}
                                 className="group h-11 min-w-0 gap-0 rounded-full bg-transparent px-0 data-[hover=true]:!bg-transparent data-[pressed=true]:!bg-transparent">
-                            <StarPill info={info} progress={progress}/>
+                            <StarPill info={info} stars={stars}/>
                         </Button>
                     </DropdownTrigger>
                     <DropdownMenu aria-label="Account" variant="flat">
