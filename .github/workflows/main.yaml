@@ -9,7 +9,7 @@ jobs:
   release:
     name: release
     uses: ./.github/workflows/step-release.yaml
-  merge:
+  bump:
     needs: release
-    name: merge
-    uses: ./.github/workflows/step-merge.yaml
+    name: bump
+    uses: ./.github/workflows/step-bump.yaml
