@@ -22,6 +22,7 @@
     "@internationalized/date": "^3.6.0",
     "@mantine/hooks": "^8.3.4",
     "@project-gridmap/library": "0.1.12",
+    "@sentry/nextjs": "^11.10.0",
     "@tanstack/react-query": "^5.90.2",
     "@uidotdev/usehooks": "^2.4.1",
     "@vercel/speed-insights": "^1.2.0",

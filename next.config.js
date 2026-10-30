@@ -1,5 +1,6 @@
 const path = require('path');
 const { version } = require('./package.json');
+const { withSentryConfig } = require('@sentry/nextjs/config');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -15,4 +16,16 @@ const nextConfig = {
     }
 }
 
-module.exports = nextConfig
+module.exports = withSentryConfig(nextConfig, {
+    org: 'bible-game',
+    project: 'bible-game',
+
+    // Uploads source maps on production builds, so stack traces show the original code
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+    widenClientFileUpload: true,
+
+    // Sends browser events through the app, so ad-blockers don't drop them
+    tunnelRoute: '/monitoring',
+
+    silent: !process.env.CI,
+})
