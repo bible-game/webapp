@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Avatar, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, useDisclosure } from "@heroui/react";
-import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, LightbulbIcon, MenuIcon, PlayIcon, UserRoundIcon, XIcon } from "lucide-react";
+import { Avatar, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownSection, DropdownTrigger, useDisclosure } from "@heroui/react";
+import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, FlameIcon, Gamepad2Icon, LightbulbIcon, LogOutIcon, MenuIcon, PlayIcon, StarIcon, UserRoundIcon, XIcon } from "lucide-react";
 import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
 import { logOut } from "@/core/action/auth/log-out";
 import LogoMark from "@/core/component/logo-mark";
+import { CompletionUtil } from "@/core/util/completion-util";
+import { StorageUtil } from "@/core/util/storage-util";
 
 export type AppHeaderProps = {
     info?: { firstname: string; lastname: string };
@@ -64,28 +66,90 @@ function LoginReasons() {
     </span>;
 }
 
+type Progress = { stars: number; games: number; streak: number };
+
+function useProgress() {
+    const [progress, setProgress] = useState<Progress>();
+    const [earned, setEarned] = useState(0);
+    const last = useRef<number | undefined>(undefined);
+
+    useEffect(() => {
+        const update = () => {
+            const stars = CompletionUtil.calcStars();
+            if (last.current !== undefined && stars > last.current) setEarned(n => n + 1);
+            last.current = stars;
+            setProgress({ stars, games: CompletionUtil.calcGames(), streak: CompletionUtil.calcStreak() });
+        };
+        update();
+        window.addEventListener(StorageUtil.CHANGED, update);
+        window.addEventListener("storage", update);
+        return () => {
+            window.removeEventListener(StorageUtil.CHANGED, update);
+            window.removeEventListener("storage", update);
+        };
+    }, []);
+
+    return { progress, earned };
+}
+
+const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+
+function StarPill({ info, progress, earned }: { info: NonNullable<AppHeaderProps["info"]>; progress?: Progress; earned: number }) {
+    const reduce = useReducedMotion();
+
+    return <span className="flex h-9 items-center gap-1.5 rounded-full bg-ui-raised pl-2.5 pr-1 ring-1 ring-ui-line transition-colors group-data-[hover=true]:bg-ui-light-2 group-data-[pressed=true]:bg-ui-light-2">
+        <StarIcon aria-hidden="true" className="size-3.5 shrink-0 text-play-gold" fill="currentColor"/>
+        <motion.span key={earned} aria-hidden="true" className="min-w-[1ch] text-[13px] font-semibold tabular-nums text-ui-text"
+                     initial={earned && !reduce ? { scale: 1.45, color: "#d4b455" } : false}
+                     animate={{ scale: 1, color: "var(--ui-text)", transition: { type: "spring", stiffness: 420, damping: 16 } }}>
+            {progress ? compact.format(progress.stars) : ""}
+        </motion.span>
+        <Avatar aria-hidden="true" className="size-7 bg-ui-sheet text-[11px] font-semibold text-ui-text" name={initials(info)}/>
+    </span>;
+}
+
 const initials = (info: NonNullable<AppHeaderProps["info"]>) => (info.firstname[0] ?? "").toUpperCase() + (info.lastname[0] ?? "").toUpperCase();
 const rise = (index: number) => ({ animationDelay: `${80 + index * 30}ms` });
 const logOutAndReload = () => logOut().then(() => window.location.reload());
+const summary = (progress?: Progress) => [
+    { label: "Stars", value: progress?.stars ?? 0, icon: StarIcon, colour: "text-play-gold" },
+    { label: "Streak", value: progress?.streak ?? 0, icon: FlameIcon, colour: "text-ui-orange" },
+    { label: "Games", value: progress?.games ?? 0, icon: Gamepad2Icon, colour: "text-ui-text" },
+];
 
 export default function AppHeader({ info, children }: AppHeaderProps) {
     const drawer = useDisclosure();
     const pathname = usePathname();
+    const { progress, earned } = useProgress();
 
     return (
-        <header className="flex h-14 shrink-0 items-center justify-between px-2 text-ui-text">
+        <header className="grid h-14 shrink-0 grid-cols-[1fr_auto_1fr] items-center px-2 text-ui-text">
             <Button isIconOnly disableRipple aria-label="Open menu" title="Open menu" className={iconButton} onPress={drawer.onOpen}>
                 <MenuIcon className="size-6"/>
             </Button>
-            {children}
-            <div className="flex h-11 w-11 items-center justify-center">
-                {info ? <Dropdown placement="bottom-end" classNames={{ content: "rounded-lg bg-ui-sheet border border-ui-line text-ui-text" }}>
+            <div className="flex min-w-0 justify-center">{children}</div>
+            <div className="flex h-11 min-w-11 items-center justify-end justify-self-end">
+                {info ? <Dropdown placement="bottom-end" classNames={{ content: "min-w-56 rounded-lg bg-ui-sheet border border-ui-line text-ui-text" }}>
                     <DropdownTrigger>
-                        <Avatar as="button" aria-label="Open account menu" className="size-8 bg-ui-raised text-[12px] font-semibold text-ui-text ring-1 ring-ui-line"
-                                name={initials(info)}/>
+                        <Button disableRipple aria-label={`Open account menu, ${progress?.stars ?? 0} stars`}
+                                className="group h-11 min-w-0 gap-0 rounded-full bg-transparent px-0 data-[hover=true]:!bg-transparent data-[pressed=true]:!bg-transparent">
+                            <StarPill info={info} progress={progress} earned={earned}/>
+                        </Button>
                     </DropdownTrigger>
                     <DropdownMenu aria-label="Account" variant="flat">
-                        <DropdownItem key="logout" color="danger" className="text-ui-text" onPress={logOutAndReload}>Log Out</DropdownItem>
+                        <DropdownSection showDivider aria-label="Your progress" classNames={{ divider: "bg-ui-line" }}>
+                            <DropdownItem key="progress" isReadOnly textValue={`${progress?.stars ?? 0} stars, ${progress?.streak ?? 0} day streak, ${progress?.games ?? 0} games`}
+                                          className="cursor-default data-[hover=true]:!bg-transparent">
+                                <span className="grid grid-cols-3 gap-2 py-1">
+                                    {summary(progress).map(({ label, value, icon: Icon, colour }) => <span key={label} className="flex flex-col gap-1">
+                                        <span className="text-[17px] font-semibold tabular-nums">{compact.format(value)}</span>
+                                        <span className="flex items-center gap-1 text-[12px] text-ui-muted"><Icon aria-hidden="true" className={`size-3.5 ${colour}`}/>{label}</span>
+                                    </span>)}
+                                </span>
+                            </DropdownItem>
+                        </DropdownSection>
+                        <DropdownItem key="stats" href="/stats" className="text-ui-text" startContent={<ChartColumnIcon className="size-4 text-ui-muted"/>}>View statistics</DropdownItem>
+                        <DropdownItem key="logout" color="danger" className="text-ui-text" startContent={<LogOutIcon className="size-4 text-ui-muted"/>} onPress={logOutAndReload}>Log Out</DropdownItem>
                     </DropdownMenu>
                 </Dropdown> : <Link href="/account/log-in" aria-label="Log in to save your progress" title="Log in"
                                    className="relative flex h-11 w-11 items-center justify-center rounded-lg text-ui-text hover:bg-ui-raised">
@@ -143,7 +207,6 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                                 {pages.map(({ label, href }) => <Link key={href} href={href} onClick={onClose}
                                                                       className="flex min-h-11 items-center px-[7px] first:pl-0 hover:text-ui-text">{label}</Link>)}
                             </nav>
-                            {/* 44px targets, overlapping a little so the marks sit 16px apart as in the design */}
                             <div className="-mr-2.5 flex items-center -space-x-1">
                                 {social.map(({ label, href, icon: Icon }) => <a key={href} href={href} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}
                                                                                className="flex size-11 items-center justify-center rounded-lg hover:bg-ui-raised hover:text-ui-text">
@@ -151,6 +214,7 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                                 </a>)}
                             </div>
                         </div>
+                        <p className="drawer-row -mt-3 font-mono text-[12px] text-ui-muted" style={rise(links.length + 2)}>v{process.env.APP_VERSION}</p>
                     </DrawerFooter>
                 </>}</DrawerContent>
             </Drawer>
