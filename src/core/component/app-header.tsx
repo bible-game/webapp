@@ -114,12 +114,15 @@ function RollingNumber({ value, text }: { value: number; text: string }) {
 function StarPill({ info, stars }: { info: NonNullable<AppHeaderProps["info"]>; stars?: number }) {
     return <span className="flex h-9 items-center gap-1.5 rounded-full bg-ui-raised pl-2.5 pr-1 text-[13px] font-semibold text-ui-text ring-1 ring-ui-line transition-colors group-data-[hover=true]:bg-ui-light-2 group-data-[pressed=true]:bg-ui-light-2">
         <StarIcon aria-hidden="true" className="size-3.5 shrink-0 text-play-gold" fill="currentColor"/>
-        {/* A count-sized placeholder until this device's stars are read, so the pill doesn't jump when they arrive */}
-        {stars === undefined
-            ? <span aria-hidden="true" className="h-3 w-[3ch] animate-pulse rounded-full bg-ui-light-2"/>
-            : <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { duration: 0.2 } }}>
-                <RollingNumber value={stars} text={stars.toLocaleString("en")}/>
-            </motion.span>}
+        {/* A slot as wide as "9,999", so the pill keeps one width from first paint (placeholder) to any count up to
+            there; the count sits centred in it */}
+        <span className="flex min-w-[4.6ch] justify-center">
+            {stars === undefined
+                ? <span aria-hidden="true" className="h-3 w-full animate-pulse rounded-full bg-ui-light-2"/>
+                : <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { duration: 0.2 } }}>
+                    <RollingNumber value={stars} text={stars.toLocaleString("en")}/>
+                </motion.span>}
+        </span>
         <Avatar aria-hidden="true" className="size-7 bg-ui-sheet text-[11px] font-semibold text-ui-text" name={initials(info)}/>
     </span>;
 }
@@ -128,11 +131,15 @@ const initials = (info: NonNullable<AppHeaderProps["info"]>) => (info.firstname[
 const rise = (index: number) => ({ animationDelay: `${80 + index * 30}ms` });
 const logOutAndReload = () => logOut().then(() => window.location.reload());
 
+// The star pill's width with any count up to 9,999 (measured at 103.88px), so the first paint is already centred.
+// Keep in step with StarPill; the observer below corrects it after paint if they drift, or for larger counts
+const PILL_WIDTH = 104;
+
 /** The width of the header's wider side, so both sides can take it: the middle item stays centred and is the one to
  *  give way when space is short, never the account pill */
-function useSideWidth() {
+function useSideWidth(initial: number) {
     const account = useRef<HTMLDivElement>(null);
-    const [side, setSide] = useState(44);
+    const [side, setSide] = useState(initial);
 
     useEffect(() => {
         const element = account.current;
@@ -151,7 +158,7 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
     // Read and Statistics show the player's progress themselves, so their header keeps the plain avatar
     const plain = ["/read", "/stats"].some(prefix => pathname.startsWith(prefix));
     const stars = useStars(!!info && !plain);
-    const { account, side } = useSideWidth();
+    const { account, side } = useSideWidth(info && !plain ? PILL_WIDTH : 44);
 
     return (
         // Equal side columns, so the page's middle item (date, passage, title) stays centred
