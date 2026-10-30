@@ -135,22 +135,26 @@ function StarCount({ stars }: { stars?: number }) {
 let bibleConfig: Promise<any> | undefined;
 const loadBible = () => bibleConfig ??= getBible().catch(() => { bibleConfig = undefined; });
 
+// The latest Bible seen, kept so the drawer opens with it in place rather than a placeholder
+let lastSeen: number | undefined;
+const calcSeen = (bible: any) => lastSeen = parseFloat(CompletionUtil.calcPercentageFromBuilt(CompletionUtil.build(bible)));
+
 // As on Statistics: whole percent, and "<1" until the first one
 const seenText = (seen: number) => seen === 0 ? "0%" : seen < 1 ? "<1%" : `${Math.round(seen)}%`;
 
 /** The account panel's progress: stars, streak and Bible seen, each its icon and number, with the header's placeholder
  *  until it's known. Bible seen is left out if the Bible's structure can't be loaded */
 function DrawerProgress({ stars }: { stars?: number }) {
-    const [streak, setStreak] = useState<number>();
-    const [seen, setSeen] = useState<number | null>();
+    // The drawer only mounts in the browser, when it opens, so the streak can be read straight away
+    const [streak] = useState(() => CompletionUtil.calcStreak());
+    const [seen, setSeen] = useState<number | null | undefined>(lastSeen);
 
     useEffect(() => {
         let live = true;
-        setStreak(CompletionUtil.calcStreak());
         loadBible().then(bible => {
             if (!live) return;
             try {
-                setSeen(bible ? parseFloat(CompletionUtil.calcPercentageFromBuilt(CompletionUtil.build(bible))) : null);
+                setSeen(bible ? calcSeen(bible) : null);
             } catch {
                 setSeen(null);
             }
@@ -160,7 +164,7 @@ function DrawerProgress({ stars }: { stars?: number }) {
 
     const figures = [
         { label: "stars", value: stars?.toLocaleString("en"), icon: <StarIcon className="size-3 text-play-gold" fill="currentColor"/> },
-        { label: "day streak", value: streak?.toString(), icon: <FlameIcon className="size-3 text-ui-orange"/> },
+        { label: "day streak", value: streak.toString(), icon: <FlameIcon className="size-3 text-ui-orange"/> },
         ...(seen === null ? [] : [{ label: "of the Bible seen", value: seen === undefined ? undefined : seenText(seen), icon: <BookOpenIcon className="size-3"/> }]),
     ];
 
@@ -175,16 +179,31 @@ function DrawerProgress({ stars }: { stars?: number }) {
 }
 
 const initials = (info: NonNullable<AppHeaderProps["info"]>) => (info.firstname[0] ?? "").toUpperCase() + (info.lastname[0] ?? "").toUpperCase();
-const rise = (index: number) => ({ animationDelay: `${80 + index * 30}ms` });
+// The drawer's rows rise in turn, quickly, so the whole drawer settles in about a third of a second
+const rise = (index: number) => ({ animationDelay: `${40 + index * 15}ms` });
 const logOutAndReload = () => logOut().then(() => window.location.reload());
 
 export default function AppHeader({ info, children, aside }: AppHeaderProps) {
     const drawer = useDisclosure();
     const pathname = usePathname();
     const stars = useStars(true);
+
+    // Fetch the Bible's structure once the page is idle, so the drawer's Bible seen is ready the first time it opens
+    useEffect(() => {
+        if (!info) return;
+        const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 1500));
+        const cancel = window.cancelIdleCallback ?? window.clearTimeout;
+        const handle = idle(() => loadBible().then(bible => {
+            try { if (bible) calcSeen(bible); } catch { /* the drawer works it out when it opens */ }
+        }));
+        return () => cancel(handle);
+    }, [info]);
     const right = aside === undefined ? <StarCount stars={stars}/> : aside;
-    const menu = <Button isIconOnly disableRipple aria-label="Open menu" title="Open menu" className={iconButton} onPress={drawer.onOpen}>
+    // A visitor's menu carries the yellow "needs attention" dot, pointing to the drawer's log-in panel
+    const menu = <Button isIconOnly disableRipple aria-label={info ? "Open menu" : "Open menu, log in to save your progress"} title="Open menu"
+                         className={`relative ${iconButton}`} onPress={drawer.onOpen}>
         <MenuIcon className="size-6"/>
+        {!info && <span aria-hidden="true" className="absolute right-2 top-2 size-2.5 rounded-full bg-ui-notice ring-2 ring-ui-bg"/>}
     </Button>;
 
     return (
@@ -227,11 +246,14 @@ export default function AppHeader({ info, children, aside }: AppHeaderProps) {
                     </DrawerBody>
                     <DrawerFooter className="flex-col items-stretch gap-3 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-4">
                         {info ? <div className="drawer-row flex items-center gap-3 rounded-lg border border-ui-line bg-ui-surface p-3" style={rise(links.length)}>
-                            <Avatar aria-hidden="true" className="size-9 shrink-0 bg-ui-raised text-[13px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(info)}/>
-                            <span className="min-w-0 flex-1">
-                                <span className="block truncate text-[15px] font-medium">{info.firstname} {info.lastname}</span>
-                                <DrawerProgress stars={stars}/>
-                            </span>
+                            {/* The avatar and name lead to the player's Statistics */}
+                            <Link href="/stats" onClick={onClose} className="group flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-md">
+                                <Avatar aria-hidden="true" className="size-9 shrink-0 bg-ui-raised text-[13px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(info)}/>
+                                <span className="min-w-0 flex-1">
+                                    <span className="block truncate text-[15px] font-medium underline-offset-4 group-hover:underline">{info.firstname} {info.lastname}</span>
+                                    <DrawerProgress stars={stars}/>
+                                </span>
+                            </Link>
                             <button type="button" className="ui-button min-h-11 shrink-0" onClick={logOutAndReload}>Log out</button>
                         </div> : <Link href="/account/log-in" onClick={onClose} className="drawer-row flex min-h-[68px] items-center gap-2.5 rounded-lg border border-ui-line bg-ui-surface px-3.5 py-2.5 hover:bg-ui-raised"
                                        style={rise(links.length)}>

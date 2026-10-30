@@ -69,7 +69,7 @@ export default async function Stats() {
                     {rank.rank}<sup>{getOrdinalSuffix(rank.rank)}</sup><span className="font-normal text-ui-muted"> of {rank.totalPlayers}</span>
                 </span>
             ) : null}>
-                {displayName && <span className="truncate text-[17px] font-semibold">{displayName}</span>}
+                <span className="truncate text-[17px] font-semibold">{displayName ?? "Statistics"}</span>
             </Menu>
             <main className="app-page">
                 <h1 className="sr-only">Statistics</h1>
