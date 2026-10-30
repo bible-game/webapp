@@ -111,19 +111,19 @@ function RollingNumber({ value, text }: { value: number; text: string }) {
     </span>;
 }
 
-function StarPill({ info, stars }: { info: NonNullable<AppHeaderProps["info"]>; stars?: number }) {
-    return <span className="flex h-9 items-center gap-1.5 rounded-full bg-ui-raised pl-2.5 pr-1 text-[13px] font-semibold text-ui-text ring-1 ring-ui-line transition-colors group-data-[hover=true]:bg-ui-light-2 group-data-[pressed=true]:bg-ui-light-2">
+/** The player's stars beside the account control: no backing, so it stays quieter than the page's middle item */
+function StarCount({ stars }: { stars?: number }) {
+    return <span className="flex items-center gap-1.5 text-[13px] font-semibold text-ui-text">
         <StarIcon aria-hidden="true" className="size-3.5 shrink-0 text-play-gold" fill="currentColor"/>
-        {/* A slot as wide as "9,999", so the pill keeps one width from first paint (placeholder) to any count up to
-            there; the count sits centred in it */}
-        <span className="flex min-w-[4.6ch] justify-center">
+        {/* A slot as wide as "9,999", so the header keeps one width from first paint (placeholder) to any count up to
+            there; the count sits against its star, with any spare room after it */}
+        <span className="flex min-w-[4.6ch] justify-start">
             {stars === undefined
                 ? <span aria-hidden="true" className="h-3 w-full animate-pulse rounded-full bg-ui-light-2"/>
                 : <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { duration: 0.2 } }}>
                     <RollingNumber value={stars} text={stars.toLocaleString("en")}/>
                 </motion.span>}
         </span>
-        <Avatar aria-hidden="true" className="size-7 bg-ui-sheet text-[11px] font-semibold text-ui-text" name={initials(info)}/>
     </span>;
 }
 
@@ -131,9 +131,9 @@ const initials = (info: NonNullable<AppHeaderProps["info"]>) => (info.firstname[
 const rise = (index: number) => ({ animationDelay: `${80 + index * 30}ms` });
 const logOutAndReload = () => logOut().then(() => window.location.reload());
 
-// The star pill's width with any count up to 9,999 (measured at 103.88px), so the first paint is already centred.
-// Keep in step with StarPill; the observer below corrects it after paint if they drift, or for larger counts
-const PILL_WIDTH = 104;
+// The account side's width with the star count (any count up to 9,999), so the first paint is already centred. Keep
+// in step with StarCount and the controls beside it; the observer below corrects them after paint if they drift
+const ACCOUNT_WIDTH = { member: 110, guest: 108 };
 
 /** The width of the header's wider side, so both sides can take it: the middle item stays centred and is the one to
  *  give way when space is short, never the account pill */
@@ -155,10 +155,11 @@ function useSideWidth(initial: number) {
 export default function AppHeader({ info, children }: AppHeaderProps) {
     const drawer = useDisclosure();
     const pathname = usePathname();
-    // Read and Statistics show the player's progress themselves, so their header keeps the plain avatar
+    // Read and Statistics show the player's progress themselves, so their header leaves the star count out
     const plain = ["/read", "/stats"].some(prefix => pathname.startsWith(prefix));
-    const stars = useStars(!!info && !plain);
-    const { account, side } = useSideWidth(info && !plain ? PILL_WIDTH : 44);
+    const stars = useStars(!plain);
+    const { account, side } = useSideWidth(plain ? 44 : info ? ACCOUNT_WIDTH.member : ACCOUNT_WIDTH.guest);
+    const starsLabel = plain || stars === undefined ? "" : `, ${stars} stars`;
 
     return (
         // Equal side columns, so the page's middle item (date, passage, title) stays centred
@@ -171,20 +172,22 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
             <div ref={account} className="flex h-11 min-w-11 items-center justify-end justify-self-end">
                 {info ? <Dropdown placement="bottom-end" classNames={{ content: "rounded-lg bg-ui-sheet border border-ui-line text-ui-text" }}>
                     <DropdownTrigger>
-                        <Button disableRipple aria-label={plain || stars === undefined ? "Open account menu" : `Open account menu, ${stars} stars`}
-                                className={`group h-11 min-w-0 gap-0 rounded-full bg-transparent px-0 data-[hover=true]:!bg-transparent data-[pressed=true]:!bg-transparent ${plain ? "w-11" : ""}`}>
-                            {plain
-                                ? <Avatar aria-hidden="true" className="size-8 bg-ui-raised text-[12px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(info)}/>
-                                : <StarPill info={info} stars={stars}/>}
+                        <Button disableRipple aria-label={`Open account menu${starsLabel}`}
+                                className={`h-11 min-w-0 gap-2 rounded-lg bg-transparent data-[hover=true]:!bg-ui-raised data-[pressed=true]:!bg-ui-raised ${plain ? "w-11 px-0" : "pl-2 pr-1.5"}`}>
+                            {!plain && <StarCount stars={stars}/>}
+                            <Avatar aria-hidden="true" className="size-8 shrink-0 bg-ui-raised text-[12px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(info)}/>
                         </Button>
                     </DropdownTrigger>
                     <DropdownMenu aria-label="Account" variant="flat">
                         <DropdownItem key="logout" color="danger" className="text-ui-text" onPress={logOutAndReload}>Log Out</DropdownItem>
                     </DropdownMenu>
-                </Dropdown> : <Link href="/account/log-in" aria-label="Log in to save your progress" title="Log in"
-                                   className="relative flex h-11 w-11 items-center justify-center rounded-lg text-ui-text hover:bg-ui-raised">
-                    <UserRoundIcon className="size-6" strokeWidth={1.75}/>
-                    <span aria-hidden="true" className="absolute right-2 top-2 size-2.5 rounded-full bg-ui-notice ring-2 ring-ui-bg"/>
+                </Dropdown> : <Link href="/account/log-in" aria-label={`Log in to save your progress${starsLabel}`} title="Log in"
+                                   className={`flex h-11 items-center rounded-lg text-ui-text hover:bg-ui-raised ${plain ? "w-11 justify-center" : "pl-2"}`}>
+                    {!plain && <StarCount stars={stars}/>}
+                    <span className="relative flex size-11 items-center justify-center">
+                        <UserRoundIcon className="size-6" strokeWidth={1.75}/>
+                        <span aria-hidden="true" className="absolute right-2 top-2 size-2.5 rounded-full bg-ui-notice ring-2 ring-ui-bg"/>
+                    </span>
                 </Link>}
             </div>
             <Drawer isOpen={drawer.isOpen} onOpenChange={drawer.onOpenChange} placement="left" size="full" radius="none" hideCloseButton
