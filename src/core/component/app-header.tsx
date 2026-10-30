@@ -4,17 +4,20 @@ import React, { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Avatar, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, useDisclosure } from "@heroui/react";
-import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, LightbulbIcon, MenuIcon, PlayIcon, StarIcon, UserRoundIcon, XIcon } from "lucide-react";
+import { Avatar, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, useDisclosure } from "@heroui/react";
+import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon, MenuIcon, PlayIcon, StarIcon, UserRoundIcon, XIcon } from "lucide-react";
 import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
 import { logOut } from "@/core/action/auth/log-out";
 import LogoMark from "@/core/component/logo-mark";
+import getBible from "@/core/action/config/get-bible";
 import { CompletionUtil } from "@/core/util/completion-util";
 import { StorageUtil } from "@/core/util/storage-util";
 
 export type AppHeaderProps = {
     info?: { firstname: string; lastname: string };
     children?: React.ReactNode;
+    /** The header's top right: the player's star count unless a page puts its own figure there (null for none) */
+    aside?: React.ReactNode;
 };
 
 const iconButton = "h-11 w-11 min-w-0 rounded-lg bg-transparent p-0 text-ui-text data-[hover=true]:!bg-ui-raised data-[pressed=true]:!bg-ui-raised";
@@ -111,9 +114,10 @@ function RollingNumber({ value, text }: { value: number; text: string }) {
     </span>;
 }
 
-/** The player's stars beside the account control: no backing, so it stays quieter than the page's middle item */
+/** The player's stars, linking to Statistics: no backing, so it stays quieter than the page's middle item */
 function StarCount({ stars }: { stars?: number }) {
-    return <span className="flex items-center gap-1.5 text-[13px] font-semibold text-ui-text">
+    return <Link href="/stats" aria-label={stars === undefined ? "Stars, view statistics" : `${stars} stars, view statistics`}
+                 className="flex h-11 items-center gap-1.5 rounded-lg px-2 text-[13px] font-semibold text-ui-text hover:bg-ui-raised">
         <StarIcon aria-hidden="true" className="size-3.5 shrink-0 text-play-gold" fill="currentColor"/>
         {/* A slot as wide as "9,999", so the header keeps one width from first paint (placeholder) to any count up to
             there; the count sits against its star, with any spare room after it */}
@@ -124,6 +128,49 @@ function StarCount({ stars }: { stars?: number }) {
                     <RollingNumber value={stars} text={stars.toLocaleString("en")}/>
                 </motion.span>}
         </span>
+    </Link>;
+}
+
+// The Bible's structure, fetched once per visit: Bible seen needs it to know how many verses each chapter has
+let bibleConfig: Promise<any> | undefined;
+const loadBible = () => bibleConfig ??= getBible().catch(() => { bibleConfig = undefined; });
+
+// As on Statistics: whole percent, and "<1" until the first one
+const seenText = (seen: number) => seen === 0 ? "0%" : seen < 1 ? "<1%" : `${Math.round(seen)}%`;
+
+/** The account panel's progress: stars, streak and Bible seen, each its icon and number, with the header's placeholder
+ *  until it's known. Bible seen is left out if the Bible's structure can't be loaded */
+function DrawerProgress({ stars }: { stars?: number }) {
+    const [streak, setStreak] = useState<number>();
+    const [seen, setSeen] = useState<number | null>();
+
+    useEffect(() => {
+        let live = true;
+        setStreak(CompletionUtil.calcStreak());
+        loadBible().then(bible => {
+            if (!live) return;
+            try {
+                setSeen(bible ? parseFloat(CompletionUtil.calcPercentageFromBuilt(CompletionUtil.build(bible))) : null);
+            } catch {
+                setSeen(null);
+            }
+        });
+        return () => { live = false; };
+    }, []);
+
+    const figures = [
+        { label: "stars", value: stars?.toLocaleString("en"), icon: <StarIcon className="size-3 text-play-gold" fill="currentColor"/> },
+        { label: "day streak", value: streak?.toString(), icon: <FlameIcon className="size-3 text-ui-orange"/> },
+        ...(seen === null ? [] : [{ label: "of the Bible seen", value: seen === undefined ? undefined : seenText(seen), icon: <BookOpenIcon className="size-3"/> }]),
+    ];
+
+    return <span className="flex items-center gap-3 text-[13px] tabular-nums text-ui-muted">
+        {figures.map(({ label, value, icon }) => <span key={label} className="flex items-center gap-1">
+            <span aria-hidden="true" className="flex">{icon}</span>
+            {value === undefined
+                ? <span aria-hidden="true" className="h-2.5 w-[3ch] animate-pulse rounded-full bg-ui-light-2"/>
+                : <span>{value}<span className="sr-only"> {label}</span></span>}
+        </span>)}
     </span>;
 }
 
@@ -131,64 +178,27 @@ const initials = (info: NonNullable<AppHeaderProps["info"]>) => (info.firstname[
 const rise = (index: number) => ({ animationDelay: `${80 + index * 30}ms` });
 const logOutAndReload = () => logOut().then(() => window.location.reload());
 
-// The account side's width with the star count (any count up to 9,999), so the first paint is already centred. Keep
-// in step with StarCount and the controls beside it; the observer below corrects them after paint if they drift
-const ACCOUNT_WIDTH = { member: 110, guest: 108 };
-
-/** The width of the header's wider side, so both sides can take it: the middle item stays centred and is the one to
- *  give way when space is short, never the account pill */
-function useSideWidth(initial: number) {
-    const account = useRef<HTMLDivElement>(null);
-    const [side, setSide] = useState(initial);
-
-    useEffect(() => {
-        const element = account.current;
-        if (!element) return;
-        const observer = new ResizeObserver(() => setSide(Math.max(44, Math.ceil(element.getBoundingClientRect().width))));
-        observer.observe(element);
-        return () => observer.disconnect();
-    }, []);
-
-    return { account, side };
-}
-
-export default function AppHeader({ info, children }: AppHeaderProps) {
+export default function AppHeader({ info, children, aside }: AppHeaderProps) {
     const drawer = useDisclosure();
     const pathname = usePathname();
-    // Read and Statistics show the player's progress themselves, so their header leaves the star count out
-    const plain = ["/read", "/stats"].some(prefix => pathname.startsWith(prefix));
-    const stars = useStars(!plain);
-    const { account, side } = useSideWidth(plain ? 44 : info ? ACCOUNT_WIDTH.member : ACCOUNT_WIDTH.guest);
-    const starsLabel = plain || stars === undefined ? "" : `, ${stars} stars`;
+    const stars = useStars(true);
+    const right = aside === undefined ? <StarCount stars={stars}/> : aside;
+    const menu = <Button isIconOnly disableRipple aria-label="Open menu" title="Open menu" className={iconButton} onPress={drawer.onOpen}>
+        <MenuIcon className="size-6"/>
+    </Button>;
 
     return (
-        // Equal side columns, so the page's middle item (date, passage, title) stays centred
-        <header className="grid h-14 shrink-0 grid-cols-[minmax(var(--side),1fr)_minmax(0,auto)_minmax(var(--side),1fr)] items-center px-2 text-ui-text"
-                style={{ "--side": `${side}px` } as React.CSSProperties}>
-            <Button isIconOnly disableRipple aria-label="Open menu" title="Open menu" className={iconButton} onPress={drawer.onOpen}>
-                <MenuIcon className="size-6"/>
-            </Button>
+        // Equal side columns, so the page's middle item (date, passage, title) stays centred from the first paint: each
+        // side also holds an invisible copy of the other, so both are as wide as the wider one, and the middle gives way
+        <header className="grid h-14 shrink-0 grid-cols-[minmax(max-content,1fr)_minmax(0,auto)_minmax(max-content,1fr)] items-center px-2 text-ui-text">
+            <div className="grid items-center justify-items-start *:col-start-1 *:row-start-1">
+                {menu}
+                <div aria-hidden="true" inert className="invisible">{right}</div>
+            </div>
             <div className="flex min-w-0 justify-center px-1 *:min-w-0 *:max-w-full">{children}</div>
-            <div ref={account} className="flex h-11 min-w-11 items-center justify-end justify-self-end">
-                {info ? <Dropdown placement="bottom-end" classNames={{ content: "rounded-lg bg-ui-sheet border border-ui-line text-ui-text" }}>
-                    <DropdownTrigger>
-                        <Button disableRipple aria-label={`Open account menu${starsLabel}`}
-                                className={`h-11 min-w-0 gap-2 rounded-lg bg-transparent data-[hover=true]:!bg-ui-raised data-[pressed=true]:!bg-ui-raised ${plain ? "w-11 px-0" : "pl-2 pr-1.5"}`}>
-                            {!plain && <StarCount stars={stars}/>}
-                            <Avatar aria-hidden="true" className="size-8 shrink-0 bg-ui-raised text-[12px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(info)}/>
-                        </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu aria-label="Account" variant="flat">
-                        <DropdownItem key="logout" color="danger" className="text-ui-text" onPress={logOutAndReload}>Log Out</DropdownItem>
-                    </DropdownMenu>
-                </Dropdown> : <Link href="/account/log-in" aria-label={`Log in to save your progress${starsLabel}`} title="Log in"
-                                   className={`flex h-11 items-center rounded-lg text-ui-text hover:bg-ui-raised ${plain ? "w-11 justify-center" : "pl-2"}`}>
-                    {!plain && <StarCount stars={stars}/>}
-                    <span className="relative flex size-11 items-center justify-center">
-                        <UserRoundIcon className="size-6" strokeWidth={1.75}/>
-                        <span aria-hidden="true" className="absolute right-2 top-2 size-2.5 rounded-full bg-ui-notice ring-2 ring-ui-bg"/>
-                    </span>
-                </Link>}
+            <div className="grid items-center justify-items-end *:col-start-1 *:row-start-1">
+                <div className="flex items-center">{right}</div>
+                <div aria-hidden="true" inert className="invisible">{menu}</div>
             </div>
             <Drawer isOpen={drawer.isOpen} onOpenChange={drawer.onOpenChange} placement="left" size="full" radius="none" hideCloseButton
                     classNames={{ base: "play-ui bg-ui-sheet text-ui-text" }}>
@@ -220,7 +230,7 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
                             <Avatar aria-hidden="true" className="size-9 shrink-0 bg-ui-raised text-[13px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(info)}/>
                             <span className="min-w-0 flex-1">
                                 <span className="block truncate text-[15px] font-medium">{info.firstname} {info.lastname}</span>
-                                <span className="block text-[13px] text-ui-muted">Signed in</span>
+                                <DrawerProgress stars={stars}/>
                             </span>
                             <button type="button" className="ui-button min-h-11 shrink-0" onClick={logOutAndReload}>Log out</button>
                         </div> : <Link href="/account/log-in" onClick={onClose} className="drawer-row flex min-h-[68px] items-center gap-2.5 rounded-lg border border-ui-line bg-ui-surface px-3.5 py-2.5 hover:bg-ui-raised"

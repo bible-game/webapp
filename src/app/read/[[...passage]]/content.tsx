@@ -165,7 +165,9 @@ export default function Content(props: any) {
             <div className="reader-header">
                 <GroundWindow />
                 <div className="app-header">
-                    <AppHeader info={props.info}>
+                    <AppHeader info={props.info} aside={minutes ? (
+                        <span className="px-2 text-[13px] font-semibold tabular-nums text-[var(--reader-muted)]">{minutes} min</span>
+                    ) : null}>
                         <button type="button" onClick={() => setSheet("passage")}
                                 aria-label={`${title}. Change passage`} className="reader-passage">
                             <span className="reader-title truncate">{title}</span>
@@ -191,15 +193,7 @@ export default function Content(props: any) {
                         </div>
                     ) : passage?.verses ? (
                         <>
-                            {/* the reading time shares the line with the context before, on the right */}
-                            <div className="relative">
-                                <Context passageKey={key} context="before" />
-                                {minutes ? (
-                                    <span className="pointer-events-none absolute right-0 top-0 flex h-11 items-center text-[13px] tabular-nums text-[var(--reader-muted)]">
-                                        {minutes} min read
-                                    </span>
-                                ) : null}
-                            </div>
+                            <Context passageKey={key} context="before" />
                             <article className="mb-5 mt-7">
                                 <p ref={proseRef} className="reading-prose">
                                     {verses}
