@@ -1,6 +1,7 @@
 "use server"
 
 import { LogInFormState, LogInFormSchema } from "@/core/model/form/form-definitions"
+import { z } from "zod"
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { safeNext, setAuthCookies } from "@/core/util/auth-cookies";
@@ -32,7 +33,7 @@ export async function logIn(state: LogInFormState, formData: FormData) {
     })
 
     if (!validated.success) {
-        const fieldErrors = validated.error.flatten().fieldErrors
+        const fieldErrors = z.flattenError(validated.error).fieldErrors
         state.errors.email = fieldErrors.email ?? []
         state.errors.password = fieldErrors.password ?? []
         return state

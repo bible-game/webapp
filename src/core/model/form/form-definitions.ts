@@ -2,12 +2,12 @@
 import { z } from 'zod'
 
 export const LogInFormSchema = z.object({
-    email: z.string().email('Please enter a valid email address').trim(),
+    email: z.email('Please enter a valid email address').trim(),
     password: z.string().trim()
 })
 
 export const SignUpFormSchema = z.object({
-    email: z.string().email('Please enter a valid email address').trim(),
+    email: z.email('Please enter a valid email address').trim(),
     password: z.string().min(8, 'Password must be at least 8 characters long').trim(),
     firstname: z.string().trim().min(2, 'Name must be at least 2 characters')
         .regex(/^[a-zA-Z\s-]+$/, 'Name can only contain letters, spaces, and hyphens')
@@ -20,19 +20,19 @@ export const SignUpFormSchema = z.object({
     church: z.string().trim(),
     confirmPassword: z.string().trim()
 }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    error: "Passwords do not match",
     path: ["confirmPassword"]
 })
 
 export const ForgotPasswordFormSchema = z.object({
-    email: z.string().email('Please enter a valid email address').trim(),
+    email: z.email('Please enter a valid email address').trim(),
 })
 
 export const ResetPasswordFormSchema = z.object({
     password: z.string().min(8, 'Password must be at least 8 characters long').trim(),
     confirmPassword: z.string().trim()
 }).refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    error: "Passwords don't match",
     path: ["confirmPassword"],
 })
 
