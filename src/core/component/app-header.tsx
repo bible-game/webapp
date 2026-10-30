@@ -114,7 +114,12 @@ function RollingNumber({ value, text }: { value: number; text: string }) {
 function StarPill({ info, stars }: { info: NonNullable<AppHeaderProps["info"]>; stars?: number }) {
     return <span className="flex h-9 items-center gap-1.5 rounded-full bg-ui-raised pl-2.5 pr-1 text-[13px] font-semibold text-ui-text ring-1 ring-ui-line transition-colors group-data-[hover=true]:bg-ui-light-2 group-data-[pressed=true]:bg-ui-light-2">
         <StarIcon aria-hidden="true" className="size-3.5 shrink-0 text-play-gold" fill="currentColor"/>
-        {stars === undefined ? null : <RollingNumber value={stars} text={stars.toLocaleString("en")}/>}
+        {/* A count-sized placeholder until this device's stars are read, so the pill doesn't jump when they arrive */}
+        {stars === undefined
+            ? <span aria-hidden="true" className="h-3 w-[3ch] animate-pulse rounded-full bg-ui-light-2"/>
+            : <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1, transition: { duration: 0.2 } }}>
+                <RollingNumber value={stars} text={stars.toLocaleString("en")}/>
+            </motion.span>}
         <Avatar aria-hidden="true" className="size-7 bg-ui-sheet text-[11px] font-semibold text-ui-text" name={initials(info)}/>
     </span>;
 }
@@ -143,7 +148,9 @@ function useSideWidth() {
 export default function AppHeader({ info, children }: AppHeaderProps) {
     const drawer = useDisclosure();
     const pathname = usePathname();
-    const stars = useStars(!!info);
+    // Read and Statistics show the player's progress themselves, so their header keeps the plain avatar
+    const plain = ["/read", "/stats"].some(prefix => pathname.startsWith(prefix));
+    const stars = useStars(!!info && !plain);
     const { account, side } = useSideWidth();
 
     return (
@@ -157,9 +164,11 @@ export default function AppHeader({ info, children }: AppHeaderProps) {
             <div ref={account} className="flex h-11 min-w-11 items-center justify-end justify-self-end">
                 {info ? <Dropdown placement="bottom-end" classNames={{ content: "rounded-lg bg-ui-sheet border border-ui-line text-ui-text" }}>
                     <DropdownTrigger>
-                        <Button disableRipple aria-label={stars === undefined ? "Open account menu" : `Open account menu, ${stars} stars`}
-                                className="group h-11 min-w-0 gap-0 rounded-full bg-transparent px-0 data-[hover=true]:!bg-transparent data-[pressed=true]:!bg-transparent">
-                            <StarPill info={info} stars={stars}/>
+                        <Button disableRipple aria-label={plain || stars === undefined ? "Open account menu" : `Open account menu, ${stars} stars`}
+                                className={`group h-11 min-w-0 gap-0 rounded-full bg-transparent px-0 data-[hover=true]:!bg-transparent data-[pressed=true]:!bg-transparent ${plain ? "w-11" : ""}`}>
+                            {plain
+                                ? <Avatar aria-hidden="true" className="size-8 bg-ui-raised text-[12px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(info)}/>
+                                : <StarPill info={info} stars={stars}/>}
                         </Button>
                     </DropdownTrigger>
                     <DropdownMenu aria-label="Account" variant="flat">
