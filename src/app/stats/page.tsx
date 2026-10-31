@@ -4,7 +4,7 @@ import { Toaster } from "react-hot-toast";
 import React from "react";
 import Menu from "@/app/menu";
 import StatsContent from "@/app/stats/stats-content";
-import LoginPrompt from "@/app/stats/login-prompt";
+import Link from "next/link";
 import Leaderboard from "@/app/stats/leaderboard";
 
 import { getReadState } from "@/core/action/state/get-state-read";
@@ -58,18 +58,21 @@ export default async function Stats() {
 
     return (
         <>
-            <Menu info={info}/>
+            {/* Top right, where the star count usually sits: the player's place, or for a visitor the call to log in */}
+            <Menu info={info} aside={!info ? (
+                <Link href="/account/log-in" aria-label="Log in to save your progress"
+                      className="flex h-9 items-center rounded-lg border border-ui-line bg-ui-surface px-3 text-[13px] font-semibold text-ui-text hover:bg-ui-raised">
+                    Log in
+                </Link>
+            ) : rank.rank && rank.totalPlayers ? (
+                <span className="px-2 text-[13px] font-semibold tabular-nums">
+                    {rank.rank}<sup>{getOrdinalSuffix(rank.rank)}</sup><span className="font-normal text-ui-muted"> of {rank.totalPlayers}</span>
+                </span>
+            ) : null}>
+                <span className="truncate text-[17px] font-semibold">{displayName ?? "Statistics"}</span>
+            </Menu>
             <main className="app-page">
-                <header className="page-heading">
-                    <h1>Statistics</h1>
-                    {displayName && <p>{displayName}</p>}
-                    {rank.rank && rank.totalPlayers && (
-                        <p className="text-[13px] text-ui-muted">
-                            <span>{rank.rank}</span><sup>{getOrdinalSuffix(rank.rank)}</sup><span> of {rank.totalPlayers}</span>
-                        </p>
-                    )}
-                </header>
-                {!info && <LoginPrompt/>}
+                <h1 className="sr-only">Statistics</h1>
                 <StatsContent bible={bible} gameState={gameState} readState={readState} reviewState={reviewState}>
                     <Leaderboard leaders={leaders} currentUserId={userId}/>
                 </StatsContent>

@@ -6,7 +6,7 @@ export default function Loading() {
         <>
             <div className="app-header"><div className="h-14"/></div>
             <main className="app-page">
-                <header className="page-heading"><h1>Statistics</h1></header>
+                <h1 className="sr-only">Statistics</h1>
                 <StatsSkeleton/>
             </main>
         </>

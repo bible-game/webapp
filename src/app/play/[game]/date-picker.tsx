@@ -89,9 +89,9 @@ const DatePicker = (props: { date: string, label: string, onChange: (date: strin
         <>
             <button type="button" aria-label="Choose a date" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}
                     className="flex h-9 items-center gap-2 rounded-lg border border-play-line bg-play-surface pl-3 pr-2.5 text-[14px] font-medium tabular-nums text-play-text">
-                <CalendarDaysIcon className="size-4 text-play-muted" aria-hidden="true"/>
-                <span>{props.label}</span>
-                <ChevronDownIcon className="size-4 text-play-muted" aria-hidden="true"/>
+                <CalendarDaysIcon className="size-4 shrink-0 text-play-muted" aria-hidden="true"/>
+                <span className="truncate">{props.label}</span>
+                <ChevronDownIcon className="size-4 shrink-0 text-play-muted" aria-hidden="true"/>
             </button>
 
             <Modal isOpen={open} onOpenChange={setOpen} placement="bottom" backdrop="blur" hideCloseButton

@@ -1,5 +1,4 @@
 import {heroui} from '@heroui/theme';
-import {nextui} from '@nextui-org/theme';
 import type { Config } from "tailwindcss";
 import { playTheme } from "./src/core/style/play-theme";
 import { uiTheme } from "./src/core/style/ui-theme";
@@ -10,7 +9,6 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/core/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@nextui-org/theme/dist/components/(accordion|dropdown|menu|divider|popover|button|ripple|spinner).js",
     "./node_modules/@heroui/theme/dist/components/*.js"
   ],
   theme: {
@@ -43,7 +41,6 @@ const config: Config = {
     },
   },
   plugins: [
-    nextui({ layout: { radius: { small: "8px", medium: "8px", large: "8px" } } }),
     heroui({ layout: { radius: { small: "8px", medium: "8px", large: "8px" } } }),
   ],
 };

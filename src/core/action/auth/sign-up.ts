@@ -1,6 +1,7 @@
 "use server"
 
 import { SignUpFormSchema, SignUpFormState } from "@/core/model/form/form-definitions"
+import { z } from "zod"
 import { setAuthCookies } from "@/core/util/auth-cookies"
 
 export async function signup(state: SignUpFormState, formData: FormData): Promise<SignUpFormState> {
@@ -58,7 +59,7 @@ export async function signup(state: SignUpFormState, formData: FormData): Promis
                 lastname: [],
                 church: [],
                 form: [],
-                ...validatedFields.error.flatten().fieldErrors
+                ...z.flattenError(validatedFields.error).fieldErrors
             } as any,
             token: undefined,
             success: undefined

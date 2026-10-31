@@ -1,0 +1,50 @@
+name: review
+on:
+  pull_request:
+    branches: [ develop, main ]
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+      - name: Review Dependencies 🔍
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+      - name: Set-up Node 🟢
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install 🔧
+        run: npm ci
+      - name: Audit 🔒
+        run: npm audit --omit=dev --audit-level=high
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+      - name: Set-up Node 🟢
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install 🔧
+        run: npm ci
+      - name: Lint 🧹
+        run: npm run lint
+      - name: Build 📦
+        run: npm run build

@@ -1,0 +1,24 @@
+name: bump
+on:
+  workflow_call:
+jobs:
+  bump:
+    concurrency: ci-develop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v3
+        with:
+          ref: develop
+          fetch-depth: 0
+      - name: Set-up User 🐵
+        uses: fregante/setup-git-user@v2
+      - name: Merge Release ➡️
+        run: git merge origin/main --no-edit -m "Merge release into develop"
+      - name: Add -SNAPSHOT 📷
+        run: |
+          VERSION="$(jq -r '.version' package.json)"
+          SNAPSHOT="$(echo "$VERSION" | cut -d "." -f 1-2).$((1 + $(echo "$VERSION" | cut -d "." -f 3)))-SNAPSHOT"
+          npm version "$SNAPSHOT" --no-git-tag-version
+          git commit -am "[bump] $SNAPSHOT"
+          git push origin HEAD

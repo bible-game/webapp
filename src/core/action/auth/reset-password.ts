@@ -1,6 +1,7 @@
 "use server"
 
 import { ResetPasswordFormSchema, ResetPasswordFormState } from "@/core/model/form/form-definitions"
+import { z } from "zod"
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 
@@ -28,7 +29,7 @@ export async function resetPassword(state: ResetPasswordFormState, formData: For
 
     const validated = ResetPasswordFormSchema.safeParse({ password, confirmPassword })
     if (!validated.success) {
-        const fieldErrors = validated.error.flatten().fieldErrors
+        const fieldErrors = z.flattenError(validated.error).fieldErrors
         state.errors.password = fieldErrors.password ?? []
         state.errors.confirmPassword = fieldErrors.confirmPassword ?? []
         return state
