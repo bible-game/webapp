@@ -45,7 +45,7 @@ export default function ReaderToolbar(props: Props) {
         <div className="reader-toolbar fixed inset-x-0 bottom-0 z-40" data-hidden={!visible || undefined}
              onFocusCapture={() => setHidden(false)}>
             <GroundWindow />
-            <div className="reader-toolbar-body mx-auto max-w-[43rem] px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 sm:px-6">
+            <div className="reader-toolbar-body mx-auto max-w-page px-4 pb-[max(8px,env(safe-area-inset-bottom))] pt-3 sm:px-6">
                 {audio.src ? <AudioPlayer src={audio.src} onClose={audio.onClose} /> : null}
 
                 <nav aria-label="Reading controls" className="mt-1 grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-4 px-2">

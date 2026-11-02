@@ -121,15 +121,20 @@ body
       gap: 8px
       font-size: 14px
 
+// One width for every page's centre column and its header. Phones are narrower, so it only shows on larger screens.
+// Play is the exception: its map fills the screen (game.tsx)
+:root
+  --page-width: 64rem
+
 .app-header
   width: 100%
-  max-width: 64rem
+  max-width: var(--page-width)
   margin: 0 auto
   padding-top: env(safe-area-inset-top)
 
 .app-page
   width: 100%
-  max-width: 48rem
+  max-width: var(--page-width)
   margin: 0 auto
   padding: 24px 24px max(48px, env(safe-area-inset-bottom))
 
@@ -865,3 +870,7 @@ input:-webkit-autofill:focus
     animation-duration: 0.01ms !important
     animation-iteration-count: 1 !important
     transition-duration: 0.01ms !important
+
+// Gridmap's hover label, left empty (gridmap.tsx); only a ruled-out chapter's explanation fills it
+.gridmap-tooltip:empty
+  display: none

@@ -188,7 +188,8 @@ const BibleGridmap = (props: GridmapProps) => {
             sectionLabelSize: 9.5,
             theme: mapTheme(),
             labels: {
-                tooltip: (cell: GridmapCell) => `${cell.itemLabel} ${cell.label}`,
+                // no label on hover (globals.sass hides the empty tooltip); a ruled-out chapter still says why
+                tooltip: () => "",
                 // tapping a ruled-out chapter says why, instead of selecting it
                 disabled: (cell: GridmapCell) => `${cell.itemLabel} ${cell.label}: ${ruledOut.current.get(cell.id)}`,
             },

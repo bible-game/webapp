@@ -273,12 +273,13 @@ export default function Game(props: any) {
             <MotionConfig reducedMotion="user">
             <div data-game-ready className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-transparent pt-[env(safe-area-inset-top)] text-play-text">
                 <PopUp />
-                <div className="mx-auto flex w-full max-w-[40rem] shrink-0 flex-col">
+                {/* The header and the action bar keep to the page width; the map between them fills the screen */}
+                <div className="mx-auto flex w-full max-w-page shrink-0 flex-col">
                     <Header info={props.info} date={props.game}/>
                     <Summary passage={passage} playing={playing} guesses={guesses}/>
                 </div>
 
-                <div className="mx-auto min-h-0 w-full max-w-[40rem] flex-1">
+                <div className="min-h-0 w-full flex-1">
                     <div className="h-full w-full p-3 sm:p-6">
                         <div className="relative h-full w-full">
                             <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
@@ -290,7 +291,7 @@ export default function Game(props: any) {
                     </div>
                 </div>
 
-                <section className="mx-auto !w-full max-w-[40rem] shrink-0 pb-[env(safe-area-inset-bottom)]">
+                <section className="mx-auto !w-full max-w-page shrink-0 pb-[env(safe-area-inset-bottom)]">
                     <Action passage={passage} playing={playing} stars={stars} celebrate={confetti} isExistingGuess={isExistingGuess}
                             date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
                             step={step} canStep={(delta: number) => nextChapter(delta) !== null}

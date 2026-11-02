@@ -33,6 +33,10 @@ const config: Config = {
         "2xl": "8px",
         "3xl": "16px",
       },
+      // max-w-page: the shared page width (--page-width in globals.sass)
+      maxWidth: {
+        page: "var(--page-width)",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

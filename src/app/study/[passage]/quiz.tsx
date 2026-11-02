@@ -182,7 +182,7 @@ export default function Quiz({ passage, study, title, loggedIn, onPassage, onSub
 
             <div className="chrome-foot fixed inset-x-0 bottom-0 z-30 pt-3">
                 <GroundWindow />
-                <div className="mx-auto flex max-w-[43rem] items-center gap-3 px-4 pb-[max(16px,env(safe-area-inset-bottom))] sm:px-6">
+                <div className="mx-auto flex max-w-page items-center gap-3 px-4 pb-[max(16px,env(safe-area-inset-bottom))] sm:px-6">
                     {step > 0 ? (
                         <button type="button" aria-label="Previous question" onClick={() => setStep(step - 1)}
                                 className="grid size-12 shrink-0 place-items-center rounded-lg bg-ui-raised text-ui-text hover:bg-ui-line">
