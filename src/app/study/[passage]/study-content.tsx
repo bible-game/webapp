@@ -72,7 +72,7 @@ export default function StudyContent(props: { passage: string; state?: Map<strin
             </div>
 
             <main className="app-page">
-                <div className="mx-auto w-full max-w-[40rem]">
+                <div>
                     {!ready ? null : review ? (
                         <Results passage={props.passage} review={review} study={study} title={title} />
                     ) : failed ? (
