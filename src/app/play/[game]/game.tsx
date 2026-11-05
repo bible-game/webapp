@@ -11,7 +11,6 @@ import Confetti from "@/core/component/confetti";
 import Gridmap from "@/app/play/[game]/map/gridmap";
 import moment from "moment/moment";
 import PopUp from "./pop-up";
-import ViewportDebug from "./viewport-debug";
 import { redirect } from "next/navigation";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
@@ -300,8 +299,6 @@ export default function Game(props: any) {
                             bible={props.bible} chapter={chapter} guesses={guesses} info={props.info} known={props.known}/>
                 </section>
                 <Confetti fire={confetti && !reducedMotion}/>
-                {/* TEMPORARY: ?debug=viewport, for the DuckDuckGo spacing and map-jumping bug */}
-                <ViewportDebug/>
             </div>
             </MotionConfig>
         );
