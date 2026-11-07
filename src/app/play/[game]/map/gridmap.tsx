@@ -46,6 +46,8 @@ type GridmapProps = {
     ruledOut?: RuledOut;
     /** Show each book's named chapter groups (config/groups.json): dotted partitions in the book's colour, with labels on their borders. On unless false */
     showGroups?: boolean;
+    /** Chapters already guessed and missed, by cell id: each marked with an X in its book's colour */
+    missed?: string[];
 };
 
 type BookGroups = Record<string, Array<{ name: string; start: number; end: number }>>;
@@ -322,6 +324,54 @@ const BibleGridmap = (props: GridmapProps) => {
             ctx.restore();
         });
     }, [answer]);
+
+    // A missed guess is marked where it was made, the opposite of a selection: the cell stays dark and, in place of its
+    // number, takes an X in its book's own light (as a selected chapter's fill), so the map shows where's been tried. The
+    // dark goes in as a layer, under the focus veil like the rest of the map; the X goes in above the veil, so it stays
+    // bright wherever the map has closed in
+    const missed = useRef<string[]>([]);
+    missed.current = props.missed ?? [];
+    const missedKey = missed.current.join(",");
+    useEffect(() => {
+        const map = gridmap.current;
+        if (!map) return;
+        return map.addLayer(({ ctx, model, camera, toScreenX, toScreenY, markRadius }) => {
+            ctx.lineCap = "round";
+            for (const id of missed.current) {
+                const cell = model.cells.find((candidate) => candidate.id === id);
+                if (!cell) continue;
+                // the X is the size of the chapter's dot (the library's own measure: its verses, scaled with the zoom),
+                // so a long chapter's X is as big as its dot would be
+                const room = Math.min(cell.width, cell.height) * camera.k;
+                const arm = Math.min(room * 0.36, Math.max(1.5, markRadius(cell) + 1));
+                ctx.strokeStyle = LIGHT_COLOURS[cell.itemId] ?? playTheme.text;
+                ctx.lineWidth = Math.max(1, Math.min(2.25, arm * 0.45));
+                ctx.beginPath();
+                const cx = toScreenX(cell.centerX), cy = toScreenY(cell.centerY);
+                ctx.moveTo(cx - arm, cy - arm); ctx.lineTo(cx + arm, cy + arm);
+                ctx.moveTo(cx + arm, cy - arm); ctx.lineTo(cx - arm, cy + arm);
+                ctx.stroke();
+            }
+        }, { above: true });
+    }, []);
+    useEffect(() => {
+        const map = gridmap.current;
+        if (!map) return;
+        if (!missed.current.length) return;
+        const remove = map.addLayer(({ ctx, model, rect }) => {
+            ctx.save();
+            ctx.fillStyle = playTheme.bg;
+            for (const id of missed.current) {
+                const cell = model.cells.find((candidate) => candidate.id === id);
+                if (!cell) continue;
+                ctx.beginPath();
+                rect(cell);
+                ctx.fill();
+            }
+            ctx.restore();
+        });
+        return remove;
+    }, [missedKey]);
 
     return (
         <div

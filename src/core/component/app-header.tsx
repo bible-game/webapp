@@ -9,7 +9,7 @@ import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon
 import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
 import { logOut } from "@/core/action/auth/log-out";
 import LogoMark from "@/core/component/logo-mark";
-import getBible from "@/core/action/config/get-bible";
+import bible from "@/core/config/bible.json";
 import { CompletionUtil } from "@/core/util/completion-util";
 import { StorageUtil } from "@/core/util/storage-util";
 
@@ -131,9 +131,9 @@ function StarCount({ stars }: { stars?: number }) {
     </Link>;
 }
 
-// The Bible's structure, fetched once per visit: Bible seen needs it to know how many verses each chapter has
-let bibleConfig: Promise<any> | undefined;
-const loadBible = () => bibleConfig ??= getBible().catch(() => { bibleConfig = undefined; });
+// The Bible's structure, shipped with the app (core/config/bible.json): Bible seen needs it to know how many verses each
+// chapter has. Working it out is the costly part, so it's still done when the page is idle (below)
+const loadBible = async (): Promise<any> => bible;
 
 // The latest Bible seen, kept so the drawer opens with it in place rather than a placeholder
 let lastSeen: number | undefined;
@@ -188,7 +188,7 @@ export default function AppHeader({ info, children, aside }: AppHeaderProps) {
     const pathname = usePathname();
     const stars = useStars(true);
 
-    // Fetch the Bible's structure once the page is idle, so the drawer's Bible seen is ready the first time it opens
+    // Work out Bible seen once the page is idle, so the drawer has it ready the first time it opens
     useEffect(() => {
         if (!info) return;
         const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 1500));

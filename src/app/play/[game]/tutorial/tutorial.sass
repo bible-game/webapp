@@ -1,0 +1,87 @@
+// The first-visit tutorial, made of the genuine Play page. Its host (play-host.tsx) wraps the page and sets data-reveal
+// on the wrapper (0 to 2) from its very first paint, so the page is never seen whole and then hidden; each part comes in
+// as its step arrives. It holds parts back by their opacity only, so nothing moves: each part's space is there, empty,
+// before it arrives. The tutorial's words take the clue's place, and its Next the guess bar's; both come back at the
+// end. The parts are found by their hooks (data-play-part, game.tsx and summary.tsx)
+
+// how a part arrives (and how the clue, the header and the bar come back): always, so they also ease back at the end
+[data-game-ready]
+  [data-play-part=header], [data-play-part=summary], [data-play-part=clue] > p, [data-play-part=map],
+  [data-play-part=guesses], [data-play-part=bar]
+    transition: opacity 0.7s cubic-bezier(0.22, 0.8, 0.24, 1), transform 0.7s cubic-bezier(0.22, 0.8, 0.24, 1)
+
+// while it runs the page only shows, it isn't played; the header gives its place to the progress and Skip, the clue to
+// the tutorial's words, the guess bar to its Next
+[data-reveal] [data-game-ready]
+  pointer-events: none
+  [data-play-part=header], [data-play-part=clue] > p, [data-play-part=bar]
+    opacity: 0
+
+// 0: the words alone; 1: then the map; 2: then the guesses (and a guess made for the visitor to watch)
+[data-reveal="0"] [data-game-ready] [data-play-part=map]
+  opacity: 0
+  transform: scale(0.985)
+[data-reveal="0"], [data-reveal="1"]
+  [data-game-ready] [data-play-part=guesses]
+    opacity: 0
+// straight on from a page that showed the map (the landing), the tutorial keeps it rather than taking it away and back
+[data-map-kept] [data-game-ready] [data-play-part=map]
+  opacity: 1
+  transform: none
+
+// the first round's notes (how to zoom, then the first reading), in the guesses' own row: the empty slots give their
+// room to them (round-tips.tsx sets data-row-note, "zoom" or "first", on the page and writes them there)
+[data-row-note] [data-play-part=guesses] > li[data-empty]
+  opacity: 0
+
+// The entrance. The clue's words (the tutorial's, in its place, each step; after the tutorial, the real clue) arrive
+// letter by letter, left to right, each fading in as a soft light passes over it, peaking at white, then settling to the
+// clue's own colour, so the line appears and is lit in one movement. After the tutorial, once the clue is in, the zoom
+// note rises in as a guess's tile does (round-tips.tsx, with the tile's own spring), then the guess bar the same way,
+// so the eye is led down the page in the order it's used. tutorial.tsx holds Next until the words are in, and
+// round-tips.tsx times the zoom note and how long the page keeps data-clue-shimmer by the same numbers (ENTRANCE)
+$sweep: 2.4s
+$lead: 0.35s
+$rise: 0.45s
+
+// the light: the line's own colour behind it, white at its crest, nothing yet ahead of it
+=entrance($final, $delay)
+  background: linear-gradient(100deg, $final 40%, #ffffff 48%, transparent 58%) 0 0 / 300% 100%
+  -webkit-background-clip: text
+  background-clip: text
+  color: transparent
+  animation: entrance $sweep ease-out $delay 1 both
+
+.clue-shimmer, [data-clue-shimmer] [data-play-part=clue] > p
+  +entrance(var(--ui-text), $lead)
+
+// the guess bar ("Tap the map" or "Click to pick", How to play and the player either side, the guess dots below) rises
+// in as a guess's tile does (guess.tsx's Tile: up from a little below and a little smaller, settling with a touch of
+// spring), once the zoom note has risen in after the clue
+[data-clue-shimmer] [data-play-part=bar] > div
+  animation: tile-in $rise cubic-bezier(0.34, 1.3, 0.64, 1) $lead + $sweep + $rise 1 both
+
+@keyframes entrance
+  from
+    background-position: 100% 0
+  to
+    background-position: 0% 0
+
+@keyframes tile-in
+  from
+    opacity: 0
+    transform: translateY(6px) scale(0.94)
+  to
+    opacity: 1
+    transform: none
+
+@media (prefers-reduced-motion: reduce)
+  [data-game-ready]
+    [data-play-part=header], [data-play-part=summary], [data-play-part=clue] > p, [data-play-part=map],
+    [data-play-part=guesses], [data-play-part=bar]
+      transition: none
+  .clue-shimmer, [data-clue-shimmer] [data-play-part=clue] > p, [data-clue-shimmer] [data-play-part=bar] > div
+    animation: none
+  .clue-shimmer, [data-clue-shimmer] [data-play-part=clue] > p
+    background: none
+    color: var(--ui-text)

@@ -1,0 +1,40 @@
+// The landing (landing-overlay.tsx) lies over today's game (home-host.tsx; play-host.tsx sets data-landing on the page's wrapper): the game's
+// own parts give their places to the landing's and nothing is touched, until Play hands over and they ease in (their
+// transitions are the tutorial's, play/[game]/tutorial/tutorial.sass). The parts are found by their hooks
+// (data-play-part, play/[game]/game.tsx and summary.tsx)
+[data-landing] [data-game-ready]
+  pointer-events: none
+  [data-play-part=header], [data-play-part=clue], [data-play-part=guesses], [data-play-part=bar]
+    opacity: 0
+  // nothing between the words and the map: the line under the guesses comes back with the game
+  [data-play-part=summary]
+    border-color: transparent
+  // the map is held back, its place the landing's (the hero, the steps), until the last screen shows it (data-map-shown)
+  [data-play-part=map]
+    opacity: 0
+    transform: scale(0.985)
+  &[data-map-shown] [data-play-part=map]
+    opacity: 1
+    transform: none
+
+// the landing's words (Purpose's, then today's clue), each arriving as the clue's do on Play (the tutorial's entrance,
+// play/[game]/tutorial/tutorial.sass), a little quicker, as the scroll brings them: letter by letter, left to right, as
+// a soft light passes over them, white at its crest, settling to the text's own colour
+.landing-words
+  background: linear-gradient(100deg, var(--ui-text) 40%, #ffffff 48%, transparent 58%) 0 0 / 300% 100%
+  -webkit-background-clip: text
+  background-clip: text
+  color: transparent
+  animation: landing-words 1.6s ease-out 0.1s 1 both
+
+@keyframes landing-words
+  from
+    background-position: 100% 0
+  to
+    background-position: 0% 0
+
+@media (prefers-reduced-motion: reduce)
+  .landing-words
+    animation: none
+    background: none
+    color: var(--ui-text)

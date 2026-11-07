@@ -53,8 +53,8 @@ const Summary = (props: any) => {
     if (!props.passage) return null;
 
     return (
-        <section className="relative z-20 !w-full shrink-0 border-b border-play-line pb-3">
-            <button type="button" aria-expanded={expanded} disabled={!clipped && !expanded}
+        <section data-play-part="summary" className="relative z-20 !w-full shrink-0 border-b border-play-line pb-3">
+            <button type="button" data-play-part="clue" aria-expanded={expanded} disabled={!clipped && !expanded}
                     onClick={() => setExpanded(!expanded)}
                     className="flex min-h-[60px] w-full flex-col items-center justify-center px-6 pb-4 pt-1">
                 <p ref={clue} className={text + " line-clamp-2 min-w-0"} style={{ fontSize: size }}>{props.passage.summary}</p>

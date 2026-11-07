@@ -34,7 +34,7 @@ const Tile = ({ band, count, children }: { band: Band, count: number, children: 
 
 /** A guess not yet made */
 const Slot = () => (
-    <li aria-hidden="true" className="h-9 min-w-0 flex-1 rounded-lg border border-dashed border-play-line"/>
+    <li aria-hidden="true" data-empty="" className="h-9 min-w-0 flex-1 rounded-lg border border-dashed border-play-line"/>
 );
 
 /**
@@ -76,7 +76,7 @@ export const Guesses = ({ guesses, answer }: { guesses: any[], answer?: any }) =
     const count = Math.max(SLOTS, filled);
 
     return (
-        <ol aria-label="Guesses" className="flex w-full px-4 [container-type:inline-size]" style={{ gap: GAP }}>
+        <ol aria-label="Guesses" data-play-part="guesses" className="flex w-full px-4 [container-type:inline-size]" style={{ gap: GAP }}>
             {guesses.map((guess) => <Guess key={guess.book + guess.chapter} guess={guess} count={count}/>)}
             {answer ?
                 <Tile band={ANSWER} count={count}>
