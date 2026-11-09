@@ -31,10 +31,12 @@ export default function PrivacyPolicy() {
                         <li>IP address (security only)</li>
                     </ul>
 
-                    <h3 className="font-semibold text-ui-text mt-4">C. Optional analytics</h3>
+                    <h3 className="font-semibold text-ui-text mt-4">C. Error monitoring</h3>
                     <p>
-                        With your consent, we may use anonymous aggregated analytics to
-                        improve gameplay and performance.
+                        When something goes wrong, and for a small sample of page loads, we
+                        collect technical details (such as your browser and what the page was
+                        doing) to find and fix errors. We don&apos;t use analytics or advertising
+                        tracking.
                     </p>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
@@ -52,8 +54,7 @@ export default function PrivacyPolicy() {
                         3. Legal Basis
                     </h2>
                     <ul className="list-disc list-inside space-y-1">
-                        <li><strong>Consent</strong> — analytics and non-essential cookies</li>
-                        <li><strong>Legitimate Interest</strong> — basic functionality and security</li>
+                        <li><strong>Legitimate Interest</strong> — basic functionality, error monitoring and security</li>
                         <li><strong>Contract</strong> — when creating an account</li>
                     </ul>
 
@@ -72,7 +73,7 @@ export default function PrivacyPolicy() {
                     <p>We only share data with:</p>
                     <ul className="list-disc list-inside space-y-1">
                         <li>Hosting providers (e.g. AWS, Vercel)</li>
-                        <li>Optional analytics providers (with consent)</li>
+                        <li>Error monitoring (Sentry)</li>
                     </ul>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
