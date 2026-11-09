@@ -154,8 +154,9 @@ The four destinations are two-line rows (name and a short description) with thei
 icons in a division colour: Play green, Read teal, Study purple, Statistics gold. The
 current destination is tinted in its colour with a restrained glow. At the foot sit the
 account (Log in with the gold dot when signed out; initials, name, and Log out when
-signed in), then About, Privacy, and Cookies with GitHub and Discord as icons. Rows
-rise in a short stagger as it opens. About, Privacy, and Cookies use shared navigation and readable, unframed content.
+signed in), then Privacy and Cookies with GitHub and Discord as icons. Rows
+rise in a short stagger as it opens. Privacy and Cookies use shared navigation and readable, unframed content. (The About
+page was removed on 7 November 2026; the landing now says what it did.)
 The information pages retain their existing policy text.
 
 ## Review Process
@@ -321,9 +322,18 @@ timezone, as the middleware works it out) and renders `home-host.tsx`: today's g
   landing dissolves off it and the same map carries on, into the tutorial (keeping the map, `data-map-kept`) or the round.
   Back brings the landing back. A reload at `/play/<date>` is the Play page itself.
 - **The Bible's structure ships with the app** (`core/config/bible.json`: testaments, divisions, books, chapters and
-  verse counts, as the passage service's `/config/bible` gave it). Home, Play, Statistics and the menu's Bible seen
+  verse counts, as the passage service's `/config/bible` gave it; that endpoint is now retired, and the services keep
+  their copy in the deployment repo's `configuration/*/bible.json`). Home, Play, Statistics and the menu's Bible seen
   import it, so none of them waits on the service for it, and Home needs no fallback page. Today's passage (the clue
   and the answer) still comes from the service.
+- **Guesses are scored only in the browser** (`score.ts`, from that structure); the passage service's `/guess` is
+  retired (its controller, service and models removed). A guess that can't be scored (its chapter or the answer missing from the structure) says "Couldn't
+  score this guess. Try again later" on the guess button and is reported to Sentry. Saving a logged-in player's guess
+  (the user service's `/state/guess`) is unchanged.
+- **The app's copy must match the services'.** `npm run check:bible` (also run before every `npm run build`) compares
+  `core/config/bible.json` with the deployment repo's `configuration/*/bible.json` and fails on any difference, naming
+  the first book that differs. It needs the deployment repo beside this one (or `BIBLE_CONFIG_DIR`); on Vercel, which
+  can't see that private repo, it skips with a warning, so run it locally whenever either copy changes.
 
 ### Shared with the wizard
 
