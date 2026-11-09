@@ -4,9 +4,9 @@ Sentry.init({
     dsn: "https://ccc42e8e54abad6bfb827bd710b46e92@o4512344292327424.ingest.de.sentry.io/4512345177325648",
 
     dataCollection: {
-        // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
+        // no user details (the Cookie and Privacy policies say so). For more info visit:
         // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#dataCollection
-        // userInfo: false,
+        userInfo: false,
         // httpBodies: [],
     },
 

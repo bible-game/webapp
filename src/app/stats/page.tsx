@@ -19,7 +19,7 @@ import { getReviewState } from "@/core/action/state/get-state-review";
 import { ReviewState } from "@/core/model/state/review-state";
 import getRank from "@/core/action/user/get-rank";
 import { cookies } from "next/headers";
-import getBible from "@/core/action/config/get-bible";
+import bible from "@/core/config/bible.json";
 
 const getOrdinalSuffix = (n: number) => {
     const s = ["th", "st", "nd", "rd"];
@@ -37,8 +37,7 @@ export default async function Stats() {
     // The calls are independent, so they run together rather than one after another
     const loggedIn = await isLoggedIn();
     const userId: string | undefined = loggedIn ? await getUserId() ?? undefined : undefined; // read from the token, no request
-    const [bible, leaders, gameState, readState, reviewState, info, rank]: [
-        any,
+    const [leaders, gameState, readState, reviewState, info, rank]: [
         Leader[],
         Map<number,GameState> | undefined,
         Map<string,ReadState> | undefined,
@@ -46,7 +45,6 @@ export default async function Stats() {
         UserInfo | undefined,
         { rank?: number, totalPlayers?: number }
     ] = await Promise.all([
-        getBible(),
         getLeaders(),
         loggedIn ? getGameState() : undefined,
         loggedIn ? getReadState() : undefined,

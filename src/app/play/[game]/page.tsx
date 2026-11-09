@@ -2,13 +2,13 @@
 
 import React from "react";
 import "../play.sass";
-import Game from "@/app/play/[game]/game";
+import PlayHost from "@/app/play/[game]/tutorial/play-host";
 import { headers } from "next/headers";
 import { GameState } from "@/core/model/state/game-state";
 import { getGameState } from "@/core/action/state/get-state-game";
 import isLoggedIn, { isKnownUser } from "@/core/util/auth-util";
 import getUserInfo, {UserInfo} from "@/core/action/user/get-user-info";
-import getBible from "@/core/action/config/get-bible";
+import bible from "@/core/config/bible.json";
 import getDaily from "@/core/action/play/get-daily";
 import { Passage } from "@/core/model/play/passage";
 
@@ -33,8 +33,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
 
     // The calls are independent, so they run together rather than one after another
     const loggedIn = await isLoggedIn();
-    const [bible, passage, state, info]: [any, Passage | undefined, Map<number,GameState> | undefined, UserInfo | undefined] = await Promise.all([
-        getBible(),
+    const [passage, state, info]: [Passage | undefined, Map<number,GameState> | undefined, UserInfo | undefined] = await Promise.all([
         game == 'today' ? undefined : getDaily(game), // the browser redirects 'today' to its own date first
         loggedIn ? getGameState() : undefined,
         loggedIn ? getUserInfo() : undefined
@@ -48,7 +47,7 @@ export default async function Play({params}: { params: Promise<{ game: string }>
 
     return (
         <main className="w-full relative z-1">
-            <Game game={game} bible={bible} divisions={divisions} books={books} device={device} passage={passage} played={played} loggedIn={loggedIn} info={info} known={known} />
+            <PlayHost game={game} bible={bible} divisions={divisions} books={books} device={device} passage={passage} played={played} loggedIn={loggedIn} info={info} known={known} />
         </main>
     );
 

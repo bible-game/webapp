@@ -141,6 +141,9 @@ and study, progress), illustrated with Play's own guess tiles, a sketch of the m
 example Statistics figures; Read, Study, and Statistics are reached from these steps.
 The cross, drawn as a static image, is still the site's share image (`opengraph-image.tsx`).
 
+Since 7 November 2026 Home is the 1.2.0 landing over today's game (see "1.2.0 first visit and landing" below). The page
+described here, with How it works and its mini map, has been removed.
+
 The shared header holds only the menu and account controls; Play, Read, and Study put
 their own title in its centre. The name and logo appear in the menu drawer.
 
@@ -151,8 +154,9 @@ The four destinations are two-line rows (name and a short description) with thei
 icons in a division colour: Play green, Read teal, Study purple, Statistics gold. The
 current destination is tinted in its colour with a restrained glow. At the foot sit the
 account (Log in with the gold dot when signed out; initials, name, and Log out when
-signed in), then About, Privacy, and Cookies with GitHub and Discord as icons. Rows
-rise in a short stagger as it opens. About, Privacy, and Cookies use shared navigation and readable, unframed content.
+signed in), then Privacy and Cookies with GitHub and Discord as icons. Rows
+rise in a short stagger as it opens. Privacy and Cookies use shared navigation and readable, unframed content. (The About
+page was removed on 7 November 2026; the landing now says what it did.)
 The information pages retain their existing policy text.
 
 ## Review Process
@@ -241,7 +245,7 @@ in the foreground):
   exactly the B's colours, each cross stone that of its partner in the B. 160px on Home. LogoMark, the favicon
   (`icon.tsx` + favicon.ico), `apple-icon.tsx` and the share image (`opengraph-image.tsx`) use the same stones and colours
   (`core/style/emblem-svg.ts`).
-- **Map**: Gridmap 0.2.0 (temporarily installed from `../../project-gridmap/library`): transparent background, books in
+- **Map**: Gridmap 0.2.0, since 7 November 2026 0.2.1 from npm (exact, in the webapp and the wizard): transparent background, books in
   the map tone on outlines and labels only, partitions at 22%, neutral chapter marks, the selection in the region's
   light, IBM Plex Mono labels cut into the lines.
 - **How it works**: step 2 is the real map (`home/mini-map.tsx`), gliding in on Revelation and tapping chapter 12; the
@@ -257,3 +261,100 @@ in the foreground):
   distinct from green on the map). Light `#43CAE7 #ABAEFF #ED8C7F #70CE98 #D4B455`; solid `#61C1D7 #A7AAEC #DA8E83 #7CC499
   #C8AF68`; map `#6AB1C2 #9D9FD3 #C2877E #7DB392 #B6A36D`. Error and help follow red and blue.
 
+## 1.2.0 first visit and landing (7 November 2026)
+
+Designed in the wizard (`bible-game/wizard`), mirrored in Figma ("Tutorial 1.2.0" and "Landing 1.2.0" on the High-Fi
+page, both signed off), then built here. Both are standard: the first-visit tutorial (and the first round's notes, and
+How to play's Tutorial button) on Play, and the landing over today's game on Home. There are no flags.
+
+### Play refinements (always on)
+
+- The round's end shares by copying: Copy (copy icon) in place of Share.
+- How to play is a bold question mark in the muted text; the signed-out account button carries the notice dot.
+- A missed guess is marked on the map where it was made: the cell stays dark and takes an ✕ in its book's light, drawn
+  above the focus veil so it stays bright when the map closes in (`map/gridmap.tsx`, Gridmap's `addLayer(…, { above:
+  true })` and `markRadius`).
+
+### The page's hooks
+
+Anything beside the Play page finds its parts by `data-play-part`, never by the page's structure: `header`, `summary`,
+`clue`, `guesses` (its empty slots carry `data-empty`), `map` and `bar` (`game.tsx`, `summary.tsx`, `guess.tsx`). The
+page root says `data-round` (`playing` or `over`) and `data-guesses` (how many). `Game` takes two modes for its hosts:
+
+- `demo`: a round shown rather than played. It starts empty and keeps nothing: no saved state on the device, no guess
+  sent, no passage fetched.
+- `landing`: under the landing. Today's map is drawn clean (the visitor's guesses, their ✕ and what they rule out aren't
+  drawn; nothing in storage moves) and the cookie sheet waits for the game.
+
+### The tutorial (`app/play/[game]/tutorial/`)
+
+`page.tsx` mounts `play-host.tsx`, which wraps the Game. Who sees it: not logged in, no game kept on the device, and not
+seen before (`tutorial-seen`); the round's notes go to the same visitors until their first guess is explained
+(`round-tips-seen`). An existing player never sees it, and their round is never touched.
+
+- **Sample day.** While it runs the page is a demo round on Psalm 127 (`practice.ts`), so today's chapter is never given
+  away; when it ends the page is made afresh as today's game.
+- **Three steps** (`tutorial.tsx`), each holding back more of the page (`data-reveal`, `tutorial.sass`): the words in the
+  clue's place, then the map, then the guesses, where four guesses are made to watch on the page's own map (Joshua 1,
+  Proverbs 10, Psalm 121, Psalm 127), gliding in on Wisdom and Psalms and out again at the end. The words arrive letter by
+  letter under a passing light; Next waits for them. Skip, Restart and Escape as in Figma.
+- **The first round's notes** (`round-tips.tsx`): in the guesses' row, how to zoom (until the visitor zooms), then what the
+  first guess means ("The answer is 4,732 verses after 2 Chronicles 12, in the Old Testament.").
+- **Order.** The cookie sheet comes first; the tutorial starts once it's accepted.
+- **Again.** How to play's Tutorial plays it again on a demo round; the visitor's own round isn't touched.
+- **The map** is moved and heard through Gridmap's own API (`map-handle.ts`): `Gridmap.from` finds it, `glideTo` eases it,
+  and `cameraChange` events with `source: 'user'` tell the visitor's zooms from the tutorial's glides.
+
+### The landing (`app/home/`)
+
+`page.tsx` loads what Play loads (the Bible, today's passage, a logged-in player's games; today from the visitor's
+timezone, as the middleware works it out) and renders `home-host.tsx`: today's game under the landing
+(`landing-overlay.tsx`, `landing.sass`).
+
+- **Six resting places** (scroll-snap, each `scroll-snap-stop: always`): the hero (the B turning to the Cross, the
+  tagline, Play today's chapter, How it works); Purpose, four beats ("Explore the human story", then 01 Play · Visualise
+  the Bible, 02 Read · Digest today's chapter, 03 Study · Stretch your understanding, 04 Stats · Track your progress, one
+  lit per beat, the line shading from one step's colour into the next; See it in action on the last); then today's game:
+  the map comes in, today's clue under "Can you find today's chapter?".
+- **The last screen's buttons**, as the round's end has Copy and Read: Sign up beside Play for a visitor we don't know,
+  Play beside Log in for one whose account we know (`isKnownUser`), Play alone for a member.
+- **No reload.** Play moves the address to `/play/<date>` with `history.pushState`; the app router keeps the page, the
+  landing dissolves off it and the same map carries on, into the tutorial (keeping the map, `data-map-kept`) or the round.
+  Back brings the landing back. A reload at `/play/<date>` is the Play page itself.
+- **The Bible's structure ships with the app** (`core/config/bible.json`: testaments, divisions, books, chapters and
+  verse counts, as the passage service's `/config/bible` gave it; that endpoint is now retired, and the services keep
+  their copy in the deployment repo's `configuration/*/bible.json`). Home, Play, Statistics and the menu's Bible seen
+  import it, so none of them waits on the service for it, and Home needs no fallback page. Today's passage (the clue
+  and the answer) still comes from the service.
+- **Guesses are scored only in the browser** (`score.ts`, from that structure); the passage service's `/guess` is
+  retired (its controller, service and models removed). A guess that can't be scored (its chapter or the answer missing from the structure) says "Couldn't
+  score this guess. Try again later" on the guess button and is reported to Sentry. Saving a logged-in player's guess
+  (the user service's `/state/guess`) is unchanged.
+- **The app's copy must match the services'.** `npm run check:bible` (also run before every `npm run build`) compares
+  `core/config/bible.json` with the deployment repo's `configuration/*/bible.json` and fails on any difference, naming
+  the first book that differs. It needs the deployment repo beside this one (or `BIBLE_CONFIG_DIR`); on Vercel, which
+  can't see that private repo, it skips with a warning, so run it locally whenever either copy changes.
+
+### Shared with the wizard
+
+The wizard copies these files unchanged (`scripts/sync-play.py`, which reports any that differ): the Play page, the
+tutorial (`tutorial.tsx`, `round-tips.tsx`, `tutorial.sass`, `practice.ts`, `map-handle.ts`) and the landing
+(`landing-overlay.tsx`, `landing.sass`). The hosts are each repo's own: here `play-host.tsx` and `home-host.tsx`; in the
+wizard `src/demo/onboarding.tsx`, which mocks the account buttons and `?known`.
+
+### Trying it locally
+
+1. Run the passage service (`localhost:8081`, `NEXT_PUBLIC_SVC_PASSAGE`) for today's passage: the clue, and the
+   answer to play against. Logged-in and known-account cases also need the user service (`localhost:8082`).
+2. For a first visit, clear the site's storage (or use a private window): the tutorial shows only with no `games` kept
+   and no `tutorial-seen`. How to play's Tutorial replays it at any time; removing `round-tips-seen` brings the round's
+   notes back.
+
+### Checked
+
+Lint, type-check and `next build`; the wizard runs the same files end to end at 375px (the
+tutorial, replay, the round's notes, every landing screen and the hand-over), with the visitor's saved games unchanged
+throughout. In Next itself (local dev, 7 November 2026): Play moves to `/play/<date>` with no reload and the landing
+dissolves; on a fresh device the cookie sheet comes first, then the tutorial; Back returns to `/` with the landing over
+the game, still no reload. Still to check: the logged-in and known-account cases, and the Play, Read and Stats maps
+under Gridmap 0.2.x's defaults.

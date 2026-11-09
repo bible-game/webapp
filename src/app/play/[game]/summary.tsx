@@ -31,7 +31,13 @@ const Summary = (props: any) => {
         if (!element) return;
 
         const overflows = () => element.scrollHeight > element.clientHeight + 1;
+        // condensed away (the map zoomed in, tutorial.sass), or easing back, the clue's room is cut short on purpose: it's
+        // measured again once it has settled
+        let easing = false;
+        const settling = (event: TransitionEvent) => { if (event.propertyName === "max-height") easing = true; };
+        const settled = (event: TransitionEvent) => { if (event.propertyName === "max-height") { easing = false; measure(); } };
         const measure = () => {
+            if (easing || element.closest("[data-condensed]")) return;
             const fit = SIZES.find((candidate) => {
                 element.style.fontSize = `${candidate}px`;
                 return !overflows();
@@ -47,14 +53,28 @@ const Summary = (props: any) => {
         const observer = new ResizeObserver(measure);
         observer.observe(element);
         if (element.parentElement) observer.observe(element.parentElement);
-        return () => observer.disconnect();
+        // the clue and its row (the button, which folds away when condensed) both ease their height
+        const watched = [element, element.parentElement].filter((el): el is HTMLElement => !!el);
+        watched.forEach(el => {
+            el.addEventListener("transitionrun", settling);
+            el.addEventListener("transitionend", settled);
+            el.addEventListener("transitioncancel", settled);
+        });
+        return () => {
+            observer.disconnect();
+            watched.forEach(el => {
+                el.removeEventListener("transitionrun", settling);
+                el.removeEventListener("transitionend", settled);
+                el.removeEventListener("transitioncancel", settled);
+            });
+        };
     }, [props.passage?.summary]);
 
     if (!props.passage) return null;
 
     return (
-        <section className="relative z-20 !w-full shrink-0 border-b border-play-line pb-3">
-            <button type="button" aria-expanded={expanded} disabled={!clipped && !expanded}
+        <section data-play-part="summary" className="relative z-20 !w-full shrink-0 border-b border-play-line pb-3">
+            <button type="button" data-play-part="clue" aria-expanded={expanded} disabled={!clipped && !expanded}
                     onClick={() => setExpanded(!expanded)}
                     className="flex min-h-[60px] w-full flex-col items-center justify-center px-6 pb-4 pt-1">
                 <p ref={clue} className={text + " line-clamp-2 min-w-0"} style={{ fontSize: size }}>{props.passage.summary}</p>

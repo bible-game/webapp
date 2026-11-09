@@ -1,6 +1,7 @@
 "use client"
 
-import { guess, saveGuess } from "@/core/action/play/guess";
+import { saveGuess } from "@/core/action/play/guess";
+import * as Sentry from "@sentry/nextjs";
 import { score } from "@/app/play/[game]/score";
 import Link from "next/link";
 import moment from "moment";
@@ -18,8 +19,9 @@ import {
     MousePointerClickIcon,
     PointerIcon,
     PlusIcon,
-    Share2Icon,
+    CopyIcon,
     StarIcon,
+    UserRoundIcon,
     XIcon,
 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
@@ -28,9 +30,10 @@ import MyStats from "@/app/play/[game]/my-stats";
 import colours from "@/app/play/[game]/map/config/colours.json";
 import groups from "@/app/play/[game]/map/config/groups.json";
 import { playTheme } from "@/core/style/play-theme";
-import { uiTheme } from "@/core/style/ui-theme";
 import { lightOf, squareOf } from "@/app/play/[game]/closeness";
 import { glow, tone } from "@/core/style/regions";
+import { noticeGap } from "@/core/style/notice-dot";
+import { abbreviation } from "@/core/util/book-abbreviation";
 
 const fade = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -8 }, transition: { duration: 0.18 } };
 /** The footer's switch between choosing and guessing: no exit and no movement, just a quick fade-in, so it never lags */
@@ -93,6 +96,70 @@ const READ_SIZES = [15, 14, 13, 12];
  * The full passage on the guess button (or read link), shrunk a step at a time until it fits the width.
  * Re-measured whenever the button resizes; keyed by passage so a new one starts at the largest size.
  */
+/** One canvas, kept, to measure the breadcrumbs' versions against the button */
+let measurer: HTMLCanvasElement | null = null;
+
+/**
+ * The Guess button's breadcrumbs, condensed: where the picked chapter sits, then the chapter, on the button's one line
+ * and in its own size, each crumb in sentence case as the names read elsewhere. Never cut short: the fullest version
+ * that fits the button whole is shown, giving up first the testament, then the book's full name for its short one
+ * ("Psalms" → "Ps"), then the division, keeping the group (the most particular place), and at the least the chapter
+ */
+const Crumbs = ({ testament, division, group, book, chapter, arrow }: {
+    testament?: string; division?: string; group?: string; book: string; chapter: string; arrow: boolean;
+}) => {
+    const line = useRef<HTMLSpanElement>(null);
+    const [room, setRoom] = useState(0);
+    const place = [testament ? DivisionUtil.testament(testament) : null, division ? DivisionUtil.sentenceCase(division) : null, group ?? null];
+    const short = abbreviation(book);
+    // fullest first: [crumbs before the chapter, the chapter]
+    const versions: [string[], string][] = [
+        [place.filter(Boolean) as string[], `${book} ${chapter}`],
+        [place.slice(1).filter(Boolean) as string[], `${book} ${chapter}`],
+        [place.slice(1).filter(Boolean) as string[], `${short} ${chapter}`],
+        [[group ?? place[1]].filter(Boolean) as string[], `${short} ${chapter}`],
+        [[], `${book} ${chapter}`],
+        [[], `${short} ${chapter}`],
+    ];
+
+    useLayoutEffect(() => {
+        const button = line.current?.closest("button");
+        if (!button) return;
+        const measure = () => {
+            const style = getComputedStyle(button);
+            // the button's own width, less its padding and the arrow (with its gap) where there is one
+            setRoom(button.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - (arrow ? 28 : 0));
+        };
+        measure();
+        const observer = new ResizeObserver(measure);
+        observer.observe(button);
+        return () => observer.disconnect();
+    }, [arrow]);
+
+    const width = (text: string) => {
+        const el = line.current;
+        if (!el || typeof document === "undefined") return 0;
+        measurer ??= document.createElement("canvas");
+        const ctx = measurer.getContext("2d")!;
+        // built from its parts: the font shorthand can read empty
+        const style = getComputedStyle(el);
+        ctx.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        return ctx.measureText(text).width;
+    };
+    const SEP = " › ";
+    const [crumbs, passage] = versions.find(([c, p]) => width([...c, p].join(SEP)) <= room) ?? versions[versions.length - 1];
+
+    // the line never sizes the button (which would let any version "fit"): the button keeps its own width, and only a
+    // version that fits it is shown
+    return <span ref={line} data-crumbs-line className="min-w-0 max-w-full items-center gap-2 overflow-hidden whitespace-nowrap">
+        <span className="min-w-0">
+            {crumbs.map((crumb) => <React.Fragment key={crumb}><span className="opacity-60">{crumb}</span><span className="opacity-40">{SEP}</span></React.Fragment>)}
+            <span>{passage}</span>
+        </span>
+        {arrow ? <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/> : null}
+    </span>;
+};
+
 const Passage = ({ book, chapter, sizes = PASSAGE_SIZES }: { book: string, chapter: string, sizes?: number[] }) => {
     const label = useRef<HTMLSpanElement>(null);
     const [step, setStep] = useState(0);
@@ -131,14 +198,14 @@ const Countdown = () => {
     return <span className="tabular-nums">{`${Math.floor(left.asHours())}:${String(left.minutes()).padStart(2, "0")}:${String(left.seconds()).padStart(2, "0")}`}</span>;
 }
 
-const glyph = { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeLinecap: "round", strokeLinejoin: "round" } as const;
-
-const InfoGlyph = ({ className }: { className?: string }) => (
-    <svg {...glyph} strokeWidth={2.5} className={className} aria-hidden="true"><path d="M12 11v6"/><path d="M12 7h.01"/></svg>
-);
-
-const AlertGlyph = ({ className }: { className?: string }) => (
-    <svg {...glyph} strokeWidth={2.5} className={className} aria-hidden="true"><path d="M12 7v6"/><path d="M12 17h.01"/></svg>
+/** How to play's mark: a bold question mark on its own (lucide only has one in a circle, badge or bubble), its hook
+ * and stem one thick round stroke, then its dot */
+const QuestionGlyph = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.75}
+         strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+        <path d="M8.25 8.5a3.75 3.75 0 1 1 5.6 3.25c-1.1.65-1.85 1.45-1.85 2.75v.5"/>
+        <path d="M12 19.25h.01"/>
+    </svg>
 );
 
 /** The chosen horizon icon, without the sunrise arrow. */
@@ -160,7 +227,7 @@ const Action = (props: any) => {
     const [popping, setPopping] = useState(false);
     // true for a moment after the results are copied, so the share button can say so itself
     const [copied, setCopied] = useState(false);
-    // once the results have been shared, the button settles on the countdown (today's game only) instead of "Share",
+    // once the results have been copied, the button settles on the countdown (today's game only) instead of "Copy",
     // and Read takes the lead from it (as Study does from "Mark as read" on the Read page)
     const [shared, setShared] = useState(false);
     useEffect(() => setShared(sharedDates().includes(props.date)), [props.date]);
@@ -226,11 +293,14 @@ ${calcGuessBlocks(won)}
 📖 ${percentage}% ⭐ ${stars}`;
     }
 
-    // only while the passage service scores a guess the browser couldn't
-    const [pending, setPending] = useState(false);
+    // A guess the browser can't score: its chapter, or the answer, isn't in the Bible's structure (core/config/bible.json),
+    // which should never happen while the app's copy matches the services' (scripts/check-bible.mjs). Nothing else can
+    // score it, so the button says so, and it's reported, rather than the guess going nowhere
+    const [unscored, setUnscored] = useState(false);
+    useEffect(() => setUnscored(false), [props.selected.book, props.chapter]);
 
     function submit() {
-        if (pending) return;
+        if (unscored) return;
         navigator.vibrate?.(12);
         const { book, chapter } = props.selected;
         const closeness = score(props.bible, props.passage, { book, chapter });
@@ -238,20 +308,21 @@ ${calcGuessBlocks(won)}
         if (closeness) {
             const scored = { book, chapter, ...closeness, closeness, passageBook: props.passage.book, passageChapter: props.passage.chapter };
             props.addGuess(scored);
-            save(props.passage.id, scored);
+            // a round shown rather than played (the tutorial's) is never sent
+            if (!props.demo) save(props.passage.id, scored);
             return;
         }
 
-        setPending(true);
-        guess(props.date, book, chapter, props.passage)
-            .then((guess: any) => props.addGuess(guess))
-            .catch(e => console.error(e))
-            .finally(() => setPending(false));
+        setUnscored(true);
+        Sentry.captureMessage("A guess couldn't be scored: its chapter or the answer is missing from the Bible's structure", {
+            level: "error",
+            extra: { date: props.date, passageId: props.passage?.id, guess: `${book} ${chapter}` },
+        });
     }
 
     const guessed = props.hasBook && props.isExistingGuess();
     // a chapter the guesses exclude can't be guessed; the button says why instead
-    const excluded: string | undefined = guessed ? undefined : props.ruledOut;
+    const excluded: string | undefined = guessed ? undefined : unscored ? "Couldn’t score this guess. Try again later" : props.ruledOut;
 
     // the selected chapter's division colour (the map's own), and the group it falls in
     const bookKey = props.bible.testaments.flatMap((t: any) => t.divisions).flatMap((d: any) => d.books)
@@ -262,7 +333,7 @@ ${calcGuessBlocks(won)}
 
     // an already-guessed chapter can't be guessed again: marked wrong with an X, the button opens How to play instead, to explain its result
     const guessButton = (
-        <button type="button" disabled={!!excluded || pending} aria-busy={pending} onClick={guessed ? undefined : submit}
+        <button type="button" disabled={!!excluded} onClick={guessed ? undefined : submit}
                 aria-label={excluded ? undefined : guessed
                     ? `Already guessed ${props.selected.book} ${props.chapter}. How to play`
                     : `Guess ${props.selected.book} ${props.chapter}`}
@@ -274,11 +345,15 @@ ${calcGuessBlocks(won)}
                 <span className="truncate">{excluded}</span> :
                 <>
                     {guessed ? <XIcon className="size-5 shrink-0" strokeWidth={2.25} aria-hidden="true"/> : null}
-                    {/* waiting on the passage service, the label pulses like a skeleton rather than spinning */}
-                    <span className={`flex min-w-0 items-center gap-2 ${pending ? "animate-pulse" : ""}`}>
+                    <span data-passage-line className="flex min-w-0 items-center gap-2">
                         <Passage key={`${props.selected.book} ${props.chapter}`} book={props.selected.book} chapter={props.chapter}/>
                         {guessed ? null : <ArrowRightIcon className="size-5 shrink-0" strokeWidth={2}/>}
                     </span>
+                    {/* condensed (the map zoomed in, tutorial.sass), the caption's place on the map comes into the button
+                        instead, on the one line, as breadcrumbs */}
+                    {props.selected?.book ?
+                        <Crumbs testament={props.selected.testament} division={props.selected.division} group={group}
+                                book={props.selected.book} chapter={props.chapter} arrow={!guessed}/> : null}
                 </>
             }
         </button>
@@ -291,9 +366,9 @@ ${calcGuessBlocks(won)}
                     {/* a ghost of the guess row below, so choosing a chapter fills it in rather than swapping it out */}
                     <div className="flex items-center gap-2">
                         <Help>
-                            <button type="button" aria-label="How to play" title="How to play" className={stepper}
-                                    style={{ color: uiTheme.help }}>
-                                <InfoGlyph className="size-6"/>
+                            {/* the question mark, in the hint's own muted text, so the row reads as one */}
+                            <button type="button" aria-label="How to play" title="How to play" className={`${stepper} !text-play-muted`}>
+                                <QuestionGlyph className="size-6"/>
                             </button>
                         </Help>
                         <span aria-hidden="true" className="flex h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg border border-dashed border-play-line bg-play-surface px-5 text-[16px] text-play-muted">
@@ -311,9 +386,11 @@ ${calcGuessBlocks(won)}
                                 arrow: "bg-play-sheet",
                             }}>
                                 <PopoverTrigger>
-                                    <button type="button" aria-label="You're not logged in. Show details" title="Save your progress" className={stepper}
-                                            style={{ color: uiTheme.notice }}>
-                                        <AlertGlyph className="size-6"/>
+                                    {/* the player, not logged in: as the menu shows it, a notice dot on the icon's top right, the icon cut
+                                        away around it so the button's own glass shows (noticeGap: the dot sits at 19, 3 in the icon’s box) */}
+                                    <button type="button" aria-label="You're not logged in. Show details" title="Save your progress" className={`relative ${stepper} !text-play-muted`}>
+                                        <UserRoundIcon className="size-[22px]" strokeWidth={1.75} aria-hidden="true" style={noticeGap(19, 3)}/>
+                                        <span aria-hidden="true" className="absolute right-2.5 top-2.5 size-2.5 rounded-full bg-ui-notice"/>
                                     </button>
                                 </PopoverTrigger>
                                 <PopoverContent>
@@ -336,7 +413,7 @@ ${calcGuessBlocks(won)}
                             </Popover>
                         }
                     </div>
-                    <p className="text-center text-[12px] leading-none text-play-muted"
+                    <p data-bar-caption className="text-center text-[12px] leading-none text-play-muted"
                        aria-label={`Guess ${Math.min(props.guesses.length + 1, MAX_GUESSES)} of ${MAX_GUESSES}`}>
                         <span className="mb-1.5 flex items-center justify-center gap-2" aria-hidden="true">
                             {[...Array(MAX_GUESSES)].map((_, index: number) => {
@@ -362,7 +439,7 @@ ${calcGuessBlocks(won)}
                             <PlusIcon className="size-5"/>
                         </button>
                     </div>
-                    <p className="min-w-0 text-center leading-tight" aria-label="Where this chapter sits">
+                    <p data-bar-caption className="min-w-0 text-center leading-tight" aria-label="Where this chapter sits">
                         <span className="block truncate text-[15px] font-medium" style={{ color: tint }}>{group ?? DivisionUtil.sentenceCase(props.selected.division)}</span>
                         <span className="mt-0.5 block truncate text-[12px] text-play-muted">
                             {DivisionUtil.place(props.selected.division, props.selected.testament)}
@@ -374,7 +451,7 @@ ${calcGuessBlocks(won)}
     );
 
     const isToday = moment(props.date).isSame(moment(), "day");
-    // the answer's region colour, worn by whichever step leads: Share first, then Read
+    // the answer's region colour, worn by whichever step leads: Copy first, then Read
     const passageKey = props.bible.testaments.flatMap((t: any) => t.divisions).flatMap((d: any) => d.books)
         .find((bk: any) => bk.name == props.passage.book)?.key;
     const passageTint: string = (colours as Record<string, string>)[passageKey] ?? playTheme.text;
@@ -396,10 +473,10 @@ ${calcGuessBlocks(won)}
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.span key={copied ? "copied" : shared && isToday ? "countdown" : "share"} {...fade} className="flex items-center gap-2">
                             {copied ?
-                                <><CheckIcon className="size-4 shrink-0" strokeWidth={2.5}/>Copied!</> :
+                                <><CheckIcon className="size-4 shrink-0" strokeWidth={2.5}/>Result Copied!</> :
                                 shared && isToday ?
                                     <><HalfSunIcon className="size-[22px] shrink-0" strokeWidth={2.25} aria-label="Next chapter in"/><Countdown/></> :
-                                    <><Share2Icon className="size-4 shrink-0" strokeWidth={2.25}/>Share</>
+                                    <><CopyIcon className="size-4 shrink-0" strokeWidth={2.25}/>Copy Result</>
                             }
                         </motion.span>
                     </AnimatePresence>

@@ -7,6 +7,9 @@ import { Band, bandOf, CLOSE, distanceOf, FAR, FOUND, NEAR } from "@/app/play/[g
 import { compact, Direction, formatPassage } from "@/app/play/[game]/guess";
 import { exampleGuesses } from "@/app/play/[game]/example";
 
+/** Asks for the first-visit tutorial to play again, from How to play */
+export const TUTORIAL_EVENT = "bible-game:tutorial";
+
 const meanings = new Map<Band, string>([
     [CLOSE, "Within 500 verses"],
     [NEAR, "Within 2,000 verses"],
@@ -41,7 +44,14 @@ const Help = ({ children, placement = "top-start" }: { children: React.ReactElem
         <PopoverTrigger>{children}</PopoverTrigger>
         <PopoverContent>
             <div className="flex flex-col gap-3 text-[14px] leading-[1.45]">
-                <p className="text-[14px] font-semibold">How to play</p>
+                <div className="-my-1.5 flex items-center justify-between gap-3">
+                    <p className="text-[14px] font-semibold">How to play</p>
+                    {/* the first-visit tutorial, again, for whoever wants to see it (whatever hosts it listens for this) */}
+                    <button type="button" onClick={() => window.dispatchEvent(new Event(TUTORIAL_EVENT))}
+                            className="group -mr-2 flex h-9 items-center gap-1 px-2 text-[13px] text-play-muted transition-colors hover:text-play-text">
+                        Tutorial<ArrowRightIcon aria-hidden="true" className="size-[14px] transition-transform group-hover:translate-x-0.5" strokeWidth={2}/>
+                    </button>
+                </div>
                 <p>Each day, one chapter of the Bible is chosen and summarised. Can you find it?</p>
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
                 <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. Red is far, yellow is nearer, green is close:</p>

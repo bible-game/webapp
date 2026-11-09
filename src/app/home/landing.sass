@@ -1,0 +1,49 @@
+// The landing (landing-overlay.tsx) lies over today's game (home-host.tsx; play-host.tsx sets data-landing on the page's wrapper): the game's
+// own parts give their places to the landing's and nothing is touched, until Play hands over and they ease in (their
+// transitions are the tutorial's, play/[game]/tutorial/tutorial.sass). The parts are found by their hooks
+// (data-play-part, play/[game]/game.tsx and summary.tsx)
+[data-landing] [data-game-ready]
+  pointer-events: none
+  [data-play-part=header], [data-play-part=clue], [data-play-part=guesses], [data-play-part=bar]
+    opacity: 0
+  // nothing between the words and the map: the line under the guesses comes back with the game
+  [data-play-part=summary]
+    border-color: transparent
+  // the map is today's game's (data-map-shown, landing-overlay.tsx), at its size on Play, live to explore though nothing
+  // is played on it; before that it gives its place to the hero and the steps
+  [data-play-part=map]
+    opacity: 0
+    transform: scale(0.985)
+  &[data-map-shown] [data-play-part=map]
+    opacity: 1
+    transform: none
+    pointer-events: auto
+// Play into the tutorial: the map dissolves before the landing goes, as the tutorial begins on its words alone
+// (home-host.tsx sets data-map-leaving); straight into the round it stays
+[data-landing][data-map-leaving] [data-game-ready][data-map-shown] [data-play-part=map]
+  opacity: 0
+  transform: scale(0.985)
+
+// the landing's quiet words, as the Gridmap demo sets its own: small mono capitals, widely spaced, faint until hovered
+// (today's game's breadcrumb, in the guesses' row)
+.landing-corner
+  display: flex
+  min-height: 44px
+  align-items: center
+  gap: 6px
+  font-family: var(--font-mono), ui-monospace, Menlo, monospace
+  font-size: 10px
+  line-height: 1.9
+  letter-spacing: 0.16em
+  text-transform: uppercase
+  color: var(--ui-faint)
+  animation: hero-fade 1s ease-out 0.9s both
+  &:hover, &:focus-visible
+    color: var(--ui-text)
+// slow, so it beckons rather than fidgets
+.landing-corner-bob
+  animation: hero-fade 1s ease-out 0.9s both, hero-bob 5.5s ease-in-out 2s infinite
+
+@media (prefers-reduced-motion: reduce)
+  .landing-corner, .landing-corner-bob
+    animation: none

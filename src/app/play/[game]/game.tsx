@@ -1,7 +1,7 @@
 "use client"
 
 import Summary from "@/app/play/[game]/summary";
-import React, { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
@@ -10,11 +10,11 @@ import Header from "@/app/play/[game]/header";
 import Confetti from "@/core/component/confetti";
 import Gridmap from "@/app/play/[game]/map/gridmap";
 import moment from "moment/moment";
-import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
 import { ruledOut } from "@/app/play/[game]/ruled-out";
+import { distanceOf } from "@/app/play/[game]/closeness";
 import { MotionConfig, useReducedMotion } from "framer-motion";
 import { getGameState } from "@/core/action/state/get-state-game";
 
@@ -29,14 +29,32 @@ export default function Game(props: any) {
     // The game reads this device's storage as it renders, so it only ever renders in the browser; the layout's skeleton
     // covers the server render and hydration
     const mounted = useSyncExternalStore(() => () => {}, () => true, () => false);
+    // a round shown rather than played (the first-visit tutorial's, on its sample day): it starts empty and keeps
+    // nothing, neither saved on this device nor sent
+    const demo = !!props.demo;
+    // under the home page's landing: today's map shown clean, without the visitor's guesses on it (nothing is moved or
+    // hidden in storage: it's only not drawn)
+    const landing = !!props.landing;
+    // as the landing hands over, the clue's and the bar's rooms open again; their contents are kept inside them while they
+    // do (data-rooms-opening, tutorial.sass), then free to reach out (the clue's full text, the bar's popovers)
+    const [opening, setOpening] = useState(false);
+    const wasLanding = useRef(landing);
+    useEffect(() => {
+        const ended = wasLanding.current && !landing;
+        wasLanding.current = landing;
+        if (!ended) return;
+        setOpening(true);
+        const timer = window.setTimeout(() => setOpening(false), 800);
+        return () => clearTimeout(timer);
+    }, [landing]);
     if (props.game == 'today') {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
 
     // The server sends the day's passage with the page; the browser fetches it only if that failed
-    const {data, error, isLoading} = useSWR(`${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher,
+    const {data, error, isLoading} = useSWR(demo ? null : `${process.env.SVC_PASSAGE}/daily/${props.game}`, fetcher,
         { fallbackData: props.passage, revalidateOnMount: !props.passage });
-    const passage = data as Passage;
+    const passage = (demo ? props.passage : data) as Passage;
 
     const [playing, setPlaying] = useState(true);
     const [guesses, setGuesses] = useState([] as any[]); // question :: apply type?
@@ -61,9 +79,11 @@ export default function Game(props: any) {
     const [state, setState] = useState({} as any);
     const [confetti, setConfetti] = useState(false);
     const narrativeHidden = true;
+    // the guesses that missed, by cell, for the map to mark where they were made
+    const missed = useMemo(() => landing ? [] : guesses.filter(guess => distanceOf(guess) !== 0).map(guess => `${guess.bookKey}/${guess.chapter}`), [guesses, landing]);
     // what the guesses so far exclude; the whole map comes back once the game is over
-    const excluded = useMemo(() => playing ? ruledOut(testaments, guesses, passage?.book) : new Map<string, string>(),
-        [testaments, guesses, playing, passage?.book]);
+    const excluded = useMemo(() => playing && !landing ? ruledOut(testaments, guesses, passage?.book) : new Map<string, string>(),
+        [testaments, guesses, playing, passage?.book, landing]);
 
     useEffect(() => {
         if (confetti) setConfetti(false);
@@ -85,7 +105,7 @@ export default function Game(props: any) {
     // A logged-in player's other games (for the calendar and their stats) are fetched once the page is up, rather than
     // sent with it. A guess made meanwhile is newer than the fetched copy of today's game, so it is kept.
     useEffect(() => {
-        if (!props.loggedIn) return;
+        if (!props.loggedIn || demo) return;
         getGameState().then(games => {
             if (!games) return;
             const current = passage ? StateUtil.getGame(passage.id) : undefined;
@@ -96,6 +116,7 @@ export default function Game(props: any) {
     }, []);
 
     function loadState() {
+        if (demo) return;
         // The page's copy of today's game goes stale once the player guesses, so it never replaces a longer local one
         if (props.played && props.played.guesses.length >= StateUtil.getGame(props.played.passageId).guesses.length)
             StateUtil.setGame(props.played);
@@ -209,7 +230,7 @@ export default function Game(props: any) {
             createdDate: new Date(),
             lastModified: new Date()
         }
-        StateUtil.setGame(state);
+        if (!demo) StateUtil.setGame(state);
     }
 
     // fixme :: behaviour not correct
@@ -253,6 +274,8 @@ export default function Game(props: any) {
     }
 
     function select(book: any, chapter: any, isBookKey = true) {
+        // the landing's map is there to explore: a chapter picked on it isn't the round's
+        if (landing) return;
         if (isBookKey) {
             const bookName = allBooks.find((bk: any) => bk.key == book).name;
             if (book) selectBook(bookName);
@@ -271,33 +294,37 @@ export default function Game(props: any) {
 
         return (
             <MotionConfig reducedMotion="user">
-            <div data-game-ready className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-transparent pt-[env(safe-area-inset-top)] text-play-text">
-                <PopUp />
-                {/* The header and the action bar keep to the page width; the map between them fills the screen */}
+            <div data-game-ready data-round={playing ? "playing" : "over"} data-guesses={guesses.length} data-rooms-opening={opening ? "" : undefined} className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-transparent pt-[env(safe-area-inset-top)] text-play-text">
+                {/* The header spans the window, its menu and stars in the corners, always wider than the map; the clue and
+                    the action bar keep to the page width; the map between them fills the screen */}
+                <div data-play-part="header" className="w-full shrink-0"><Header info={props.info} date={props.game}/></div>
                 <div className="mx-auto flex w-full max-w-page shrink-0 flex-col">
-                    <Header info={props.info} date={props.game}/>
-                    <Summary passage={passage} playing={playing} guesses={guesses}/>
+                    {/* a room for the clue and the guesses: on the landing it gives its height to the map, and opens again on
+                        Play (tutorial.sass, home/landing.sass) */}
+                    <div data-play-part="summary-room"><div data-room>
+                        <Summary passage={passage} playing={playing} guesses={guesses}/>
+                    </div></div>
                 </div>
 
-                <div className="min-h-0 w-full flex-1">
+                <div data-play-part="map" className="min-h-0 w-full flex-1">
                     <div className="h-full w-full p-3 sm:p-6">
                         <div className="relative h-full w-full">
                             <Gridmap passage={passage} select={select} bookFound={bookFound} divFound={divisionFound}
                                      testFound={testamentFound} data={testaments} book={book} device={props.device}
                                      narrativeHidden={narrativeHidden}
                                      selection={hasBook ? cellOf(chapter) : null}
-                                     ruledOut={excluded} playing={playing}/>
+                                     ruledOut={excluded} playing={landing || playing} missed={missed} landing={landing}/>
                         </div>
                     </div>
                 </div>
 
-                <section className="mx-auto !w-full max-w-page shrink-0 pb-[env(safe-area-inset-bottom)]">
-                    <Action passage={passage} playing={playing} stars={stars} celebrate={confetti} isExistingGuess={isExistingGuess}
+                <section data-play-part="bar" className="mx-auto !w-full max-w-page shrink-0 pb-[env(safe-area-inset-bottom)]"><div data-room>
+                    <Action demo={demo} passage={passage} playing={playing} stars={stars} celebrate={confetti} isExistingGuess={isExistingGuess}
                             date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
                             step={step} canStep={(delta: number) => nextChapter(delta) !== null}
                             ruledOut={hasBook ? excluded.get(cellOf(chapter)) : undefined}
                             bible={props.bible} chapter={chapter} guesses={guesses} info={props.info} known={props.known}/>
-                </section>
+                </div></section>
                 <Confetti fire={confetti && !reducedMotion}/>
             </div>
             </MotionConfig>
