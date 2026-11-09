@@ -665,6 +665,9 @@ input:-webkit-autofill:focus
   animation: hero-fade 1s ease-out 2s both, hero-bob 2.4s ease-in-out 3s infinite
   &:hover
     color: var(--ui-text)
+// on the purpose screen it comes in as soon as it's mounted (once the fourth step has landed), not after the hero's wait
+.home-hero-cue.home-hero-cue-soon
+  animation: hero-fade 0.5s ease-out both, hero-bob 2.4s ease-in-out 0.5s infinite
 
 .glowing-cross
   position: relative
@@ -728,3 +731,17 @@ input:-webkit-autofill:focus
 // Gridmap's hover label, left empty (gridmap.tsx); only a ruled-out chapter's explanation fills it
 .gridmap-tooltip:empty
   display: none
+
+// The map's chapter reader (Gridmap installChapterReader): its loading skeleton pulses gently, still for reduced motion
+@keyframes chapter-loading-pulse
+  0%, 100%
+    opacity: .45
+  50%
+    opacity: 1
+
+[data-chapter-id][aria-busy="true"] [data-chapter-skeleton]
+  animation: chapter-loading-pulse 1.8s ease-in-out infinite
+
+@media (prefers-reduced-motion: reduce)
+  [data-chapter-id][aria-busy="true"] [data-chapter-skeleton]
+    animation: none

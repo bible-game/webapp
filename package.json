@@ -23,7 +23,7 @@
     "@icons-pack/react-simple-icons": "^13.7.0",
     "@internationalized/date": "^3.6.0",
     "@mantine/hooks": "^8.3.4",
-    "@project-gridmap/library": "0.2.1",
+    "@project-gridmap/library": "0.2.3",
     "@sentry/nextjs": "^11.10.0",
     "@tanstack/react-query": "^5.90.2",
     "@uidotdev/usehooks": "^2.4.1",

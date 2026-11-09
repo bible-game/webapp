@@ -33,6 +33,26 @@ export function onZoom(heard: () => void): () => void {
     return () => { watch.disconnect(); stop(); };
 }
 
+/**
+ * Keeps `attach` on whichever map the page has now: it's called with each new map (Play, or React in development,
+ * makes a new one in the same place) and the stop it returns is called when that map goes. Returns a stop
+ */
+export function withLiveMap(attach: (map: Gridmap) => () => void): () => void {
+    let map: Gridmap | null = null;
+    let stop = () => {};
+    const follow = () => {
+        const now = liveMap();
+        if (now === map) return;
+        stop();
+        map = now;
+        stop = now ? attach(now) : () => {};
+    };
+    follow();
+    const watch = new MutationObserver(follow);
+    watch.observe(document.body, { childList: true, subtree: true });
+    return () => { watch.disconnect(); stop(); };
+}
+
 export type Camera = { cx: number; cy: number; k: number };
 export const cameraOf = (map: Gridmap): Camera => map.getCamera();
 

@@ -8,9 +8,10 @@ import { onZoom } from "@/app/play/[game]/tutorial/map-handle";
 import { ENTRANCE } from "@/app/play/[game]/tutorial/tutorial";
 import "@/app/play/[game]/tutorial/tutorial.sass";
 
-const SEEN = "round-tips-seen";
-export const roundTipsSeen = () => { try { return localStorage.getItem(SEEN) === "1"; } catch { return false; } };
-const remember = () => { try { localStorage.setItem(SEEN, "1"); } catch { /* it shows again */ } };
+/** Set once this device's player has zoomed the map themselves: the zoom note has taught its gesture, for good */
+const ZOOMED = "map-zoomed";
+const hasZoomed = () => { try { return localStorage.getItem(ZOOMED) === "1"; } catch { return false; } };
+const rememberZoom = () => { try { localStorage.setItem(ZOOMED, "1"); } catch { /* it shows again next visit */ } };
 
 /** A chapter as the reader says it: Psalms' chapters are each a psalm */
 const chapterName = (book: string, chapter: string) => `${book === "Psalms" ? "Psalm" : book} ${chapter}`;
@@ -60,17 +61,18 @@ const Pointer = () => {
 };
 
 /**
- * The first round's notes, in the guesses' own row, where the empty slots give their room (tutorial.sass hides them while
- * a note shows): before any guess, that zooming on the map reveals more, with the pointer that does it, until the
- * visitor zooms; once the first guess lands,
- * what it means, until the next guess takes a slot. Everything else the page already says
+ * The round's notes, for every player, in the guesses' own row, where the empty slots give their room (tutorial.sass
+ * hides them while a note shows): before any guess, that zooming on the map reveals more, with the pointer that does it,
+ * until the player first zooms (remembered on this device); and in every round, once the first guess lands, what it
+ * means, until the next guess takes a slot. Everything else the page already says
  */
 export default function RoundTips({ passage, bible }: { passage?: { id: number; book: string }; bible: any }) {
     const [note, setNote] = useState<Note | null>(null);
     const [box, setBox] = useState<Box | null>(null);
     const first = useRef<string | null>(null);
-    // once the visitor has zoomed the map, the zoom note has done its job
-    const zoomed = useRef(false);
+    // once the player has zoomed the map, here or on an earlier visit, the zoom note has done its job
+    const zoomed = useRef<boolean | null>(null);
+    if (zoomed.current === null && typeof window !== "undefined") zoomed.current = hasZoomed();
     // the entrance, once, as the zoom note first arrives (tutorial.sass): the clue's shimmer, then the note, then the
     // guess bar, each rising in as a guess's tile
     const shimmered = useRef(false);
@@ -91,7 +93,7 @@ export default function RoundTips({ passage, bible }: { passage?: { id: number; 
             window.setTimeout(() => page.removeAttribute("data-clue-shimmer"), ENTRANCE.lead + ENTRANCE.sweep + ENTRANCE.rise * 2 + 200);
         }
         if (!id) { setNote(null); setBox(null); return; }
-        if (id === "first") { remember(); first.current ??= passage ? explain(bible, passage) : null; }
+        if (id === "first") first.current ??= passage ? explain(bible, passage) : null;
         // a first reading the page can't give (no passage to read it against) is simply left out
         if (id === "first" && !first.current) { page.removeAttribute("data-row-note"); setNote(null); setBox(null); return; }
         setNote(n => n?.id === id ? n : { id, text: id === "zoom" ? ZOOM : first.current ?? "" });
@@ -99,7 +101,7 @@ export default function RoundTips({ passage, bible }: { passage?: { id: number; 
         setBox({ x: a.left, y: a.top, width: b.right - a.left, height: a.height });
     }, [passage, bible]);
 
-    useEffect(() => onZoom(() => { if (!zoomed.current) { zoomed.current = true; check(); } }), [check]);
+    useEffect(() => onZoom(() => { if (!zoomed.current) { zoomed.current = true; rememberZoom(); check(); } }), [check]);
 
     useEffect(() => {
         check();
@@ -117,7 +119,7 @@ export default function RoundTips({ passage, bible }: { passage?: { id: number; 
     // both notes come in as the page brings in a guess's tile (guess.tsx's Tile): the zoom note once the clue has
     // arrived (the clue's entrance, tutorial.sass), the first-guess note with the guess beside it
     const zoom = note.id === "zoom";
-    return <motion.p key={note.id} role="status" initial={{ opacity: 0, y: 6, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }}
+    return <motion.p key={note.id} role="status" data-round-note initial={{ opacity: 0, y: 6, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }}
                      transition={{ type: "spring", stiffness: 420, damping: 28, delay: zoom ? (ENTRANCE.lead + ENTRANCE.sweep) / 1000 : 0 }}
                      className="pointer-events-none fixed z-[30] flex items-center justify-center gap-2 rounded-lg border border-dashed border-play-line px-2.5 py-[3px] text-center text-[11px] leading-[13px] text-ui-muted"
                      style={{ left: box.x, top: box.y, width: box.width, minHeight: box.height }}>

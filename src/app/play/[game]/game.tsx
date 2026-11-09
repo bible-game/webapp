@@ -1,7 +1,7 @@
 "use client"
 
 import Summary from "@/app/play/[game]/summary";
-import React, { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import useSWR from "swr";
 import { Passage } from "@/core/model/play/passage";
 import { DateValue, getLocalTimeZone, parseDate, today as TODAY } from "@internationalized/date";
@@ -10,7 +10,6 @@ import Header from "@/app/play/[game]/header";
 import Confetti from "@/core/component/confetti";
 import Gridmap from "@/app/play/[game]/map/gridmap";
 import moment from "moment/moment";
-import PopUp from "./pop-up";
 import { redirect } from "next/navigation";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
@@ -34,8 +33,20 @@ export default function Game(props: any) {
     // nothing, neither saved on this device nor sent
     const demo = !!props.demo;
     // under the home page's landing: today's map shown clean, without the visitor's guesses on it (nothing is moved or
-    // hidden in storage: it's only not drawn), and the page's own sheet (the cookie notice) waits for the game
+    // hidden in storage: it's only not drawn)
     const landing = !!props.landing;
+    // as the landing hands over, the clue's and the bar's rooms open again; their contents are kept inside them while they
+    // do (data-rooms-opening, tutorial.sass), then free to reach out (the clue's full text, the bar's popovers)
+    const [opening, setOpening] = useState(false);
+    const wasLanding = useRef(landing);
+    useEffect(() => {
+        const ended = wasLanding.current && !landing;
+        wasLanding.current = landing;
+        if (!ended) return;
+        setOpening(true);
+        const timer = window.setTimeout(() => setOpening(false), 800);
+        return () => clearTimeout(timer);
+    }, [landing]);
     if (props.game == 'today') {
         redirect(`/play/${moment(new Date()).format('YYYY-MM-DD')}`);
     }
@@ -263,6 +274,8 @@ export default function Game(props: any) {
     }
 
     function select(book: any, chapter: any, isBookKey = true) {
+        // the landing's map is there to explore: a chapter picked on it isn't the round's
+        if (landing) return;
         if (isBookKey) {
             const bookName = allBooks.find((bk: any) => bk.key == book).name;
             if (book) selectBook(bookName);
@@ -281,12 +294,16 @@ export default function Game(props: any) {
 
         return (
             <MotionConfig reducedMotion="user">
-            <div data-game-ready data-round={playing ? "playing" : "over"} data-guesses={guesses.length} className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-transparent pt-[env(safe-area-inset-top)] text-play-text">
-                {landing ? null : <PopUp />}
-                {/* The header and the action bar keep to the page width; the map between them fills the screen */}
+            <div data-game-ready data-round={playing ? "playing" : "over"} data-guesses={guesses.length} data-rooms-opening={opening ? "" : undefined} className="play-ui fixed inset-0 z-0 flex h-[100dvh] flex-col overflow-hidden bg-transparent pt-[env(safe-area-inset-top)] text-play-text">
+                {/* The header spans the window, its menu and stars in the corners, always wider than the map; the clue and
+                    the action bar keep to the page width; the map between them fills the screen */}
+                <div data-play-part="header" className="w-full shrink-0"><Header info={props.info} date={props.game}/></div>
                 <div className="mx-auto flex w-full max-w-page shrink-0 flex-col">
-                    <div data-play-part="header"><Header info={props.info} date={props.game}/></div>
-                    <Summary passage={passage} playing={playing} guesses={guesses}/>
+                    {/* a room for the clue and the guesses: on the landing it gives its height to the map, and opens again on
+                        Play (tutorial.sass, home/landing.sass) */}
+                    <div data-play-part="summary-room"><div data-room>
+                        <Summary passage={passage} playing={playing} guesses={guesses}/>
+                    </div></div>
                 </div>
 
                 <div data-play-part="map" className="min-h-0 w-full flex-1">
@@ -296,18 +313,18 @@ export default function Game(props: any) {
                                      testFound={testamentFound} data={testaments} book={book} device={props.device}
                                      narrativeHidden={narrativeHidden}
                                      selection={hasBook ? cellOf(chapter) : null}
-                                     ruledOut={excluded} playing={landing || playing} missed={missed}/>
+                                     ruledOut={excluded} playing={landing || playing} missed={missed} landing={landing}/>
                         </div>
                     </div>
                 </div>
 
-                <section data-play-part="bar" className="mx-auto !w-full max-w-page shrink-0 pb-[env(safe-area-inset-bottom)]">
+                <section data-play-part="bar" className="mx-auto !w-full max-w-page shrink-0 pb-[env(safe-area-inset-bottom)]"><div data-room>
                     <Action demo={demo} passage={passage} playing={playing} stars={stars} celebrate={confetti} isExistingGuess={isExistingGuess}
                             date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
                             step={step} canStep={(delta: number) => nextChapter(delta) !== null}
                             ruledOut={hasBook ? excluded.get(cellOf(chapter)) : undefined}
                             bible={props.bible} chapter={chapter} guesses={guesses} info={props.info} known={props.known}/>
-                </section>
+                </div></section>
                 <Confetti fire={confetti && !reducedMotion}/>
             </div>
             </MotionConfig>

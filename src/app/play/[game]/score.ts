@@ -1,6 +1,7 @@
 /**
- * Scores a guess in the browser, as the passage service's GuessService does, so the tile fills the moment it's guessed.
- * The page already holds the answer and the bible config (every chapter's verse count), so nothing more is revealed.
+ * Scores a guess in the browser, the only place guesses are scored (the passage service's GuessService, which this
+ * matched, is retired), so the tile fills the moment it's guessed. The page already holds the answer and the Bible's
+ * structure (core/config/bible.json: every chapter's verse count), so nothing more is revealed.
  * @since 27th October 2026
  */
 
@@ -15,7 +16,7 @@ const chaptersOf = (bible: any): { key: string, verses: number }[] =>
 
 /**
  * The verses between a guess and the answer (negative when the guess comes before it) and how close that is, as a
- * percentage of the bible; none if either chapter isn't in the config, and the passage service scores it instead
+ * percentage of the bible; none if either chapter isn't in the structure (Play then says the guess can't be scored)
  */
 export function score(bible: any, answer: { book: string, chapter: string }, guess: { book: string, chapter: string }): Score | undefined {
     if (answer.book == guess.book && answer.chapter == guess.chapter) return { distance: 0, percentage: 100 };
