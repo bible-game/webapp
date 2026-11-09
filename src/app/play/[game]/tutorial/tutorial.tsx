@@ -41,10 +41,19 @@ const START = 350 + 350 + 2400 * 0.75;
 /** The clue's sizes, as the Play page's (app/play/[game]/summary.tsx): the largest that keeps the words to two lines */
 const SIZES = [18, 17, 16, 15];
 
-/** Set once the tutorial has been seen (finished or skipped), so a returning visitor goes straight to the game */
-const SEEN = "tutorial-seen";
-export const tutorialSeen = () => { try { return localStorage.getItem(SEEN) === "1"; } catch { return false; } };
-const remember = () => { try { localStorage.setItem(SEEN, "1"); } catch { /* it just shows again */ } };
+/**
+ * Set once the tutorial ends: true when it was seen through to the end, false when it was skipped. Its presence, either
+ * way, is what keeps the tutorial from showing again on this device (How to play can still replay it)
+ */
+const ONBOARDED = "onboarded";
+export const onboarded = (): boolean | null => {
+    try { const value = localStorage.getItem(ONBOARDED); return value === null ? null : JSON.parse(value) === true; }
+    catch { return null; }
+};
+/** A replay never undoes a finish: once true, it stays true */
+const remember = (completed: boolean) => {
+    try { localStorage.setItem(ONBOARDED, JSON.stringify(onboarded() === true || completed)); } catch { /* it just shows again */ }
+};
 
 /** The Play page's parts, by their hooks (data-play-part in game.tsx, summary.tsx) */
 const part = (page: Element, name: string) => page.querySelector(`[data-play-part=${name}]`);
@@ -101,7 +110,7 @@ function Stage({ state }: { state: "done" | "now" | "next" }) {
  * each step's shimmer, and for the guesses. The progress (a circle a stage) and Skip take the header's place; once every
  * stage is done, Skip becomes Restart. At the end (or on Skip, or Escape) the page's parts come back, and `onDone` says
  * whether guesses were made to watch; `onReset`, on Restart, sets the round back to empty once they were. It waits for
- * the page's own first-visit sheet (the cookie notice)
+ * the page's own sheets (any modal dialog)
  */
 export default function Tutorial({ onStage, onReset, onDone }: { onStage: (stage: number) => void; onReset: () => void; onDone: (demoed: boolean) => void }) {
     const root = useRef<HTMLDivElement>(null);
@@ -123,7 +132,7 @@ export default function Tutorial({ onStage, onReset, onDone }: { onStage: (stage
     const words = step.demo && shown ? YOUR_TURN : step.text;
     useEffect(() => { if (shown) setLit(false); }, [shown]);
 
-    // the page is ready once the game has rendered and no sheet of its own (the cookie notice) is up; it's looked for
+    // the page is ready once the game has rendered and no sheet of its own (a modal dialog) is up; it's looked for
     // again after a Restart, which makes the page afresh
     const find = useCallback(() => {
         const game = document.querySelector("[data-game-ready]");
@@ -176,7 +185,8 @@ export default function Tutorial({ onStage, onReset, onDone }: { onStage: (stage
         return () => { timers.forEach(clearTimeout); cancel(); };
     }, [page, step]);
 
-    const finish = useCallback(() => { remember(); onDone(demoed.current); }, [onDone]);
+    // the end is reached once the guesses to watch have all landed; leaving before then (Skip, Escape) is a skip
+    const finish = useCallback(() => { remember(STEPS[at].demo === true && shown); onDone(demoed.current); }, [onDone, at, shown]);
     const restart = useCallback(() => { if (demoed.current) onReset(); demoed.current = false; setShown(false); setAt(0); }, [onReset]);
     const advance = useCallback(() => {
         if (waiting) return;
@@ -199,7 +209,7 @@ export default function Tutorial({ onStage, onReset, onDone }: { onStage: (stage
 
     return <div ref={root} tabIndex={-1} role="region" aria-label="How to play" className="pointer-events-none fixed inset-0 z-[65] outline-none">
         {/* the progress, a circle a stage, and Skip (Restart, once every stage is done), in the header's place */}
-        {boxes.header ? <div className="pointer-events-auto absolute flex items-center justify-between pl-4 pr-2" style={place(boxes.header)}>
+        {boxes.header ? <div className="tutorial-chrome pointer-events-auto absolute flex items-center justify-between pl-4 pr-2" style={place(boxes.header)}>
             <ol aria-label={`Step ${at + 1} of ${STEPS.length}`} className="flex items-center gap-2">
                 {STEPS.map((s, i) => <li key={s.id} aria-hidden="true"><Stage state={i < at || (i === at && shown) ? "done" : i === at ? "now" : "next"}/></li>)}
             </ol>
@@ -221,7 +231,7 @@ export default function Tutorial({ onStage, onReset, onDone }: { onStage: (stage
 
         {/* Next, in the guess button's place and style: greyed until the words have had their shimmer, and with a spinner
             while the guesses are being shown */}
-        {boxes.bar ? <div className="absolute flex flex-col justify-center px-4 pb-2" style={{ ...place(boxes.bar), height: Math.min(boxes.bar.height, 100) }}>
+        {boxes.bar ? <div className="tutorial-chrome tutorial-chrome-late absolute flex flex-col justify-center px-4 pb-2" style={{ ...place(boxes.bar), height: Math.min(boxes.bar.height, 100) }}>
             <button type="button" onClick={advance} disabled={waiting} aria-busy={watching}
                     className={`pointer-events-auto flex h-12 w-full items-center justify-center gap-2 rounded-lg px-5 text-[16px] font-medium transition-colors duration-300 active:scale-[0.98] ${waiting ? "bg-play-raised text-play-faint" : "bg-play-text text-play-bg"}`}>
                 {watching ?
