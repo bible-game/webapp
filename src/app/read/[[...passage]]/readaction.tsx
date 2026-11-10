@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
+import { StorageUtil } from "@/core/util/storage-util";
 import { StateUtil } from "@/core/util/state-util";
 import { post } from "@/core/action/http/post";
 import getReadKey, { ReadState } from "@/core/model/state/read-state";
@@ -30,8 +31,8 @@ export function useReadAction(props: ReadPassage) {
         StateUtil.setRead(state);
         setRead(true);
 
-        if (props.state) {
-            post(`${process.env.SVC_USER}/state/read`, state).then();
+        if (props.state && typeof StorageUtil.getOwner() !== 'string') {
+            post("/state/read", state, StorageUtil.getOwner() ?? undefined).then();
         }
     }
 

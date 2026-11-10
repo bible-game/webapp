@@ -1,5 +1,7 @@
 "use client"
 
+import { StorageUtil } from "@/core/util/storage-util";
+
 import { saveGuess } from "@/core/action/play/guess";
 import * as Sentry from "@sentry/nextjs";
 import { score } from "@/app/play/[game]/score";
@@ -66,7 +68,9 @@ const markNudged = () => {
  */
 let saving: Promise<void> = Promise.resolve();
 function save(passageId: number, scored: any): void {
-    saving = saving.then(() => saveGuess(passageId, scored)).catch(e => console.error(e));
+    const owner = StorageUtil.getOwner();
+    if (typeof owner === 'string') return; // Clerk mode flushes local snapshots through the single merge path.
+    saving = saving.then(() => saveGuess(passageId, scored, owner ?? undefined)).catch(e => console.error(e));
 }
 
 const stepper = "flex size-12 shrink-0 items-center justify-center rounded-lg border border-play-line bg-play-surface text-play-text transition active:scale-95 disabled:text-play-faint disabled:opacity-50";

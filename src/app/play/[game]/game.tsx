@@ -11,6 +11,7 @@ import Confetti from "@/core/component/confetti";
 import Gridmap from "@/app/play/[game]/map/gridmap";
 import moment from "moment/moment";
 import { redirect } from "next/navigation";
+import { StorageUtil } from "@/core/util/storage-util";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
 import { ruledOut } from "@/app/play/[game]/ruled-out";
@@ -106,7 +107,9 @@ export default function Game(props: any) {
     // sent with it. A guess made meanwhile is newer than the fetched copy of today's game, so it is kept.
     useEffect(() => {
         if (!props.loggedIn || demo) return;
+        const scope = StorageUtil.scopeToken();
         getGameState().then(games => {
+            if (StorageUtil.scopeToken() !== scope) return;
             if (!games) return;
             const current = passage ? StateUtil.getGame(passage.id) : undefined;
             StateUtil.setAllGame(games);

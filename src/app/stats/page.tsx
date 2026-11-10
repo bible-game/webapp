@@ -36,7 +36,7 @@ export default async function Stats() {
 
     // The calls are independent, so they run together rather than one after another
     const loggedIn = await isLoggedIn();
-    const userId: string | undefined = loggedIn ? await getUserId() ?? undefined : undefined; // read from the token, no request
+    const userId: string | undefined = loggedIn ? await getUserId() ?? undefined : undefined; // numeric app ID, including when Clerk supplies the identity
     const [leaders, gameState, readState, reviewState, info, rank]: [
         Leader[],
         Map<number,GameState> | undefined,
@@ -50,7 +50,7 @@ export default async function Stats() {
         loggedIn ? getReadState() : undefined,
         loggedIn ? getReviewState() : undefined,
         loggedIn ? getUserInfo() : undefined,
-        loggedIn ? getRank(userId ?? '1') : {} // fixme
+        userId ? getRank(userId) : {}
     ]);
     const displayName = info ? `${info.firstname} ${info.lastname}` : undefined;
 

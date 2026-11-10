@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { Avatar, Button, Drawer, DrawerBody, DrawerContent, DrawerFooter, DrawerHeader, useDisclosure } from "@heroui/react";
 import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon, MenuIcon, PlayIcon, StarIcon, UserRoundIcon, XIcon } from "lucide-react";
 import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
-import { logOut } from "@/core/action/auth/log-out";
+import { useUser, useClerk } from "@clerk/nextjs";
 import LogoMark from "@/core/component/logo-mark";
 import bible from "@/core/config/bible.json";
 import { CompletionUtil } from "@/core/util/completion-util";
@@ -181,10 +181,29 @@ function DrawerProgress({ stars }: { stars?: number }) {
 const initials = (info: NonNullable<AppHeaderProps["info"]>) => (info.firstname[0] ?? "").toUpperCase() + (info.lastname[0] ?? "").toUpperCase();
 // The drawer's rows rise in turn, quickly, so the whole drawer settles in about a third of a second
 const rise = (index: number) => ({ animationDelay: `${40 + index * 15}ms` });
-const logOutAndReload = () => logOut().then(() => window.location.reload());
+function LogOutButton() {
+    const { signOut } = useClerk();
+    const [busy, setBusy] = useState(false);
+    const [failed, setFailed] = useState(false);
+    async function leave() {
+        setBusy(true);
+        setFailed(false);
+        try {
+            await signOut({ redirectUrl: '/' });
+        } catch { setBusy(false); setFailed(true); }
+    }
+    return <div><button type="button" disabled={busy} className="ui-button min-h-11 shrink-0" onClick={leave}>Log out</button>
+        {failed && <p role="alert" className="text-xs text-ui-error">Please try again.</p>}</div>;
+}
 
 export default function AppHeader({ info, children, aside }: AppHeaderProps) {
     const drawer = useDisclosure();
+    const { isSignedIn, user } = useUser();
+    // Clerk reflects a settings edit immediately, while the signed webhook catches the local profile up.
+    const displayedInfo = info ? {
+        firstname: user?.firstName ?? info.firstname,
+        lastname: user?.lastName ?? info.lastname,
+    } : undefined;
     const pathname = usePathname();
     const stars = useStars(true);
 
@@ -249,16 +268,19 @@ export default function AppHeader({ info, children, aside }: AppHeaderProps) {
                         </nav>
                     </DrawerBody>
                     <DrawerFooter className="flex-col items-stretch gap-3 px-4 pb-[max(16px,env(safe-area-inset-bottom))] pt-4">
-                        {info ? <div className="drawer-row flex items-center gap-3 rounded-lg border border-ui-line bg-ui-surface p-3" style={rise(links.length)}>
+                        {displayedInfo ? <div className="drawer-row flex items-center gap-3 rounded-lg border border-ui-line bg-ui-surface p-3" style={rise(links.length)}>
                             {/* The avatar and name lead to the player's Statistics */}
                             <Link href="/stats" onClick={onClose} className="group flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-md">
-                                <Avatar aria-hidden="true" className="size-9 shrink-0 bg-ui-raised text-[13px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(info)}/>
+                                <Avatar aria-hidden="true" className="size-9 shrink-0 bg-ui-raised text-[13px] font-semibold text-ui-text ring-1 ring-ui-line" name={initials(displayedInfo)}/>
                                 <span className="min-w-0 flex-1">
-                                    <span className="block truncate text-[15px] font-medium underline-offset-4 group-hover:underline">{info.firstname} {info.lastname}</span>
+                                    <span className="block truncate text-[15px] font-medium underline-offset-4 group-hover:underline">{displayedInfo.firstname} {displayedInfo.lastname}</span>
                                     <DrawerProgress stars={stars}/>
                                 </span>
                             </Link>
-                            <button type="button" className="ui-button min-h-11 shrink-0" onClick={logOutAndReload}>Log out</button>
+                            <LogOutButton/>
+                        </div> : isSignedIn ? <div className="drawer-row flex items-center justify-between gap-3 rounded-lg border border-ui-line bg-ui-surface p-3" style={rise(links.length)}>
+                            <span className="text-[15px] font-medium">Signed in</span>
+                            <LogOutButton/>
                         </div> : <Link href="/account/log-in" onClick={onClose} className="drawer-row flex min-h-[68px] items-center gap-2.5 rounded-lg border border-ui-line bg-ui-surface px-3.5 py-2.5 hover:bg-ui-raised"
                                        style={rise(links.length)}>
                             <span className="relative flex size-[38px] shrink-0 items-center justify-center rounded-full bg-ui-raised ring-1 ring-ui-line">
@@ -270,6 +292,10 @@ export default function AppHeader({ info, children, aside }: AppHeaderProps) {
                                 <span className="mt-[5px] block text-[14px] leading-5 text-ui-muted"><LoginReasons/></span>
                             </span>
                             <ArrowRightIcon className="size-5 text-ui-muted"/>
+                        </Link>}
+                        {isSignedIn && <Link href="/account/manage" onClick={onClose}
+                            className="drawer-row ui-button flex min-h-11 items-center justify-center gap-2" style={rise(links.length + 1)}>
+                            <UserRoundIcon className="size-5" aria-hidden="true"/>Manage account
                         </Link>}
                         <div className="drawer-row flex items-center justify-between border-t border-ui-line pt-2 text-[14px] text-ui-muted" style={rise(links.length + 1)}>
                             <nav aria-label="About Bible Game" className="flex">

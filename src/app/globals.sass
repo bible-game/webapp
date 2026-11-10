@@ -745,3 +745,255 @@ input:-webkit-autofill:focus
 @media (prefers-reduced-motion: reduce)
   [data-chapter-id][aria-busy="true"] [data-chapter-skeleton]
     animation: none
+
+// Account flows share the app's form scale. Clerk's supported element hooks remove its separate card furniture.
+.account-layout
+  display: flex
+  flex-direction: column
+  > .app-header
+    flex-shrink: 0
+
+.account-page
+  flex: 1
+  align-items: stretch
+  padding-bottom: max(16px, env(safe-area-inset-bottom))
+
+.account-content
+  display: flex
+  flex-direction: column
+  width: 100%
+  max-width: 384px
+  min-width: 0
+  color: var(--ui-text)
+
+.account-stack
+  display: flex
+  flex-direction: column
+  gap: 24px
+  width: 100%
+
+.account-heading
+  display: flex
+  flex-direction: column
+  align-items: flex-start
+  gap: 8px
+  text-align: left
+
+.account-title
+  margin: 0
+  color: var(--ui-text)
+  font-size: 24px
+  font-weight: 600
+  line-height: 32px
+  letter-spacing: 0
+
+.account-description
+  margin: 0
+  color: var(--ui-muted)
+  font-size: 14px
+  font-weight: 400
+  line-height: 22px
+  text-align: left
+  overflow-wrap: anywhere
+
+.account-label
+  color: var(--ui-muted)
+  font-size: 14px
+  font-weight: 400
+  line-height: 20px
+
+.account-hint
+  color: var(--ui-faint)
+  font-size: 12px
+  line-height: 18px
+
+.account-input
+  box-shadow: none
+  transition: background-color 150ms, border-color 150ms
+  &::placeholder
+    color: var(--ui-faint)
+  &:hover
+    background: var(--ui-raised)
+  &:focus
+    border-color: var(--ui-muted)
+  &[aria-invalid="true"], &[data-feedback="error"]
+    border-color: var(--ui-error)
+
+.account-primary
+  width: 100%
+  min-height: 48px
+  box-shadow: none
+  font-family: var(--font-sans), sans-serif
+  font-size: 14px
+  font-weight: 600
+  text-transform: none
+
+.account-link
+  color: var(--ui-text)
+  text-decoration: underline
+  text-underline-offset: 3px
+  font-size: 14px
+  font-weight: 500
+  &:hover
+    text-decoration-thickness: 2px
+
+.account-text-action
+  display: inline-flex
+  min-height: 44px
+  align-items: center
+  justify-content: center
+  padding: 8px 0
+  color: var(--ui-muted)
+  font-size: 14px
+  font-weight: 400
+  text-decoration: underline
+  text-underline-offset: 3px
+  &:hover
+    color: var(--ui-text)
+  &:disabled
+    opacity: .45
+
+.account-actions
+  display: flex
+  flex-direction: column
+  gap: 8px
+  width: 100%
+
+.account-alert
+  margin: 0
+  padding: 12px
+  border: 1px solid color-mix(in srgb, var(--ui-error) 40%, transparent)
+  border-radius: 8px
+  background: color-mix(in srgb, var(--ui-error) 10%, transparent)
+  color: var(--ui-error)
+  font-size: 14px
+  line-height: 22px
+  overflow-wrap: anywhere
+
+.account-field-error
+  color: var(--ui-error)
+  font-size: 12px
+  line-height: 18px
+
+.account-field-warning
+  color: var(--ui-warning)
+  font-size: 12px
+  line-height: 18px
+
+// The doubled class gives our supported appearance hooks precedence over Clerk's generated component rules.
+.account-clerk.account-clerk
+  display: flex
+  flex: 1
+  flex-direction: column
+  width: 100%
+  max-width: 100%
+  .account-clerk-box, .account-clerk-card
+    width: 100%
+    max-width: 100%
+    min-width: 0
+    margin: 0
+    padding: 0
+    border: 0
+    border-radius: 0
+    background: transparent
+    background-image: none
+    box-shadow: none
+  .account-clerk-card
+    gap: 24px
+    overflow: visible
+  .account-clerk-box
+    display: flex
+    flex: 1
+    flex-direction: column
+  .account-heading
+    margin: 0
+    align-items: flex-start
+    gap: 8px
+  .account-title
+    font-size: 24px
+    line-height: 32px
+    font-weight: 600
+    text-align: left
+    letter-spacing: 0
+  .account-clerk-main, .account-clerk-form
+    gap: 24px
+  .account-input
+    min-height: 48px
+    padding: 12px
+    border: 1px solid var(--ui-line)
+    border-radius: 8px
+    background: var(--ui-surface)
+    color: var(--ui-text)
+    font-size: 16px
+    box-shadow: none
+    &:hover
+      background: var(--ui-raised)
+    &:focus
+      border-color: var(--ui-muted)
+  .account-primary
+    min-height: 48px
+    border: 1px solid transparent
+    border-radius: 8px
+    background: var(--ui-text)
+    color: var(--ui-bg)
+    box-shadow: none
+    &:hover
+      background: #dfe1e4
+  .account-social
+    min-height: 48px
+    border: 1px solid var(--ui-line)
+    border-radius: 8px
+    background: var(--ui-surface)
+    color: var(--ui-text)
+    box-shadow: none
+    &:hover
+      background: var(--ui-raised)
+  .account-social-label
+    color: inherit
+    font-size: 14px
+    font-weight: 600
+  .account-divider
+    background: var(--ui-line)
+  .account-clerk-footer
+    flex: 1
+    gap: 16px
+    padding: 24px 0 0
+    border: 0
+    border-radius: 0
+    background: transparent
+    background-image: none
+    box-shadow: none
+  .account-clerk-footer-action
+    width: 100%
+    justify-content: flex-start
+    gap: 4px
+    padding: 0
+  .account-clerk-footer-item
+    width: 100%
+    margin-top: auto
+    padding-top: 32px
+    padding-bottom: 0
+  .account-code-input
+    min-width: 0
+    height: 48px
+    border: 1px solid var(--ui-line)
+    border-radius: 8px
+    background: var(--ui-surface)
+    color: var(--ui-text)
+    font-family: var(--font-mono), monospace
+    font-size: 20px
+    box-shadow: none
+
+// Account settings retain Clerk's responsive sidebar/content layout rather than the narrow login column.
+.account-management
+  width: 100%
+  max-width: 960px
+  min-width: 0
+
+.account-profile.account-profile
+  width: 100%
+  max-width: 100%
+  .account-profile-box, .account-profile-card
+    max-width: 100%
+    border-color: var(--ui-line)
+    box-shadow: none

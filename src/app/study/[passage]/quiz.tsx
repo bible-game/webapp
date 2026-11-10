@@ -10,6 +10,7 @@ import { Spinner } from '@heroui/react';
 import { gradeSummary } from '@/core/action/study/grade-summary';
 import { Question, Study } from '@/core/action/study/get-study';
 import { GradingResult, ReviewState } from '@/core/model/state/review-state';
+import { StorageUtil } from "@/core/util/storage-util";
 import { StateUtil } from '@/core/util/state-util';
 import { post } from '@/core/action/http/post';
 import { REVIEW_DATE_FORMAT } from '@/app/study/study-util';
@@ -96,7 +97,7 @@ export default function Quiz({ passage, study, title, loggedIn, onPassage, onSub
             gradingResult: grading || { score: 0, message: '' },
         };
 
-        if (loggedIn) post(`${process.env.SVC_USER}/state/review`, review);
+        if (loggedIn && typeof StorageUtil.getOwner() !== 'string') post("/state/review", review, StorageUtil.getOwner() ?? undefined);
         StateUtil.setReview(review);
         onSubmit(review);
     }

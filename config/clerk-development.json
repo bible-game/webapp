@@ -1,0 +1,29 @@
+{
+  "auth_email": {
+    "required_for_sign_up": true,
+    "used_for_sign_in": true,
+    "used_for_sign_up": true,
+    "verify_at_sign_up": true,
+    "verification_strategies": ["email_code"]
+  },
+  "auth_password": {
+    "enabled": true,
+    "required": true
+  },
+  "connection_oauth_google": {
+    "enabled": true
+  },
+  "connection_oauth_apple": {
+    "enabled": false
+  },
+  "auth_access_control": {
+    "block_disposable_email_domains": true,
+    "block_email_subaddresses": true
+  },
+  "auth_attack_protection": {
+    "bot_protection": {
+      "captcha_enabled": true,
+      "captcha_widget_type": "smart"
+    }
+  }
+}

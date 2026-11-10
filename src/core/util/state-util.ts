@@ -4,7 +4,6 @@ import { GameState } from "@/core/model/state/game-state";
 import { StorageUtil } from "@/core/util/storage-util";
 import { ReviewState } from "@/core/model/state/review-state";
 import getReadKey, { ReadState } from "@/core/model/state/read-state";
-import { isSyncPending } from "@/core/util/sync-cookie";
 
 const STATE_KINDS = ['games', 'reads', 'reviews'] as const;
 type StateKind = typeof STATE_KINDS[number];
@@ -111,7 +110,7 @@ export class StateUtil {
         const synced = this.getSynced();
         const fromServer = new Set(all.keys());
 
-        if (isSyncPending()) {
+        if (typeof StorageUtil.getOwner() === 'string') {
             for (const [key, state] of this.getAll(kind)) {
                 if (synced[kind][key] != fingerprint(state)) {
                     all.set(key, state);

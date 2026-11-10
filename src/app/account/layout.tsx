@@ -6,5 +6,5 @@ export const dynamic = "force-dynamic";
 
 export default async function AccountLayout({ children }: { children: React.ReactNode }) {
     const info = await isLoggedIn() ? await getUserInfo() : undefined;
-    return <div className="min-h-dvh"><Menu info={info}/>{children}</div>;
+    return <div className="account-layout min-h-dvh"><Menu info={info}/>{children}</div>;
 }

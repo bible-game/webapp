@@ -1,3 +1,6 @@
+import { auth } from "@clerk/nextjs/server";
+import { ClerkProvider } from "@clerk/nextjs";
+import { clerkAppearance, clerkLocalization } from "@/core/style/clerk-appearance";
 import "./globals.sass";
 import React from "react";
 import Providers from "./providers";
@@ -29,15 +32,18 @@ export const metadata: Metadata = {
 // Matches the ground's edges so the mobile browser's bars blend in (see edge in ui-theme.ts)
 export const viewport: Viewport = { themeColor: uiTheme.edge, colorScheme: "dark" };
 
-export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
+  const serverUserId = (await auth()).userId;
   return (
       <html lang="en" className={`dark ${sans.variable} ${mono.variable} ${condensed.variable} ${serif.variable}`} style={Object.fromEntries(Object.entries(uiTheme).map(([key, value]) => [`--ui-${key}`, value])) as React.CSSProperties}>
           <SpeedInsights/>
           <body>
-          <Ground/>
-          <Providers>
+            <ClerkProvider afterSignOutUrl="/" localization={clerkLocalization} appearance={clerkAppearance} signInUrl="/account/log-in" signUpUrl="/account/sign-up" signInForceRedirectUrl="/account/continue" signUpForceRedirectUrl="/account/continue">
+              <Ground/>
+              <Providers serverUserId={serverUserId}>
               {children}
-            </Providers>
+              </Providers>
+            </ClerkProvider>
           </body>
       </html>
     );

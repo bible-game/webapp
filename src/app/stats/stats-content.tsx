@@ -31,7 +31,7 @@ export default function StatsContent(props: Readonly<Props>) {
         setCompletion(built);
         setCompletionPercentage(pct);
         setLoading(false);
-    }, []);
+    }, [props.bible, props.gameState, props.readState, props.reviewState]);
 
     if (loading) {
         return <StatsSkeleton/>;
