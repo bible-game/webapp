@@ -30,6 +30,7 @@ export async function signup(state: SignUpFormState, formData: FormData): Promis
             form: []
         }
         state.token = undefined
+        state.success = false
     }
 
     // Bot protection: Honeypot check
@@ -68,35 +69,29 @@ export async function signup(state: SignUpFormState, formData: FormData): Promis
 
     const { confirmPassword, ...dataToSend } = validatedFields.data;
 
-    const body = {
-        ...dataToSend,
-        games: JSON.parse(formData.get("games") as string || '[]'),
-        reviews: JSON.parse(formData.get("reviews") as string || '[]'),
-        reads: JSON.parse(formData.get("reads") as string || '[]')
-    }
-
     try {
+        const body = {
+            ...dataToSend,
+            games: JSON.parse(formData.get("games") as string || '[]'),
+            reviews: JSON.parse(formData.get("reviews") as string || '[]'),
+            reads: JSON.parse(formData.get("reads") as string || '[]')
+        }
+
         const response = await fetch(`${process.env.SVC_USER}/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
+            cache: "no-store",
             body: JSON.stringify(body)
         })
 
         if (response.ok) {
             const result = await response.text()
-            state!.token = result
-            state!.success = true
             await setAuthCookies(result)
+            state!.success = true
         } else {
-            const result = await response.json().catch(() => ({ error: "Unknown error", raw: "Failed to parse JSON" }))
-            console.error(`Sign-up failed:
-            Status: ${response.status} ${response.statusText}
-            URL: ${process.env.SVC_USER}/auth/register
-            Response Body: ${JSON.stringify(result, null, 2)}
-            Request Body (sanitized): ${JSON.stringify({ ...body, password: "***" }, null, 2)}`)
-            
+            console.error(`Sign-up failed with status ${response.status}`)
             if (response.status === 409) {
                 state.errors.email.push("This email is already registered.")
             } else {

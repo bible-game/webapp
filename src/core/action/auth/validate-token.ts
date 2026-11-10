@@ -11,7 +11,7 @@ export async function validateToken(token: string): Promise<boolean> {
     let result: boolean
 
     try {
-        const response = await fetch(`${process.env.SVC_USER}/auth/validate-token?token=${token}`)
+        const response = await fetch(`${process.env.SVC_USER}/auth/validate-token?token=${encodeURIComponent(token)}`, { cache: "no-store" })
 
         const responseJson = await response.json()
         if (response.ok) {
