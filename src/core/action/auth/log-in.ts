@@ -46,21 +46,20 @@ export async function logIn(state: LogInFormState, formData: FormData) {
             headers: {
                 "Content-Type": "application/json"
             },
+            cache: "no-store",
             body: JSON.stringify(body)
         })
 
         let result: string | any
         if (response.status == 200) {
             result = await response.text()
-            state!.token = result
             await setAuthCookies(result)
             // Anything played on this device while logged out is synced by the browser once it has been redirected
             const secure = process.env.NODE_ENV === 'production';
             (await cookies()).set(SYNC_PENDING_COOKIE, '1', { secure, sameSite: 'lax', path: '/', maxAge: SYNC_PENDING_MAX_AGE });
 
         } else {
-            result = await response.json()
-            console.error(`Error when logging in with [Email: ${body.email}]: ${result.error}`)
+            console.error(`Login failed with status ${response.status}`)
             switch (response.status) {
                 case 401:
                     state.errors.form.push('The provided username and password don\'t match!')
@@ -71,7 +70,7 @@ export async function logIn(state: LogInFormState, formData: FormData) {
             return state
         }
     } catch (error: any) {
-        console.error(`Error when logging in with [Email: ${body.email}]: ${error.message}`)
+        console.error("Login request failed")
         state!.errors.form.push('An error occurred on our end. Please try again later or reach out for support if this persists.')
         return state
     }

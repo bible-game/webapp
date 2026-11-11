@@ -1,4 +1,4 @@
-"use server"
+import "server-only";
 
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
@@ -19,7 +19,7 @@ export default async function isLoggedIn(): Promise<boolean> {
     try {
         const token = await getToken();
         if (token) {
-            const { payload } = await jwtVerify(token, await getSecret());
+            const { payload } = await jwtVerify(token, getSecret());
             return !!payload.sub;
         }
     } catch (e) {
@@ -30,8 +30,10 @@ export default async function isLoggedIn(): Promise<boolean> {
 }
 
 /** Return the base64-encoded signing secret */
-export async function getSecret(): Promise<Uint8Array> {
-    return new TextEncoder().encode(process.env.SIGNING_SECRET);
+function getSecret(): Uint8Array {
+    const secret = process.env.SIGNING_SECRET;
+    if (!secret) throw new Error("SIGNING_SECRET is not configured");
+    return new Uint8Array(Buffer.from(secret, "base64"));
 }
 
 /** Returns the auth token if it exists */
@@ -46,7 +48,7 @@ export async function getToken(): Promise<string | null> {
 export async function getUserId(): Promise<string | undefined> {
     const token = await getToken();
     if (token) {
-        const {payload} = await jwtVerify(token, await getSecret());
+        const {payload} = await jwtVerify(token, getSecret());
         return payload.sub;
     } else {
         return undefined;

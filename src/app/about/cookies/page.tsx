@@ -5,94 +5,81 @@ export default function CookiePolicy() {
                 <h1 className="text-[24px] font-semibold mb-8">Cookie Policy</h1>
 
                 <section className="legal-content space-y-4">
-                    <p>Last updated: {new Date().getFullYear()}</p>
+                    <p>Last updated: November 2026</p>
 
                     <p>
-                        Bible Game uses cookies and similar technologies to provide essential
-                        gameplay features, save progress, and improve performance. This
-                        policy explains what we use and why.
+                        Bible Game keeps a small amount of information on your device so the
+                        game works: your progress, your settings and, if you have an account,
+                        your sign-in. This policy explains what we keep and why.
                     </p>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         1. What Are Cookies?
                     </h2>
                     <p>
-                        Cookies are small files stored on your device. We also use local
-                        storage for certain features such as progress tracking.
+                        Cookies are small files stored on your device. We also use your
+                        browser&apos;s local storage, which works in a similar way and stays on
+                        your device.
                     </p>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
-                        2. Types of Cookies We Use
+                        2. What We Keep
                     </h2>
-
-                    <h3 className="font-semibold text-ui-text">A. Essential Cookies (Required)</h3>
-                    <p>These enable core gameplay:</p>
+                    <p>Everything we keep is needed for the game to work as you use it:</p>
                     <ul className="list-disc list-inside space-y-1">
-                        <li>Saving progress</li>
-                        <li>Keeping you logged in (for up to 90 days)</li>
-                        <li>Remembering that this device has logged in before, so we can invite you to log in again</li>
-                        <li>Security & performance</li>
+                        <li>Your progress: guesses, results, streaks and reviews (local storage)</li>
+                        <li>Keeping you logged in, for up to 90 days (cookies)</li>
+                        <li>Remembering that this device has logged in before, so we can invite you to log in again (cookie)</li>
+                        <li>Your settings, such as your reading preferences, and whether you&apos;ve seen the tutorial and tips (local storage)</li>
                     </ul>
-
-                    <h3 className="font-semibold text-ui-text mt-4">B. Functional Cookies (Optional)</h3>
-                    <p>Enhance the experience:</p>
-                    <ul className="list-disc list-inside space-y-1">
-                        <li>Remember settings</li>
-                        <li>Improve load times</li>
-                    </ul>
-
-                    <h3 className="font-semibold text-ui-text mt-4">C. Analytics Cookies (Optional)</h3>
                     <p>
-                        If enabled, we collect anonymous usage data to help improve the game.
+                        Because all of this is essential, there&apos;s nothing to accept or turn
+                        off. We don&apos;t use advertising or analytics cookies, and we don&apos;t
+                        track you across other sites.
                     </p>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
-                        3. Local Storage
+                        3. Error Monitoring
                     </h2>
                     <p>
-                        Local storage is used for streaks, guesses, map state, hint
-                        progression, and other gameplay features. It stays on your device.
+                        We use Sentry to find and fix errors. When something goes wrong, and
+                        for a small sample of page loads, it reports technical details such as
+                        your browser and what the page was doing. It sets no cookies and is
+                        configured not to send your user details.
                     </p>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
                         4. Third-Party Services
                     </h2>
-                    <p>We may use:</p>
                     <ul className="list-disc list-inside space-y-1">
                         <li>Hosting providers (AWS, Vercel)</li>
-                        <li>Optional analytics tools</li>
+                        <li>Error monitoring (Sentry)</li>
                     </ul>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
-                        5. Managing Your Preferences
+                        5. Clearing What We Keep
                     </h2>
+                    <p>
+                        You can clear cookies and site data in your browser&apos;s settings. This
+                        logs you out and, if you play without an account, removes your progress
+                        on this device.
+                    </p>
                     <ul className="list-disc list-inside space-y-1">
-                        <li>
-                            <strong>Accept</strong> — enables all cookies & enhances gameplay
-                        </li>
-                        <li>
-                            <strong>Reject</strong> — essential cookies only (reduced
-                            functionality)
-                        </li>
+                        <li>Chrome: Settings → Privacy and security → Third-party cookies / Site data</li>
+                        <li>Safari: Settings → Privacy → Manage Website Data</li>
+                        <li>Firefox: Settings → Privacy &amp; Security → Cookies and Site Data</li>
                     </ul>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
-                        6. Clearing Cookies
+                        6. Changes
                     </h2>
-                    <p>You can clear cookies via your browser settings:</p>
-                    <ul className="list-disc list-inside space-y-1">
-                        <li>Chrome: Settings → Privacy → Cookies</li>
-                        <li>Safari: Preferences → Privacy</li>
-                        <li>Firefox: Settings → Privacy & Security</li>
-                    </ul>
+                    <p>
+                        If we ever add anything optional, such as analytics, we&apos;ll update this
+                        policy and ask you first.
+                    </p>
 
                     <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
-                        7. Changes
-                    </h2>
-                    <p>This policy may be updated as the project evolves.</p>
-
-                    <h2 className="text-lg font-bold tracking-normal mt-6 mb-2 text-ui-text">
-                        8. Contact
+                        7. Contact
                     </h2>
                     <p>
                         Questions? Email{" "}

@@ -46,6 +46,7 @@ export async function resetPassword(state: ResetPasswordFormState, formData: For
             headers: {
                 "Content-Type": "application/json"
             },
+            cache: "no-store",
             body: JSON.stringify(body)
         })
 
@@ -55,9 +56,7 @@ export async function resetPassword(state: ResetPasswordFormState, formData: For
             const cookieStore = await cookies()
             cookieStore.delete('token')
         } else {
-            const result = await response.json()
-            console.error(`Error when resetting password: ${result.message}`)
-            state.errors.form.push(result.message || 'An error occurred. Please try again.')
+            state.errors.form.push(response.status === 400 ? 'This reset link is invalid or has expired. Please request a new one.' : 'An error occurred. Please try again later.')
             return state
         }
     } catch (error: any) {

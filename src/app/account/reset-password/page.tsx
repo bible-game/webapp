@@ -20,18 +20,23 @@ import { validateToken } from "@/core/action/auth/validate-token";
 function ResetPasswordContent() {
     const searchParams = useSearchParams()
     const token = searchParams.get("token") || ""
-    const [tokenValid, setTokenValid] = useState(false)
+    const [checkedToken, setCheckedToken] = useState<{ token: string; valid: boolean } | null>(null)
 
     useEffect(() => {
-        validateToken(token)
-            .then((result: boolean) => setTokenValid(result))
+        let current = true
+        if (token) validateToken(token).then(valid => { if (current) setCheckedToken({ token, valid }) })
+        return () => { current = false }
     }, [token])
 
     //@ts-ignore
     const [state, action, pending] = useActionState<ResetPasswordFormState, FormData>(resetPassword, undefined)
 
 
-    if (!token || !tokenValid) {
+    if (token && checkedToken?.token !== token) {
+        return <div role="status" className="text-center text-ui-text"><CircularProgress aria-label="Checking reset link" /><p>Checking link…</p></div>
+    }
+
+    if (!token || !checkedToken?.valid) {
         return (
             <div className="w-full max-w-md text-ui-text text-center">
                 <h1 className="text-2xl font-semibold">Invalid link</h1>
@@ -71,6 +76,7 @@ function ResetPasswordContent() {
                     label="New password"
                     variant="bordered"
                     name="password"
+                    autoComplete="new-password"
                     isRequired
                 />
 
@@ -80,6 +86,7 @@ function ResetPasswordContent() {
                     label="Confirm New password"
                     variant="bordered"
                     name="confirmPassword"
+                    autoComplete="new-password"
                     isRequired
                 />
 

@@ -8,8 +8,14 @@ const nextConfig = {
         SVC_BIBLE: process.env.NEXT_PUBLIC_SVC_BIBLE,
         SVC_PASSAGE: process.env.NEXT_PUBLIC_SVC_PASSAGE,
         SVC_USER: process.env.NEXT_PUBLIC_SVC_USER,
-        SIGNING_SECRET: process.env.NEXT_PUBLIC_SIGNING_SECRET,
         APP_VERSION: version
+    },
+    async headers() {
+        return [{ source: '/account/:path*', headers: [
+            { key: 'Referrer-Policy', value: 'no-referrer' },
+            { key: 'Cache-Control', value: 'no-store' },
+            { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ] }];
     },
     sassOptions: {
         includePaths: [path.join(__dirname, 'styles')],

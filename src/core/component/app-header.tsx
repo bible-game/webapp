@@ -9,9 +9,10 @@ import { ArrowRightIcon, BookOpenIcon, ChartColumnIcon, FlameIcon, LightbulbIcon
 import { SiDiscord, SiGithub } from "@icons-pack/react-simple-icons";
 import { logOut } from "@/core/action/auth/log-out";
 import LogoMark from "@/core/component/logo-mark";
-import getBible from "@/core/action/config/get-bible";
+import bible from "@/core/config/bible.json";
 import { CompletionUtil } from "@/core/util/completion-util";
 import { StorageUtil } from "@/core/util/storage-util";
+import { noticeGap } from "@/core/style/notice-dot";
 
 export type AppHeaderProps = {
     info?: { firstname: string; lastname: string };
@@ -28,7 +29,6 @@ const links = [
     { label: "Statistics", detail: "Track your scores over time", href: "/stats", prefix: "/stats", icon: ChartColumnIcon },
 ];
 const pages = [
-    { label: "About", href: "/about" },
     { label: "Privacy", href: "/about/privacy" },
     { label: "Cookies", href: "/about/cookies" },
 ];
@@ -131,9 +131,9 @@ function StarCount({ stars }: { stars?: number }) {
     </Link>;
 }
 
-// The Bible's structure, fetched once per visit: Bible seen needs it to know how many verses each chapter has
-let bibleConfig: Promise<any> | undefined;
-const loadBible = () => bibleConfig ??= getBible().catch(() => { bibleConfig = undefined; });
+// The Bible's structure, shipped with the app (core/config/bible.json): Bible seen needs it to know how many verses each
+// chapter has. Working it out is the costly part, so it's still done when the page is idle (below)
+const loadBible = async (): Promise<any> => bible;
 
 // The latest Bible seen, kept so the drawer opens with it in place rather than a placeholder
 let lastSeen: number | undefined;
@@ -188,7 +188,7 @@ export default function AppHeader({ info, children, aside }: AppHeaderProps) {
     const pathname = usePathname();
     const stars = useStars(true);
 
-    // Fetch the Bible's structure once the page is idle, so the drawer's Bible seen is ready the first time it opens
+    // Work out Bible seen once the page is idle, so the drawer has it ready the first time it opens
     useEffect(() => {
         if (!info) return;
         const idle = window.requestIdleCallback ?? ((callback: () => void) => window.setTimeout(callback, 1500));
@@ -202,8 +202,10 @@ export default function AppHeader({ info, children, aside }: AppHeaderProps) {
     // A visitor's menu carries the yellow "needs attention" dot, pointing to the drawer's log-in panel
     const menu = <Button isIconOnly disableRipple aria-label={info ? "Open menu" : "Open menu, log in to save your progress"} title="Open menu"
                          className={`relative ${iconButton}`} onPress={drawer.onOpen}>
-        <MenuIcon className="size-6"/>
-        {!info && <span aria-hidden="true" className="absolute right-2 top-2 size-2.5 rounded-full bg-ui-notice ring-2 ring-ui-bg"/>}
+        {/* the icon is cut away round the dot (noticeGap: it sits at 21, 3 in the icon's box), so the gap shows the button's
+            own fill, transparent or hovered */}
+        <MenuIcon className="size-6" style={info ? undefined : noticeGap(21, 3)}/>
+        {!info && <span aria-hidden="true" className="absolute right-2 top-2 size-2.5 rounded-full bg-ui-notice"/>}
     </Button>;
 
     return (
@@ -223,7 +225,9 @@ export default function AppHeader({ info, children, aside }: AppHeaderProps) {
                     classNames={{ base: "play-ui bg-ui-sheet text-ui-text" }}>
                 <DrawerContent>{onClose => <>
                     <DrawerHeader className="relative flex h-[72px] items-center justify-between px-2 pb-0 pt-[env(safe-area-inset-top)]">
-                        <Link href="/" aria-label="Bible Game home" onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-lg">
+                        {/* the logo is the way back to the landing, the introduction, which returning players otherwise skip
+                            (home-host.tsx): /explore shows it whoever they are */}
+                        <Link href="/explore" aria-label="Bible Game introduction" onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-lg">
                             <LogoMark size={28}/>
                         </Link>
                         <span className="absolute left-1/2 -translate-x-1/2 text-[18px] font-semibold leading-6">Bible Game</span>
@@ -279,7 +283,11 @@ export default function AppHeader({ info, children, aside }: AppHeaderProps) {
                                 </a>)}
                             </div>
                         </div>
-                        <p className="drawer-row -mt-3 font-mono text-[12px] text-ui-muted" style={rise(links.length + 2)}>v{process.env.APP_VERSION}</p>
+                        {/* what the game keeps, said beside the policies that explain it: all of it essential, so nothing to agree to */}
+                        <p className="drawer-row -mt-3 flex items-center justify-between gap-3 text-[12px] text-ui-muted" style={rise(links.length + 2)}>
+                            <span>Your progress is saved on this device</span>
+                            <span className="font-mono">v{process.env.APP_VERSION}</span>
+                        </p>
                     </DrawerFooter>
                 </>}</DrawerContent>
             </Drawer>

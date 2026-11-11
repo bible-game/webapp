@@ -587,19 +587,6 @@ input:-webkit-autofill,
 input:-webkit-autofill:focus
   transition: background-color 0s 600000s, color 0s 600000s !important
 
-// Fills the first screen; a bouncing cue at its foot invites a scroll to "How it works"
-.home-hero
-  position: relative
-  display: flex
-  min-height: max(520px, calc(100dvh - 56px - env(safe-area-inset-top)))
-  flex-direction: column
-  align-items: center
-  justify-content: center
-  gap: 40px
-  padding: 24px 16px calc(96px + env(safe-area-inset-bottom))
-  overflow: hidden
-  text-align: center
-
 // Menu drawer: neutral destinations; the current one is lit
 .drawer-row
   animation: drawer-rise 0.22s cubic-bezier(0.2, 0.7, 0.2, 1) both
@@ -678,139 +665,9 @@ input:-webkit-autofill:focus
   animation: hero-fade 1s ease-out 2s both, hero-bob 2.4s ease-in-out 3s infinite
   &:hover
     color: var(--ui-text)
-
-.home-more
-  scroll-margin-top: 16px
-  padding-top: 24px
-  animation: hero-fade 1s ease-out 1.6s both
-
-// How it works: zoom towards Revelation, tap chapter 12, zoom back out. The loop runs only while
-// the sketch is in view ([data-playing], set in how-it-works.tsx), so it always opens on the whole
-// map. The resting styles are the still frame shown under reduced motion: whole map, 12 found
-.mini-map
-  --mini-map-loop: 8s
-  --mini-map-ease: cubic-bezier(0.65, 0, 0.35, 1)
-
-.mini-map-zoom
-  transform-box: view-box
-  transform-origin: 0 0
-
-.mini-map-chapters
-  opacity: 0
-
-.mini-map-number
-  fill: #abaeff
-  fill-opacity: 0.85
-  font-family: var(--font-mono), ui-monospace, monospace
-  font-size: 2.8px
-  font-weight: 500
-  text-anchor: middle
-  dominant-baseline: central
-
-.mini-map-found-number
-  fill: var(--ui-bg)
-  fill-opacity: 1
-  opacity: 0
-
-.mini-map-found
-  filter: drop-shadow(0 0 4px rgba(171, 174, 255, 0.5))
-
-.mini-map-tap, .mini-map-ripple
-  opacity: 0
-  transform-box: fill-box
-  transform-origin: center
-
-@media (prefers-reduced-motion: no-preference)
-  .mini-map-found
-    opacity: 0
-
-.mini-map[data-playing]
-  .mini-map-zoom
-    animation: mini-map-zoom var(--mini-map-loop) var(--mini-map-ease) infinite
-  .mini-map-context
-    animation: mini-map-context var(--mini-map-loop) ease-in-out infinite
-  .mini-map-chapters, .mini-map-found-number
-    animation: mini-map-chapters var(--mini-map-loop) ease-in-out infinite
-  .mini-map-found
-    animation: mini-map-found var(--mini-map-loop) ease-out infinite
-  .mini-map-tap
-    animation: mini-map-tap var(--mini-map-loop) ease-out infinite
-  .mini-map-ripple
-    animation: mini-map-ripple var(--mini-map-loop) ease-out infinite
-
-// Frames the General letters and Revelation: x 200-300, y 88-132 at 3x
-// The real mini-map's finger: comes down on the chapter, presses and lifts (mini-map.tsx sets [data-on])
-.mini-map-touch
-  position: absolute
-  width: 22px
-  height: 22px
-  margin: -11px 0 0 -11px
-  border: 1.5px solid rgba(255, 255, 255, 0.9)
-  border-radius: 50%
-  background: rgba(255, 255, 255, 0.22)
-  opacity: 0
-  scale: 1.6
-  pointer-events: none
-  transition: opacity 0.18s, scale 0.18s ease-out
-  &[data-on]
-    opacity: 1
-    scale: 1
-
-@keyframes mini-map-zoom
-  0%, 10%, 84%, 100%
-    transform: none
-  30%, 66%
-    transform: translate(-600px, -264px) scale(3)
-
-// Everything but Revelation steps back while zoomed in
-@keyframes mini-map-context
-  0%, 14%, 80%, 100%
-    opacity: 1
-  30%, 66%
-    opacity: 0.35
-
-@keyframes mini-map-chapters
-  0%, 22%, 74%, 100%
-    opacity: 0
-  30%, 66%
-    opacity: 1
-
-// The finger comes down, presses and lifts
-@keyframes mini-map-tap
-  0%, 30%
-    opacity: 0
-    scale: 1.6
-  34%
-    opacity: 1
-    scale: 1
-  37%
-    opacity: 1
-    scale: 0.8
-  40%
-    opacity: 0.8
-    scale: 1
-  45%, 100%
-    opacity: 0
-    scale: 1.1
-
-@keyframes mini-map-ripple
-  0%, 36.9%
-    opacity: 0
-    scale: 1
-  37%
-    opacity: 0.8
-    scale: 1
-  52%, 100%
-    opacity: 0
-    scale: 2.6
-
-@keyframes mini-map-found
-  0%, 36.9%
-    opacity: 0
-  39%, 95%
-    opacity: 1
-  100%
-    opacity: 0
+// on the purpose screen it comes in as soon as it's mounted (once the fourth step has landed), not after the hero's wait
+.home-hero-cue.home-hero-cue-soon
+  animation: hero-fade 0.5s ease-out both, hero-bob 2.4s ease-in-out 0.5s infinite
 
 .glowing-cross
   position: relative
@@ -874,3 +731,17 @@ input:-webkit-autofill:focus
 // Gridmap's hover label, left empty (gridmap.tsx); only a ruled-out chapter's explanation fills it
 .gridmap-tooltip:empty
   display: none
+
+// The map's chapter reader (Gridmap installChapterReader): its loading skeleton pulses gently, still for reduced motion
+@keyframes chapter-loading-pulse
+  0%, 100%
+    opacity: .45
+  50%
+    opacity: 1
+
+[data-chapter-id][aria-busy="true"] [data-chapter-skeleton]
+  animation: chapter-loading-pulse 1.8s ease-in-out infinite
+
+@media (prefers-reduced-motion: reduce)
+  [data-chapter-id][aria-busy="true"] [data-chapter-skeleton]
+    animation: none
