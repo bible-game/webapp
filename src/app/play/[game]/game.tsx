@@ -78,8 +78,6 @@ export default function Game(props: any) {
     const [stars, setStars] = useState(0);
     const [state, setState] = useState({} as any);
     const [confetti, setConfetti] = useState(false);
-    // the guess just made here (book and chapter), for its tile's warmer moment; never one loaded with the page
-    const [latest, setLatest] = useState<string | null>(null);
     // the guesses, each coloured by how much of the answer's place it shares (closeness.ts)
     const levelled = useMemo(() => withLevels(props.bible, guesses, passage?.book), [props.bible, guesses, passage?.book]);
     const narrativeHidden = true;
@@ -195,7 +193,6 @@ export default function Game(props: any) {
         ];
 
         setGuesses(updatedGuesses);
-        setLatest(newGuess.book + newGuess.chapter);
 
         if (selected.book == passage.book) {
             setBook(passage.book);
@@ -307,7 +304,7 @@ export default function Game(props: any) {
                     {/* a room for the clue and the guesses: on the landing it gives its height to the map, and opens again on
                         Play (tutorial.sass, home/landing.sass) */}
                     <div data-play-part="summary-room"><div data-room>
-                        <Summary passage={passage} playing={playing} guesses={levelled} latest={latest}/>
+                        <Summary passage={passage} playing={playing} guesses={levelled}/>
                     </div></div>
                 </div>
 

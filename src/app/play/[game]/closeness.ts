@@ -14,9 +14,6 @@ export type Band = { fill: string, edge: string, text: string, glow?: string };
 /** What a guess shares with the answer, narrowest first: the chapter itself, its book, division or testament, or nothing */
 export type Level = "found" | "book" | "division" | "testament" | "none";
 
-/** Levels from nothing shared to found, so a later index is a deeper one */
-export const DEPTH: Level[] = ["none", "testament", "division", "book", "found"];
-
 const tint = (hex: string): Band => litGlass(hex);
 
 // the status colours, not the map's region hues, so a guess never reads as a place
@@ -66,11 +63,6 @@ export function withLevels(bible: any, guesses: any[], answerBook?: string): any
 
 /** A guess's level: as worked out by withLevels, else only whether it was found */
 const level = (guess: any): Level => guess?.level ?? (distanceOf(guess) === 0 ? "found" : "none");
-
-/** The deepest level any of the guesses reached */
-export function deepestOf(guesses: any[]): Level {
-    return guesses.reduce((deepest: Level, guess) => DEPTH.indexOf(level(guess)) > DEPTH.indexOf(deepest) ? level(guess) : deepest, "none");
-}
 
 export function bandOf(guess: any): Band {
     return BANDS[level(guess)];
