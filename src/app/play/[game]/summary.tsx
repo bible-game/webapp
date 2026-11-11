@@ -3,7 +3,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDownIcon } from "lucide-react";
 import { Guesses } from "@/app/play/[game]/guess";
-import { distanceOf } from "@/app/play/[game]/closeness";
 
 const text = "font-mono text-[18px] font-normal leading-[1.45] tracking-normal text-play-text text-center text-balance";
 
@@ -21,7 +20,6 @@ const Summary = (props: any) => {
     const [size, setSize] = useState(SIZES[0]);
     const clue = useRef<HTMLParagraphElement>(null);
     const guesses: any[] = props.guesses || [];
-    const won = guesses.some((guess) => distanceOf(guess) === 0);
 
     // collapse when a new guess lands, so the latest result shows in the row
     useEffect(() => setExpanded(false), [guesses.length, props.playing]);
@@ -81,7 +79,7 @@ const Summary = (props: any) => {
                 {clipped ? <ChevronDownIcon className="-mb-1 size-4 text-play-faint" aria-hidden="true"/> : null}
             </button>
 
-            <Guesses guesses={guesses} answer={!props.playing && !won ? props.passage : undefined}/>
+            <Guesses guesses={guesses} passage={props.passage} playing={props.playing} latest={props.latest}/>
 
             {expanded ?
                 <button type="button" aria-label="Close summary" onClick={() => setExpanded(false)}

@@ -14,7 +14,7 @@ import { redirect } from "next/navigation";
 import { StateUtil } from "@/core/util/state-util";
 import { GameState } from "@/core/model/state/game-state";
 import { ruledOut } from "@/app/play/[game]/ruled-out";
-import { distanceOf } from "@/app/play/[game]/closeness";
+import { distanceOf, withLevels } from "@/app/play/[game]/closeness";
 import { MotionConfig, useReducedMotion } from "framer-motion";
 import { getGameState } from "@/core/action/state/get-state-game";
 
@@ -78,6 +78,10 @@ export default function Game(props: any) {
     const [stars, setStars] = useState(0);
     const [state, setState] = useState({} as any);
     const [confetti, setConfetti] = useState(false);
+    // the guess just made here (book and chapter), for its tile's warmer moment; never one loaded with the page
+    const [latest, setLatest] = useState<string | null>(null);
+    // the guesses, each coloured by how much of the answer's place it shares (closeness.ts)
+    const levelled = useMemo(() => withLevels(props.bible, guesses, passage?.book), [props.bible, guesses, passage?.book]);
     const narrativeHidden = true;
     // the guesses that missed, by cell, for the map to mark where they were made
     const missed = useMemo(() => landing ? [] : guesses.filter(guess => distanceOf(guess) !== 0).map(guess => `${guess.bookKey}/${guess.chapter}`), [guesses, landing]);
@@ -191,6 +195,7 @@ export default function Game(props: any) {
         ];
 
         setGuesses(updatedGuesses);
+        setLatest(newGuess.book + newGuess.chapter);
 
         if (selected.book == passage.book) {
             setBook(passage.book);
@@ -302,7 +307,7 @@ export default function Game(props: any) {
                     {/* a room for the clue and the guesses: on the landing it gives its height to the map, and opens again on
                         Play (tutorial.sass, home/landing.sass) */}
                     <div data-play-part="summary-room"><div data-room>
-                        <Summary passage={passage} playing={playing} guesses={guesses}/>
+                        <Summary passage={passage} playing={playing} guesses={levelled} latest={latest}/>
                     </div></div>
                 </div>
 
@@ -323,7 +328,7 @@ export default function Game(props: any) {
                             date={props.game} addGuess={addGuess} selected={selected} hasBook={hasBook}
                             step={step} canStep={(delta: number) => nextChapter(delta) !== null}
                             ruledOut={hasBook ? excluded.get(cellOf(chapter)) : undefined}
-                            bible={props.bible} chapter={chapter} guesses={guesses} info={props.info} known={props.known}/>
+                            bible={props.bible} chapter={chapter} guesses={levelled} info={props.info} known={props.known}/>
                 </div></section>
                 <Confetti fire={confetti && !reducedMotion}/>
             </div>

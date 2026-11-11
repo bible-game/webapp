@@ -299,13 +299,22 @@ ${calcGuessBlocks(won)}
     const [unscored, setUnscored] = useState(false);
     useEffect(() => setUnscored(false), [props.selected.book, props.chapter]);
 
+    // The chapters this round has sent, kept outside render: a second tap that lands before the page has redrawn (a
+    // double tap on a slow phone) still sees the first, where the guesses passed in would not yet have it
+    const sent = useRef(new Set<string>());
+
     function submit() {
         if (unscored) return;
-        navigator.vibrate?.(12);
         const { book, chapter } = props.selected;
+        // a chapter can only be guessed once: never add or send the same guess twice
+        const key = `${props.passage.id}/${book}/${chapter}`;
+        // (the tutorial's round, which can be played again and is never sent, only needs the page's own check)
+        if ((!props.demo && sent.current.has(key)) || props.isExistingGuess()) return;
+        navigator.vibrate?.(12);
         const closeness = score(props.bible, props.passage, { book, chapter });
 
         if (closeness) {
+            if (!props.demo) sent.current.add(key);
             const scored = { book, chapter, ...closeness, closeness, passageBook: props.passage.book, passageChapter: props.passage.chapter };
             props.addGuess(scored);
             // a round shown rather than played (the tutorial's) is never sent

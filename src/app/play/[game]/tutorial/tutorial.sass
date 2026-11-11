@@ -83,8 +83,9 @@ $header-lift: -46px
       display: none
     [data-crumbs-line]
       display: flex
-// the round's note is placed by the row's position, which moves as the clue goes, so it waits for the page to open
-body:has([data-condensed]) [data-round-note]
+// the round's note is placed by the line's position, which moves as the page condenses or opens: it steps aside while
+// the line moves, and comes back where it has settled (round-tips.tsx)
+[data-round-note][data-moving]
   visibility: hidden
 
 // while it runs the page only shows, it isn't played; the header gives its place to the progress and Skip, the clue to

@@ -3,31 +3,31 @@
 import React from "react";
 import { Popover, PopoverContent, type PopoverProps, PopoverTrigger } from "@heroui/react";
 import { ArrowLeftIcon, ArrowRightIcon, PartyPopperIcon } from "lucide-react";
-import { Band, bandOf, CLOSE, distanceOf, FAR, FOUND, NEAR } from "@/app/play/[game]/closeness";
+import { bandOf, distanceOf, Level } from "@/app/play/[game]/closeness";
 import { compact, Direction, formatPassage } from "@/app/play/[game]/guess";
 import { exampleGuesses } from "@/app/play/[game]/example";
 
 /** Asks for the first-visit tutorial to play again, from How to play */
 export const TUTORIAL_EVENT = "bible-game:tutorial";
 
-const meanings = new Map<Band, string>([
-    [CLOSE, "Within 500 verses"],
-    [NEAR, "Within 2,000 verses"],
-    [FAR, "Further away"],
-    [FOUND, "Found it"],
-]);
+const meanings: Record<Level, string> = {
+    none: "Wrong testament",
+    testament: "Right testament",
+    division: "Right division",
+    book: "Right book",
+    found: "Found it",
+};
 
-// The worked example from How it works, in the order it was played: far, nearer, close, found.
-// Band, arrow and distance come from the game's own rules
+// The worked example, in the order it was played: one guess of each colour, closing in. Colour, arrow and distance
+// come from the game's own rules
 const examples = exampleGuesses.map(guess => {
     const distance = distanceOf(guess);
-    const band = bandOf(guess);
     return {
-        band,
+        band: bandOf(guess),
         passage: formatPassage(guess.book, guess.chapter),
         later: distance < 0,
         distance: distance ? compact.format(Math.abs(distance)) : undefined,
-        meaning: meanings.get(band)!,
+        meaning: meanings[guess.level as Level],
     };
 });
 
@@ -54,12 +54,12 @@ const Help = ({ children, placement = "top-start" }: { children: React.ReactElem
                 </div>
                 <p>Each day, one chapter of the Bible is chosen and summarised. Can you find it?</p>
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
-                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. Red is far, yellow is nearer, green is close:</p>
+                <p className="text-play-muted">Each guess is coloured by how close it is, and shows how many verses away the answer is, and in which direction:</p>
                 <ul className="grid gap-2">
                     {examples.map(({ band, passage, later, distance, meaning }) => (
                         <li key={passage} className="flex items-center gap-3">
                             <span className="flex h-9 w-[4.5rem] shrink-0 flex-col items-center justify-center rounded-lg border font-mono text-[12px] font-medium leading-[1.15] tabular-nums"
-                                  style={{ background: band.fill, borderColor: band.edge, color: band.text }}>
+                                  style={{ background: band.fill, borderColor: band.edge, color: band.text, boxShadow: band.glow }}>
                                 {passage}
                                 {distance ?
                                     <Direction later={later} distance={distance} className="size-3"/> :
