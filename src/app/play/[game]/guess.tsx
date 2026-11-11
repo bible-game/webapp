@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ArrowLeftIcon, ArrowRightIcon, PartyPopperIcon } from "lucide-react";
-import { ANSWER, Band, bandOf, distanceOf } from "@/app/play/[game]/closeness";
+import { ANSWER, Band, bandOf, deepestOf, DEPTH, distanceOf } from "@/app/play/[game]/closeness";
 
 export const compact = Intl.NumberFormat("en", { notation: "compact" });
 
@@ -15,6 +15,8 @@ export function formatPassage(book: any, chapter: any): string {
 export const SLOTS = 5; // guesses per game
 const GAP = 6; // px between tiles
 
+const key = (guess: any) => `${guess.book}${guess.chapter}`;
+
 /**
  * Text scales with the tile's width (a share of the row, via container units) so every tile keeps its passage and
  * distance, stacked; each tile needs roughly 5.2em of width, e.g. "PSA 119" plus padding.
@@ -23,12 +25,20 @@ function fontSize(count: number): string {
     return `min(12px, calc((100cqw - ${(count - 1) * GAP}px) / ${count} / 5.2))`;
 }
 
-const Tile = ({ band, count, children }: { band: Band, count: number, children: React.ReactNode }) => (
+/** A ring that swells out from a tile and fades: the "warmer" moment */
+const Pulse = ({ colour }: { colour: string }) => (
+    <motion.span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-lg border-2" style={{ borderColor: colour }}
+                 initial={{ opacity: 0.9, scale: 1 }} animate={{ opacity: 0, scale: 1.3 }}
+                 transition={{ duration: 0.9, ease: "easeOut", repeat: 1, repeatDelay: 0.1 }}/>
+);
+
+const Tile = ({ band, count, pulse, children }: { band: Band, count: number, pulse?: boolean, children: React.ReactNode }) => (
     <motion.li initial={{ opacity: 0, y: 6, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }}
                transition={{ type: "spring", stiffness: 420, damping: 28 }}
-               className="flex h-9 min-w-0 flex-1 flex-col items-center justify-center overflow-hidden whitespace-nowrap rounded-lg border px-[0.4em] font-mono font-medium leading-[1.15] tabular-nums"
+               className="relative flex h-9 min-w-0 flex-1 flex-col items-center justify-center whitespace-nowrap rounded-lg border px-[0.4em] font-mono font-medium leading-[1.15] tabular-nums"
                style={{ background: band.fill, borderColor: band.edge, color: band.text, boxShadow: band.glow, fontSize: fontSize(count) }}>
         {children}
+        {pulse ? <Pulse colour={band.edge}/> : null}
     </motion.li>
 );
 
@@ -52,13 +62,15 @@ export const Direction = ({ later, distance, className }: { later: boolean, dist
 );
 
 /**
- * Guess Tile: passage, direction and distance, lit by how close it was (the found chapter takes its region colour)
+ * Guess Tile: passage, direction and distance, coloured by how much of the answer's place the guess shares
+ * (closeness.ts). A guess that reaches a narrower place than any before it (the right testament, division or book)
+ * pulses as it lands: the "warmer" moment
  */
-const Guess = ({ guess, count }: { guess: any, count: number }) => {
+const Guess = ({ guess, count, pulse }: { guess: any, count: number, pulse?: boolean }) => {
     const distance = distanceOf(guess);
 
     return (
-        <Tile band={bandOf(guess)} count={count}>
+        <Tile band={bandOf(guess)} count={count} pulse={pulse}>
             <span>{formatPassage(guess.bookKey || guess.book, guess.chapter)}</span>
             {distance === 0 ?
                 <PartyPopperIcon className="size-[1.2em] shrink-0" aria-label="Found"/> :
@@ -70,14 +82,24 @@ const Guess = ({ guess, count }: { guess: any, count: number }) => {
     );
 }
 
-/** Every guess in order, an empty slot for each one left, and the missed answer when the game was lost */
-export const Guesses = ({ guesses, answer }: { guesses: any[], answer?: any }) => {
+/**
+ * Every guess in the order it was made, an empty slot for each one left, and the missed answer when the game was lost.
+ * `latest` is the guess just made here (never one loaded with the page), for its pulse
+ */
+export const Guesses = ({ guesses, passage, playing, latest }: { guesses: any[], passage?: any, playing?: boolean, latest?: string | null }) => {
+    const won = guesses.some((guess) => distanceOf(guess) === 0);
+    const answer = playing === false && !won ? passage : undefined;
     const filled = guesses.length + (answer ? 1 : 0);
     const count = Math.max(SLOTS, filled);
 
+    // the warmer moment: the guess just made, when it finds a narrower place than every guess before it
+    const fresh = latest ? guesses.find((guess) => key(guess) === latest) : undefined;
+    const before = deepestOf(guesses.filter((guess) => guess !== fresh));
+    const deeper = !!fresh && DEPTH.indexOf(deepestOf([fresh])) > DEPTH.indexOf(before) && distanceOf(fresh) !== 0;
+
     return (
         <ol aria-label="Guesses" data-play-part="guesses" className="flex w-full px-4 [container-type:inline-size]" style={{ gap: GAP }}>
-            {guesses.map((guess) => <Guess key={guess.book + guess.chapter} guess={guess} count={count}/>)}
+            {guesses.map((guess) => <Guess key={key(guess)} guess={guess} count={count} pulse={deeper && guess === fresh}/>)}
             {answer ?
                 <Tile band={ANSWER} count={count}>
                     <span className="text-[0.85em] font-medium uppercase tracking-wide opacity-70">Answer</span>
