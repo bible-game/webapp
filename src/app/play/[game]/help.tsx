@@ -3,22 +3,23 @@
 import React from "react";
 import { Popover, PopoverContent, type PopoverProps, PopoverTrigger } from "@heroui/react";
 import { ArrowLeftIcon, ArrowRightIcon, PartyPopperIcon } from "lucide-react";
-import { bandOf, distanceOf, Level } from "@/app/play/[game]/closeness";
+import { Band, bandOf, CLOSE, DISTANT, distanceOf, FAR, FOUND, NEAR, WITHIN } from "@/app/play/[game]/closeness";
 import { compact, Direction, formatPassage } from "@/app/play/[game]/guess";
 import { exampleGuesses } from "@/app/play/[game]/example";
 
 /** Asks for the first-visit tutorial to play again, from How to play */
 export const TUTORIAL_EVENT = "bible-game:tutorial";
 
-const meanings: Record<Level, string> = {
-    none: "Wrong testament",
-    testament: "Right testament",
-    division: "Right division",
-    book: "Right book",
-    found: "Found it",
-};
+const within = (verses: number) => `Within ${verses.toLocaleString("en")} verses`;
+const meanings = new Map<Band, string>([
+    [CLOSE, within(WITHIN.close)],
+    [NEAR, within(WITHIN.near)],
+    [FAR, within(WITHIN.far)],
+    [DISTANT, "Further away"],
+    [FOUND, "Found it"],
+]);
 
-// The worked example, in the order it was played: one guess of each colour, closing in. Colour, arrow and distance
+// The worked example, in the order it was played: one guess of each colour, closing in (red, amber, yellow, green, found). Colour, arrow and distance
 // come from the game's own rules
 const examples = exampleGuesses.map(guess => {
     const distance = distanceOf(guess);
@@ -27,7 +28,7 @@ const examples = exampleGuesses.map(guess => {
         passage: formatPassage(guess.book, guess.chapter),
         later: distance < 0,
         distance: distance ? compact.format(Math.abs(distance)) : undefined,
-        meaning: meanings[guess.level as Level],
+        meaning: meanings.get(bandOf(guess))!,
     };
 });
 
@@ -54,7 +55,7 @@ const Help = ({ children, placement = "top-start" }: { children: React.ReactElem
                 </div>
                 <p>Each day, one chapter of the Bible is chosen and summarised. Can you find it?</p>
                 <p>Tap the map to pick a chapter, then guess. You have five guesses.</p>
-                <p className="text-play-muted">Each guess is coloured by how close it is, and shows how many verses away the answer is, and in which direction:</p>
+                <p className="text-play-muted">Each guess shows how many verses away the answer is, and in which direction. Its colour says how close that is:</p>
                 <ul className="grid gap-2">
                     {examples.map(({ band, passage, later, distance, meaning }) => (
                         <li key={passage} className="flex items-center gap-3">

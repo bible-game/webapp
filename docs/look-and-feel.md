@@ -1,6 +1,6 @@
 # Bible Game Look and Feel
 
-Status: agreed direction, 12 October 2026; superseded where they differ by 1.2 "Atmosphere" (22-23 October 2026: the Figma Style Guide 1.2.0, summarised at the end of ui-design-alignment.md). This is the **target** theme. `ui-design-alignment.md` records what is already implemented in code; where the two differ, this document is where the code is heading. The Figma file (Style Guide page, components `1.1.0+`, hi-fi wireframes) is built from it.
+Status: agreed direction, 12 October 2026; superseded where they differ by 1.2 "Atmosphere" (22-23 October 2026: the Figma Style Guide 1.2.0, summarised at the end of ui-design-alignment.md). This is the **target** theme. `ui-design-alignment.md` records what is already implemented in code; where the two differ, this document is where the code is heading. The Figma file (Style Guide 1.2.0, the Components page's `Library 1.2.0`, lo-fi and hi-fi wireframes; synced with the 1.2.0 release on 11 November 2026) is built from it.
 
 ## The theme: wayfinding
 
@@ -20,7 +20,7 @@ Bible Game is a map, and the interface is the equipment you use to read it. The 
 
 | Question | Decision |
 | --- | --- |
-| Closeness | A traffic light in the status colours: `ui/success` (Close), `ui/warning` (Near), `ui/error` (Far). The found chapter is a solid `ui/success`. Decided 13 October 2026, after the brightness-only version was tried and dropped: the steps were too subtle to read. This is the one place colour does not mean region. |
+| Closeness | Colour says how much of the answer's place a guess shares, in the status colours: `ui/success` (right book), `ui/warning` (right division), `ui/orange` (right testament), `ui/error` (wrong testament). The found chapter is a solid green. The tile also gives the distance in verses and its direction. By place since 11 November 2026 (`closeness.ts`); before that the bands were verse distance (13 October 2026). This is the one place colour does not mean region. |
 | Primary action | Takes the region colour when the screen has a book (Select on Play, Mark as read on Read). Otherwise it is a high-contrast white fill. |
 | Home tagline | Interface sans. No serif anywhere in the default UI (decided 22 October 2026). |
 | Shape | One small radius, 8px, on every rectangular control, panel and chip. Sheets use 16px. Circles only for avatars, dots and calendar days. No pills. |
@@ -39,20 +39,21 @@ Bible Game is a map, and the interface is the equipment you use to read it. The 
 | Regions | `play/teal`, `play/purple`, `play/rose`, `play/green`, `play/gold` | The book's division. Never decorative. |
 | Light | `light/1`, `light/2`, `light/3` | `ui/text` at 8%, 18% and 34%. The brightness steps for hover, selected and current states, and quiz answers. |
 | Utility | `ui/help`, `ui/notice` (alias of `ui/warning`), `ui/accent` (stars) | Help, not-logged-in notice, star reward. |
-| Status | `ui/success`, `ui/warning`, `ui/error` | Named separately from the region hues so they can diverge, but currently the same sage green, gold and rose as the map (the original traffic light, kept after a brighter set was tried and rejected as ugly). Success is Close guesses, the found chapter and "logged in"; warning is Near guesses; error is Far guesses and form errors. `ui/orange` is the streak flame and the fourth dot step. |
+| Status | `ui/success`, `ui/warning`, `ui/error` | Named separately from the region hues so they can diverge, but currently the same sage green, gold and rose as the map (the original traffic light, kept after a brighter set was tried and rejected as ugly). Success is close guesses, the found chapter and "logged in"; warning is near guesses; error is distant guesses and form errors. `ui/orange` is the streak flame and far guesses. |
 
 ### Closeness slots
 
 | State | Fill | Text | Edge |
 | --- | --- | --- | --- |
 | Empty | none | n/a | dashed `ui/line` |
-| Far | `closeness/far-fill` (`ui/error` at 14%) | `ui/error` | `closeness/far-edge` (45%) |
-| Near | `closeness/near-fill` (`ui/warning` at 14%) | `ui/warning` | `closeness/near-edge` (45%) |
-| Close | `closeness/close-fill` (`ui/success` at 14%) | `ui/success` | `closeness/close-edge` (45%) |
-| Found | solid `ui/success` | `ui/bg` | `ui/success` |
+| Distant (over 8,000 verses) | `closeness/distant-fill` (`ui/error` at 12%) | `ui/error` | `closeness/distant-edge` (50%) |
+| Far (within 8,000) | `closeness/far-fill` (`ui/orange` at 12%) | `ui/orange` | `closeness/far-edge` (50%) |
+| Near (within 3,000) | `closeness/near-fill` (`ui/warning` at 12%) | `ui/warning` | `closeness/near-edge` (50%) |
+| Close (within 500) | `closeness/close-fill` (`ui/success` at 12%) | `ui/success` | `closeness/close-edge` (50%) |
+| Found | solid green (`region/green-solid`), soft glow | `ui/bg` | `region/green-solid` |
 | Answer (lost game) | `light/1` | `ui/text` | `ui/text` |
 
-Distance bands: up to 500 verses is Close, up to 2,000 is Near, beyond is Far. The guess counter's dots add a fourth step (`ui/orange`, up to 5,000 verses), in step with the share text's squares.
+The bands are by distance in verses (`closeness.ts`, 13 November 2026), at roughly the sizes of the Bible's own parts: within 500 (about a book; the mean is 476), within 3,000 (about a division; the mean is 3,142), within 8,000 (about the New Testament; 7,956), or further. Where the answer can be (its testament, division, book) the map shows, by what it greys out. A place-based rule (right book, division, testament) was trialled on 11–13 November and dropped: it repeated what the map already shows. Each tile also shows the distance in verses and its direction, read like a page: "4K →" when the answer is later, "← 28K" when earlier. The guess counter's dots and the share text's squares (🟩 🟨 🟧 🟥) take the same four colours from the same rule. Figma: `Guess Slot 1.2.0`, Band = Empty, Distant, Far, Near, Close, Found, Answer.
 
 ## Typography
 
@@ -98,7 +99,7 @@ The lit map. The rest of the interface stays disciplined so the map, and the emb
 ## Implementation notes (for the code pass)
 
 - `ui-theme.ts`: add the light levels, `help` and `notice`; stop using `accent` for anything but stars.
-- `closeness.ts`: tinted traffic-light bands, plus a solid green for the found chapter.
+- `closeness.ts`: tinted traffic-light bands, plus a solid green for the found chapter (by place since 11 November 2026: see Closeness slots).
 - `layout.tsx` and `globals.sass`: swap the fonts; reduce radii to 8 and 16; remove pills.
 - Headings: page titles and the Home tagline are in the sans (and, since 22 October 2026, so is everything else).
 - Statistics: keep the current layout (figures, leaderboard, per-book completion). Restyle the per-book bars as rows of coverage cells in the book's region colour, as in the Figma wireframe.
