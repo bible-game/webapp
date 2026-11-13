@@ -1,6 +1,6 @@
 {
   "name": "webapp",
-  "version": "1.2.2-SNAPSHOT",
+  "version": "1.2.2",
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "node scripts/check-bible.mjs",
