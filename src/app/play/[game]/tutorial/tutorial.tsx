@@ -20,7 +20,7 @@ const STEPS: Step[] = [
 const YOUR_TURN = "Now it’s your turn!";
 
 /**
- * The guesses made for the visitor to watch, narrowing in as a round does: one in the right testament but far off (amber,
+ * The guesses made for the visitor to watch, narrowing in as a round does: one in the right testament but far off (red,
  * and the New Testament greys out), one in the right division (yellow, and the map closes in on Wisdom), one in the
  * right book (green, and the map closes in on Psalms), then the answer itself (found: the round ends, with its stars,
  * and the map eases back out to show the answer on the whole map, where Play would jump). Each: the map glides in where
